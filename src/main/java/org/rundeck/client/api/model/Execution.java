@@ -31,7 +31,10 @@ public class Execution {
 
 
     public String toBasicString() {
-        return String.format("[%s] %s <%s>", id, description, permalink);
+        if(null!=description) {
+            return String.format("[%s] %s <%s>", id, description, permalink);
+        }
+        return String.format("[%s] <%s>", id, permalink);
     }
 
     public String toStatusString() {

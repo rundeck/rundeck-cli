@@ -13,6 +13,5 @@ public interface ProjectOptions extends BaseOptions {
     @Option(shortName = "p")
     String getProject();
 
-    boolean isProject();
 
 }

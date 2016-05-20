@@ -7,7 +7,7 @@ import java.io.File;
 /**
  * Created by greg on 5/20/16.
  */
-public interface JobBaseOptions extends BaseOptions {
+public interface JobBaseOptions extends ProjectOptions {
 
     @Option(shortName = "f")
     File getFile();
@@ -17,6 +17,4 @@ public interface JobBaseOptions extends BaseOptions {
     @Option(shortName = "F", longName = "format", defaultValue = "xml", pattern = "^(xml|yaml)$")
     String getFormat();
 
-    @Option(shortName = "p")
-    String getProject();
 }

@@ -16,16 +16,15 @@ import java.util.List;
 public class App {
     public static void main(String[] args) throws IOException {
         if (args[0].equals("jobs")) {
-            String[] newargs = tail(args);
-            Jobs.main(newargs);
+            Jobs.main(tail(args));
         } else if (args[0].equals("projects")) {
-            String[] newargs = tail(args);
-            Projects.main(newargs);
+            Projects.main(tail(args));
         } else if (args[0].equals("executions")) {
-            String[] newargs = tail(args);
-            Executions.main(newargs);
+            Executions.main(tail(args));
+        } else if (args[0].equals("adhoc")) {
+            Adhoc.main(tail(args));
         } else {
-
+            throw new IllegalArgumentException("Unknown command: " + args[0]);
         }
     }
 

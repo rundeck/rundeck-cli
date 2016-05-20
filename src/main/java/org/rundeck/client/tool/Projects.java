@@ -20,14 +20,14 @@ public class Projects {
     public static void main(String[] args) throws IOException {
         String baseUrl = App.requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
         String token = App.requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG")!=null);
+        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
         if ("list".equals(args[0])) {
             list(App.tail(args), client);
         } else if ("create".equals(args[0])) {
             create(App.tail(args), client);
         } else if ("delete".equals(args[0])) {
             delete(App.tail(args), client);
-        }else{
+        } else {
             throw new IllegalArgumentException(String.format("Unrecognized action: %s", args[0]));
         }
 
@@ -46,9 +46,6 @@ public class Projects {
 
     private static void delete(final String[] args, final RundeckApi client) throws IOException {
         ProjectOptions projectOptions = CliFactory.parseArguments(ProjectOptions.class, args);
-        if (!projectOptions.isProject()) {
-            throw new IllegalArgumentException("-p is required");
-        }
 
         Void body = App.checkError(client.deleteProject(projectOptions.getProject()));
         System.out.printf("Project was deleted: %s%n", projectOptions.getProject());
@@ -56,9 +53,6 @@ public class Projects {
 
     private static void create(final String[] args, final RundeckApi client) throws IOException {
         ProjectCreateOptions createOptions = CliFactory.parseArguments(ProjectCreateOptions.class, args);
-        if (!createOptions.isProject()) {
-            throw new IllegalArgumentException("-p is required");
-        }
         Map<String, String> config = new HashMap<>();
         if (createOptions.config().size() > 0) {
             for (String s : createOptions.config()) {

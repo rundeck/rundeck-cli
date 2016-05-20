@@ -109,4 +109,51 @@ public interface RundeckApi {
     );
 
 
+    @Headers("Accept: application/json")
+    @POST("project/{project}/run/command")
+    Call<Execution> runCommand(
+            @Path("project") String project,
+            @Query("exec") String command,
+            @Query("filter") String filter
+    );
+
+    @Headers("Accept: application/json")
+    @POST("project/{project}/run/command")
+    Call<AdhocResponse> runCommand(
+            @Path("project") String project,
+            @Query("exec") String command,
+            @Query("nodeThreadcount") int threadcount,
+            @Query("nodeKeepgoing") boolean keepgoing,
+            @Query("filter") String filter
+    );
+
+
+    @Multipart
+    @Headers("Accept: application/json")
+    @POST("project/{project}/run/script")
+    Call<Execution> runScript(
+            @Path("project") String project,
+            @Part("scriptFile") RequestBody scriptFile,
+            @Query("argString") String argString,
+            @Query("scriptInterpreter") String scriptInterpreter,
+            @Query("interpreterArgsQuoted") boolean interpreterArgsQuoted,
+            @Query("fileExtension") String fileExtension,
+            @Query("filter") String filter
+    );
+
+    @Multipart
+    @Headers("Accept: application/json")
+    @POST("project/{project}/run/script")
+    Call<Execution> runScript(
+            @Path("project") String project,
+            @Part("scriptFile") RequestBody scriptFile,
+            @Query("nodeThreadcount") int threadcount,
+            @Query("nodeKeepgoing") boolean keepgoing,
+            @Query("argString") String argString,
+            @Query("scriptInterpreter") String scriptInterpreter,
+            @Query("interpreterArgsQuoted") boolean interpreterArgsQuoted,
+            @Query("fileExtension") String fileExtension,
+            @Query("filter") String filter
+    );
+
 }
