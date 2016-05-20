@@ -19,10 +19,11 @@ public class Rundeck {
      * @param baseUrl
      * @param token
      *
+     * @param debugHttp
      * @return
      */
-    public static RundeckApi client(String baseUrl, final String token) {
-        return client(baseUrl, API_VERS, token);
+    public static RundeckApi client(String baseUrl, final String token, final boolean debugHttp) {
+        return client(baseUrl, API_VERS, token, debugHttp);
     }
 
     /**
@@ -31,28 +32,36 @@ public class Rundeck {
      * @param baseUrl
      * @param apiVers
      * @param authToken
+     * @param httpLogging
      *
      * @return
      */
-    public static RundeckApi client(String baseUrl, final String apiVers, final String authToken) {
+    public static RundeckApi client(
+            String baseUrl,
+            final String apiVers,
+            final String authToken, final boolean httpLogging
+    )
+    {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
         logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
         String base = buildBaseUrlForVersion(baseUrl, apiVers);
-        System.err.println("base " + base);
+
+        OkHttpClient.Builder callFactory = new OkHttpClient.Builder().addInterceptor(
+                new StaticHeaderInterceptor(
+                        "X-Rundeck-Auth-Token",
+                        authToken
+                )).addInterceptor(
+                new StaticHeaderInterceptor(
+                        "Accept",
+                        "application/json"
+                ));
+        if (httpLogging) {
+            callFactory.addInterceptor(logging);
+        }
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(base)
-                .callFactory(new OkHttpClient.Builder().addInterceptor(
-                        new StaticHeaderInterceptor(
-                                "X-Rundeck-Auth-Token",
-                                authToken
-                        )).addInterceptor(
-                        new StaticHeaderInterceptor(
-                                "Accept",
-                                "application/json"
-                        ))
-                                                       .addInterceptor(logging)
-                                                       .build())
+                .callFactory(callFactory.build())
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 
