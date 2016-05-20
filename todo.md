@@ -9,3 +9,13 @@
     - [x] list
     - [x] create
     - [x] delete
+- [ ] executions tool
+    - [x] list
+    - [ ] follow
+    - [x] kill
+- [ ] dispatch tool
+    - [ ] run command
+    - [ ] run script
+    - [ ] run url
+- [ ] run tool
+    - [ ] run job
