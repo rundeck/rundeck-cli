@@ -3,8 +3,8 @@
 - [ ] job tool
     - [x] list
     - [x] download to file
-    - [ ] upload
+    - [x] upload
 - [ ] projects tool
     - [x] list
-    - [ ] create
-    - [ ] delete
+    - [x] create
+    - [x] delete
