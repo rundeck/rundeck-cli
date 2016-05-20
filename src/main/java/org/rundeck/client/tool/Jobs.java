@@ -6,17 +6,17 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.ImportResult;
-import org.rundeck.client.api.model.JobItem;
-import org.rundeck.client.api.model.JobLoadItem;
+import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.options.JobListOptions;
 import org.rundeck.client.tool.options.JobLoadOptions;
+import org.rundeck.client.tool.options.JobPurgeOptions;
 import retrofit2.Call;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -37,19 +37,61 @@ public class Jobs {
     public static void main(String[] args) throws IOException {
         String baseUrl = App.requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
         String token = App.requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        RundeckApi client = Rundeck.client(baseUrl, token, true);
-        String[] actions = new String[]{"list", "load"};
+        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG")!=null);
+        String[] actions = new String[]{"list", "load", "purge"};
+        boolean success = true;
         if ("list".equals(args[0])) {
             list(App.tail(args), client);
         } else if ("load".equals(args[0])) {
-            load(App.tail(args), client);
+            success = load(App.tail(args), client);
+        } else if ("purge".equals(args[0])) {
+            success = purge(App.tail(args), client);
         } else {
 
             throw new IllegalArgumentException(String.format("Unrecognized action: %s, expected one of %s", args[0],
                                                              Arrays.asList(actions)
             ));
         }
+        if (!success) {
+            System.exit(2);
+        }
+    }
 
+    private static boolean purge(final String[] args, final RundeckApi client) throws IOException {
+        JobPurgeOptions options = CliFactory.parseArguments(JobPurgeOptions.class, args);
+
+        //if id,idlist specified, use directly
+        //otherwise query for the list and assemble the ids
+
+        //TODO: if file specified, write to file
+
+        List<String> ids = new ArrayList<>();
+        if (options.isIdlist()) {
+            ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
+        } else {
+            Call<List<JobItem>> listCall;
+            listCall = client.listJobs(
+                    options.getProject(),
+                    options.getJob(),
+                    options.getGroup()
+            );
+            List<JobItem> body = App.checkError(listCall);
+            for (JobItem jobItem : body) {
+                ids.add(jobItem.getId());
+            }
+        }
+
+        DeleteJobsResult deletedJobs = App.checkError(client.deleteJobs(ids));
+
+        if (deletedJobs.isAllsuccessful()) {
+            System.out.printf("%d Jobs were deleted", deletedJobs.getRequestCount());
+            return true;
+        }
+        System.out.printf("Failed to delete %d Jobs%n", deletedJobs.getFailed().size());
+        for (DeleteJob deleteJob : deletedJobs.getFailed()) {
+            System.out.println("* " + deleteJob.toBasicString());
+        }
+        return false;
     }
 
     private static boolean load(final String[] args, final RundeckApi client) throws IOException {
@@ -86,8 +128,8 @@ public class Jobs {
     }
 
     private static void printLoadResult(final List<JobLoadItem> list, final String title) {
-        System.out.printf("%d Jobs " + title + ":%n", list != null ? list.size() : 0);
         if (null != list && list.size() > 0) {
+            System.out.printf("%d Jobs " + title + ":%n", list != null ? list.size() : 0);
             for (JobLoadItem jobLoadItem : list) {
                 System.out.printf("* %s%n", jobLoadItem.toBasicString());
             }

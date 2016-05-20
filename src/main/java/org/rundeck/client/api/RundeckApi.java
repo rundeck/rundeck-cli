@@ -2,15 +2,15 @@ package org.rundeck.client.api;
 
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import org.rundeck.client.api.model.DeleteJobsResult;
 import org.rundeck.client.api.model.ImportResult;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.ProjectItem;
+import org.rundeck.client.util.Xml;
 import retrofit2.Call;
-import retrofit2.Response;
 import retrofit2.http.*;
 
 import java.util.List;
-import java.util.Properties;
 
 /**
  * Created by greg on 3/28/16.
@@ -48,10 +48,12 @@ public interface RundeckApi {
             @Query("format") String format
     );
 
+    @Xml
     @Headers("Accept: application/xml")
     @POST("project/{project}/jobs/import")
     Call<ImportResult> loadJobs(@Path("project") String project, @Body RequestBody body);
 
+    @Xml
     @Headers("Accept: application/xml")
     @POST("project/{project}/jobs/import")
     Call<ImportResult> loadJobs(
@@ -60,6 +62,12 @@ public interface RundeckApi {
             @Query("format") String format,
             @Query("dupeOption") String duplicate,
             @Query("uuidOption") String uuids
+    );
+
+    @Headers("Accept: application/json")
+    @DELETE("jobs/delete")
+    Call<DeleteJobsResult> deleteJobs(
+            @Query("ids") List<String> ids
     );
 
     @Headers("Accept: application/json")

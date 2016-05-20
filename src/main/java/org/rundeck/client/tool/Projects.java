@@ -20,7 +20,7 @@ public class Projects {
     public static void main(String[] args) throws IOException {
         String baseUrl = App.requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
         String token = App.requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        RundeckApi client = Rundeck.client(baseUrl, token, true);
+        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG")!=null);
         if ("list".equals(args[0])) {
             list(App.tail(args), client);
         } else if ("create".equals(args[0])) {

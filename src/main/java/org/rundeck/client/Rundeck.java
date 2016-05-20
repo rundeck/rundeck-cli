@@ -3,6 +3,7 @@ package org.rundeck.client;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.util.QualifiedTypeConverterFactory;
 import org.rundeck.client.util.StaticHeaderInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -45,21 +46,22 @@ public class Rundeck {
     {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
-        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         String base = buildBaseUrlForVersion(baseUrl, apiVers);
 
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
-                .addInterceptor(new StaticHeaderInterceptor( "X-Rundeck-Auth-Token", authToken))
-//                .addInterceptor(new StaticHeaderInterceptor( "Accept", "application/json"))
-                ;
+                .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
         if (httpLogging) {
             callFactory.addInterceptor(logging);
         }
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(base)
                 .callFactory(callFactory.build())
-                .addConverterFactory(SimpleXmlConverterFactory.create())
-                .addConverterFactory(JacksonConverterFactory.create())
+                .addConverterFactory(new QualifiedTypeConverterFactory(
+                        JacksonConverterFactory.create(),
+                        SimpleXmlConverterFactory.create(),
+                        true
+                ))
                 .build();
 
         return build.create(RundeckApi.class);

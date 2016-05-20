@@ -20,6 +20,8 @@ public class App {
         } else if (args[0].equals("projects")) {
             String[] newargs = tail(args);
             Projects.main(newargs);
+        }else{
+
         }
     }
 
