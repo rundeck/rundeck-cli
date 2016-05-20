@@ -6,6 +6,7 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.util.StaticHeaderInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
+import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 /**
  * Created by greg on 3/28/16.
@@ -18,8 +19,8 @@ public class Rundeck {
      *
      * @param baseUrl
      * @param token
-     *
      * @param debugHttp
+     *
      * @return
      */
     public static RundeckApi client(String baseUrl, final String token, final boolean debugHttp) {
@@ -47,21 +48,17 @@ public class Rundeck {
         logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
         String base = buildBaseUrlForVersion(baseUrl, apiVers);
 
-        OkHttpClient.Builder callFactory = new OkHttpClient.Builder().addInterceptor(
-                new StaticHeaderInterceptor(
-                        "X-Rundeck-Auth-Token",
-                        authToken
-                )).addInterceptor(
-                new StaticHeaderInterceptor(
-                        "Accept",
-                        "application/json"
-                ));
+        OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
+                .addInterceptor(new StaticHeaderInterceptor( "X-Rundeck-Auth-Token", authToken))
+//                .addInterceptor(new StaticHeaderInterceptor( "Accept", "application/json"))
+                ;
         if (httpLogging) {
             callFactory.addInterceptor(logging);
         }
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(base)
                 .callFactory(callFactory.build())
+                .addConverterFactory(SimpleXmlConverterFactory.create())
                 .addConverterFactory(JacksonConverterFactory.create())
                 .build();
 

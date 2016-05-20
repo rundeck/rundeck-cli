@@ -1,18 +1,28 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.simpleframework.xml.Attribute;
+import org.simpleframework.xml.Element;
+import org.simpleframework.xml.Root;
 
 /**
  * Created by greg on 3/28/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@Root(strict = false)
 public class JobItem {
+    @Element(required = false)
     private String id;
+    @Element
     private String name;
+    @Element(required = false)
     private String group;
+    @Element
     private String project;
     private String description;
+    @Attribute(required = false)
     private String href;
+    @Element(required = false)
     private String permalink;
 
     public String getId() {
@@ -85,10 +95,6 @@ public class JobItem {
     }
 
     public String toBasicString() {
-        return "" +
-               "[" + id + "] " +
-               (group != null ? group + "/" : "") +
-               name
-                ;
+        return String.format("[%s] %s%s", id, group != null ? group + "/" : "", name);
     }
 }
