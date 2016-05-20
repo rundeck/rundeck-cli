@@ -11,7 +11,7 @@
     - [x] delete
 - [ ] executions tool
     - [x] list
-    - [ ] follow
+    - [x] follow
     - [x] kill
 - [ ] dispatch tool
     - [ ] run command

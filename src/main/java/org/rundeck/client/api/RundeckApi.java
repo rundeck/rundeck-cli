@@ -91,4 +91,22 @@ public interface RundeckApi {
     @GET("execution/{id}/abort")
     Call<AbortResult> abortExecution(@Path("id") String id);
 
+
+    @Headers("Accept: application/json")
+    @GET("execution/{id}/output")
+    Call<ExecOutput> getOutput(
+            @Path("id") String id,
+            @Query("lastlines") Long lastlines
+    );
+
+    @Headers("Accept: application/json")
+    @GET("execution/{id}/output")
+    Call<ExecOutput> getOutput(
+            @Path("id") String id,
+            @Query("offset") Long offset,
+            @Query("lastmod") Long lastmod,
+            @Query("maxlines") Long maxlines
+    );
+
+
 }
