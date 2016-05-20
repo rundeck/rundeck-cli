@@ -1,4 +1,4 @@
-package org.rundeck.client.tool;
+package org.rundeck.client.api;
 
 /**
  * Created by greg on 5/20/16.

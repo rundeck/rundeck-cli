@@ -1,4 +1,6 @@
-package org.rundeck.client.tool;
+package org.rundeck.client.api;
+
+import org.rundeck.client.api.RequestFailed;
 
 /**
  * Created by greg on 5/20/16.

@@ -1,6 +1,7 @@
 package org.rundeck.client.tool;
 
-import org.rundeck.client.api.model.ProjectItem;
+import org.rundeck.client.api.AuthorizationFailed;
+import org.rundeck.client.api.RequestFailed;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -20,7 +21,10 @@ public class App {
         } else if (args[0].equals("projects")) {
             String[] newargs = tail(args);
             Projects.main(newargs);
-        }else{
+        } else if (args[0].equals("executions")) {
+            String[] newargs = tail(args);
+            Executions.main(newargs);
+        } else {
 
         }
     }

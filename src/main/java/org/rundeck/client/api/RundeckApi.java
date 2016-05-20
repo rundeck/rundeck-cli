@@ -2,10 +2,7 @@ package org.rundeck.client.api;
 
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.rundeck.client.api.model.DeleteJobsResult;
-import org.rundeck.client.api.model.ImportResult;
-import org.rundeck.client.api.model.JobItem;
-import org.rundeck.client.api.model.ProjectItem;
+import org.rundeck.client.api.model.*;
 import org.rundeck.client.util.Xml;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -80,4 +77,18 @@ public interface RundeckApi {
 
     @DELETE("project/{project}")
     Call<Void> deleteProject(@Path("project") String project);
+
+
+    @Headers("Accept: application/json")
+    @GET("project/{project}/executions/running")
+    Call<ExecutionList> listExecutions(
+            @Path("project") String project,
+            @Query("offset") int offset,
+            @Query("max") int max
+    );
+
+    @Headers("Accept: application/json")
+    @GET("execution/{id}/abort")
+    Call<AbortResult> abortExecution(@Path("id") String id);
+
 }
