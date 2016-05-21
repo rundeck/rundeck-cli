@@ -1,5 +1,6 @@
 package org.rundeck.client.api;
 
+import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
@@ -131,9 +132,9 @@ public interface RundeckApi {
     @Multipart
     @Headers("Accept: application/json")
     @POST("project/{project}/run/script")
-    Call<Execution> runScript(
+    Call<AdhocResponse> runScript(
             @Path("project") String project,
-            @Part("scriptFile") RequestBody scriptFile,
+            @Part MultipartBody.Part scriptFile,
             @Query("argString") String argString,
             @Query("scriptInterpreter") String scriptInterpreter,
             @Query("interpreterArgsQuoted") boolean interpreterArgsQuoted,
@@ -144,9 +145,9 @@ public interface RundeckApi {
     @Multipart
     @Headers("Accept: application/json")
     @POST("project/{project}/run/script")
-    Call<Execution> runScript(
+    Call<AdhocResponse> runScript(
             @Path("project") String project,
-            @Part("scriptFile") RequestBody scriptFile,
+            @Part MultipartBody.Part scriptFile,
             @Query("nodeThreadcount") int threadcount,
             @Query("nodeKeepgoing") boolean keepgoing,
             @Query("argString") String argString,

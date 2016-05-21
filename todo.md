@@ -14,8 +14,8 @@
     - [x] follow
     - [x] kill
 - [ ] dispatch tool
-    - [ ] run command
-    - [ ] run script
+    - [x] run command
+    - [x] run script
     - [ ] run url
 - [ ] run tool
     - [ ] run job
