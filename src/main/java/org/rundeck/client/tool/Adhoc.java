@@ -49,7 +49,7 @@ public class Adhoc {
 
             adhocResponseCall = client.runScript(
                     options.getProject(),
-                    MultipartBody.Part.createFormData("scriptFile",input.getName(),scriptFileBody),
+                    MultipartBody.Part.createFormData("scriptFile", input.getName(), scriptFileBody),
                     options.getThreadcount(),
                     options.isKeepgoing(),
                     joinString(options.getCommandString()),
@@ -59,8 +59,17 @@ public class Adhoc {
                     options.getFilter()
             );
         } else if (options.isUrl()) {
-
-            //TODO: url
+            adhocResponseCall = client.runUrl(
+                    options.getProject(),
+                    options.getUrl(),
+                    options.getThreadcount(),
+                    options.isKeepgoing(),
+                    joinString(options.getCommandString()),
+                    null,
+                    false,
+                    null,
+                    options.getFilter()
+            );
         } else if (options.getCommandString() != null && options.getCommandString().size() > 0) {
             //command
             adhocResponseCall = client.runCommand(

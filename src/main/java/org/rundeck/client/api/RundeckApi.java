@@ -8,6 +8,7 @@ import org.rundeck.client.util.Xml;
 import retrofit2.Call;
 import retrofit2.http.*;
 
+import java.net.URL;
 import java.util.List;
 
 /**
@@ -156,5 +157,35 @@ public interface RundeckApi {
             @Query("fileExtension") String fileExtension,
             @Query("filter") String filter
     );
+
+
+    @Headers("Accept: application/json")
+    @FormUrlEncoded
+    @POST("project/{project}/run/url")
+    Call<Execution> runUrl(
+            @Path("project") String project,
+            @Field("scriptURL") URL url,
+            @Field("argString") String argString,
+            @Field("scriptInterpreter") String scriptInterpreter,
+            @Field("interpreterArgsQuoted") boolean interpreterArgsQuoted,
+            @Field("fileExtension") String fileExtension,
+            @Field("filter") String filter
+    );
+
+    @Headers("Accept: application/json")
+    @FormUrlEncoded
+    @POST("project/{project}/run/url")
+    Call<AdhocResponse> runUrl(
+            @Path("project") String project,
+            @Field("scriptURL") URL url,
+            @Field("nodeThreadcount") int threadcount,
+            @Field("nodeKeepgoing") boolean keepgoing,
+            @Field("argString") String argString,
+            @Field("scriptInterpreter") String scriptInterpreter,
+            @Field("interpreterArgsQuoted") boolean interpreterArgsQuoted,
+            @Field("fileExtension") String fileExtension,
+            @Field("filter") String filter
+    );
+
 
 }
