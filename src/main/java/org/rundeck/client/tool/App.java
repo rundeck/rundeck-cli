@@ -48,7 +48,7 @@ public class App {
 
     public static <T> T checkError(final Call<T> execute) throws IOException {
         Response<T> response = execute.execute();
-        if (!response.isSuccess()) {
+        if (!response.isSuccessful()) {
             if (response.code() == 401 || response.code() == 403) {
                 //authorization
                 throw new AuthorizationFailed(
