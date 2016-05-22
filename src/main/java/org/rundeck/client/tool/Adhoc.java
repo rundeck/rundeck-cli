@@ -20,7 +20,7 @@ import java.util.List;
 public class Adhoc {
 
     public static void main(String[] args) throws IOException {
-        Client<RundeckApi> client = App.prepareMain();
+        Client<RundeckApi> client = App.createClient();
         boolean success = dispatch(args, client);
         if (!success) {
             System.exit(2);

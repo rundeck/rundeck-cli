@@ -19,7 +19,7 @@ public class Projects {
 
     public static void main(String[] args) throws IOException {
 
-        Client<RundeckApi> client = App.prepareMain();
+        Client<RundeckApi> client = App.createClient();
         if (args.length<1 ||"list".equals(args[0])) {
             list(client);
         } else if ("create".equals(args[0])) {

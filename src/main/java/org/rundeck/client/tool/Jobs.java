@@ -28,7 +28,7 @@ public class Jobs {
     public static final String UUID_PRESERVE = "preserve";
 
     public static void main(String[] args) throws IOException {
-        Client<RundeckApi> client = App.prepareMain();
+        Client<RundeckApi> client = App.createClient();
         String[] actions = new String[]{"list", "load", "purge"};
         boolean success = true;
         if ("list".equals(args[0])) {

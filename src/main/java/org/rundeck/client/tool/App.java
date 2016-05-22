@@ -58,7 +58,7 @@ public class App {
             throw new IllegalArgumentException("Unknown command: " + args[0]);
         }
     }
-    public static Client<RundeckApi> prepareMain() {
+    public static Client<RundeckApi> createClient() {
         String baseUrl = requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
         String token = requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
         return Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);

@@ -18,7 +18,7 @@ import java.util.List;
 public class Executions {
 
     public static void main(String[] args) throws IOException {
-        Client<RundeckApi> client = App.prepareMain();
+        Client<RundeckApi> client = App.createClient();
         String[] actions = new String[]{"list", "follow", "kill"};
         boolean success = true;
         if ("follow".equals(args[0])) {

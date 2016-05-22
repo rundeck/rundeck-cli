@@ -3,7 +3,6 @@ package org.rundeck.client.tool;
 import com.lexicalscope.jewel.cli.CliFactory;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.Execution;
-import org.rundeck.client.api.model.ExecutionList;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Client;
@@ -17,7 +16,7 @@ import java.util.List;
  */
 public class Run {
     public static void main(final String[] args) throws IOException {
-        Client<RundeckApi> client = App.prepareMain();
+        Client<RundeckApi> client = App.createClient();
         boolean success = run(args, client);
         if (!success) {
             System.exit(2);
