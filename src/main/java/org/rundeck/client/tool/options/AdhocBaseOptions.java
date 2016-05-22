@@ -46,7 +46,7 @@ public interface AdhocBaseOptions extends ProjectOptions, FollowOptions {
     @Option(shortName = "S", longName = "stdin", description = "Execute input read from STDIN")
     boolean isStdin();
 
-    @Unparsed(name = "COMMAND", description = "Dispatch specified command string")
+    @Unparsed(name = "-- COMMAND", description = "Dispatch specified command string")
     List<String> getCommandString();
 
 
