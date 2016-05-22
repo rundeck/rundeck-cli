@@ -9,6 +9,7 @@ apply plugin: 'application'
 apply plugin: 'pl.allegro.tech.build.axion-release'
 
 mainClassName = 'org.rundeck.client.tool.App'
+applicationName = 'rd'
 defaultTasks 'clean', 'build'
 scmVersion {
     tag {
