@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Created by greg on 5/21/16.
  */
-public interface RunBaseOptions extends FollowOptions {
+public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions {
     @Option(shortName = "l",
             longName = "logevel",
             description = "Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.",

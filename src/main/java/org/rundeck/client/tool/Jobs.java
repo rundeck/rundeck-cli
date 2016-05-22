@@ -186,4 +186,24 @@ public class Jobs {
         }
     }
 
+    /**
+     * Split a job group/name into group then name parts
+     *
+     * @param job job group + name
+     *
+     * @return [job group (or null), name]
+     */
+    public static String[] splitJobNameParts(final String job) {
+        if (!job.contains("/")) {
+            return new String[]{null, job};
+        }
+        int i = job.lastIndexOf("/");
+        String group = job.substring(0, i);
+        String name = job.substring(i + 1);
+        if ("".equals(group.trim())) {
+            group = null;
+        }
+        return new String[]{group, name};
+
+    }
 }
