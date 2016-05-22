@@ -52,12 +52,13 @@ public class Jobs {
         //if id,idlist specified, use directly
         //otherwise query for the list and assemble the ids
 
-        //TODO: if file specified, write to file
-
         List<String> ids = new ArrayList<>();
         if (options.isIdlist()) {
             ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
+            if(!options.isJob() && !options.isGroup()){
+                throw new IllegalArgumentException("must specify -i, or -j/-g to specify jobs to delete.");
+            }
             Call<List<JobItem>> listCall;
             listCall = client.getService().listJobs(
                     options.getProject(),
@@ -70,10 +71,14 @@ public class Jobs {
             }
         }
 
+        if(options.isFile()){
+            list(args, client);
+        }
+
         DeleteJobsResult deletedJobs = client.checkError(client.getService().deleteJobs(ids));
 
         if (deletedJobs.isAllsuccessful()) {
-            System.out.printf("%d Jobs were deleted", deletedJobs.getRequestCount());
+            System.out.printf("%d Jobs were deleted%n", deletedJobs.getRequestCount());
             return true;
         }
         System.out.printf("Failed to delete %d Jobs%n", deletedJobs.getFailed().size());
