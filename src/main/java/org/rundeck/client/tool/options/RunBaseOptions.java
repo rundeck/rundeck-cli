@@ -33,7 +33,7 @@ public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions {
 
     boolean isFilter();
 
-    @Unparsed(name = "COMMAND", description = "Dispatch specified command string")
+    @Unparsed(name = "-- -ARG VAL -ARG2 VAL", description = "Dispatch specified command string")
     List<String> getCommandString();
 
 }

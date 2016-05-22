@@ -9,6 +9,6 @@ import java.util.List;
  */
 public interface ProjectCreateOptions extends ProjectOptions {
 
-    @Unparsed(defaultValue = {})
+    @Unparsed(name = "-- -configkey=value",defaultValue = {})
     List<String> config();
 }
