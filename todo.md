@@ -5,7 +5,7 @@
     - [x] download to file
     - [x] upload
     - [x] purge
-        - [ ] support -f file out
+        - [x] support -f file out
 - [ ] projects tool
     - [x] list
     - [x] create
