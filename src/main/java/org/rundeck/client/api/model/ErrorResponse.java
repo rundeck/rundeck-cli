@@ -13,13 +13,23 @@ public class ErrorResponse {
     public String errorCode;
     public String message;
 
+    public String toCodeString() {
+        if (null != errorCode) {
+            return String.format(
+                    "[code: %s; APIv%d]",
+                    errorCode,
+                    apiversion
+            );
+        }
+        return "";
+    }
+
     @Override
     public String toString() {
         return String.format(
-                "%s%n(APIv%d, code: %s)%n",
+                "%s%n%s%n",
                 message,
-                apiversion,
-                errorCode
+                toCodeString()
         );
     }
 }
