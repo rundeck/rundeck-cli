@@ -18,4 +18,4 @@
     - [x] run script
     - [x] run url
 - [ ] run tool
-    - [ ] run job
+    - [x] run job
