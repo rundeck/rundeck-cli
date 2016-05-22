@@ -33,6 +33,17 @@ public class App {
     public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
 
     public static void main(String[] args) throws IOException {
+        String[] commands = new String[]{
+                "projects",
+                "jobs",
+                "executions",
+                "adhoc",
+                "run"
+        };
+        if(args.length<1){
+            System.err.printf("Available commands: %s%n", Arrays.asList(commands));
+            System.exit(2);
+        }
         if (args[0].equals("jobs")) {
             Jobs.main(tail(args));
         } else if (args[0].equals("projects")) {
