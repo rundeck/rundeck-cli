@@ -187,5 +187,13 @@ public interface RundeckApi {
             @Field("filter") String filter
     );
 
+    @Headers("Accept: application/json")
+    @POST("job/{id}/run")
+    Call<Execution> runJob(
+            @Path("id") String id,
+            @Query("argString") String argString,
+            @Query("loglevel") String loglevel,
+            @Query("filter") String filter
+    );
 
 }
