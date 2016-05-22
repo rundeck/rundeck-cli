@@ -20,8 +20,8 @@ public class Projects {
     public static void main(String[] args) throws IOException {
 
         Client<RundeckApi> client = App.prepareMain();
-        if ("list".equals(args[0])) {
-            list(App.tail(args), client);
+        if (args.length<1 ||"list".equals(args[0])) {
+            list(client);
         } else if ("create".equals(args[0])) {
             create(App.tail(args), client);
         } else if ("delete".equals(args[0])) {
@@ -32,9 +32,7 @@ public class Projects {
 
     }
 
-    private static void list(final String[] args, final Client<RundeckApi> client) throws IOException {
-        ProjectOptions jobListOptions = CliFactory.parseArguments(ProjectOptions.class, args);
-
+    private static void list(final Client<RundeckApi> client) throws IOException {
         List<ProjectItem> body = client.checkError(client.getService().listProjects());
         System.out.printf("%d Projects:%n", body.size());
         for (ProjectItem proj : body) {
@@ -46,7 +44,7 @@ public class Projects {
     private static void delete(final String[] args, final Client<RundeckApi> client) throws IOException {
         ProjectOptions projectOptions = CliFactory.parseArguments(ProjectOptions.class, args);
 
-        Void body = client.checkError(client.getService().deleteProject(projectOptions.getProject()));
+        client.checkError(client.getService().deleteProject(projectOptions.getProject()));
         System.out.printf("Project was deleted: %s%n", projectOptions.getProject());
     }
 
