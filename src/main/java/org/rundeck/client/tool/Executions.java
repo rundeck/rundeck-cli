@@ -1,11 +1,12 @@
 package org.rundeck.client.tool;
 
 import com.lexicalscope.jewel.cli.CliFactory;
-import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.options.ExecutionsFollowOptions;
 import org.rundeck.client.tool.options.ExecutionsOptions;
+import org.rundeck.client.tool.options.FollowOptions;
+import org.rundeck.client.util.Client;
 import retrofit2.Call;
 
 import java.io.IOException;
@@ -17,9 +18,7 @@ import java.util.List;
 public class Executions {
 
     public static void main(String[] args) throws IOException {
-        String baseUrl = App.requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
-        String token = App.requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
+        Client<RundeckApi> client = App.prepareMain();
         String[] actions = new String[]{"list", "follow", "kill"};
         boolean success = true;
         if ("follow".equals(args[0])) {
@@ -34,12 +33,12 @@ public class Executions {
         }
     }
 
-    private static boolean kill(final String[] args, final RundeckApi client) throws IOException {
+    private static boolean kill(final String[] args, final Client<RundeckApi> client) throws IOException {
         ExecutionsOptions options = CliFactory.parseArguments(ExecutionsOptions.class, args);
         if (null == options.getId()) {
             throw new IllegalArgumentException("-e is required");
         }
-        AbortResult abortResult = App.checkError(client.abortExecution(options.getId()));
+        AbortResult abortResult = client.checkError(client.getService().abortExecution(options.getId()));
         AbortResult.Reason abort = abortResult.abort;
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
@@ -56,7 +55,7 @@ public class Executions {
         return !failed;
     }
 
-    private static boolean follow(final String[] args, final RundeckApi client) throws IOException {
+    private static boolean follow(final String[] args, final Client<RundeckApi> client) throws IOException {
         ExecutionsFollowOptions options = CliFactory.parseArguments(ExecutionsFollowOptions.class, args);
 
         int max = 500;
@@ -69,21 +68,21 @@ public class Executions {
     }
 
     public static Call<ExecOutput> startFollowOutput(
-            final RundeckApi client,
+            final Client<RundeckApi> client,
             final long max, final boolean restart, final String id, final long tail
     )
     {
         Call<ExecOutput> output;
         if (restart) {
-            output = client.getOutput(id, 0L, 0L, max);
+            output = client.getService().getOutput(id, 0L, 0L, max);
         } else {
-            output = client.getOutput(id, tail);
+            output = client.getService().getOutput(id, tail);
         }
         return output;
     }
 
     public static boolean followOutput(
-            final RundeckApi client,
+            final Client<RundeckApi> client,
             final Call<ExecOutput> output,
             final boolean progress,
             final boolean quiet,
@@ -95,7 +94,7 @@ public class Executions {
         String status = null;
         Call<ExecOutput> callOutput = output;
         while (!done) {
-            ExecOutput execOutput = App.checkError(callOutput);
+            ExecOutput execOutput = client.checkError(callOutput);
             printLogOutput(execOutput.entries, progress, quiet);
             done = execOutput.completed;
             status = execOutput.execState;
@@ -106,7 +105,7 @@ public class Executions {
                     break;
                 }
 
-                callOutput = client.getOutput(id, execOutput.offset, execOutput.lastModified, max);
+                callOutput = client.getService().getOutput(id, execOutput.offset, execOutput.lastModified, max);
             }
         }
         return "succeeded".equals(status);
@@ -122,7 +121,7 @@ public class Executions {
         }
     }
 
-    private static void list(final String[] args, final RundeckApi client) throws IOException {
+    private static void list(final String[] args, final Client<RundeckApi> client) throws IOException {
 
         ExecutionsOptions options = CliFactory.parseArguments(ExecutionsOptions.class, args);
         if (!options.isProject()) {
@@ -131,10 +130,36 @@ public class Executions {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
-        ExecutionList executionList = App.checkError(client.listExecutions(options.getProject(), offset, max));
+        ExecutionList executionList = client.checkError(client.getService().listExecutions(options.getProject(), offset, max));
         System.out.printf("Running executions: %d item%n", executionList.getPaging().getCount());
         for (Execution execution : executionList.getExecutions()) {
             System.out.println(execution.toBasicString());
         }
+    }
+
+    public static boolean maybeFollow(
+            final Client<RundeckApi> client,
+            final FollowOptions options,
+            final String id
+    ) throws IOException
+    {
+        if (!options.isFollow()) {
+            return true;
+        }
+        Call<ExecOutput> execOutputCall = startFollowOutput(
+                client,
+                500,
+                true,
+                id,
+                0
+        );
+        return followOutput(
+                client,
+                execOutputCall,
+                options.isProgress(),
+                options.isQuiet(),
+                id,
+                500
+        );
     }
 }

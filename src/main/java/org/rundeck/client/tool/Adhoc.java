@@ -4,11 +4,10 @@ import com.lexicalscope.jewel.cli.CliFactory;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
-import org.rundeck.client.api.model.ExecOutput;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
+import org.rundeck.client.util.Client;
 import retrofit2.Call;
 
 import java.io.File;
@@ -21,16 +20,14 @@ import java.util.List;
 public class Adhoc {
 
     public static void main(String[] args) throws IOException {
-        String baseUrl = App.requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
-        String token = App.requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
+        Client<RundeckApi> client = App.prepareMain();
         boolean success = dispatch(args, client);
         if (!success) {
             System.exit(2);
         }
     }
 
-    private static boolean dispatch(final String[] args, final RundeckApi client) throws IOException {
+    private static boolean dispatch(final String[] args, final Client<RundeckApi> client) throws IOException {
         AdhocBaseOptions options = CliFactory.parseArguments(AdhocBaseOptions.class, args);
 
         Call<AdhocResponse> adhocResponseCall = null;
@@ -47,7 +44,7 @@ public class Adhoc {
                     input
             );
 
-            adhocResponseCall = client.runScript(
+            adhocResponseCall = client.getService().runScript(
                     options.getProject(),
                     MultipartBody.Part.createFormData("scriptFile", input.getName(), scriptFileBody),
                     options.getThreadcount(),
@@ -59,7 +56,7 @@ public class Adhoc {
                     options.getFilter()
             );
         } else if (options.isUrl()) {
-            adhocResponseCall = client.runUrl(
+            adhocResponseCall = client.getService().runUrl(
                     options.getProject(),
                     options.getUrl(),
                     options.getThreadcount(),
@@ -72,7 +69,7 @@ public class Adhoc {
             );
         } else if (options.getCommandString() != null && options.getCommandString().size() > 0) {
             //command
-            adhocResponseCall = client.runCommand(
+            adhocResponseCall = client.getService().runCommand(
                     options.getProject(),
                     joinString(options.getCommandString()),
                     options.getThreadcount(),
@@ -83,30 +80,13 @@ public class Adhoc {
             throw new IllegalArgumentException("-s, -u, or -- command string, was expected");
         }
 
-        AdhocResponse adhocResponse = App.checkError(adhocResponseCall);
+        AdhocResponse adhocResponse = client.checkError(adhocResponseCall);
         System.out.println(adhocResponse.message);
         System.out.println("Started execution " + adhocResponse.execution.toBasicString());
-        if (!options.isFollow()) {
-            return true;
-        }
-        Call<ExecOutput> execOutputCall = Executions.startFollowOutput(
-                client,
-                500,
-                true,
-                adhocResponse.execution.getId(),
-                0
-        );
-        return Executions.followOutput(
-                client,
-                execOutputCall,
-                options.isProgress(),
-                options.isQuiet(),
-                adhocResponse.execution.getId(),
-                500
-        );
+        return Executions.maybeFollow(client, options, adhocResponse.execution.getId());
     }
 
-    private static String joinString(final List<String> commandString) {
+    static String joinString(final List<String> commandString) {
         if (null == commandString) {
             return null;
         }

@@ -1,15 +1,14 @@
 package org.rundeck.client.tool;
 
 import com.lexicalscope.jewel.cli.CliFactory;
-import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.options.JobListOptions;
 import org.rundeck.client.tool.options.JobLoadOptions;
 import org.rundeck.client.tool.options.JobPurgeOptions;
+import org.rundeck.client.util.Client;
 import retrofit2.Call;
 
 import java.io.File;
@@ -25,19 +24,11 @@ import java.util.List;
  */
 public class Jobs {
 
-    public static final String APPLICATION_XML = "application/xml";
-    public static final MediaType MEDIA_TYPE_XML = MediaType.parse(APPLICATION_XML);
-    public static final String APPLICATION_YAML = "application/yaml";
-    public static final MediaType MEDIA_TYPE_YAML = MediaType.parse(APPLICATION_YAML);
     public static final String UUID_REMOVE = "remove";
     public static final String UUID_PRESERVE = "preserve";
-    public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");
-    public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
 
     public static void main(String[] args) throws IOException {
-        String baseUrl = App.requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
-        String token = App.requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG")!=null);
+        Client<RundeckApi> client = App.prepareMain();
         String[] actions = new String[]{"list", "load", "purge"};
         boolean success = true;
         if ("list".equals(args[0])) {
@@ -57,7 +48,7 @@ public class Jobs {
         }
     }
 
-    private static boolean purge(final String[] args, final RundeckApi client) throws IOException {
+    private static boolean purge(final String[] args, final Client<RundeckApi> client) throws IOException {
         JobPurgeOptions options = CliFactory.parseArguments(JobPurgeOptions.class, args);
 
         //if id,idlist specified, use directly
@@ -70,18 +61,18 @@ public class Jobs {
             ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
             Call<List<JobItem>> listCall;
-            listCall = client.listJobs(
+            listCall = client.getService().listJobs(
                     options.getProject(),
                     options.getJob(),
                     options.getGroup()
             );
-            List<JobItem> body = App.checkError(listCall);
+            List<JobItem> body = client.checkError(listCall);
             for (JobItem jobItem : body) {
                 ids.add(jobItem.getId());
             }
         }
 
-        DeleteJobsResult deletedJobs = App.checkError(client.deleteJobs(ids));
+        DeleteJobsResult deletedJobs = client.checkError(client.getService().deleteJobs(ids));
 
         if (deletedJobs.isAllsuccessful()) {
             System.out.printf("%d Jobs were deleted", deletedJobs.getRequestCount());
@@ -94,7 +85,7 @@ public class Jobs {
         return false;
     }
 
-    private static boolean load(final String[] args, final RundeckApi client) throws IOException {
+    private static boolean load(final String[] args, final Client<RundeckApi> client) throws IOException {
         JobLoadOptions options = CliFactory.parseArguments(JobLoadOptions.class, args);
         if (!options.isFile()) {
             throw new IllegalArgumentException("-f is required");
@@ -105,18 +96,18 @@ public class Jobs {
         }
 
         RequestBody requestBody = RequestBody.create(
-                "xml".equals(options.getFormat()) ? MEDIA_TYPE_XML : MEDIA_TYPE_YAML,
+                "xml".equals(options.getFormat()) ? App.MEDIA_TYPE_XML : App.MEDIA_TYPE_YAML,
                 input
         );
 
-        Call<ImportResult> importResultCall = client.loadJobs(
+        Call<ImportResult> importResultCall = client.getService().loadJobs(
                 options.getProject(),
                 requestBody,
                 options.getFormat(),
                 options.getDuplicate(),
                 options.isRemoveUuids() ? UUID_REMOVE : UUID_PRESERVE
         );
-        ImportResult importResult = App.checkError(importResultCall);
+        ImportResult importResult = client.checkError(importResultCall);
 
         List<JobLoadItem> failed = importResult.getFailed();
 
@@ -136,7 +127,7 @@ public class Jobs {
         }
     }
 
-    private static void list(final String[] args, final RundeckApi client) throws IOException {
+    private static void list(final String[] args, final Client<RundeckApi> client) throws IOException {
         JobListOptions options = CliFactory.parseArguments(JobListOptions.class, args);
 
 
@@ -144,23 +135,23 @@ public class Jobs {
             //write response to file instead of parsing it
             Call<ResponseBody> responseCall;
             if (options.isIdlist()) {
-                responseCall = client.exportJobs(
+                responseCall = client.getService().exportJobs(
                         options.getProject(),
                         options.getIdlist(),
                         options.getFormat()
                 );
             } else {
-                responseCall = client.exportJobs(
+                responseCall = client.getService().exportJobs(
                         options.getProject(),
                         options.getJob(),
                         options.getGroup(),
                         options.getFormat()
                 );
             }
-            ResponseBody body = App.checkError(responseCall);
+            ResponseBody body = client.checkError(responseCall);
             if ((!"yaml".equals(options.getFormat()) ||
-                 !hasAnyMediaType(body, MEDIA_TYPE_YAML, MEDIA_TYPE_TEXT_YAML)) &&
-                !hasAnyMediaType(body, MEDIA_TYPE_XML, MEDIA_TYPE_TEXT_XML)) {
+                 !App.hasAnyMediaType(body, App.MEDIA_TYPE_YAML, App.MEDIA_TYPE_TEXT_YAML)) &&
+                !App.hasAnyMediaType(body, App.MEDIA_TYPE_XML, App.MEDIA_TYPE_TEXT_XML)) {
 
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }
@@ -179,15 +170,15 @@ public class Jobs {
         } else {
             Call<List<JobItem>> listCall;
             if (options.isIdlist()) {
-                listCall = client.listJobs(options.getProject(), options.getIdlist());
+                listCall = client.getService().listJobs(options.getProject(), options.getIdlist());
             } else {
-                listCall = client.listJobs(
+                listCall = client.getService().listJobs(
                         options.getProject(),
                         options.getJob(),
                         options.getGroup()
                 );
             }
-            List<JobItem> body = App.checkError(listCall);
+            List<JobItem> body = client.checkError(listCall);
             System.out.printf("%d Jobs in project %s%n", body.size(), options.getProject());
             for (JobItem jobItem : body) {
                 System.out.println("* " + jobItem.toBasicString());
@@ -195,13 +186,4 @@ public class Jobs {
         }
     }
 
-    private static boolean hasAnyMediaType(final ResponseBody body, final MediaType... parse) {
-        MediaType mediaType1 = body.contentType();
-        for (MediaType mediaType : parse) {
-            if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
-                return true;
-            }
-        }
-        return false;
-    }
 }

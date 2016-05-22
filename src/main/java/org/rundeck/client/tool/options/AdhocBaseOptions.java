@@ -10,8 +10,8 @@ import java.util.List;
 /**
  * Created by greg on 5/20/16.
  */
-public interface AdhocBaseOptions extends ProjectOptions, ExecutionsFollowOptions {
-    boolean isId();
+public interface AdhocBaseOptions extends ProjectOptions, FollowOptions {
+
 
     @Option(shortName = "C",
             longName = "threadcount",
@@ -49,8 +49,5 @@ public interface AdhocBaseOptions extends ProjectOptions, ExecutionsFollowOption
     @Unparsed(name = "COMMAND", description = "Dispatch specified command string")
     List<String> getCommandString();
 
-
-    @Option(shortName = "f", longName = "follow", description = "Follow queued execution output")
-    boolean isFollow();
 
 }

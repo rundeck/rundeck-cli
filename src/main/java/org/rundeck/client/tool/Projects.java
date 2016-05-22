@@ -1,11 +1,11 @@
 package org.rundeck.client.tool;
 
 import com.lexicalscope.jewel.cli.CliFactory;
-import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectOptions;
+import org.rundeck.client.util.Client;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -18,9 +18,8 @@ import java.util.Map;
 public class Projects {
 
     public static void main(String[] args) throws IOException {
-        String baseUrl = App.requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
-        String token = App.requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        RundeckApi client = Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
+
+        Client<RundeckApi> client = App.prepareMain();
         if ("list".equals(args[0])) {
             list(App.tail(args), client);
         } else if ("create".equals(args[0])) {
@@ -33,10 +32,10 @@ public class Projects {
 
     }
 
-    private static void list(final String[] args, final RundeckApi client) throws IOException {
+    private static void list(final String[] args, final Client<RundeckApi> client) throws IOException {
         ProjectOptions jobListOptions = CliFactory.parseArguments(ProjectOptions.class, args);
 
-        List<ProjectItem> body = App.checkError(client.listProjects());
+        List<ProjectItem> body = client.checkError(client.getService().listProjects());
         System.out.printf("%d Projects:%n", body.size());
         for (ProjectItem proj : body) {
             System.out.println("* " + proj.toBasicString());
@@ -44,14 +43,14 @@ public class Projects {
 
     }
 
-    private static void delete(final String[] args, final RundeckApi client) throws IOException {
+    private static void delete(final String[] args, final Client<RundeckApi> client) throws IOException {
         ProjectOptions projectOptions = CliFactory.parseArguments(ProjectOptions.class, args);
 
-        Void body = App.checkError(client.deleteProject(projectOptions.getProject()));
+        Void body = client.checkError(client.getService().deleteProject(projectOptions.getProject()));
         System.out.printf("Project was deleted: %s%n", projectOptions.getProject());
     }
 
-    private static void create(final String[] args, final RundeckApi client) throws IOException {
+    private static void create(final String[] args, final Client<RundeckApi> client) throws IOException {
         ProjectCreateOptions createOptions = CliFactory.parseArguments(ProjectCreateOptions.class, args);
         Map<String, String> config = new HashMap<>();
         if (createOptions.config().size() > 0) {
@@ -71,7 +70,7 @@ public class Projects {
         project.setName(createOptions.getProject());
         project.setConfig(config);
 
-        ProjectItem body = App.checkError(client.createProject(project));
+        ProjectItem body = client.checkError(client.getService().createProject(project));
         System.out.printf("Created project: \n\t%s%n", body.toBasicString());
     }
 }

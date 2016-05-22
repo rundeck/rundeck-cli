@@ -1,19 +1,37 @@
 package org.rundeck.client.tool;
 
+import okhttp3.MediaType;
+import okhttp3.ResponseBody;
+import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.AuthorizationFailed;
 import org.rundeck.client.api.RequestFailed;
+import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.api.model.ErrorResponse;
+import org.rundeck.client.util.Client;
 import retrofit2.Call;
+import retrofit2.Converter;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 /**
  * Created by greg on 3/28/16.
  */
 public class App {
+    public static final String APPLICATION_XML = "application/xml";
+    public static final String APPLICATION_JSON = "application/json";
+    public static final MediaType MEDIA_TYPE_JSON = MediaType.parse(APPLICATION_JSON);
+    public static final MediaType MEDIA_TYPE_XML = MediaType.parse(APPLICATION_XML);
+    public static final String APPLICATION_YAML = "application/yaml";
+    public static final MediaType MEDIA_TYPE_YAML = MediaType.parse(APPLICATION_YAML);
+    public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");
+    public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
+
     public static void main(String[] args) throws IOException {
         if (args[0].equals("jobs")) {
             Jobs.main(tail(args));
@@ -23,9 +41,16 @@ public class App {
             Executions.main(tail(args));
         } else if (args[0].equals("adhoc")) {
             Adhoc.main(tail(args));
+        }else if (args[0].equals("run")) {
+            Run.main(tail(args));
         } else {
             throw new IllegalArgumentException("Unknown command: " + args[0]);
         }
+    }
+    public static Client<RundeckApi> prepareMain() {
+        String baseUrl = requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
+        String token = requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
+        return Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
     }
 
     public static String[] tail(final String[] args) {
@@ -46,39 +71,14 @@ public class App {
         return value;
     }
 
-    public static <T> T checkError(final Call<T> execute) throws IOException {
-        Response<T> response = execute.execute();
-        if (!response.isSuccessful()) {
-            if (response.code() == 401 || response.code() == 403) {
-                //authorization
-                throw new AuthorizationFailed(
-                        String.format("Authorization failed: %d %s", response.code(), response.message()),
-                        response.code(),
-                        response.message()
-                );
+    public static boolean hasAnyMediaType(final ResponseBody body, final MediaType... parse) {
+        MediaType mediaType1 = body.contentType();
+        for (MediaType mediaType : parse) {
+            if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
+                return true;
             }
-            if (response.code() == 409) {
-                //authorization
-                throw new RequestFailed(String.format(
-                        "Could not create resource: %d %s",
-                        response.code(),
-                        response.message()
-                ), response.code(), response.message());
-            }
-            if (response.code() == 404) {
-                //authorization
-                throw new RequestFailed(String.format(
-                        "Could not find resource:  %d %s",
-                        response.code(),
-                        response.message()
-                ), response.code(), response.message());
-            }
-            throw new RequestFailed(
-                    String.format("Request failed:  %d %s", response.code(), response.message()),
-                    response.code(),
-                    response.message()
-            );
         }
-        return response.body();
+        return false;
     }
+
 }

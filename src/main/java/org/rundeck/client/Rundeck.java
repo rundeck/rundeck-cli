@@ -3,6 +3,7 @@ package org.rundeck.client;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.util.Client;
 import org.rundeck.client.util.QualifiedTypeConverterFactory;
 import org.rundeck.client.util.StaticHeaderInterceptor;
 import retrofit2.Retrofit;
@@ -24,7 +25,7 @@ public class Rundeck {
      *
      * @return
      */
-    public static RundeckApi client(String baseUrl, final String token, final boolean debugHttp) {
+    public static Client<RundeckApi> client(String baseUrl, final String token, final boolean debugHttp) {
         return client(baseUrl, API_VERS, token, debugHttp);
     }
 
@@ -38,7 +39,7 @@ public class Rundeck {
      *
      * @return
      */
-    public static RundeckApi client(
+    public static Client<RundeckApi> client(
             String baseUrl,
             final String apiVers,
             final String authToken, final boolean httpLogging
@@ -64,7 +65,7 @@ public class Rundeck {
                 ))
                 .build();
 
-        return build.create(RundeckApi.class);
+        return new Client<>(build.create(RundeckApi.class), build);
     }
 
     private static String buildBaseUrlForVersion(String baseUrl, final String apiVers) {
