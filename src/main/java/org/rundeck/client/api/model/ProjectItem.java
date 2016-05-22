@@ -1,6 +1,7 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import java.util.Map;
  * Created by greg on 5/19/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProjectItem {
 
     private String name;
