@@ -1,10 +1,11 @@
-package org.rundeck.client.tool;
+package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.JobListOptions;
 import org.rundeck.client.tool.options.JobLoadOptions;
 import org.rundeck.client.tool.options.JobPurgeOptions;

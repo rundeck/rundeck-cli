@@ -1,14 +1,12 @@
-package org.rundeck.client.tool;
+package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.CommandLineInterface;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okio.Okio;
-import okio.Sink;
-import okio.Source;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
+import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Util;
@@ -23,6 +21,7 @@ import java.util.List;
  * Created by greg on 5/20/16.
  */
 public class Adhoc {
+    static final String COMMAND = "adhoc";
 
     public static void main(String[] args) throws IOException {
         Client<RundeckApi> client = App.createClient();
@@ -31,9 +30,13 @@ public class Adhoc {
             System.exit(2);
         }
     }
+    @CommandLineInterface(application = COMMAND)
+    interface Dispatch extends AdhocBaseOptions{
+
+    }
 
     private static boolean dispatch(final String[] args, final Client<RundeckApi> client) throws IOException {
-        AdhocBaseOptions options = CliFactory.parseArguments(AdhocBaseOptions.class, args);
+        Dispatch options = App.parse(Dispatch.class, args);
 
         Call<AdhocResponse> adhocResponseCall = null;
 

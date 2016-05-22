@@ -1,22 +1,17 @@
 package org.rundeck.client.tool;
 
+import com.lexicalscope.jewel.cli.Cli;
+import com.lexicalscope.jewel.cli.CliFactory;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.rundeck.client.Rundeck;
-import org.rundeck.client.api.AuthorizationFailed;
-import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.ErrorResponse;
+import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
-import retrofit2.Call;
-import retrofit2.Converter;
-import retrofit2.Response;
 
 import java.io.IOException;
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -92,4 +87,12 @@ public class App {
         return false;
     }
 
+    public static <T> String help(Class<T> clazz){
+        Cli<T> cli = CliFactory.createCli(clazz);
+        return cli.getHelpMessage();
+    }
+    public static <T> T parse(Class<T> clazz, String[] args){
+        T options = CliFactory.parseArguments(clazz, args);
+        return options;
+    }
 }

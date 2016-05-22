@@ -1,8 +1,9 @@
-package org.rundeck.client.tool;
+package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CliFactory;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.ExecutionsFollowOptions;
 import org.rundeck.client.tool.options.ExecutionsOptions;
 import org.rundeck.client.tool.options.FollowOptions;
