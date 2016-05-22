@@ -4,12 +4,17 @@ import com.lexicalscope.jewel.cli.CliFactory;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
+import okio.Okio;
+import okio.Sink;
+import okio.Source;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.Util;
 import retrofit2.Call;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -32,21 +37,38 @@ public class Adhoc {
 
         Call<AdhocResponse> adhocResponseCall = null;
 
-        if (options.isScriptFile()) {
-            File input = options.getScriptFile();
-            if (!input.canRead() || !input.isFile()) {
-                throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
-            }
-            //TODO: read stdin
+        if (options.isScriptFile() || options.isStdin()) {
+            RequestBody scriptFileBody;
+            String filename;
+            if (options.isScriptFile()) {
+                File input = options.getScriptFile();
+                if (!input.canRead() || !input.isFile()) {
+                    throw new IllegalArgumentException(String.format(
+                            "File is not readable or does not exist: %s",
+                            input
+                    ));
+                }
 
-            RequestBody scriptFileBody = RequestBody.create(
-                    MediaType.parse("application/octet-stream"),
-                    input
-            );
+                scriptFileBody = RequestBody.create(
+                        MediaType.parse("application/octet-stream"),
+                        input
+                );
+                filename = input.getName();
+            } else {
+                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                long bytes = Util.copyStream(System.in, byteArrayOutputStream);
+
+                scriptFileBody = RequestBody.create(
+                        MediaType.parse("application/octet-stream"),
+                        byteArrayOutputStream.toByteArray()
+
+                );
+                filename = "script.sh";
+            }
 
             adhocResponseCall = client.getService().runScript(
                     options.getProject(),
-                    MultipartBody.Part.createFormData("scriptFile", input.getName(), scriptFileBody),
+                    MultipartBody.Part.createFormData("scriptFile", filename, scriptFileBody),
                     options.getThreadcount(),
                     options.isKeepgoing(),
                     joinString(options.getCommandString()),

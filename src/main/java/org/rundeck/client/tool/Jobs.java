@@ -9,12 +9,10 @@ import org.rundeck.client.tool.options.JobListOptions;
 import org.rundeck.client.tool.options.JobLoadOptions;
 import org.rundeck.client.tool.options.JobPurgeOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.Util;
 import retrofit2.Call;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -156,17 +154,10 @@ public class Jobs {
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }
             InputStream inputStream = body.byteStream();
-            long total = 0;
-            try (FileOutputStream out = new FileOutputStream(options.getFile())) {
-                byte[] buff = new byte[10240];
-                int count = inputStream.read(buff);
-                while (count > 0) {
-                    out.write(buff, 0, count);
-                    total += count;
-                    count = inputStream.read(buff);
-                }
+            try(FileOutputStream out = new FileOutputStream(options.getFile())) {
+                long total = Util.copyStream(inputStream, out);
+                System.out.printf("Wrote %d bytes of %s to file %s%n", total, body.contentType(), options.getFile());
             }
-            System.out.printf("Wrote %d bytes of %s to file %s%n", total, body.contentType(), options.getFile());
         } else {
             Call<List<JobItem>> listCall;
             if (options.isIdlist()) {
