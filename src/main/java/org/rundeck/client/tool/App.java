@@ -1,15 +1,14 @@
 package org.rundeck.client.tool;
 
+import com.lexicalscope.jewel.cli.ArgumentValidationException;
 import com.lexicalscope.jewel.cli.Cli;
 import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.InvalidOptionSpecificationException;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.belt.CommandInput;
-import org.rundeck.client.belt.CommandRunFailure;
-import org.rundeck.client.belt.Tool;
-import org.rundeck.client.belt.ToolBuilder;
+import org.rundeck.client.belt.*;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
 
@@ -32,7 +31,11 @@ public class App {
     public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
 
     public static void main(String[] args) throws IOException, CommandRunFailure {
-        tool().run(args);
+        tool().runMain(args, true);
+    }
+
+    public static void main(Object command, String[] args) throws CommandRunFailure {
+        tool(command).runMain(args, true);
     }
 
     public static Tool tool(Object command) {
@@ -42,6 +45,8 @@ public class App {
     public static Tool tool() {
         Client<RundeckApi> client = createClient();
         return ToolBuilder.builder()
+                          .defaultHelp()
+                          .systemOutput()
                           .addCommands(
                                   new Adhoc(client),
                                   new Jobs(client),
@@ -101,8 +106,12 @@ public class App {
 
     public static class JewelInput implements CommandInput {
         @Override
-        public <T> T parseArgs(final String[] args, final Class<? extends T> clazz) {
-            return CliFactory.parseArguments(clazz, args);
+        public <T> T parseArgs(final String[] args, final Class<? extends T> clazz) throws InputError {
+            try {
+                return CliFactory.parseArguments(clazz, args);
+            } catch (ArgumentValidationException e) {
+                throw new InputError(e.getMessage(),e);
+            }
         }
 
         @Override

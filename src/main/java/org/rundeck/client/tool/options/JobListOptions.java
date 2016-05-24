@@ -10,17 +10,17 @@ import java.io.File;
 public interface JobListOptions extends JobBaseOptions{
 
 
-    @Option(shortName = "j")
+    @Option(shortName = "j", longName = "job", description = "Job name")
     String getJob();
 
     boolean isJob();
 
-    @Option(shortName = "g")
+    @Option(shortName = "g", longName = "group", description = "Job Group")
     String getGroup();
 
     boolean isGroup();
 
-    @Option(shortName = "i")
+    @Option(shortName = "i", longName = "idlist", description = "Comma separated list of Job IDs")
     String getIdlist();
 
     boolean isIdlist();

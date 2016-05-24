@@ -7,6 +7,6 @@ import com.lexicalscope.jewel.cli.Option;
  */
 public interface RunOptions {
 
-    @Option(shortName = "f", longName = "follow", description = "Follow queued execution output")
+    @Option(shortName = "f", longName = "follow", description = "Follow execution output as it runs")
     boolean isFollow();
 }

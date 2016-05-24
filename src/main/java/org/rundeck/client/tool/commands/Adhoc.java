@@ -7,6 +7,7 @@ import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandOutput;
 import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
@@ -24,7 +25,7 @@ import java.util.List;
  * Created by greg on 5/20/16.
  */
 
-@Command
+@Command(description = "Dispatch and adhoc COMMAND to matching nodes.")
 public class Adhoc extends ApiCommand {
     static final String COMMAND = "adhoc";
 
@@ -32,16 +33,12 @@ public class Adhoc extends ApiCommand {
         super(client);
     }
 
-    public static void main(String[] args) throws IOException, CommandRunFailure {
-        App.tool(new Adhoc(App.createClient())).run(args);
-    }
-
     @CommandLineInterface(application = COMMAND) interface Dispatch extends AdhocBaseOptions {
 
     }
 
-    @Command
-    public boolean dispatch(Dispatch options) throws IOException {
+    @Command(isSolo = true, isDefault = true)
+    public boolean dispatch(Dispatch options, CommandOutput output) throws IOException {
         Call<AdhocResponse> adhocResponseCall = null;
 
         if (options.isScriptFile() || options.isStdin()) {
@@ -110,9 +107,9 @@ public class Adhoc extends ApiCommand {
         }
 
         AdhocResponse adhocResponse = client.checkError(adhocResponseCall);
-        System.out.println(adhocResponse.message);
-        System.out.println("Started execution " + adhocResponse.execution.toBasicString());
-        return Executions.maybeFollow(client, options, adhocResponse.execution.getId());
+        output.output(adhocResponse.message);
+        output.output("Started execution " + adhocResponse.execution.toBasicString());
+        return Executions.maybeFollow(client, options, adhocResponse.execution.getId(), output);
     }
 
     static String joinString(final List<String> commandString) {

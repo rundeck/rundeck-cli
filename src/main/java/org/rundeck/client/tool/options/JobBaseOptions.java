@@ -9,12 +9,20 @@ import java.io.File;
  */
 public interface JobBaseOptions extends ProjectOptions {
 
-    @Option(shortName = "f")
+    @Option(shortName = "f",
+            longName = "file",
+            description = "File path of the file to upload (load command) or destination for storing the jobs (list " +
+                          "command)")
     File getFile();
 
     boolean isFile();
 
-    @Option(shortName = "F", longName = "format", defaultValue = "xml", pattern = "^(xml|yaml)$")
+    @Option(shortName = "F",
+            longName = "format",
+            defaultValue = "xml",
+            pattern = "^(xml|yaml)$",
+            description = "Format for the Job definition file, either xml or yaml")
     String getFormat();
+
 
 }

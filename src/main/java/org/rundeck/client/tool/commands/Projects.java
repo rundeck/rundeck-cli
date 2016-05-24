@@ -1,9 +1,9 @@
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CliFactory;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandOutput;
 import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
@@ -18,34 +18,29 @@ import java.util.Map;
 /**
  * Created by greg on 5/19/16.
  */
-@Command
+@Command(description = "List and manage projects.")
 public class Projects extends ApiCommand {
     public Projects(final Client<RundeckApi> client) {
         super(client);
     }
 
-    public static void main(String[] args) throws IOException, CommandRunFailure {
-        App.tool(new Projects(App.createClient())).run(args);
-    }
-
     @Command(isDefault = true)
-    public void list() throws IOException {
+    public void list(CommandOutput output) throws IOException {
         List<ProjectItem> body = client.checkError(client.getService().listProjects());
-        System.out.printf("%d Projects:%n", body.size());
+        output.output(String.format("%d Projects:%n", body.size()));
         for (ProjectItem proj : body) {
-            System.out.println("* " + proj.toBasicString());
+            output.output("* " + proj.toBasicString());
         }
-
     }
 
-    @Command
-    public void delete(ProjectOptions projectOptions) throws IOException {
+    @Command(description = "Delete a project")
+    public void delete(ProjectOptions projectOptions, CommandOutput output) throws IOException {
         client.checkError(client.getService().deleteProject(projectOptions.getProject()));
-        System.out.printf("Project was deleted: %s%n", projectOptions.getProject());
+        output.output(String.format("Project was deleted: %s%n", projectOptions.getProject()));
     }
 
-    @Command
-    public void create(ProjectCreateOptions options) throws IOException {
+    @Command(description = "Create a project.")
+    public void create(ProjectCreateOptions options, CommandOutput output) throws IOException {
         Map<String, String> config = new HashMap<>();
         if (options.config().size() > 0) {
             for (String s : options.config()) {
@@ -65,6 +60,6 @@ public class Projects extends ApiCommand {
         project.setConfig(config);
 
         ProjectItem body = client.checkError(client.getService().createProject(project));
-        System.out.printf("Created project: \n\t%s%n", body.toBasicString());
+        output.output(String.format("Created project: \n\t%s%n", body.toBasicString()));
     }
 }

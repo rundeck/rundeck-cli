@@ -9,6 +9,8 @@ import java.util.List;
  */
 public interface ProjectCreateOptions extends ProjectOptions {
 
-    @Unparsed(name = "-- -configkey=value",defaultValue = {})
+    @Unparsed(name = "-- -configkey=value",
+              defaultValue = {},
+              description = "A set of config properties for the project, in the form --key=value")
     List<String> config();
 }

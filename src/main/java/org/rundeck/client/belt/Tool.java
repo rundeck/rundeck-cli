@@ -1,10 +1,33 @@
 package org.rundeck.client.belt;
 
 /**
- * Manages commands, runs them
+ * a CLI tool
  */
 public interface Tool {
-    boolean run(String[] args) throws CommandRunFailure;
+    /**
+     * Run main arguments
+     *
+     * @param args       arguments
+     * @param exitSystem true to perform System.exit(2) on failure
+     *
+     * @return true/false if the result succeeded
+     *
+     * @throws CommandRunFailure
+     */
+    boolean runMain(String[] args, final boolean exitSystem) throws CommandRunFailure;
 
-    boolean runCommand(String name, String[] args) throws CommandRunFailure;
+    /**
+     * run a command by name
+     *
+     * @param name        command name
+     * @param args        command arguments
+     * @param inputParser parser for input arguments
+     * @param output      output sink for the command
+     *
+     * @return true if successful
+     *
+     * @throws CommandRunFailure
+     */
+    boolean runCommand(String name, String[] args, CommandInput inputParser, CommandOutput output)
+            throws CommandRunFailure;
 }

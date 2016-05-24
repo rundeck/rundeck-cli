@@ -1,10 +1,10 @@
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CliFactory;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandOutput;
 import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.ExecutionsFollowOptions;
@@ -20,7 +20,7 @@ import java.util.List;
  * Created by greg on 5/20/16.
  */
 
-@Command
+@Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends ApiCommand {
     public static final String COMMAND = "executions";
 
@@ -28,18 +28,12 @@ public class Executions extends ApiCommand {
         super(client);
     }
 
-
-    public static void main(String[] args) throws IOException, CommandRunFailure {
-        App.tool(new Executions(App.createClient())).run(args);
-    }
-
-
     @CommandLineInterface(application = "kill") interface Kill extends ExecutionsOptions {
 
     }
 
-    @Command
-    public boolean kill(Kill options) throws IOException {
+    @Command(description = "Attempt to kill an execution by ID.")
+    public boolean kill(Kill options, CommandOutput out) throws IOException {
         if (null == options.getId()) {
             throw new IllegalArgumentException("-e is required");
         }
@@ -48,14 +42,14 @@ public class Executions extends ApiCommand {
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
 
-        System.out.println(String.format("Kill [%s] result: %s", options.getId(), abort.status));
+        out.output(String.format("Kill [%s] result: %s", options.getId(), abort.status));
 
         if (null != execution) {
-            System.out.println(String.format("Execution [%s] status: %s", options.getId(), execution.getStatus()));
+            out.output(String.format("Execution [%s] status: %s", options.getId(), execution.getStatus()));
         }
 
         if (failed) {
-            System.out.println(String.format("Kill request failed: %s", abort.reason));
+            out.output(String.format("Kill request failed: %s", abort.reason));
         }
         return !failed;
     }
@@ -65,11 +59,11 @@ public class Executions extends ApiCommand {
     }
 
 
-    @Command
-    public boolean follow(Follow options) throws IOException {
+    @Command(description = "Follow the output of an execution. Restart from the beginning, or begin tailing as it " +
+                           "runs.")
+    public boolean follow(Follow options, CommandOutput out) throws IOException {
 
         int max = 500;
-//        System.out.printf("options : %s %s%n", options, options.isRestart());
 
         Call<ExecOutput> output = startFollowOutput(
                 client,
@@ -80,21 +74,25 @@ public class Executions extends ApiCommand {
         );
 
 
-        return followOutput(client, output, options.isProgress(), options.isQuiet(), options.getId(), max);
+        return followOutput(client, output, options.isProgress(), options.isQuiet(), options.getId(), max, out);
     }
 
     public static Call<ExecOutput> startFollowOutput(
             final Client<RundeckApi> client,
-            final long max, final boolean restart, final String id, final long tail
+            final long max,
+            final boolean restart,
+            final String id,
+            final long tail
     )
     {
-        Call<ExecOutput> output;
+
+        Call<ExecOutput> out;
         if (restart) {
-            output = client.getService().getOutput(id, 0L, 0L, max);
+            out = client.getService().getOutput(id, 0L, 0L, max);
         } else {
-            output = client.getService().getOutput(id, tail);
+            out = client.getService().getOutput(id, tail);
         }
-        return output;
+        return out;
     }
 
     public static boolean followOutput(
@@ -103,7 +101,8 @@ public class Executions extends ApiCommand {
             final boolean progress,
             final boolean quiet,
             final String id,
-            long max
+            long max,
+            CommandOutput out
     ) throws IOException
     {
         boolean done = false;
@@ -111,7 +110,7 @@ public class Executions extends ApiCommand {
         Call<ExecOutput> callOutput = output;
         while (!done) {
             ExecOutput execOutput = client.checkError(callOutput);
-            printLogOutput(execOutput.entries, progress, quiet);
+            printLogOutput(execOutput.entries, progress, quiet, out);
             done = execOutput.completed;
             status = execOutput.execState;
             if (!done) {
@@ -127,13 +126,20 @@ public class Executions extends ApiCommand {
         return "succeeded".equals(status);
     }
 
-    private static void printLogOutput(final List<ExecLog> entries, final boolean progress, final boolean quiet) {
+    private static void printLogOutput(
+            final List<ExecLog> entries,
+            final boolean progress,
+            final boolean quiet,
+            CommandOutput out
+    )
+    {
+
         if (!quiet && !progress) {
             for (ExecLog entry : entries) {
-                System.out.println(entry.log);
+                out.output(entry.log);
             }
         } else if (progress && entries.size() > 0) {
-            System.out.print(".");
+            out.output(".");
         }
     }
 
@@ -142,8 +148,8 @@ public class Executions extends ApiCommand {
 
     }
 
-    @Command(isDefault = true)
-    public void list(ListCmd options) throws IOException {
+    @Command(isDefault = true, description = "List all running executions for a project.")
+    public void list(ListCmd options, CommandOutput out) throws IOException {
         if (!options.isProject()) {
             throw new IllegalArgumentException("-p is required");
         }
@@ -152,16 +158,17 @@ public class Executions extends ApiCommand {
 
         ExecutionList executionList = client.checkError(client.getService()
                                                               .listExecutions(options.getProject(), offset, max));
-        System.out.printf("Running executions: %d item%n", executionList.getPaging().getCount());
+        out.output(String.format("Running executions: %d item%n", executionList.getPaging().getCount()));
         for (Execution execution : executionList.getExecutions()) {
-            System.out.println(execution.toBasicString());
+            out.output(execution.toBasicString());
         }
     }
 
     public static boolean maybeFollow(
             final Client<RundeckApi> client,
             final FollowOptions options,
-            final String id
+            final String id,
+            CommandOutput output
     ) throws IOException
     {
         if (!options.isFollow()) {
@@ -180,7 +187,8 @@ public class Executions extends ApiCommand {
                 options.isProgress(),
                 options.isQuiet(),
                 id,
-                500
+                500,
+                output
         );
     }
 }

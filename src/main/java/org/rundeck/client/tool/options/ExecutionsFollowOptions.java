@@ -7,7 +7,7 @@ import com.lexicalscope.jewel.cli.Option;
  */
 public interface ExecutionsFollowOptions extends BaseOptions, FollowOptions {
 
-    @Option(shortName = "e", longName = "eid")
+    @Option(shortName = "e", longName = "eid", description = "Execution ID")
     String getId();
 
 }

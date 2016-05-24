@@ -10,7 +10,7 @@ import java.util.List;
  */
 public interface ProjectOptions extends BaseOptions {
 
-    @Option(shortName = "p")
+    @Option(shortName = "p", longName = "project", description = "Project name")
     String getProject();
 
 

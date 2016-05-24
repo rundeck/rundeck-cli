@@ -1,11 +1,14 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.CommandLineInterface;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandOutput;
+import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.JobListOptions;
 import org.rundeck.client.tool.options.JobLoadOptions;
@@ -22,7 +25,7 @@ import java.util.List;
 /**
  * Created by greg on 3/28/16.
  */
-@Command("jobs")
+@Command(description = "List and manage Jobs.")
 public class Jobs extends ApiCommand {
 
     public static final String UUID_REMOVE = "remove";
@@ -32,34 +35,14 @@ public class Jobs extends ApiCommand {
         super(client);
     }
 
-    public static void main(String[] args) throws IOException {
-        Client<RundeckApi> client = App.createClient();
-        String[] actions = new String[]{"list", "load", "purge"};
-        boolean success = true;
-        if ("list".equals(args[0])) {
-            list(App.tail(args), client);
-        } else if ("load".equals(args[0])) {
-            success = load(App.tail(args), client);
-        } else if ("purge".equals(args[0])) {
-            success = purge(App.tail(args), client);
-        } else {
+    @CommandLineInterface(application = "purge") interface Purge extends JobPurgeOptions {
 
-            throw new IllegalArgumentException(String.format("Unrecognized action: %s, expected one of %s", args[0],
-                                                             Arrays.asList(actions)
-            ));
-        }
-        if (!success) {
-            System.exit(2);
-        }
     }
 
-    private static boolean purge(final String[] args, final Client<RundeckApi> client) throws IOException {
-        JobPurgeOptions options = CliFactory.parseArguments(JobPurgeOptions.class, args);
-        return new Jobs(client).purge(options);
-    }
+    @Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
+                           "before deleting from the server.")
+    public boolean purge(Purge options, CommandOutput output) throws IOException {
 
-    @Command
-    public boolean purge(JobPurgeOptions options) throws IOException {
         //if id,idlist specified, use directly
         //otherwise query for the list and assemble the ids
 
@@ -83,29 +66,24 @@ public class Jobs extends ApiCommand {
         }
 
         if (options.isFile()) {
-            list(options);
+            list(options, output);
         }
 
         DeleteJobsResult deletedJobs = client.checkError(client.getService().deleteJobs(ids));
 
         if (deletedJobs.isAllsuccessful()) {
-            System.out.printf("%d Jobs were deleted%n", deletedJobs.getRequestCount());
+            output.output(String.format("%d Jobs were deleted%n", deletedJobs.getRequestCount()));
             return true;
         }
-        System.out.printf("Failed to delete %d Jobs%n", deletedJobs.getFailed().size());
+        output.output(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
         for (DeleteJob deleteJob : deletedJobs.getFailed()) {
-            System.out.println("* " + deleteJob.toBasicString());
+            output.output(String.format("* " + deleteJob.toBasicString()));
         }
         return false;
     }
 
-    private static boolean load(final String[] args, final Client<RundeckApi> client) throws IOException {
-        JobLoadOptions options = CliFactory.parseArguments(JobLoadOptions.class, args);
-        return new Jobs(client).load(options);
-    }
-
-    @Command
-    public boolean load(JobLoadOptions options) throws IOException {
+    @Command(description = "Load Job definitions from a file in XML or YAML format.")
+    public boolean load(JobLoadOptions options, CommandOutput output) throws IOException {
         if (!options.isFile()) {
             throw new IllegalArgumentException("-f is required");
         }
@@ -130,31 +108,25 @@ public class Jobs extends ApiCommand {
 
         List<JobLoadItem> failed = importResult.getFailed();
 
-        printLoadResult(importResult.getSucceeded(), "Succeeded");
-        printLoadResult(importResult.getSkipped(), "Skipped");
-        printLoadResult(failed, "Failed");
+        printLoadResult(importResult.getSucceeded(), "Succeeded", output);
+        printLoadResult(importResult.getSkipped(), "Skipped", output);
+        printLoadResult(failed, "Failed", output);
 
         return failed == null || failed.size() == 0;
     }
 
-    private static void printLoadResult(final List<JobLoadItem> list, final String title) {
+    private static void printLoadResult(final List<JobLoadItem> list, final String title, CommandOutput output) {
         if (null != list && list.size() > 0) {
-            System.out.printf("%d Jobs " + title + ":%n", list != null ? list.size() : 0);
+            output.output(String.format("%d Jobs " + title + ":%n", list != null ? list.size() : 0));
             for (JobLoadItem jobLoadItem : list) {
-                System.out.printf("* %s%n", jobLoadItem.toBasicString());
+                output.output(String.format("* %s%n", jobLoadItem.toBasicString()));
             }
         }
     }
 
-    private static void list(final String[] args, final Client<RundeckApi> client) throws IOException {
-        JobListOptions options = CliFactory.parseArguments(JobListOptions.class, args);
 
-
-        new Jobs(client).list(options);
-    }
-
-    @Command
-    public void list(JobListOptions options) throws IOException {
+    @Command(description = "List jobs found in a project, or download Job definitions (-f).")
+    public void list(JobListOptions options, CommandOutput output) throws IOException {
         if (options.isFile()) {
             //write response to file instead of parsing it
             Call<ResponseBody> responseCall;
@@ -182,7 +154,12 @@ public class Jobs extends ApiCommand {
             InputStream inputStream = body.byteStream();
             try (FileOutputStream out = new FileOutputStream(options.getFile())) {
                 long total = Util.copyStream(inputStream, out);
-                System.out.printf("Wrote %d bytes of %s to file %s%n", total, body.contentType(), options.getFile());
+                output.output(String.format(
+                        "Wrote %d bytes of %s to file %s%n",
+                        total,
+                        body.contentType(),
+                        options.getFile()
+                ));
             }
         } else {
             Call<List<JobItem>> listCall;
@@ -196,9 +173,9 @@ public class Jobs extends ApiCommand {
                 );
             }
             List<JobItem> body = client.checkError(listCall);
-            System.out.printf("%d Jobs in project %s%n", body.size(), options.getProject());
+            output.output(String.format("%d Jobs in project %s%n", body.size(), options.getProject()));
             for (JobItem jobItem : body) {
-                System.out.println("* " + jobItem.toBasicString());
+                output.output("* " + jobItem.toBasicString());
             }
         }
     }
