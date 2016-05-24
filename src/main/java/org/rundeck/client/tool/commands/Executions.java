@@ -1,8 +1,11 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CliFactory;
+import com.lexicalscope.jewel.cli.CommandLineInterface;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.ExecutionsFollowOptions;
 import org.rundeck.client.tool.options.ExecutionsOptions;
@@ -16,26 +19,27 @@ import java.util.List;
 /**
  * Created by greg on 5/20/16.
  */
-public class Executions {
 
-    public static void main(String[] args) throws IOException {
-        Client<RundeckApi> client = App.createClient();
-        String[] actions = new String[]{"list", "follow", "kill"};
-        boolean success = true;
-        if ("follow".equals(args[0])) {
-            follow(App.tail(args), client);
-        } else if ("kill".equals(args[0])) {
-            success = kill(App.tail(args), client);
-        } else {
-            list("list".equals(args[0]) ? App.tail(args) : args, client);
-        }
-        if (!success) {
-            System.exit(2);
-        }
+@Command
+public class Executions extends ApiCommand {
+    public static final String COMMAND = "executions";
+
+    public Executions(final Client<RundeckApi> client) {
+        super(client);
     }
 
-    private static boolean kill(final String[] args, final Client<RundeckApi> client) throws IOException {
-        ExecutionsOptions options = CliFactory.parseArguments(ExecutionsOptions.class, args);
+
+    public static void main(String[] args) throws IOException, CommandRunFailure {
+        App.tool(new Executions(App.createClient())).run(args);
+    }
+
+
+    @CommandLineInterface(application = "kill") interface Kill extends ExecutionsOptions {
+
+    }
+
+    @Command
+    public boolean kill(Kill options) throws IOException {
         if (null == options.getId()) {
             throw new IllegalArgumentException("-e is required");
         }
@@ -56,13 +60,24 @@ public class Executions {
         return !failed;
     }
 
-    private static boolean follow(final String[] args, final Client<RundeckApi> client) throws IOException {
-        ExecutionsFollowOptions options = CliFactory.parseArguments(ExecutionsFollowOptions.class, args);
+    @CommandLineInterface(application = "follow") interface Follow extends ExecutionsFollowOptions {
+
+    }
+
+
+    @Command
+    public boolean follow(Follow options) throws IOException {
 
         int max = 500;
 //        System.out.printf("options : %s %s%n", options, options.isRestart());
 
-        Call<ExecOutput> output = startFollowOutput(client, max, options.isRestart(), options.getId(), options.getTail());
+        Call<ExecOutput> output = startFollowOutput(
+                client,
+                max,
+                options.isRestart(),
+                options.getId(),
+                options.getTail()
+        );
 
 
         return followOutput(client, output, options.isProgress(), options.isQuiet(), options.getId(), max);
@@ -117,21 +132,26 @@ public class Executions {
             for (ExecLog entry : entries) {
                 System.out.println(entry.log);
             }
-        } else if (progress && entries.size()>0) {
+        } else if (progress && entries.size() > 0) {
             System.out.print(".");
         }
     }
 
-    private static void list(final String[] args, final Client<RundeckApi> client) throws IOException {
 
-        ExecutionsOptions options = CliFactory.parseArguments(ExecutionsOptions.class, args);
+    @CommandLineInterface(application = "list") interface ListCmd extends ExecutionsOptions {
+
+    }
+
+    @Command(isDefault = true)
+    public void list(ListCmd options) throws IOException {
         if (!options.isProject()) {
             throw new IllegalArgumentException("-p is required");
         }
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
-        ExecutionList executionList = client.checkError(client.getService().listExecutions(options.getProject(), offset, max));
+        ExecutionList executionList = client.checkError(client.getService()
+                                                              .listExecutions(options.getProject(), offset, max));
         System.out.printf("Running executions: %d item%n", executionList.getPaging().getCount());
         for (Execution execution : executionList.getExecutions()) {
             System.out.println(execution.toBasicString());

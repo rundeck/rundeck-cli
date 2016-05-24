@@ -4,6 +4,8 @@ import com.lexicalscope.jewel.cli.CliFactory;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobItem;
+import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Client;
@@ -15,18 +17,18 @@ import java.util.List;
 /**
  * Created by greg on 5/20/16.
  */
-public class Run {
-    public static void main(final String[] args) throws IOException {
-        Client<RundeckApi> client = App.createClient();
-        boolean success = run(args, client);
-        if (!success) {
-            System.exit(2);
-        }
+@Command
+public class Run extends ApiCommand {
+    public Run(final Client<RundeckApi> client) {
+        super(client);
     }
 
-    private static boolean run(final String[] args, final Client<RundeckApi> client) throws IOException {
-        RunBaseOptions options = CliFactory.parseArguments(RunBaseOptions.class, args);
+    public static void main(String[] args) throws IOException, CommandRunFailure {
+        App.tool(new Run(App.createClient())).run(args);
+    }
 
+    @Command(isDefault = true)
+    public boolean run(RunBaseOptions options) throws IOException {
         String jobId;
         if (options.isJob()) {
             if (!options.isProject()) {

@@ -6,6 +6,8 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
+import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Client;
@@ -17,27 +19,29 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+
 /**
  * Created by greg on 5/20/16.
  */
-public class Adhoc {
+
+@Command
+public class Adhoc extends ApiCommand {
     static final String COMMAND = "adhoc";
 
-    public static void main(String[] args) throws IOException {
-        Client<RundeckApi> client = App.createClient();
-        boolean success = dispatch(args, client);
-        if (!success) {
-            System.exit(2);
-        }
-    }
-    @CommandLineInterface(application = COMMAND)
-    interface Dispatch extends AdhocBaseOptions{
-
+    public Adhoc(final Client<RundeckApi> client) {
+        super(client);
     }
 
-    private static boolean dispatch(final String[] args, final Client<RundeckApi> client) throws IOException {
-        Dispatch options = App.parse(Dispatch.class, args);
+    public static void main(String[] args) throws IOException, CommandRunFailure {
+        App.tool(new Adhoc(App.createClient())).run(args);
+    }
 
+    @CommandLineInterface(application = COMMAND) interface Dispatch extends AdhocBaseOptions {
+
+    }
+
+    @Command
+    public boolean dispatch(Dispatch options) throws IOException {
         Call<AdhocResponse> adhocResponseCall = null;
 
         if (options.isScriptFile() || options.isStdin()) {

@@ -5,6 +5,7 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.belt.Command;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.JobListOptions;
 import org.rundeck.client.tool.options.JobLoadOptions;
@@ -21,10 +22,15 @@ import java.util.List;
 /**
  * Created by greg on 3/28/16.
  */
-public class Jobs {
+@Command("jobs")
+public class Jobs extends ApiCommand {
 
     public static final String UUID_REMOVE = "remove";
     public static final String UUID_PRESERVE = "preserve";
+
+    public Jobs(final Client<RundeckApi> client) {
+        super(client);
+    }
 
     public static void main(String[] args) throws IOException {
         Client<RundeckApi> client = App.createClient();
@@ -49,7 +55,11 @@ public class Jobs {
 
     private static boolean purge(final String[] args, final Client<RundeckApi> client) throws IOException {
         JobPurgeOptions options = CliFactory.parseArguments(JobPurgeOptions.class, args);
+        return new Jobs(client).purge(options);
+    }
 
+    @Command
+    public boolean purge(JobPurgeOptions options) throws IOException {
         //if id,idlist specified, use directly
         //otherwise query for the list and assemble the ids
 
@@ -57,7 +67,7 @@ public class Jobs {
         if (options.isIdlist()) {
             ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
-            if(!options.isJob() && !options.isGroup()){
+            if (!options.isJob() && !options.isGroup()) {
                 throw new IllegalArgumentException("must specify -i, or -j/-g to specify jobs to delete.");
             }
             Call<List<JobItem>> listCall;
@@ -72,8 +82,8 @@ public class Jobs {
             }
         }
 
-        if(options.isFile()){
-            list(args, client);
+        if (options.isFile()) {
+            list(options);
         }
 
         DeleteJobsResult deletedJobs = client.checkError(client.getService().deleteJobs(ids));
@@ -91,6 +101,11 @@ public class Jobs {
 
     private static boolean load(final String[] args, final Client<RundeckApi> client) throws IOException {
         JobLoadOptions options = CliFactory.parseArguments(JobLoadOptions.class, args);
+        return new Jobs(client).load(options);
+    }
+
+    @Command
+    public boolean load(JobLoadOptions options) throws IOException {
         if (!options.isFile()) {
             throw new IllegalArgumentException("-f is required");
         }
@@ -135,6 +150,11 @@ public class Jobs {
         JobListOptions options = CliFactory.parseArguments(JobListOptions.class, args);
 
 
+        new Jobs(client).list(options);
+    }
+
+    @Command
+    public void list(JobListOptions options) throws IOException {
         if (options.isFile()) {
             //write response to file instead of parsing it
             Call<ResponseBody> responseCall;
@@ -160,7 +180,7 @@ public class Jobs {
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }
             InputStream inputStream = body.byteStream();
-            try(FileOutputStream out = new FileOutputStream(options.getFile())) {
+            try (FileOutputStream out = new FileOutputStream(options.getFile())) {
                 long total = Util.copyStream(inputStream, out);
                 System.out.printf("Wrote %d bytes of %s to file %s%n", total, body.contentType(), options.getFile());
             }

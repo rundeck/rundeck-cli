@@ -3,6 +3,8 @@ package org.rundeck.client.tool.commands;
 import com.lexicalscope.jewel.cli.CliFactory;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
+import org.rundeck.client.belt.Command;
+import org.rundeck.client.belt.CommandRunFailure;
 import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectOptions;
@@ -16,24 +18,18 @@ import java.util.Map;
 /**
  * Created by greg on 5/19/16.
  */
-public class Projects {
-
-    public static void main(String[] args) throws IOException {
-
-        Client<RundeckApi> client = App.createClient();
-        if (args.length<1 ||"list".equals(args[0])) {
-            list(client);
-        } else if ("create".equals(args[0])) {
-            create(App.tail(args), client);
-        } else if ("delete".equals(args[0])) {
-            delete(App.tail(args), client);
-        } else {
-            throw new IllegalArgumentException(String.format("Unrecognized action: %s", args[0]));
-        }
-
+@Command
+public class Projects extends ApiCommand {
+    public Projects(final Client<RundeckApi> client) {
+        super(client);
     }
 
-    private static void list(final Client<RundeckApi> client) throws IOException {
+    public static void main(String[] args) throws IOException, CommandRunFailure {
+        App.tool(new Projects(App.createClient())).run(args);
+    }
+
+    @Command(isDefault = true)
+    public void list() throws IOException {
         List<ProjectItem> body = client.checkError(client.getService().listProjects());
         System.out.printf("%d Projects:%n", body.size());
         for (ProjectItem proj : body) {
@@ -42,18 +38,17 @@ public class Projects {
 
     }
 
-    private static void delete(final String[] args, final Client<RundeckApi> client) throws IOException {
-        ProjectOptions projectOptions = CliFactory.parseArguments(ProjectOptions.class, args);
-
+    @Command
+    public void delete(ProjectOptions projectOptions) throws IOException {
         client.checkError(client.getService().deleteProject(projectOptions.getProject()));
         System.out.printf("Project was deleted: %s%n", projectOptions.getProject());
     }
 
-    private static void create(final String[] args, final Client<RundeckApi> client) throws IOException {
-        ProjectCreateOptions createOptions = CliFactory.parseArguments(ProjectCreateOptions.class, args);
+    @Command
+    public void create(ProjectCreateOptions options) throws IOException {
         Map<String, String> config = new HashMap<>();
-        if (createOptions.config().size() > 0) {
-            for (String s : createOptions.config()) {
+        if (options.config().size() > 0) {
+            for (String s : options.config()) {
                 if (!s.startsWith("--")) {
                     throw new IllegalArgumentException("Expected --key=value, but saw: " + s);
                 }
@@ -66,7 +61,7 @@ public class Projects {
             }
         }
         ProjectItem project = new ProjectItem();
-        project.setName(createOptions.getProject());
+        project.setName(options.getProject());
         project.setConfig(config);
 
         ProjectItem body = client.checkError(client.getService().createProject(project));

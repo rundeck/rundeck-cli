@@ -6,6 +6,10 @@ import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.belt.CommandInput;
+import org.rundeck.client.belt.CommandRunFailure;
+import org.rundeck.client.belt.Tool;
+import org.rundeck.client.belt.ToolBuilder;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
 
@@ -27,32 +31,29 @@ public class App {
     public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");
     public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
 
-    public static void main(String[] args) throws IOException {
-        String[] commands = new String[]{
-                "projects",
-                "jobs",
-                "executions",
-                "adhoc",
-                "run"
-        };
-        if(args.length<1){
-            System.err.printf("Available commands: %s%n", Arrays.asList(commands));
-            System.exit(2);
-        }
-        if (args[0].equals("jobs")) {
-            Jobs.main(tail(args));
-        } else if (args[0].equals("projects")) {
-            Projects.main(tail(args));
-        } else if (args[0].equals("executions")) {
-            Executions.main(tail(args));
-        } else if (args[0].equals("adhoc")) {
-            Adhoc.main(tail(args));
-        }else if (args[0].equals("run")) {
-            Run.main(tail(args));
-        } else {
-            throw new IllegalArgumentException("Unknown command: " + args[0]);
-        }
+    public static void main(String[] args) throws IOException, CommandRunFailure {
+        tool().run(args);
     }
+
+    public static Tool tool(Object command) {
+        return ToolBuilder.builder().addCommands(command).setParser(new JewelInput()).build();
+    }
+
+    public static Tool tool() {
+        Client<RundeckApi> client = createClient();
+        return ToolBuilder.builder()
+                          .addCommands(
+                                  new Adhoc(client),
+                                  new Jobs(client),
+                                  new Projects(client),
+                                  new Executions(client),
+                                  new Run(client)
+                          )
+                          .setParser(new JewelInput())
+                          .build();
+    }
+
+
     public static Client<RundeckApi> createClient() {
         String baseUrl = requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
         String token = requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
@@ -87,12 +88,27 @@ public class App {
         return false;
     }
 
-    public static <T> String help(Class<T> clazz){
-        Cli<T> cli = CliFactory.createCli(clazz);
-        return cli.getHelpMessage();
-    }
-    public static <T> T parse(Class<T> clazz, String[] args){
+
+    public static <T> T parse(Class<T> clazz, String[] args) {
         T options = CliFactory.parseArguments(clazz, args);
         return options;
+    }
+
+    public <T> T parseArgs(final String[] args, final Class<? extends T> clazz) {
+        T options = CliFactory.parseArguments(clazz, args);
+        return options;
+    }
+
+    public static class JewelInput implements CommandInput {
+        @Override
+        public <T> T parseArgs(final String[] args, final Class<? extends T> clazz) {
+            return CliFactory.parseArguments(clazz, args);
+        }
+
+        @Override
+        public String getHelp(final Class<?> type) {
+            Cli<?> cli = CliFactory.createCli(type);
+            return cli.getHelpMessage();
+        }
     }
 }

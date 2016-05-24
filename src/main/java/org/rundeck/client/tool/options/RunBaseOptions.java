@@ -1,5 +1,6 @@
 package org.rundeck.client.tool.options;
 
+import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.Unparsed;
 
@@ -8,6 +9,7 @@ import java.util.List;
 /**
  * Created by greg on 5/21/16.
  */
+@CommandLineInterface(application = "run")
 public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions {
     @Option(shortName = "l",
             longName = "logevel",
