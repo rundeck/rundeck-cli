@@ -61,8 +61,22 @@ public class App {
 
     public static Client<RundeckApi> createClient() {
         String baseUrl = requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
-        String token = requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-        return Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
+        if (System.getenv("RUNDECK_TOKEN") == null
+            && System.getenv("RUNDECK_USER") == null
+            && System.getenv("RUNDECK_PASSWORD") == null) {
+
+            throw new IllegalArgumentException(
+                    "Environment variable RUNDECK_TOKEN or RUNDECK_USER and RUNDECK_PASSWORD are required");
+        }
+        if (null != System.getenv("RUNDECK_TOKEN")) {
+            String token = requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
+            return Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
+        } else {
+
+            String user = requireEnv("RUNDECK_USER", "Please specify the Rundeck username");
+            String pass = requireEnv("RUNDECK_PASSWORD", "Please specify the Rundeck password");
+            return Rundeck.client(baseUrl, user, pass, System.getenv("DEBUG") != null);
+        }
     }
 
     public static String[] tail(final String[] args) {
@@ -110,7 +124,7 @@ public class App {
             try {
                 return CliFactory.parseArguments(clazz, args);
             } catch (ArgumentValidationException e) {
-                throw new InputError(e.getMessage(),e);
+                throw new InputError(e.getMessage(), e);
             }
         }
 
