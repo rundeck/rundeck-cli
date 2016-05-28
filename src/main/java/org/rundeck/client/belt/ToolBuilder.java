@@ -267,13 +267,18 @@ public class ToolBuilder {
                     objArgs[i] = t;
                 }
             }
+            Object invoke=null;
             try {
-                Object invoke = method.invoke(instance, objArgs);
+                invoke = method.invoke(instance, objArgs);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
             }
+            if (invoke != null && invoke instanceof Boolean) {
+                return ((Boolean) invoke);
+            }
+            //TODO: format output
             return true;
         }
 
