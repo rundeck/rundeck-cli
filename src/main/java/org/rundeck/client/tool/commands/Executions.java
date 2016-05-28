@@ -1,12 +1,11 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
+import com.lexicalscope.jewel.cli.Option;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.belt.Command;
 import org.rundeck.client.belt.CommandOutput;
-import org.rundeck.client.belt.CommandRunFailure;
-import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.ExecutionsFollowOptions;
 import org.rundeck.client.tool.options.ExecutionsOptions;
 import org.rundeck.client.tool.options.FollowOptions;
@@ -14,6 +13,7 @@ import org.rundeck.client.util.Client;
 import retrofit2.Call;
 
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -157,10 +157,64 @@ public class Executions extends ApiCommand {
         int max = options.isMax() ? options.getMax() : 20;
 
         ExecutionList executionList = client.checkError(client.getService()
-                                                              .listExecutions(options.getProject(), offset, max));
-        out.output(String.format("Running executions: %d item%n", executionList.getPaging().getCount()));
+                                                              .runningExecutions(options.getProject(), offset, max));
+        out.output(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
         for (Execution execution : executionList.getExecutions()) {
             out.output(execution.toBasicString());
+        }
+    }
+
+    @CommandLineInterface(application = "query") interface QueryCmd extends ExecutionsOptions {
+        @Option(shortName = "d",
+                longName = "recent",
+                description = "Get executions newer than specified time. e.g. \"3m\" (3 months). \n" +
+                              "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
+        String getRecentFilter();
+
+        boolean isRecentFilter();
+
+        @Option(shortName = "O",longName = "older",
+                description = "Get executions older than specified time. e.g. \"3m\" (3 months). \n" +
+                              "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
+        String getOlderFilter();
+
+        boolean isOlderFilter();
+    }
+
+    @Command(isDefault = true, description = "Query previous executions for a project.")
+    public void query(QueryCmd options, CommandOutput out) throws IOException {
+        if (!options.isProject()) {
+            throw new IllegalArgumentException("-p is required");
+        }
+        int offset = options.isOffset() ? options.getOffset() : 0;
+        int max = options.isMax() ? options.getMax() : 20;
+
+        ExecutionList executionList = client.checkError(client.getService()
+                                                              .listExecutions(options.getProject(), offset, max,
+                                                                              options.getOlderFilter(),
+                                                                              options.getRecentFilter()
+                                                              ));
+
+        Paging page = executionList.getPaging();
+        out.output(String.format(
+                "Found executions: %d of %d%n",
+                page.getCount(),
+                page.getTotal()
+        ));
+        for (Execution execution : executionList.getExecutions()) {
+            try {
+                out.output(execution.toExtendedString());
+            } catch (ParseException e) {
+                out.output(execution.toBasicString());
+            }
+        }
+        if (page.getTotal() >
+            (page.getOffset() + page.getCount())) {
+
+            int nextOffset = page.getOffset() + page.getMax();
+            out.output(String.format("(more results available, append: -o %d)", nextOffset));
+        }else{
+            out.output(String.format("End of results."));
         }
     }
 

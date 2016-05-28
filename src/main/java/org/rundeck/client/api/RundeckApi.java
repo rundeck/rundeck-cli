@@ -83,10 +83,20 @@ public interface RundeckApi {
 
     @Headers("Accept: application/json")
     @GET("project/{project}/executions/running")
-    Call<ExecutionList> listExecutions(
+    Call<ExecutionList> runningExecutions(
             @Path("project") String project,
             @Query("offset") int offset,
             @Query("max") int max
+    );
+
+    @Headers("Accept: application/json")
+    @GET("project/{project}/executions")
+    Call<ExecutionList> listExecutions(
+            @Path("project") String project,
+            @Query("offset") int offset,
+            @Query("max") int max,
+            @Query("olderFilter") String olderThan,
+            @Query("recentFilter") String newerThan
     );
 
     @Headers("Accept: application/json")

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -33,6 +34,12 @@ public class Execution {
     public String toBasicString() {
         if(null!=description) {
             return String.format("[%s] %s <%s>", id, description, permalink);
+        }
+        return String.format("[%s] <%s>", id, permalink);
+    }
+    public String toExtendedString() throws ParseException {
+        if(null!=dateEnded) {
+            return String.format("[%s] (%s: %s) <%s>", id, status, dateEnded.toRelative(), permalink);
         }
         return String.format("[%s] <%s>", id, permalink);
     }
