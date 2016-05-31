@@ -1,16 +1,16 @@
 package org.rundeck.client.tool;
 
-import com.lexicalscope.jewel.cli.ArgumentValidationException;
-import com.lexicalscope.jewel.cli.Cli;
 import com.lexicalscope.jewel.cli.CliFactory;
-import com.lexicalscope.jewel.cli.InvalidOptionSpecificationException;
 import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.belt.*;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
+import org.rundeck.util.toolbelt.CommandRunFailure;
+import org.rundeck.util.toolbelt.Tool;
+import org.rundeck.util.toolbelt.ToolBelt;
+import org.rundeck.util.toolbelt.input.jewelcli.JewelInput;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,23 +39,23 @@ public class App {
     }
 
     public static Tool tool(Object command) {
-        return ToolBuilder.builder().addCommands(command).setParser(new JewelInput()).build();
+        return ToolBelt.builder().addCommands(command).setParser(new JewelInput()).buckle();
     }
 
     public static Tool tool() {
         Client<RundeckApi> client = createClient();
-        return ToolBuilder.builder()
-                          .defaultHelp()
-                          .systemOutput()
-                          .addCommands(
+        return ToolBelt.builder()
+                       .defaultHelp()
+                       .systemOutput()
+                       .addCommands(
                                   new Adhoc(client),
                                   new Jobs(client),
                                   new Projects(client),
                                   new Executions(client),
                                   new Run(client)
                           )
-                          .setParser(new JewelInput())
-                          .build();
+                       .setParser(new JewelInput())
+                       .buckle();
     }
 
 
@@ -79,11 +79,6 @@ public class App {
         }
     }
 
-    public static String[] tail(final String[] args) {
-        List<String> strings = new ArrayList<>(Arrays.asList(args));
-        strings.remove(0);
-        return strings.toArray(new String[strings.size()]);
-    }
 
     public static String requireEnv(final String name, final String description) {
         String value = System.getenv(name);
@@ -118,20 +113,4 @@ public class App {
         return options;
     }
 
-    public static class JewelInput implements CommandInput {
-        @Override
-        public <T> T parseArgs(final String[] args, final Class<? extends T> clazz) throws InputError {
-            try {
-                return CliFactory.parseArguments(clazz, args);
-            } catch (ArgumentValidationException e) {
-                throw new InputError(e.getMessage(), e);
-            }
-        }
-
-        @Override
-        public String getHelp(final Class<?> type) {
-            Cli<?> cli = CliFactory.createCli(type);
-            return cli.getHelpMessage();
-        }
-    }
 }

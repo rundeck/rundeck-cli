@@ -1,9 +1,9 @@
-package org.rundeck.client.belt;
+package org.rundeck.util.toolbelt;
 
 import java.io.IOException;
 
 /**
- * Created by greg on 5/23/16.
+ * Interface for output
  */
 public interface CommandOutput {
     void output(Object output);

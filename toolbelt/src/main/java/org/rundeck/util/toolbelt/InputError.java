@@ -1,25 +1,25 @@
-package org.rundeck.client.belt;
+package org.rundeck.util.toolbelt;
 
 /**
- * Created by greg on 5/23/16.
+ * Indicates input parsing error occurd
  */
-public class CommandRunFailure extends Exception {
-    public CommandRunFailure() {
+public class InputError extends Exception {
+    public InputError() {
     }
 
-    public CommandRunFailure(final String message) {
+    public InputError(final String message) {
         super(message);
     }
 
-    public CommandRunFailure(final String message, final Throwable cause) {
+    public InputError(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public CommandRunFailure(final Throwable cause) {
+    public InputError(final Throwable cause) {
         super(cause);
     }
 
-    public CommandRunFailure(
+    public InputError(
             final String message,
             final Throwable cause,
             final boolean enableSuppression,

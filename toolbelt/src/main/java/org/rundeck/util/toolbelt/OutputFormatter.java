@@ -1,7 +1,7 @@
-package org.rundeck.client.belt;
+package org.rundeck.util.toolbelt;
 
 /**
- * Created by greg on 5/23/16.
+ * Format object output
  */
 public interface OutputFormatter {
     String format(Object o);

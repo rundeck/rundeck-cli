@@ -2,13 +2,11 @@ package org.rundeck.client.tool.commands;
 
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
-import org.rundeck.client.belt.Command;
-import org.rundeck.client.belt.CommandOutput;
-import org.rundeck.client.belt.CommandRunFailure;
-import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.util.toolbelt.Command;
+import org.rundeck.util.toolbelt.CommandOutput;
 
 import java.io.IOException;
 import java.util.HashMap;

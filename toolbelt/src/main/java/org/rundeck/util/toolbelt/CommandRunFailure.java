@@ -1,25 +1,25 @@
-package org.rundeck.client.belt;
+package org.rundeck.util.toolbelt;
 
 /**
- * Created by greg on 5/24/16.
+ * Indicates a command failed
  */
-public class InputError extends Exception {
-    public InputError() {
+public class CommandRunFailure extends Exception {
+    public CommandRunFailure() {
     }
 
-    public InputError(final String message) {
+    public CommandRunFailure(final String message) {
         super(message);
     }
 
-    public InputError(final String message, final Throwable cause) {
+    public CommandRunFailure(final String message, final Throwable cause) {
         super(message, cause);
     }
 
-    public InputError(final Throwable cause) {
+    public CommandRunFailure(final Throwable cause) {
         super(cause);
     }
 
-    public InputError(
+    public CommandRunFailure(
             final String message,
             final Throwable cause,
             final boolean enableSuppression,

@@ -1,9 +1,7 @@
-package org.rundeck.client.belt;
-
-import java.io.IOException;
+package org.rundeck.util.toolbelt;
 
 /**
- * Created by greg on 5/23/16.
+ * Can format output objects
  */
 public class FormattedOutput implements CommandOutput {
     CommandOutput delegate;

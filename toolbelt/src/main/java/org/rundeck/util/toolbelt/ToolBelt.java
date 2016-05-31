@@ -1,33 +1,40 @@
-package org.rundeck.client.belt;
+package org.rundeck.util.toolbelt;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.*;
 
-import static org.rundeck.client.tool.App.tail;
-
 /**
- * Created by greg on 5/23/16.
+ * Construct subcommands
  */
-public class ToolBuilder {
-    CommandSet commands;
-    CommandInput inputParser;
-    Set<String> helpCommands;
-    CommandOutput commandOutput;
-    OutputFormatter formatter;
+public class ToolBelt {
+    private CommandSet commands;
+    private CommandInput inputParser;
+    private Set<String> helpCommands;
+    private CommandOutput commandOutput;
+    private OutputFormatter formatter;
 
-    public static ToolBuilder builder() {
-        return new ToolBuilder();
+    /**
+     * @return new ToolBelt
+     */
+    public static ToolBelt builder() {
+        return new ToolBelt();
     }
 
-    public ToolBuilder() {
+    private ToolBelt() {
         commands = new CommandSet();
         helpCommands = new HashSet<>();
-        formatter = new SameFormatter();
+        formatter = new ToStringFormatter();
     }
 
-    public ToolBuilder addCommands(final Object... instance) {
+    /**
+     * Add objects as commands
+     *
+     * @param instance objects
+     *
+     * @return this
+     */
+    public ToolBelt addCommands(final Object... instance) {
         for (Object o : instance) {
             addCommand(o);
         }
@@ -37,36 +44,76 @@ public class ToolBuilder {
     /**
      * Use "-h","help","?" as help commands
      *
-     * @return
+     * @return this
      */
-    public ToolBuilder defaultHelp() {
+    public ToolBelt defaultHelp() {
         return helpCommands("-h", "--help", "help", "?");
     }
 
-    public ToolBuilder helpCommands(String... commands) {
+    /**
+     * Define commands indicating help
+     *
+     * @param commands list of commands
+     *
+     * @return this
+     */
+    public ToolBelt helpCommands(String... commands) {
         helpCommands.addAll(Arrays.asList(commands));
         return this;
     }
 
-    public ToolBuilder addCommand(final Object instance) {
+    /**
+     * Add object as a command, the object must have the {@link Command} annotation on it.
+     *
+     * @param instance object
+     *
+     * @return this
+     */
+    public ToolBelt addCommand(final Object instance) {
         introspect(instance);
         return this;
     }
 
-    public ToolBuilder systemOutput() {
+    /**
+     * Use system out/err for command output
+     *
+     * @return this
+     */
+    public ToolBelt systemOutput() {
         commandOutput = new BaseSystemCommandOutput();
         return this;
     }
 
-    static class CommandSet implements Tool, CommandInvoker {
+    private static class CommandContext {
+        private CommandInput inputParser;
+        private CommandOutput output;
+
+
+        CommandInput getInputParser() {
+            return inputParser;
+        }
+
+        public CommandOutput getOutput() {
+            return output;
+        }
+
+        void setInputParser(CommandInput inputParser) {
+            this.inputParser = inputParser;
+        }
+
+        public void setOutput(CommandOutput output) {
+            this.output = output;
+        }
+    }
+
+    private static class CommandSet implements Tool, CommandInvoker {
         Map<String, CommandInvoker> commands;
         String defCommand;
-        private CommandInput inputParser;
         Set<String> helpCommands;
-        CommandOutput output;
         public String description;
+        CommandContext context;
 
-        public CommandSet() {
+        CommandSet() {
             commands = new HashMap<>();
             helpCommands = new HashSet<>();
         }
@@ -74,7 +121,7 @@ public class ToolBuilder {
 
         @Override
         public boolean runMain(final String[] args, final boolean exitSystem) throws CommandRunFailure {
-            boolean result = run(inputParser, output, args);
+            boolean result = run(args);
             if (!result && exitSystem) {
                 System.exit(2);
             }
@@ -82,7 +129,7 @@ public class ToolBuilder {
         }
 
         @Override
-        public boolean run(CommandInput inputParser, CommandOutput output, final String[] args)
+        public boolean run(final String[] args)
                 throws CommandRunFailure
         {
             String[] cmdArgs = args;
@@ -92,28 +139,28 @@ public class ToolBuilder {
                 cmdArgs = tail(args);
             }
             if (null == cmd) {
-                output.error(String.format(
+                context.getOutput().error(String.format(
                         "No command was specified. Available commands: %s",
                         commands.keySet()
                 ));
-                output.error(String.format("You can use: COMMAND %s to get help.", helpCommands));
+                context.getOutput().error(String.format("You can use: COMMAND %s to get help.", helpCommands));
                 return false;
             }
             if (helpCommands.contains(cmd)) {
-                getHelp(inputParser, output);
+                getHelp();
                 return false;
             }
-            return runCommand(cmd, cmdArgs, inputParser, output);
+            return runCommand(cmd, cmdArgs);
         }
 
         @Override
-        public void getHelp(CommandInput inputParser, CommandOutput output) throws CommandRunFailure {
+        public void getHelp() throws CommandRunFailure {
             if (description != null && !"".equals(description)) {
-                output.output(description);
+                context.getOutput().output(description);
             }
             boolean multi = commands.size() > 1;
             if (multi) {
-                output.output(
+                context.getOutput().output(
                         String.format(
                                 "Available commands: %s",
                                 commands.keySet()
@@ -124,15 +171,14 @@ public class ToolBuilder {
                 CommandInvoker commandInvoker = commands.get(command);
 
                 if (multi) {
-                    output.output("--------------------");
-                    output.output("+ Command: " + command);
+                    context.getOutput().output("--------------------");
+                    context.getOutput().output("+ Command: " + command);
                 }
-                commandInvoker.getHelp(inputParser, output);
+                commandInvoker.getHelp();
             }
         }
 
-        public boolean runCommand(String cmd, String[] args, CommandInput inputParser, CommandOutput output)
-                throws CommandRunFailure
+        boolean runCommand(String cmd, String[] args) throws CommandRunFailure
         {
             CommandInvoker commandInvoke = commands.get(cmd);
             if (null == commandInvoke) {
@@ -143,22 +189,32 @@ public class ToolBuilder {
                 ));
             }
             if (args.length > 0 && helpCommands.contains(args[0])) {
-                commandInvoke.getHelp(inputParser, output);
+                commandInvoke.getHelp();
                 return false;
             }
             try {
-                return commandInvoke.run(inputParser, output, args);
+                return commandInvoke.run(args);
             } catch (InputError inputError) {
-                output.error(String.format(
+                context.getOutput().error(String.format(
                         "Error parsing arguments for [%s]: %s",
                         cmd,
                         inputError.getMessage()
                 ));
-                output.error(String.format("You can use: \"%s %s\" to get help.", cmd, helpCommands.iterator().next()));
+                context.getOutput().error(String.format(
+                        "You can use: \"%s %s\" to get help.",
+                        cmd,
+                        helpCommands.iterator().next()
+                ));
                 return false;
             }
         }
 
+    }
+
+    public static String[] tail(final String[] args) {
+        List<String> strings = new ArrayList<>(Arrays.asList(args));
+        strings.remove(0);
+        return strings.toArray(new String[strings.size()]);
     }
 
     private void introspect(final Object instance) {
@@ -174,20 +230,18 @@ public class ToolBuilder {
             cmd = aClass.getSimpleName().toLowerCase();
         }
         String cmdDescription = annotation1.description();
-
+        CommandContext context = new CommandContext();
         Method[] methods = aClass.getMethods();
         String defInvoke = null;
-        for (int i = 0; i < methods.length; i++) {
-            Method method = methods[i];
+        for (Method method : methods) {
             Command annotation = method.getAnnotation(Command.class);
             if (annotation != null) {
                 String name = annotation.value();
                 if ("".equals(name)) {
-                    name = method.getName();
+                    name = method.getName().toLowerCase();
                 }
-                String description = annotation.description();
-                CommandInvoke value = new CommandInvoke(name, method, instance);
-                value.description = description;
+                CommandInvoke value = new CommandInvoke(name, method, instance, context);
+                value.description = annotation.description();
                 value.solo = annotation.isSolo();
                 subCommands.put(name, value);
                 if (annotation.isDefault()) {
@@ -195,8 +249,12 @@ public class ToolBuilder {
                 }
             }
         }
+        if (subCommands.size() < 1) {
+            throw new IllegalArgumentException("Specified object has no methods with @Command annotation: " + aClass);
+        }
 
         CommandSet commandSet = new CommandSet();
+        commandSet.context = context;
         commandSet.helpCommands = helpCommands;
         commandSet.description = cmdDescription;
         if (subCommands.size() == 1) {
@@ -213,26 +271,38 @@ public class ToolBuilder {
 
     }
 
-    public ToolBuilder setParser(CommandInput input) {
+    /**
+     * Set input parser
+     *
+     * @param input input parser
+     *
+     * @return this
+     */
+    public ToolBelt setParser(CommandInput input) {
         this.inputParser = input;
         return this;
     }
 
 
-    public Tool build() {
-        commands.inputParser = inputParser;
+    /**
+     * Build the Tool
+     *
+     * @return new Tool
+     */
+    public Tool buckle() {
+        commands.context.setInputParser(inputParser);
         commands.helpCommands = helpCommands;
         if (commands.commands.size() == 1) {
             commands.defCommand = commands.commands.keySet().iterator().next();
         }
-        commands.output = new FormattedOutput(commandOutput, formatter);
+        commands.context.setOutput(new FormattedOutput(commandOutput, formatter));
         return commands;
     }
 
-    private static interface CommandInvoker {
-        boolean run(CommandInput inputParser, CommandOutput output, String[] args) throws CommandRunFailure, InputError;
+    private interface CommandInvoker {
+        boolean run(String[] args) throws CommandRunFailure, InputError;
 
-        void getHelp(CommandInput inputParser, CommandOutput output) throws CommandRunFailure;
+        void getHelp() throws CommandRunFailure;
     }
 
     private static class CommandInvoke implements CommandInvoker {
@@ -240,39 +310,42 @@ public class ToolBuilder {
         Method method;
         Object instance;
         public String description;
-        public boolean solo;
+        boolean solo;
+        CommandContext context;
 
-        public CommandInvoke(final String name, final Method method, final Object instance) {
+        CommandInvoke(
+                final String name,
+                final Method method,
+                final Object instance,
+                final CommandContext context
+        )
+        {
             this.name = name;
             this.method = method;
             this.instance = instance;
+            this.context = context;
         }
 
 
-        public boolean run(CommandInput inputParser, CommandOutput output, String[] args)
-                throws CommandRunFailure, InputError
-        {
+        public boolean run(String[] args) throws CommandRunFailure, InputError {
             //get configured arguments to the method
-            Parameter[] parameters = method.getParameters();
+            Class[] parameters = method.getParameterTypes();
             Object[] objArgs = new Object[parameters.length];
             for (int i = 0; i < parameters.length; i++) {
-                Parameter parameter = parameters[i];
-                Class<?> type = parameter.getType();
+                Class<?> type = parameters[i];
 
                 if (type.isAssignableFrom(CommandOutput.class)) {
-                    objArgs[i] = output;
+                    objArgs[i] = context.getOutput();
                 } else {
-                    Object t = inputParser.parseArgs(args, type);
+                    Object t = context.getInputParser().parseArgs(args, type);
 
                     objArgs[i] = t;
                 }
             }
-            Object invoke=null;
+            Object invoke = null;
             try {
                 invoke = method.invoke(instance, objArgs);
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            } catch (InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
             if (invoke != null && invoke instanceof Boolean) {
@@ -283,25 +356,23 @@ public class ToolBuilder {
         }
 
         @Override
-        public void getHelp(CommandInput inputParser, CommandOutput output) throws CommandRunFailure {
-            Parameter[] parameters = method.getParameters();
+        public void getHelp() throws CommandRunFailure {
+            Class[] parameters = method.getParameterTypes();
 
             if (description != null && !"".equals(description)) {
-                output.output(description);
+                context.getOutput().output(description);
             }
             if (parameters.length == 0) {
-                output.output("(no options for this command)");
+                context.getOutput().output("(no options for this command)");
             }
-            for (int i = 0; i < parameters.length; i++) {
-                Parameter parameter = parameters[i];
-                Class<?> type = parameter.getType();
+            for (Class<?> type : parameters) {
                 if (type.isAssignableFrom(CommandOutput.class)) {
                     continue;
                 }
 
-                String helpt = inputParser.getHelp(type);
+                String helpt = context.getInputParser().getHelp(type);
 
-                output.output(helpt);
+                context.getOutput().output(helpt);
             }
         }
 
