@@ -6,10 +6,12 @@
     - [x] upload
     - [x] purge
         - [x] support -f file out
+        - [ ] -y confirm
 - [ ] projects tool
     - [x] list
     - [x] create
     - [x] delete
+        - [ ] -y confirm
 - [ ] executions tool
     - [x] list
     - [x] follow
@@ -23,3 +25,4 @@
 - [ ] general
     - [ ] `-v` verbose logging
     - [ ] serr/sout
+    - [ ] any missing features from original rd-jobs/run/dispatch/rd-project tools?
