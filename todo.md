@@ -26,3 +26,5 @@
     - [ ] `-v` verbose logging
     - [ ] serr/sout
     - [ ] any missing features from original rd-jobs/run/dispatch/rd-project tools?
+    - [ ] help output at top level is too much information
+    - [ ] help output could be formatted better
