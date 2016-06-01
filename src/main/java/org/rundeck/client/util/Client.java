@@ -1,10 +1,10 @@
 package org.rundeck.client.util;
 
+import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.AuthorizationFailed;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.model.ErrorResponse;
-import org.rundeck.client.tool.App;
 import retrofit2.Call;
 import retrofit2.Converter;
 import retrofit2.Response;
@@ -14,16 +14,34 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 
 /**
- * Created by greg on 5/22/16.
+ * Holds Retrofit and a retrofit-constructed service
  */
 public class Client<T> {
 
+    public static final String APPLICATION_JSON = "application/json";
+    public static final MediaType MEDIA_TYPE_JSON = MediaType.parse(APPLICATION_JSON);
+    public static final String APPLICATION_XML = "application/xml";
+    public static final MediaType MEDIA_TYPE_XML = MediaType.parse(APPLICATION_XML);
+    public static final String APPLICATION_YAML = "application/yaml";
+    public static final MediaType MEDIA_TYPE_YAML = MediaType.parse(APPLICATION_YAML);
+    public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");
+    public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
     private T service;
     private Retrofit retrofit;
 
     public Client(final T service, final Retrofit retrofit) {
         this.service = service;
         this.retrofit = retrofit;
+    }
+
+    public static boolean hasAnyMediaType(final ResponseBody body, final MediaType... parse) {
+        MediaType mediaType1 = body.contentType();
+        for (MediaType mediaType : parse) {
+            if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public <T> T checkError(final Call<T> execute) throws IOException {
@@ -73,7 +91,7 @@ public class Client<T> {
                 new Annotation[0]
         );
         ResponseBody responseBody = execute.errorBody();
-        if (App.hasAnyMediaType(responseBody, App.MEDIA_TYPE_JSON)) {
+        if (hasAnyMediaType(responseBody, MEDIA_TYPE_JSON)) {
             return errorConverter.convert(responseBody);
         } else {
             return null;

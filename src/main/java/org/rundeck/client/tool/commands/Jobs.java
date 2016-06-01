@@ -5,7 +5,6 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.App;
 import org.rundeck.client.tool.options.JobListOptions;
 import org.rundeck.client.tool.options.JobLoadOptions;
 import org.rundeck.client.tool.options.JobPurgeOptions;
@@ -91,7 +90,7 @@ public class Jobs extends ApiCommand {
         }
 
         RequestBody requestBody = RequestBody.create(
-                "xml".equals(options.getFormat()) ? App.MEDIA_TYPE_XML : App.MEDIA_TYPE_YAML,
+                "xml".equals(options.getFormat()) ? Client.MEDIA_TYPE_XML : Client.MEDIA_TYPE_YAML,
                 input
         );
 
@@ -144,8 +143,8 @@ public class Jobs extends ApiCommand {
             }
             ResponseBody body = client.checkError(responseCall);
             if ((!"yaml".equals(options.getFormat()) ||
-                 !App.hasAnyMediaType(body, App.MEDIA_TYPE_YAML, App.MEDIA_TYPE_TEXT_YAML)) &&
-                !App.hasAnyMediaType(body, App.MEDIA_TYPE_XML, App.MEDIA_TYPE_TEXT_XML)) {
+                 !Client.hasAnyMediaType(body, Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
+                !Client.hasAnyMediaType(body, Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
 
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }

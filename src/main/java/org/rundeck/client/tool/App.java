@@ -15,28 +15,12 @@ import org.rundeck.util.toolbelt.input.jewelcli.JewelInput;
 import java.io.IOException;
 
 /**
- * Created by greg on 3/28/16.
+ * Entrypoint for commandline
  */
 public class App {
-    public static final String APPLICATION_XML = "application/xml";
-    public static final String APPLICATION_JSON = "application/json";
-    public static final MediaType MEDIA_TYPE_JSON = MediaType.parse(APPLICATION_JSON);
-    public static final MediaType MEDIA_TYPE_XML = MediaType.parse(APPLICATION_XML);
-    public static final String APPLICATION_YAML = "application/yaml";
-    public static final MediaType MEDIA_TYPE_YAML = MediaType.parse(APPLICATION_YAML);
-    public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");
-    public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
 
     public static void main(String[] args) throws IOException, CommandRunFailure {
         tool().runMain(args, true);
-    }
-
-    public static void main(Object command, String[] args) throws CommandRunFailure {
-        tool(command).runMain(args, true);
-    }
-
-    public static Tool tool(Object command) {
-        return ToolBelt.belt().add(command).commandInput(new JewelInput()).buckle();
     }
 
     public static Tool tool() {
@@ -87,27 +71,6 @@ public class App {
             ));
         }
         return value;
-    }
-
-    public static boolean hasAnyMediaType(final ResponseBody body, final MediaType... parse) {
-        MediaType mediaType1 = body.contentType();
-        for (MediaType mediaType : parse) {
-            if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    public static <T> T parse(Class<T> clazz, String[] args) {
-        T options = CliFactory.parseArguments(clazz, args);
-        return options;
-    }
-
-    public <T> T parseArgs(final String[] args, final Class<? extends T> clazz) {
-        T options = CliFactory.parseArguments(clazz, args);
-        return options;
     }
 
 }
