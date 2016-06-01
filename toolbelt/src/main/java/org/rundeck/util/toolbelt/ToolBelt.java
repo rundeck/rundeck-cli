@@ -402,8 +402,16 @@ public class ToolBelt {
             Object invoke = null;
             try {
                 invoke = method.invoke(instance, objArgs);
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (IllegalAccessException e) {
                 e.printStackTrace();
+                return false;
+            } catch (InvocationTargetException e) {
+                if (e.getCause() != null) {
+                    e.getCause().printStackTrace();
+                } else {
+                    e.printStackTrace();
+                }
+                return false;
             }
             if (invoke != null && (invoke instanceof Boolean || invoke.getClass().equals(boolean.class))) {
                 return ((Boolean) invoke);
