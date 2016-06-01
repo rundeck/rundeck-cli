@@ -3,7 +3,7 @@ package org.rundeck.util.toolbelt;
 /**
  * Output to system out/err
  */
-public class BaseSystemCommandOutput implements CommandOutput {
+public class SystemOutput implements CommandOutput {
     @Override
     public void output(final Object output) {
         System.out.println(output);

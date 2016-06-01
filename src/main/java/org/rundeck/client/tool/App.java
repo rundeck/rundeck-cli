@@ -13,9 +13,6 @@ import org.rundeck.util.toolbelt.ToolBelt;
 import org.rundeck.util.toolbelt.input.jewelcli.JewelInput;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by greg on 3/28/16.
@@ -39,22 +36,22 @@ public class App {
     }
 
     public static Tool tool(Object command) {
-        return ToolBelt.builder().addCommands(command).setParser(new JewelInput()).buckle();
+        return ToolBelt.belt().add(command).commandInput(new JewelInput()).buckle();
     }
 
     public static Tool tool() {
         Client<RundeckApi> client = createClient();
-        return ToolBelt.builder()
-                       .defaultHelp()
+        return ToolBelt.belt()
+                       .defaultHelpCommands()
                        .systemOutput()
-                       .addCommands(
+                       .add(
                                   new Adhoc(client),
                                   new Jobs(client),
                                   new Projects(client),
                                   new Executions(client),
                                   new Run(client)
                           )
-                       .setParser(new JewelInput())
+                       .commandInput(new JewelInput())
                        .buckle();
     }
 

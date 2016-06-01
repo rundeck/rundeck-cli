@@ -2,6 +2,7 @@ package org.rundeck.util.toolbelt;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 
 /**
@@ -15,9 +16,69 @@ public class ToolBelt {
     private OutputFormatter formatter;
 
     /**
+     * Create a simple CLI tool for the object, using {@link SimpleCommandInput} to parse
+     * CLI args into  method parameters
+     *
+     * @param commands
+     *
+     * @return
+     */
+    public static Tool with(Object... commands) {
+        return with(new SimpleCommandInput(), commands);
+    }
+
+    /**
+     * Create a simple CLI tool for the object, using the specified input parser to parse
+     * CLI args into  method parameters
+     *
+     * @param commands
+     *
+     * @return
+     */
+    public static Tool with(CommandInput input, Object... commands) {
+        return belt().defaultHelpCommands()
+                     .commandInput(input)
+                     .systemOutput()
+                     .add(commands)
+                     .buckle();
+    }
+
+    /**
+     * Create a simple CLI tool for the object, using the specified input parser to parse
+     * CLI args into  method parameters
+     *
+     * @param commands
+     *
+     * @return
+     */
+    public static Tool with(CommandOutput output, Object... commands) {
+        return belt().defaultHelpCommands()
+                     .commandInput(new SimpleCommandInput())
+                     .commandOutput(output)
+                     .add(commands)
+                     .buckle();
+    }
+
+    /**
+     * Create a simple CLI tool for the object, using the specified input parser to parse
+     * CLI args into  method parameters
+     *
+     * @param commands
+     *
+     * @return
+     */
+    public static Tool with(CommandInput input, CommandOutput output, Object... commands) {
+        return belt().defaultHelpCommands()
+                     .commandInput(input)
+                     .commandOutput(output)
+                     .add(commands)
+                     .buckle();
+    }
+
+    /**
      * @return new ToolBelt
      */
-    public static ToolBelt builder() {
+    public static ToolBelt belt() {
         return new ToolBelt();
     }
 
@@ -34,9 +95,9 @@ public class ToolBelt {
      *
      * @return this
      */
-    public ToolBelt addCommands(final Object... instance) {
+    public ToolBelt add(final Object... instance) {
         for (Object o : instance) {
-            addCommand(o);
+            introspect(o);
         }
         return this;
     }
@@ -46,7 +107,7 @@ public class ToolBelt {
      *
      * @return this
      */
-    public ToolBelt defaultHelp() {
+    public ToolBelt defaultHelpCommands() {
         return helpCommands("-h", "--help", "help", "?");
     }
 
@@ -63,15 +124,12 @@ public class ToolBelt {
     }
 
     /**
-     * Add object as a command, the object must have the {@link Command} annotation on it.
-     *
-     * @param instance object
+     * Use system out/err for command output
      *
      * @return this
      */
-    public ToolBelt addCommand(final Object instance) {
-        introspect(instance);
-        return this;
+    public ToolBelt systemOutput() {
+        return commandOutput(new SystemOutput());
     }
 
     /**
@@ -79,8 +137,8 @@ public class ToolBelt {
      *
      * @return this
      */
-    public ToolBelt systemOutput() {
-        commandOutput = new BaseSystemCommandOutput();
+    public ToolBelt commandOutput(CommandOutput output) {
+        commandOutput = output;
         return this;
     }
 
@@ -116,6 +174,7 @@ public class ToolBelt {
         CommandSet() {
             commands = new HashMap<>();
             helpCommands = new HashSet<>();
+            context = new CommandContext();
         }
 
 
@@ -222,15 +281,11 @@ public class ToolBelt {
         //look for methods
         Class<?> aClass = instance.getClass();
         Command annotation1 = aClass.getAnnotation(Command.class);
-        if (null == annotation1) {
-            throw new IllegalArgumentException("Specified object has no @Command annotation: " + aClass);
-        }
-        String cmd = annotation1.value();
+        String cmd = null != annotation1 ? annotation1.value() : "";
         if ("".equals(cmd)) {
             cmd = aClass.getSimpleName().toLowerCase();
         }
-        String cmdDescription = annotation1.description();
-        CommandContext context = new CommandContext();
+        String cmdDescription = null != annotation1 ? annotation1.description() : null;
         Method[] methods = aClass.getMethods();
         String defInvoke = null;
         for (Method method : methods) {
@@ -240,7 +295,7 @@ public class ToolBelt {
                 if ("".equals(name)) {
                     name = method.getName().toLowerCase();
                 }
-                CommandInvoke value = new CommandInvoke(name, method, instance, context);
+                CommandInvoke value = new CommandInvoke(name, method, instance, commands.context);
                 value.description = annotation.description();
                 value.solo = annotation.isSolo();
                 subCommands.put(name, value);
@@ -254,7 +309,7 @@ public class ToolBelt {
         }
 
         CommandSet commandSet = new CommandSet();
-        commandSet.context = context;
+        commandSet.context = commands.context;
         commandSet.helpCommands = helpCommands;
         commandSet.description = cmdDescription;
         if (subCommands.size() == 1) {
@@ -278,7 +333,7 @@ public class ToolBelt {
      *
      * @return this
      */
-    public ToolBelt setParser(CommandInput input) {
+    public ToolBelt commandInput(CommandInput input) {
         this.inputParser = input;
         return this;
     }
@@ -330,14 +385,16 @@ public class ToolBelt {
         public boolean run(String[] args) throws CommandRunFailure, InputError {
             //get configured arguments to the method
             Class[] parameters = method.getParameterTypes();
+            Parameter[] params = method.getParameters();
             Object[] objArgs = new Object[parameters.length];
-            for (int i = 0; i < parameters.length; i++) {
+            for (int i = 0; i < params.length; i++) {
                 Class<?> type = parameters[i];
+                String paramName = getParameterName(params[i]);
 
                 if (type.isAssignableFrom(CommandOutput.class)) {
                     objArgs[i] = context.getOutput();
                 } else {
-                    Object t = context.getInputParser().parseArgs(args, type);
+                    Object t = context.getInputParser().parseArgs(name, args, type, paramName);
 
                     objArgs[i] = t;
                 }
@@ -348,7 +405,7 @@ public class ToolBelt {
             } catch (IllegalAccessException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-            if (invoke != null && invoke instanceof Boolean) {
+            if (invoke != null && (invoke instanceof Boolean || invoke.getClass().equals(boolean.class))) {
                 return ((Boolean) invoke);
             }
             //TODO: format output
@@ -357,25 +414,36 @@ public class ToolBelt {
 
         @Override
         public void getHelp() throws CommandRunFailure {
-            Class[] parameters = method.getParameterTypes();
-
+            Parameter[] params = method.getParameters();
             if (description != null && !"".equals(description)) {
                 context.getOutput().output(description);
             }
-            if (parameters.length == 0) {
+            if (params.length == 0) {
                 context.getOutput().output("(no options for this command)");
             }
-            for (Class<?> type : parameters) {
+            for (int i = 0; i < params.length; i++) {
+                Class<?> type = params[i].getType();
+                String paramName = getParameterName(params[i]);
                 if (type.isAssignableFrom(CommandOutput.class)) {
                     continue;
                 }
 
-                String helpt = context.getInputParser().getHelp(type);
+                String helpt = context.getInputParser().getHelp(name, type, paramName);
 
                 context.getOutput().output(helpt);
             }
         }
 
 
+    }
+
+    private static String getParameterName(final Parameter param) {
+        if (param.getAnnotation(Arg.class) != null) {
+            Arg annotation = param.getAnnotation(Arg.class);
+            if (!"".equals(annotation.value())) {
+                return annotation.value();
+            }
+        }
+        return param.getName();
     }
 }
