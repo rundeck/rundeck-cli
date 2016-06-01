@@ -2,26 +2,16 @@
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.3.4'
 }
+apply plugin: 'pl.allegro.tech.build.axion-release'
+scmVersion {
+    tag {
+        prefix = 'v'
+        versionSeparator = ''
+    }
+}
 
 allprojects {
-    apply plugin: 'pl.allegro.tech.build.axion-release'
-    scmVersion {
-        tag {
-            prefix = 'v'
-            versionSeparator = ''
-            def origDeserialize=deserialize
-            //apend .0 to satisfy semver if the tag version is only X.Y
-            deserialize = { config, position, tagName ->
-                def orig = origDeserialize(config, position, tagName)
-                if (orig.split('\\.').length < 3) {
-                    orig += ".0"
-                }
-                orig
-            }
-        }
-    }
     project.version = scmVersion.version
-
 }
 
 apply plugin: 'idea'
