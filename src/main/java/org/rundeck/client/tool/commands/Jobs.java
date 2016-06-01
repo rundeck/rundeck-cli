@@ -32,12 +32,12 @@ public class Jobs extends ApiCommand {
         super(client);
     }
 
-    @CommandLineInterface(application = "purge") interface Purge extends JobPurgeOptions {
-
+    @CommandLineInterface(application = "purge") interface Purge extends JobPurgeOptions, ListOpts {
     }
 
     @Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
-                           "before deleting from the server.")
+                           "before deleting from the server. " +
+                           "--idlist/-i, or --job/-j or --group/-g Options are required.")
     public boolean purge(Purge options, CommandOutput output) throws IOException {
 
         //if id,idlist specified, use directly
@@ -79,8 +79,11 @@ public class Jobs extends ApiCommand {
         return false;
     }
 
+    @CommandLineInterface(application = "load") interface Load extends JobLoadOptions {
+    }
+
     @Command(description = "Load Job definitions from a file in XML or YAML format.")
-    public boolean load(JobLoadOptions options, CommandOutput output) throws IOException {
+    public boolean load(Load options, CommandOutput output) throws IOException {
         if (!options.isFile()) {
             throw new IllegalArgumentException("-f is required");
         }
@@ -121,9 +124,11 @@ public class Jobs extends ApiCommand {
         }
     }
 
+    @CommandLineInterface(application = "list") interface ListOpts extends JobListOptions {
+    }
 
     @Command(description = "List jobs found in a project, or download Job definitions (-f).")
-    public void list(JobListOptions options, CommandOutput output) throws IOException {
+    public void list(ListOpts options, CommandOutput output) throws IOException {
         if (options.isFile()) {
             //write response to file instead of parsing it
             Call<ResponseBody> responseCall;

@@ -1,5 +1,6 @@
 package org.rundeck.client.tool.commands;
 
+import com.lexicalscope.jewel.cli.CommandLineInterface;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
@@ -22,7 +23,8 @@ public class Projects extends ApiCommand {
         super(client);
     }
 
-    @Command(isDefault = true)
+
+    @Command(isDefault = true, description = "List all projects. (no options.)")
     public void list(CommandOutput output) throws IOException {
         List<ProjectItem> body = client.checkError(client.getService().listProjects());
         output.output(String.format("%d Projects:%n", body.size()));
@@ -31,14 +33,22 @@ public class Projects extends ApiCommand {
         }
     }
 
+    @CommandLineInterface(application = "delete") interface ProjectDelete extends ProjectOptions {
+
+    }
+
     @Command(description = "Delete a project")
-    public void delete(ProjectOptions projectOptions, CommandOutput output) throws IOException {
-        client.checkError(client.getService().deleteProject(projectOptions.getProject()));
-        output.output(String.format("Project was deleted: %s%n", projectOptions.getProject()));
+    public void delete(ProjectDelete options, CommandOutput output) throws IOException {
+        client.checkError(client.getService().deleteProject(options.getProject()));
+        output.output(String.format("Project was deleted: %s%n", options.getProject()));
+    }
+
+    @CommandLineInterface(application = "create") interface Create extends ProjectCreateOptions {
+
     }
 
     @Command(description = "Create a project.")
-    public void create(ProjectCreateOptions options, CommandOutput output) throws IOException {
+    public void create(Create options, CommandOutput output) throws IOException {
         Map<String, String> config = new HashMap<>();
         if (options.config().size() > 0) {
             for (String s : options.config()) {
