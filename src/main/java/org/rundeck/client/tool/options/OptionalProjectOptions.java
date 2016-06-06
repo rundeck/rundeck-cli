@@ -1,8 +1,8 @@
 package org.rundeck.client.tool.options;
 
 /**
- * Created by greg on 5/20/16.
+ * project parameter is optional
  */
-public interface OptionalProjectOptions extends ProjectOptions {
+public interface OptionalProjectOptions extends ProjectNameOptions {
     boolean isProject();
 }

@@ -4,9 +4,7 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.options.ExecutionsFollowOptions;
-import org.rundeck.client.tool.options.ExecutionsOptions;
-import org.rundeck.client.tool.options.FollowOptions;
+import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.util.toolbelt.Command;
 import org.rundeck.util.toolbelt.CommandOutput;
@@ -22,13 +20,12 @@ import java.util.List;
 
 @Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends ApiCommand {
-    public static final String COMMAND = "executions";
 
     public Executions(final Client<RundeckApi> client) {
         super(client);
     }
 
-    @CommandLineInterface(application = "kill") interface Kill extends ExecutionsOptions {
+    @CommandLineInterface(application = "kill") interface Kill extends ExecutionIdOption {
 
     }
 
@@ -154,15 +151,12 @@ public class Executions extends ApiCommand {
     }
 
 
-    @CommandLineInterface(application = "list") interface ListCmd extends ExecutionsOptions {
+    @CommandLineInterface(application = "list") interface ListCmd extends ExecutionListOptions, ProjectNameOptions {
 
     }
 
     @Command(isDefault = true, description = "List all running executions for a project.")
     public void list(ListCmd options, CommandOutput out) throws IOException {
-        if (!options.isProject()) {
-            throw new IllegalArgumentException("-p is required");
-        }
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
@@ -174,7 +168,7 @@ public class Executions extends ApiCommand {
         }
     }
 
-    @CommandLineInterface(application = "query") interface QueryCmd extends ExecutionsOptions {
+    @CommandLineInterface(application = "query") interface QueryCmd extends ExecutionListOptions, ProjectNameOptions {
         @Option(shortName = "d",
                 longName = "recent",
                 description = "Get executions newer than specified time. e.g. \"3m\" (3 months). \n" +
@@ -183,7 +177,7 @@ public class Executions extends ApiCommand {
 
         boolean isRecentFilter();
 
-        @Option(shortName = "O",longName = "older",
+        @Option(shortName = "O", longName = "older",
                 description = "Get executions older than specified time. e.g. \"3m\" (3 months). \n" +
                               "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
         String getOlderFilter();
@@ -193,9 +187,6 @@ public class Executions extends ApiCommand {
 
     @Command(isDefault = true, description = "Query previous executions for a project.")
     public void query(QueryCmd options, CommandOutput out) throws IOException {
-        if (!options.isProject()) {
-            throw new IllegalArgumentException("-p is required");
-        }
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
@@ -223,7 +214,7 @@ public class Executions extends ApiCommand {
 
             int nextOffset = page.getOffset() + page.getMax();
             out.output(String.format("(more results available, append: -o %d)", nextOffset));
-        }else{
+        } else {
             out.output(String.format("End of results."));
         }
     }

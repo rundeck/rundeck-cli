@@ -7,7 +7,7 @@ import java.io.File;
 /**
  * Created by greg on 5/20/16.
  */
-public interface JobBaseOptions extends ProjectOptions {
+public interface JobBaseOptions extends ProjectNameOptions {
 
     @Option(shortName = "f",
             longName = "file",

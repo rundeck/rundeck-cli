@@ -4,7 +4,7 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
-import org.rundeck.client.tool.options.ProjectOptions;
+import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.util.toolbelt.Command;
 import org.rundeck.util.toolbelt.CommandOutput;
@@ -33,7 +33,7 @@ public class Projects extends ApiCommand {
         }
     }
 
-    @CommandLineInterface(application = "delete") interface ProjectDelete extends ProjectOptions {
+    @CommandLineInterface(application = "delete") interface ProjectDelete extends ProjectNameOptions {
 
     }
 

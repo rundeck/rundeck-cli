@@ -6,9 +6,9 @@ import com.lexicalscope.jewel.cli.Unparsed;
 import java.util.List;
 
 /**
- * Created by greg on 5/19/16.
+ * Project name
  */
-public interface ProjectOptions extends BaseOptions {
+public interface ProjectNameOptions extends BaseOptions {
 
     @Option(shortName = "p", longName = "project", description = "Project name")
     String getProject();
