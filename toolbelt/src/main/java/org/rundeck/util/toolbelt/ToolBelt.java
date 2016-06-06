@@ -96,9 +96,7 @@ public class ToolBelt {
      * @return this
      */
     public ToolBelt add(final Object... instance) {
-        for (Object o : instance) {
-            introspect(o);
-        }
+        Arrays.asList(instance).forEach(this::introspect);
         return this;
     }
 
@@ -277,6 +275,9 @@ public class ToolBelt {
     }
 
     private void introspect(final Object instance) {
+        introspect(commands, instance);
+    }
+    private void introspect(CommandSet parent, final Object instance) {
         HashMap<String, CommandInvoke> subCommands = new HashMap<>();
         //look for methods
         Class<?> aClass = instance.getClass();
@@ -329,10 +330,15 @@ public class ToolBelt {
             commandSet.commands.putAll(subCommands);
             commandSet.defCommand = defInvoke;
         }
+        if(instance instanceof HasSubCommands){
+            HasSubCommands subs = (HasSubCommands) instance;
+            List<Object> subCommands1 = subs.getSubCommands();
+            subCommands1.forEach(o -> introspect(commandSet, o));
+        }
         if(!isSub) {
-            commands.commands.put(cmd, commandSet);
+            parent.commands.put(cmd, commandSet);
         }else{
-            commands.commands.putAll(commandSet.commands);
+            parent.commands.putAll(commandSet.commands);
         }
 
     }

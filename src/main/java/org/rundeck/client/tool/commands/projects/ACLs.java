@@ -21,7 +21,7 @@ import java.util.function.Function;
 /**
  * Created by greg on 6/6/16.
  */
-@SubCommand()
+@Command(description = "Manage Project ACLs")
 public class ACLs extends ApiCommand {
     public ACLs(final Client<RundeckApi> client) {
         super(client);

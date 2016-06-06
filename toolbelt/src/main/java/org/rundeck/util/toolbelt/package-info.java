@@ -1,5 +1,11 @@
 /**
  * <p>Defines a set of commands with subcommands, using annotations to indicate methods to expose as subcommands.</p>
+ * <p>"Commands" represent an invocable named action, with optional arguments.  A "Command" may also be a container
+ * for other "Commands" (i.e. "Subcommands"). In that case, the parent "command" is called a "command container".</p>
+ * <p>The simplest structure is a Class with Methods, where the Class is the command container, and the methods are the
+ * sub commands.</p>
+ * <p>For further nesting, the class can implement {@link org.rundeck.util.toolbelt.HasSubCommands} and return
+ * other command container objects.</p>
  *
  * <p>Simplest usage:</p>
  * <pre><code>
@@ -37,7 +43,7 @@
  * <p>You can define multiple commands (with their subcommands) in one step:</p>
  * <code><pre>
  *             ToolBelt.with(new Command1(), new Command2(),...).runMain(args);
- *</pre></code>
+ * </pre></code>
  * <p>
  * For more advanced usage, see below:
  * </p>
@@ -75,5 +81,41 @@
  * <code>InputArgs</code> must be defined with appropriate annotations.
  *
  * </p>
+ * <h2>Using HasSubCommand interface:</h2>
+ * <p>
+ * If a {@literal @}Command annotated class wants to define a subcommand which is also a container (has subcommands of
+ * its own), It should implement {@link org.rundeck.util.toolbelt.HasSubCommands}, and return a list of command
+ * container objects.
+ * </p>
+ *<code><pre>
+ * {@literal @}Command class First implements HasSubCommands{
+ *
+ *     {@literal @}Command void something(){
+ *         System.out.println("This method prints something")
+ *     }
+ *
+ *     List&lt;Object&gt; getCommands(){
+ *         return Arrays.asList(new Second());
+ *     }
+ * }
+ * {@literal @}Command class Second{
+ *     {@literal @}Command void third(){
+ *         System.out.println("Third level nested command");
+ *     }
+ * }
+ *</pre></code>
+ * <p>This will define an interface like:
+ *
+ * </p>
+ * <code><pre>
+ *     $ java ... First
+ *     Available commands: [something, second]
+ *     $ java ... First something
+ *     This method prints something
+ *     $ java ... First second
+ *     Availabe commands: [third]
+ *     $ java ... First second third
+ *     Third level nested command
+ * </pre></code>
  */
 package org.rundeck.util.toolbelt;

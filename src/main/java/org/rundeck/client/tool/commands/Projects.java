@@ -11,6 +11,7 @@ import org.rundeck.util.toolbelt.*;
 import org.rundeck.util.toolbelt.input.jewelcli.JewelInput;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,21 +20,17 @@ import java.util.Map;
  * Created by greg on 5/19/16.
  */
 @Command(description = "List and manage projects.")
-public class Projects extends ApiCommand {
-    private Tool aclCommands;
-
+public class Projects extends ApiCommand implements HasSubCommands{
     public Projects(final Client<RundeckApi> client) {
         super(client);
-        this.aclCommands = ToolBelt.belt()
-                              .defaultHelpCommands()
-                              .systemOutput()
-                              .add(
-                                      new ACLs(client)
-                              )
-                              .commandInput(new JewelInput())
-                              .buckle();
     }
 
+    @Override
+    public List<Object> getSubCommands() {
+        return Arrays.asList(
+                new ACLs(client)
+        );
+    }
 
     @Command(isDefault = true, description = "List all projects. (no options.)")
     public void list(CommandOutput output) throws IOException {
@@ -80,11 +77,6 @@ public class Projects extends ApiCommand {
 
         ProjectItem body = client.checkError(client.getService().createProject(project));
         output.output(String.format("Created project: \n\t%s%n", body.toBasicString()));
-    }
-
-    @Command(description = "Manage Project ACLs")
-    public boolean acls(String[] args) throws CommandRunFailure {
-        return aclCommands.runMain(args, false);
     }
 
 }

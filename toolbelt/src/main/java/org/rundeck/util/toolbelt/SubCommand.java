@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Mark a type as a "subcommand", which will contain commands but not expose a top-level name for itself
+ * Mark a type as a "subcommand", which will contain command methods but not expose a top-level name for itself
  */
 
 @Retention(RetentionPolicy.RUNTIME)
