@@ -286,6 +286,13 @@ public class ToolBelt {
             cmd = aClass.getSimpleName().toLowerCase();
         }
         String cmdDescription = null != annotation1 ? annotation1.description() : null;
+        boolean isSub=false;
+        if(null==annotation1){
+            SubCommand annotation2 = aClass.getAnnotation(SubCommand.class);
+            if (null != annotation2) {
+                isSub=true;
+            }
+        }
         Method[] methods = aClass.getMethods();
         String defInvoke = null;
         for (Method method : methods) {
@@ -322,7 +329,11 @@ public class ToolBelt {
             commandSet.commands.putAll(subCommands);
             commandSet.defCommand = defInvoke;
         }
-        commands.commands.put(cmd, commandSet);
+        if(!isSub) {
+            commands.commands.put(cmd, commandSet);
+        }else{
+            commands.commands.putAll(commandSet.commands);
+        }
 
     }
 
@@ -393,6 +404,8 @@ public class ToolBelt {
 
                 if (type.isAssignableFrom(CommandOutput.class)) {
                     objArgs[i] = context.getOutput();
+                } else if (type.isAssignableFrom(String[].class)) {
+                    objArgs[i] = args;
                 } else {
                     Object t = context.getInputParser().parseArgs(name, args, type, paramName);
 
