@@ -7,7 +7,7 @@ import org.rundeck.client.util.Client;
  * Created by greg on 5/23/16.
  */
 public abstract class ApiCommand {
-    final Client<RundeckApi> client;
+    protected final Client<RundeckApi> client;
 
     public ApiCommand(final Client<RundeckApi> client) {
         this.client = client;

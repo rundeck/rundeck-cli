@@ -3,11 +3,12 @@ package org.rundeck.client.tool.commands;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
+import org.rundeck.client.tool.commands.projects.ACLs;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
-import org.rundeck.util.toolbelt.Command;
-import org.rundeck.util.toolbelt.CommandOutput;
+import org.rundeck.util.toolbelt.*;
+import org.rundeck.util.toolbelt.input.jewelcli.JewelInput;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,8 +20,18 @@ import java.util.Map;
  */
 @Command(description = "List and manage projects.")
 public class Projects extends ApiCommand {
+    private Tool aclCommands;
+
     public Projects(final Client<RundeckApi> client) {
         super(client);
+        this.aclCommands = ToolBelt.belt()
+                              .defaultHelpCommands()
+                              .systemOutput()
+                              .add(
+                                      new ACLs(client)
+                              )
+                              .commandInput(new JewelInput())
+                              .buckle();
     }
 
 
@@ -70,4 +81,10 @@ public class Projects extends ApiCommand {
         ProjectItem body = client.checkError(client.getService().createProject(project));
         output.output(String.format("Created project: \n\t%s%n", body.toBasicString()));
     }
+
+    @Command(description = "Manage Project ACLs")
+    public boolean acls(String[] args) throws CommandRunFailure {
+        return aclCommands.runMain(args, false);
+    }
+
 }

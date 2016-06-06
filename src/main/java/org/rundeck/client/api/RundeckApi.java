@@ -212,4 +212,40 @@ public interface RundeckApi {
             @Query("filter") String filter
     );
 
+    //project ACLs
+    @Headers("Accept: application/json")
+    @GET("project/{project}/acl/")
+    Call<ACLPolicyItem> listAcls(
+            @Path("project") String project
+    );
+
+    @Headers("Accept: application/json")
+    @GET("project/{project}/acl/{name}")
+    Call<ACLPolicy> getAclPolicy(
+            @Path("project") String project,
+            @Path("name") String name
+    );
+
+    @Headers("Accept: application/json")
+    @PUT("project/{project}/acl/{name}")
+    Call<ACLPolicy> updateAclPolicy(
+            @Path("project") String project,
+            @Path("name") String name,
+            @Body RequestBody body
+    );
+
+    @Headers("Accept: application/json")
+    @POST("project/{project}/acl/{name}")
+    Call<ACLPolicy> createAclPolicy(
+            @Path("project") String project,
+            @Path("name") String name,
+            @Body RequestBody body
+    );
+
+    @Headers("Accept: application/json")
+    @DELETE("project/{project}/acl/{name}")
+    Call<Void> deleteAclPolicy(
+            @Path("project") String project,
+            @Path("name") String name
+    );
 }
