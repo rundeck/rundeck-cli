@@ -104,6 +104,12 @@ public interface RundeckApi {
     Call<AbortResult> abortExecution(@Path("id") String id);
 
 
+
+    @Headers("Accept: application/json")
+    @DELETE("execution/{id}")
+    Call<Void> deleteExecution(@Path("id") String id);
+
+
     @Headers("Accept: application/json")
     @GET("execution/{id}/output")
     Call<ExecOutput> getOutput(

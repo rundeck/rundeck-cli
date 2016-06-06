@@ -54,6 +54,16 @@ public class Executions extends ApiCommand {
         return !failed;
     }
 
+    @CommandLineInterface(application = "delete") interface Delete extends ExecutionIdOption {
+
+    }
+
+    @Command(description = "Delete an execution by ID.")
+    public void delete(Delete options, CommandOutput out) throws IOException {
+        client.checkError(client.getService().deleteExecution(options.getId()));
+        out.output(String.format("Delete [%s] succeeded.", options.getId()));
+    }
+
     @CommandLineInterface(application = "follow") interface Follow extends ExecutionsFollowOptions {
 
     }
