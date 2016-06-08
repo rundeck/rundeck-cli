@@ -1,8 +1,5 @@
 package org.rundeck.client.tool;
 
-import com.lexicalscope.jewel.cli.CliFactory;
-import okhttp3.MediaType;
-import okhttp3.ResponseBody;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.tool.commands.*;
@@ -20,21 +17,22 @@ import java.io.IOException;
 public class App {
 
     public static void main(String[] args) throws IOException, CommandRunFailure {
-        tool().runMain(args, true);
+        tool("rd").runMain(args, true);
     }
 
-    public static Tool tool() {
+    public static Tool tool(final String name) {
         Client<RundeckApi> client = createClient();
-        return ToolBelt.belt()
+        return ToolBelt.belt(name)
                        .defaultHelpCommands()
                        .systemOutput()
                        .add(
-                                  new Adhoc(client),
-                                  new Jobs(client),
-                                  new Projects(client),
-                                  new Executions(client),
-                                  new Run(client)
-                          )
+                               new Adhoc(client),
+                               new Jobs(client),
+                               new Projects(client),
+                               new Executions(client),
+                               new Run(client),
+                               new Keys(client)
+                       )
                        .commandInput(new JewelInput())
                        .buckle();
     }

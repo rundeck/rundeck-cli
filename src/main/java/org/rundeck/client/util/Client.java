@@ -22,6 +22,12 @@ public class Client<T> {
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse(APPLICATION_JSON);
     public static final String APPLICATION_XML = "application/xml";
     public static final MediaType MEDIA_TYPE_XML = MediaType.parse(APPLICATION_XML);
+    public static final String APPLICATION_PGP_KEYS = "application/pgp-keys";
+    public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
+    public static final String APPLICATION_X_RUNDECK_PASSWORD = "application/x-rundeck-data-password";
+    public static final MediaType MEDIA_TYPE_GPG_KEYS = MediaType.parse(APPLICATION_PGP_KEYS);
+    public static final MediaType MEDIA_TYPE_OCTET_STREAM = MediaType.parse(APPLICATION_OCTET_STREAM);
+    public static final MediaType MEDIA_TYPE_X_RUNDECK_PASSWORD = MediaType.parse(APPLICATION_X_RUNDECK_PASSWORD);
     public static final String APPLICATION_YAML = "application/yaml";
     public static final MediaType MEDIA_TYPE_YAML = MediaType.parse(APPLICATION_YAML);
     public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");

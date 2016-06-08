@@ -104,7 +104,6 @@ public interface RundeckApi {
     Call<AbortResult> abortExecution(@Path("id") String id);
 
 
-
     @Headers("Accept: application/json")
     @DELETE("execution/{id}")
     Call<Void> deleteExecution(@Path("id") String id);
@@ -210,6 +209,40 @@ public interface RundeckApi {
             @Query("argString") String argString,
             @Query("loglevel") String loglevel,
             @Query("filter") String filter
+    );
+
+    //key storage
+
+    @Headers("Accept: application/json")
+    @GET("storage/keys/{path}")
+    Call<KeyStorageItem> listKeyStorage(
+            @Path(value = "path", encoded = true) String path
+    );
+
+    @Headers("Accept: application/pgp-keys")
+    @GET("storage/keys/{path}")
+    Call<ResponseBody> getPublicKey(
+            @Path(value = "path", encoded = true) String path
+    );
+
+    @Headers("Accept: application/json")
+    @DELETE("storage/keys/{path}")
+    Call<Void> deleteKeyStorage(
+            @Path(value = "path", encoded = true) String path
+    );
+
+    @Headers("Accept: application/json")
+    @POST("storage/keys/{path}")
+    Call<KeyStorageItem> createKeyStorage(
+            @Path(value = "path", encoded = true) String path,
+            @Body RequestBody body
+    );
+
+    @Headers("Accept: application/json")
+    @PUT("storage/keys/{path}")
+    Call<KeyStorageItem> updateKeyStorage(
+            @Path(value = "path", encoded = true) String path,
+            @Body RequestBody body
     );
 
     //project ACLs
