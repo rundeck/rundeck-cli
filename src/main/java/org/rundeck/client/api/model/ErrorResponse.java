@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ErrorResponse {
-    public boolean error;
+    public String error;
     public int apiversion;
     public String errorCode;
     public String message;
@@ -28,7 +28,7 @@ public class ErrorResponse {
     public String toString() {
         return String.format(
                 "%s%n%s%n",
-                message,
+                message != null ? message : error != null ? error : "(no message)",
                 toCodeString()
         );
     }
