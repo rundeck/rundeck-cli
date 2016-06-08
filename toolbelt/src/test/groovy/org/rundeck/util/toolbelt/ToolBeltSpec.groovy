@@ -63,7 +63,7 @@ class ToolBeltSpec extends Specification {
         given:
         def test = new MyTool1()
         test.greetResult = true
-        def tool = ToolBelt.with(test)
+        def tool = ToolBelt.with('test',test)
         when:
         def result = tool.runMain(['mytool1', 'greet', '--name', 'bob', '--age', '54', '--leaving'] as String[], false)
         then:
@@ -78,7 +78,7 @@ class ToolBeltSpec extends Specification {
         def test = new MyTool1()
         test.greetResult = true
         def output = new TestOutput()
-        def tool = ToolBelt.with(output, test)
+        def tool = ToolBelt.with('test',output, test)
         when:
         def result = tool.runMain(['mytool1', helpCmd] as String[], false)
         then:
@@ -100,7 +100,7 @@ class ToolBeltSpec extends Specification {
         given:
         def test = new MyTool1()
         test.greetResult = false
-        def tool = ToolBelt.with(test)
+        def tool = ToolBelt.with('test',test)
         when:
         def result = tool.runMain(['mytool1', 'greet', '--name', 'bob', '--age', '54', '--leaving'] as String[], false)
         then:
@@ -113,7 +113,7 @@ class ToolBeltSpec extends Specification {
     def " solo command"() {
         given:
         def test = new MyTool2()
-        def tool = ToolBelt.with(test)
+        def tool = ToolBelt.with('test',test)
         when:
         def result = tool.runMain(['mytool2', '--name', 'bob', '--age', '54', '--leaving'] as String[], false)
         then:
