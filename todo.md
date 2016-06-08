@@ -16,6 +16,8 @@
     - [x] list
     - [x] follow
     - [x] kill
+    - [x] delete
+    - [x] query
 - [ ] dispatch tool
     - [x] run command
     - [x] run script
@@ -26,5 +28,11 @@
     - [ ] `-v` verbose logging
     - [ ] serr/sout
     - [ ] any missing features from original rd-jobs/run/dispatch/rd-project tools?
-    - [ ] help output at top level is too much information
+    - [x] help output at top level is too much information
     - [ ] help output could be formatted better
+
+# Features
+
+- [ ] keys tool
+    - [x] CRUD features
+    - [ ] create password without using a file (stdin/console?)
