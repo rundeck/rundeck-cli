@@ -23,8 +23,8 @@ public class ToolBelt {
      *
      * @return
      */
-    public static Tool with(Object... commands) {
-        return with(new SimpleCommandInput(), commands);
+    public static Tool with(String name, Object... commands) {
+        return with(name, new SimpleCommandInput(), commands);
     }
 
     /**
@@ -35,12 +35,12 @@ public class ToolBelt {
      *
      * @return
      */
-    public static Tool with(CommandInput input, Object... commands) {
-        return belt().defaultHelpCommands()
-                     .commandInput(input)
-                     .systemOutput()
-                     .add(commands)
-                     .buckle();
+    public static Tool with(String name, CommandInput input, Object... commands) {
+        return belt(name).defaultHelpCommands()
+                         .commandInput(input)
+                         .systemOutput()
+                         .add(commands)
+                         .buckle();
     }
 
     /**
@@ -51,12 +51,12 @@ public class ToolBelt {
      *
      * @return
      */
-    public static Tool with(CommandOutput output, Object... commands) {
-        return belt().defaultHelpCommands()
-                     .commandInput(new SimpleCommandInput())
-                     .commandOutput(output)
-                     .add(commands)
-                     .buckle();
+    public static Tool with(String name, CommandOutput output, Object... commands) {
+        return belt(name).defaultHelpCommands()
+                         .commandInput(new SimpleCommandInput())
+                         .commandOutput(output)
+                         .add(commands)
+                         .buckle();
     }
 
     /**
@@ -67,23 +67,23 @@ public class ToolBelt {
      *
      * @return
      */
-    public static Tool with(CommandInput input, CommandOutput output, Object... commands) {
-        return belt().defaultHelpCommands()
-                     .commandInput(input)
-                     .commandOutput(output)
-                     .add(commands)
-                     .buckle();
+    public static Tool with(String name, CommandInput input, CommandOutput output, Object... commands) {
+        return belt(name).defaultHelpCommands()
+                         .commandInput(input)
+                         .commandOutput(output)
+                         .add(commands)
+                         .buckle();
     }
 
     /**
      * @return new ToolBelt
      */
-    public static ToolBelt belt() {
-        return new ToolBelt();
+    public static ToolBelt belt(String name) {
+        return new ToolBelt(name);
     }
 
-    private ToolBelt() {
-        commands = new CommandSet();
+    private ToolBelt(String name) {
+        commands = new CommandSet(name);
         helpCommands = new HashSet<>();
         formatter = new ToStringFormatter();
     }
@@ -164,14 +164,20 @@ public class ToolBelt {
 
     private static class CommandSet implements Tool, CommandInvoker {
         Map<String, CommandInvoker> commands;
+        Map<String, CommandInvoker> commandSynonyms;
         String defCommand;
         Set<String> helpCommands;
-        public String description;
+        private String description;
         CommandContext context;
+        private String name;
+        private Set<String> synonyms;
 
-        CommandSet() {
-            commands = new HashMap<>();
+        CommandSet(String name) {
+            this.name = name;
+            synonyms = new HashSet<>();
             helpCommands = new HashSet<>();
+            commands = new HashMap<>();
+            commandSynonyms = new HashMap<>();
             context = new CommandContext();
         }
 
@@ -210,6 +216,26 @@ public class ToolBelt {
             return runCommand(cmd, cmdArgs);
         }
 
+        String pad(String pad, int max) {
+            StringBuilder stringBuilder = new StringBuilder();
+            for (int i = 0; i < max; i++) {
+                stringBuilder.append(pad);
+            }
+            return stringBuilder.toString();
+        }
+
+        private String shortDescription(final String text) {
+            int i = text.indexOf("\n");
+            if (i >= 0) {
+                return text.substring(0, i);
+            }
+            i = text.indexOf(".");
+            if (i >= 0) {
+                return text.substring(0, i);
+            }
+            return text;
+        }
+
         @Override
         public void getHelp() throws CommandRunFailure {
             if (description != null && !"".equals(description)) {
@@ -217,12 +243,19 @@ public class ToolBelt {
             }
             boolean multi = commands.size() > 1;
             if (multi) {
-                context.getOutput().output(
-                        String.format(
-                                "Available commands: %s",
-                                commands.keySet()
-                        )
-                );
+                context.getOutput().output(String.format("Use \"%s [command] help\" to get help on any command", name));
+
+                context.getOutput().output("Available commands:");
+                int max = commands.keySet().stream().mapToInt(String::length).max().orElse(10);
+                commands.keySet().forEach(name -> context.getOutput()
+                                                         .output(String.format(
+                                                                 "   %s%s - %s",
+                                                                 name,
+                                                                 pad(" ", max - name.length()),
+                                                                 shortDescription(commands.get(name).getDescription())
+
+                                                         )));
+                return;
             }
             for (String command : commands.keySet()) {
                 CommandInvoker commandInvoker = commands.get(command);
@@ -230,6 +263,9 @@ public class ToolBelt {
                 if (multi) {
                     context.getOutput().output("--------------------");
                     context.getOutput().output("+ Command: " + command);
+                    if (commandInvoker.getSynonyms() != null && commandInvoker.getSynonyms().size() > 0) {
+                        context.getOutput().output("+ Synonyms: " + commandInvoker.getSynonyms());
+                    }
                 }
                 commandInvoker.getHelp();
             }
@@ -237,7 +273,7 @@ public class ToolBelt {
 
         boolean runCommand(String cmd, String[] args) throws CommandRunFailure
         {
-            CommandInvoker commandInvoke = commands.get(cmd);
+            CommandInvoker commandInvoke = findcommand(cmd);
             if (null == commandInvoke) {
                 throw new CommandRunFailure(String.format(
                         "No such command: %s. Available commands: %s",
@@ -266,6 +302,36 @@ public class ToolBelt {
             }
         }
 
+        /**
+         * Find invoker for a command or a synonym
+         *
+         * @param cmd
+         *
+         * @return
+         */
+        private CommandInvoker findcommand(final String cmd) {
+            CommandInvoker commandInvoker = commands.get(cmd);
+            return commandInvoker != null ? commandInvoker : commandSynonyms.get(cmd);
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public Set<String> getSynonyms() {
+            return synonyms;
+        }
+
+        public void setSynonyms(Set<String> synonyms) {
+            this.synonyms = synonyms;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
+        }
     }
 
     public static String[] tail(final String[] args) {
@@ -277,21 +343,27 @@ public class ToolBelt {
     private void introspect(final Object instance) {
         introspect(commands, instance);
     }
+
     private void introspect(CommandSet parent, final Object instance) {
         HashMap<String, CommandInvoke> subCommands = new HashMap<>();
+        HashMap<String, CommandInvoke> subSynonyms = new HashMap<>();
         //look for methods
         Class<?> aClass = instance.getClass();
         Command annotation1 = aClass.getAnnotation(Command.class);
+        Set<String> synonyms = new HashSet<>();
         String cmd = null != annotation1 ? annotation1.value() : "";
         if ("".equals(cmd)) {
             cmd = aClass.getSimpleName().toLowerCase();
         }
+        if (null != annotation1 && annotation1.synonyms().length > 0) {
+            synonyms.addAll(Arrays.asList(annotation1.synonyms()));
+        }
         String cmdDescription = null != annotation1 ? annotation1.description() : null;
-        boolean isSub=false;
-        if(null==annotation1){
+        boolean isSub = false;
+        if (null == annotation1) {
             SubCommand annotation2 = aClass.getAnnotation(SubCommand.class);
             if (null != annotation2) {
-                isSub=true;
+                isSub = true;
             }
         }
         Method[] methods = aClass.getMethods();
@@ -306,7 +378,16 @@ public class ToolBelt {
                 CommandInvoke value = new CommandInvoke(name, method, instance, commands.context);
                 value.description = annotation.description();
                 value.solo = annotation.isSolo();
+                Set<String> annotationSynonyms = new HashSet<>();
+                if (annotation.synonyms().length > 0) {
+                    annotationSynonyms.addAll(Arrays.asList(annotation.synonyms()));
+                }
+                value.setSynonyms(annotationSynonyms);
                 subCommands.put(name, value);
+                for (String subsynonym : annotationSynonyms) {
+                    subSynonyms.put(subsynonym, value);
+                }
+
                 if (annotation.isDefault()) {
                     defInvoke = name;
                 }
@@ -316,28 +397,26 @@ public class ToolBelt {
             throw new IllegalArgumentException("Specified object has no methods with @Command annotation: " + aClass);
         }
 
-        CommandSet commandSet = new CommandSet();
+        CommandSet commandSet = new CommandSet(cmd);
         commandSet.context = commands.context;
         commandSet.helpCommands = helpCommands;
         commandSet.description = cmdDescription;
+        commandSet.commands.putAll(subCommands);
+        commandSet.commandSynonyms.putAll(subSynonyms);
+        commandSet.defCommand = defInvoke;
         if (subCommands.size() == 1) {
             //single command
-
-            defInvoke = subCommands.keySet().iterator().next();
-            commandSet.commands.putAll(subCommands);
-            commandSet.defCommand = defInvoke;
-        } else {
-            commandSet.commands.putAll(subCommands);
-            commandSet.defCommand = defInvoke;
+            commandSet.defCommand = subCommands.keySet().iterator().next();
         }
-        if(instance instanceof HasSubCommands){
+        if (instance instanceof HasSubCommands) {
             HasSubCommands subs = (HasSubCommands) instance;
             List<Object> subCommands1 = subs.getSubCommands();
             subCommands1.forEach(o -> introspect(commandSet, o));
         }
-        if(!isSub) {
+        if (!isSub) {
             parent.commands.put(cmd, commandSet);
-        }else{
+            parent.getSynonyms().addAll(synonyms);
+        } else {
             parent.commands.putAll(commandSet.commands);
         }
 
@@ -372,16 +451,23 @@ public class ToolBelt {
     }
 
     private interface CommandInvoker {
+        String getName();
+
+        String getDescription();
+
+        Set<String> getSynonyms();
+
         boolean run(String[] args) throws CommandRunFailure, InputError;
 
         void getHelp() throws CommandRunFailure;
     }
 
     private static class CommandInvoke implements CommandInvoker {
-        String name;
+        private String name;
+        private Set<String> synonyms;
         Method method;
         Object instance;
-        public String description;
+        private String description;
         boolean solo;
         CommandContext context;
 
@@ -462,6 +548,24 @@ public class ToolBelt {
         }
 
 
+        @Override
+        public String getName() {
+            return name;
+        }
+
+        @Override
+        public Set<String> getSynonyms() {
+            return synonyms;
+        }
+
+        public void setSynonyms(Set<String> synonyms) {
+            this.synonyms = synonyms;
+        }
+
+        @Override
+        public String getDescription() {
+            return description;
+        }
     }
 
     private static String getParameterName(final Parameter param) {

@@ -31,4 +31,10 @@ public @interface Command {
      * @return help text description
      */
     String description() default "";
+
+    /**
+     * @return synonyms for this command
+     */
+    String[] synonyms() default {};
+
 }
