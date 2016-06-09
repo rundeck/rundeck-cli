@@ -52,5 +52,5 @@ distShadowTar.mustRunAfter distTar
 assemble.dependsOn distShadowZip,distShadowTar
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.11'
+    gradleVersion = '2.13'
 }
