@@ -39,7 +39,10 @@ public class App {
 
 
     public static Client<RundeckApi> createClient() {
-        String baseUrl = requireEnv("RUNDECK_URL", "Please specify the Rundeck URL");
+        String baseUrl = requireEnv(
+                "RUNDECK_URL",
+                "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
+        );
         if (System.getenv("RUNDECK_TOKEN") == null
             && System.getenv("RUNDECK_USER") == null
             && System.getenv("RUNDECK_PASSWORD") == null) {

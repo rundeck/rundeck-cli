@@ -13,12 +13,15 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by greg on 3/28/16.
  */
 public class Rundeck {
     public static final int API_VERS = 16;
+    public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/\\d+/?)$");
 
     /**
      * Create a client using the specified, or default version
@@ -29,7 +32,12 @@ public class Rundeck {
      *
      * @return
      */
-    public static Client<RundeckApi> client(String baseUrl, final String token, final boolean debugHttp) {
+    public static Client<RundeckApi> client(
+            String baseUrl,
+            final String token,
+            final boolean debugHttp
+    )
+    {
         return client(baseUrl, API_VERS, token, debugHttp);
     }
 
@@ -73,7 +81,7 @@ public class Rundeck {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
-        String base = buildBaseUrlForVersion(baseUrl, apiVers);
+        String base = buildApiUrlForVersion(baseUrl, apiVers);
 
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
                 .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
@@ -116,7 +124,8 @@ public class Rundeck {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
         logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
-        String base = buildBaseUrlForVersion(baseUrl, apiVers);
+        String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
+        String apiBaseUrl = buildApiUrlForVersion(baseUrl, apiVers);
 
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
@@ -134,7 +143,7 @@ public class Rundeck {
         callFactory.addInterceptor(new FormAuthInterceptor(
                 username,
                 password,
-                baseUrl,
+                appBaseUrl,
                 postUrl,
                 System.getProperty(
                         "rundeck.client.j_username",
@@ -158,7 +167,7 @@ public class Rundeck {
         callFactory.cookieJar(new JavaNetCookieJar(cookieManager));
 
         Retrofit build = new Retrofit.Builder()
-                .baseUrl(base)
+                .baseUrl(apiBaseUrl)
                 .callFactory(callFactory.build())
                 .addConverterFactory(new QualifiedTypeConverterFactory(
                         JacksonConverterFactory.create(),
@@ -170,9 +179,30 @@ public class Rundeck {
         return new Client<>(build.create(RundeckApi.class), build);
     }
 
-    private static String buildBaseUrlForVersion(String baseUrl, final int apiVers) {
+    /**
+     * @param baseUrl input url
+     * @param apiVers api VERSION to append if /api/VERS is not present
+     *
+     * @return URL for API by appending /api/VERS if it is not present
+     */
+    private static String buildApiUrlForVersion(String baseUrl, final int apiVers) {
         if (!baseUrl.matches("^.*/api/\\d+/?$")) {
-            return baseUrl + "/api/" + apiVers + "/";
+            return baseUrl + "/api/" + (apiVers) + "/";
+        } else if (!baseUrl.matches(".*/$")) {
+            return baseUrl + "/";
+        }
+        return baseUrl;
+    }
+
+    /**
+     * @param baseUrl input url
+     *
+     * @return the base part of the API url without the /api/VERS part
+     */
+    private static String buildBaseAppUrlForVersion(String baseUrl) {
+        Matcher matcher = API_VERS_PATTERN.matcher(baseUrl);
+        if (matcher.matches()) {
+            return matcher.group(1);
         } else if (!baseUrl.matches(".*/$")) {
             return baseUrl + "/";
         }
