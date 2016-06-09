@@ -1,6 +1,8 @@
 
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.3.4'
+    id 'groovy'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
 }
 
 scmVersion {
@@ -17,6 +19,7 @@ allprojects {
 apply plugin: 'idea'
 apply plugin: 'groovy'
 apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
 
 mainClassName = 'org.rundeck.client.tool.App'
 applicationName = 'rd'
@@ -43,7 +46,10 @@ dependencies {
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 }
 
-
+//force distZip/distTar artifacts to be overwritten by shadow versions
+distShadowZip.mustRunAfter distZip
+distShadowTar.mustRunAfter distTar
+assemble.dependsOn distShadowZip,distShadowTar
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.11'
