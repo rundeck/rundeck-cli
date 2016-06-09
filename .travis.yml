@@ -14,9 +14,9 @@ deploy:
   file: 
     - 'build/distributions/rd-*.zip'
     - 'build/distributions/rd-*.tar'
+    - 'build/distributions/rundeck-cli*.rpm'
+    - 'build/distributions/rundeck-cli*.deb'
     - 'build/libs/rundeck-cli-*-all.jar'
-    - 'build/distributesion/rundeck-cli*.rpm'
-    - 'build/distributesion/rundeck-cli*.deb'
   on:
     repo: rundeck/rundeck-cli
     tags: true
