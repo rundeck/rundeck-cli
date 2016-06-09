@@ -50,13 +50,17 @@ dependencies {
 //force distZip/distTar artifacts to be overwritten by shadow versions
 distShadowZip.mustRunAfter distZip
 distShadowTar.mustRunAfter distTar
-//assemble.dependsOn distShadowZip, distShadowTar
-//ospackage_application {
-//    prefix = '/opt/rundeck/cli'
-//}
+
+/**
+ * remove illegal chars for snapshot rpm build
+ */
 def pkgVersion = {
     project.version.replaceAll('-', '.')
 }
+
+/**
+ * Define rpm/deb details
+ */
 ospackage {
     version = pkgVersion()
     release = 1
@@ -68,13 +72,21 @@ ospackage {
     os = 'LINUX'
     packageGroup = 'System'
     user = 'root'
-    from {
-        zipTree(distShadowZip.outputs.files.singleFile)
+
+    //packaging includes the distShadowZip contents, exclude *.bat
+    from(zipTree(distShadowZip.outputs.files.singleFile)) {
+        exclude '**/*.bat'
+        into distInstallPath
     }
-    into distInstallPath
+
     def archivedir=distShadowZip.archiveName - ".${distShadowZip.extension}"
+
+    //symlink /usr/bin/rd to the rd script
     link("/usr/bin/${applicationName}", "${distInstallPath}/${archivedir}/bin/${applicationName}")
 }
+
+
+//depend on the shadow artifact
 buildDeb.dependsOn distShadowZip
 buildRpm.dependsOn distShadowZip
 
