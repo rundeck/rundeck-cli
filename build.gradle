@@ -1,8 +1,8 @@
-
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.3.4'
     id 'groovy'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
+    id "nebula.ospackage" version "3.6.1"
 }
 
 scmVersion {
@@ -20,9 +20,11 @@ apply plugin: 'idea'
 apply plugin: 'groovy'
 apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'nebula.ospackage'
 
 mainClassName = 'org.rundeck.client.tool.App'
 applicationName = 'rd'
+ext.distInstallPath = '/var/lib/rundeck/cli'
 defaultTasks 'clean', 'build'
 
 repositories {
@@ -36,11 +38,10 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-simplexml:2.0.2'
     compile 'com.squareup.okhttp3:logging-interceptor:3.0.1'
     compile 'com.squareup.okhttp3:okhttp-urlconnection:3.0.1'
-//    compile 'com.lexicalscope.jewelcli:jewelcli:0.8.9'
     compile project(':toolbelt')
     compile project(':toolbelt-jewelcli')
 
-    testCompile group: 'junit', name:'junit', version: '4.12'
+    testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
     testCompile "org.codehaus.groovy:groovy-all:2.3.7"
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
@@ -49,7 +50,35 @@ dependencies {
 //force distZip/distTar artifacts to be overwritten by shadow versions
 distShadowZip.mustRunAfter distZip
 distShadowTar.mustRunAfter distTar
-assemble.dependsOn distShadowZip,distShadowTar
+//assemble.dependsOn distShadowZip, distShadowTar
+//ospackage_application {
+//    prefix = '/opt/rundeck/cli'
+//}
+def pkgVersion = {
+    project.version.replaceAll('-', '.')
+}
+ospackage {
+    version = pkgVersion()
+    release = 1
+    summary = "A commandline tool for Rundeck."
+    packageDescription = "The rd program provides an all-in-one commandline tool to interact with Rundeck"
+    url = 'https://github.com/rundeck/rundeck-cli'
+    vendor = 'SimplifyOps, Inc.'
+    license = 'APL'
+    os = 'LINUX'
+    packageGroup = 'System'
+    user = 'root'
+    from {
+        zipTree(distShadowZip.outputs.files.singleFile)
+    }
+    into distInstallPath
+    def archivedir=distShadowZip.archiveName - ".${distShadowZip.extension}"
+    link("/usr/bin/${applicationName}", "${distInstallPath}/${archivedir}/bin/${applicationName}")
+}
+buildDeb.dependsOn distShadowZip
+buildRpm.dependsOn distShadowZip
+
+assemble.dependsOn buildRpm, buildDeb
 
 task wrapper(type: Wrapper) {
     gradleVersion = '2.13'
