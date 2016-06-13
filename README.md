@@ -8,6 +8,9 @@ extensible, and nicer implementation.
 (This project is currently a work-in-progress, and development is ongoing.)
 
 See [todos.md](https://github.com/rundeck/rundeck-cli/blob/master/todo.md)
+## Requirements
+
+Java 8
 
 ##Download
 
