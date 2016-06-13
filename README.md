@@ -9,6 +9,15 @@ extensible, and nicer implementation.
 
 See [todos.md](https://github.com/rundeck/rundeck-cli/blob/master/todo.md)
 
+##Download
+
+[github releases](https://github.com/rundeck/rundeck-cli/releases)
+
+* `rd-x.y.zip`/`rd-x.y.tar` zip distribution
+* `rundeck-cli-x.y-all.jar` standalone executable jar
+* `rundeck-cli-x.y.noarch.rpm` rpm
+* `rundeck-cli-x.y_all.deb` debian
+
 ## Usage
 
 Define access credentials as user/password or Token value:
