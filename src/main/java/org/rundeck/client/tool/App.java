@@ -24,7 +24,7 @@ public class App {
         Client<RundeckApi> client = createClient();
         return ToolBelt.belt(name)
                        .defaultHelpCommands()
-                       .systemOutput()
+                       .ansiColorOutput("1".equals(System.getenv("RD_COLOR")))
                        .add(
                                new Adhoc(client),
                                new Jobs(client),

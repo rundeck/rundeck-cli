@@ -1,5 +1,7 @@
 package org.rundeck.util.toolbelt;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -85,7 +87,7 @@ public class ToolBelt {
     private ToolBelt(String name) {
         commands = new CommandSet(name);
         helpCommands = new HashSet<>();
-        formatter = new ToStringFormatter();
+        formatter = new NiceFormatter(new ToStringFormatter());
     }
 
     /**
@@ -128,6 +130,28 @@ public class ToolBelt {
      */
     public ToolBelt systemOutput() {
         return commandOutput(new SystemOutput());
+    }
+
+    /**
+     * Set whether ANSI colorized output for system output is enabled
+     *
+     * @param enabled true/false
+     *
+     * @return this builder
+     */
+    public ToolBelt ansiColorOutput(boolean enabled) {
+        commandOutput(enabled ? new ANSIColorOutput(new SystemOutput()) : new SystemOutput());
+        formatter = new NiceFormatter(enabled ? new ANSIColorOutput(null) : new ToStringFormatter());
+        return this;
+    }
+
+    /**
+     * enable ANSI colorized output
+     *
+     * @return this builder
+     */
+    public ToolBelt ansiColorOutput() {
+        return ansiColorOutput(true);
     }
 
     /**
@@ -183,8 +207,21 @@ public class ToolBelt {
 
 
         @Override
-        public boolean runMain(final String[] args, final boolean exitSystem) throws CommandRunFailure {
-            boolean result = run(args);
+        public boolean runMain(final String[] args, final boolean exitSystem) {
+            boolean result = false;
+            try {
+                result = run(args);
+            } catch (CommandWarning commandRunFailure) {
+                context.getOutput().warning(commandRunFailure.getMessage());
+            } catch (CommandRunFailure commandRunFailure) {
+                context.getOutput().error(commandRunFailure.getMessage());
+                //verbose
+                StringWriter sb = new StringWriter();
+                commandRunFailure.printStackTrace(new PrintWriter(sb));
+                context.getOutput().error(sb.toString());
+
+
+            }
             if (!result && exitSystem) {
                 System.exit(2);
             }
@@ -239,22 +276,52 @@ public class ToolBelt {
         @Override
         public void getHelp() throws CommandRunFailure {
             if (description != null && !"".equals(description)) {
-                context.getOutput().output(description);
+                context.getOutput().output(
+                        ANSIColorOutput.colorize(
+                                ANSIColorOutput.Color.WHITE,
+                                description + "\n"
+                        )
+                );
             }
             boolean multi = commands.size() > 1;
             if (multi) {
-                context.getOutput().output(String.format("Use \"%s [command] help\" to get help on any command", name));
+                context.getOutput().output(
+                        ANSIColorOutput.colorize(
+                                ANSIColorOutput.Color.GREEN,
+                                String.format("Use \"%s [command] help\" to get help on any command%n", name)
+                        )
+                );
 
-                context.getOutput().output("Available commands:");
+                context.getOutput().output("Available commands:\n");
                 int max = commands.keySet().stream().mapToInt(String::length).max().orElse(10);
-                commands.keySet().forEach(name -> context.getOutput()
-                                                         .output(String.format(
-                                                                 "   %s%s - %s",
-                                                                 name,
-                                                                 pad(" ", max - name.length()),
-                                                                 shortDescription(commands.get(name).getDescription())
+                commands.keySet()
+                        .stream()
+                        .sorted()
+                        .forEach(name -> context.getOutput()
+                                                .output(
+                                                        ANSIColorOutput.colorize(
+                                                                ANSIColorOutput.Color.YELLOW,
+                                                                String.format(
+                                                                        "   %s",
+                                                                        name
+                                                                ),
+                                                                String.format(
+                                                                        "%s - %s",
+                                                                        pad(
+                                                                                " ",
+                                                                                max -
+                                                                                name.length()
+                                                                        ),
+                                                                        shortDescription(
+                                                                                commands.get(
+                                                                                        name)
+                                                                                        .getDescription()
+                                                                        )
 
-                                                         )));
+                                                                )
+                                                        )
+                                                )
+                        );
                 return;
             }
             for (String command : commands.keySet()) {
@@ -275,7 +342,7 @@ public class ToolBelt {
         {
             CommandInvoker commandInvoke = findcommand(cmd);
             if (null == commandInvoke) {
-                throw new CommandRunFailure(String.format(
+                throw new CommandWarning(String.format(
                         "No such command: %s. Available commands: %s",
                         cmd,
                         commands.keySet()
@@ -288,12 +355,12 @@ public class ToolBelt {
             try {
                 return commandInvoke.run(args);
             } catch (InputError inputError) {
-                context.getOutput().error(String.format(
+                context.getOutput().warning(String.format(
                         "Error parsing arguments for [%s]: %s",
                         cmd,
                         inputError.getMessage()
                 ));
-                context.getOutput().error(String.format(
+                context.getOutput().warning(String.format(
                         "You can use: \"%s %s\" to get help.",
                         cmd,
                         helpCommands.iterator().next()
@@ -529,15 +596,25 @@ public class ToolBelt {
         public void getHelp() throws CommandRunFailure {
             Parameter[] params = method.getParameters();
             if (description != null && !"".equals(description)) {
-                context.getOutput().output(description);
+                context.getOutput().output(
+                        ANSIColorOutput.colorize(
+                                ANSIColorOutput.Color.WHITE,
+                                description + "\n"
+                        )
+                );
             }
             if (params.length == 0) {
-                context.getOutput().output("(no options for this command)");
+                context.getOutput().output(
+                        ANSIColorOutput.colorize(
+                                ANSIColorOutput.Color.GREEN,
+                                "(no options for this command)"
+                        )
+                );
             }
             for (int i = 0; i < params.length; i++) {
                 Class<?> type = params[i].getType();
                 String paramName = getParameterName(params[i]);
-                if (type.isAssignableFrom(CommandOutput.class)) {
+                if (type.isAssignableFrom(CommandOutput.class) || type.isAssignableFrom(String[].class)) {
                     continue;
                 }
 

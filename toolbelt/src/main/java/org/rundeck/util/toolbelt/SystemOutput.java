@@ -14,6 +14,10 @@ public class SystemOutput implements CommandOutput {
         System.err.println(error);
     }
 
+    public void errorPrint(final Object error) {
+        System.err.print(error);
+    }
+
     @Override
     public void warning(final Object error) {
         System.err.println(error);
