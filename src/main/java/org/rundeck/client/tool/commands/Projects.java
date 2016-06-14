@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by greg on 5/19/16.
@@ -36,9 +37,7 @@ public class Projects extends ApiCommand implements HasSubCommands{
     public void list(CommandOutput output) throws IOException {
         List<ProjectItem> body = client.checkError(client.getService().listProjects());
         output.output(String.format("%d Projects:%n", body.size()));
-        for (ProjectItem proj : body) {
-            output.output("* " + proj.toBasicString());
-        }
+        output.output(body.stream().map(ProjectItem::toBasicString).collect(Collectors.toList()));
     }
 
     @CommandLineInterface(application = "delete") interface ProjectDelete extends ProjectNameOptions {

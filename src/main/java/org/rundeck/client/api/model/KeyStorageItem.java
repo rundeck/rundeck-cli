@@ -113,9 +113,9 @@ public class KeyStorageItem implements Comparable<KeyStorageItem>{
     public String toBasicString() {
         boolean isDir = isDirectory();
         if (isDir) {
-            return String.format("%s %s/", "+", path);
+            return String.format("%s/",  path);
         } else {
-            return String.format("%s %s [%s]", "*", path, getFileType());
+            return String.format("%s [%s]",  path, getFileType());
         }
     }
 

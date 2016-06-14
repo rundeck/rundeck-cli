@@ -17,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.stream.Collectors;
 
 /**
  * Created by greg on 6/7/16.
@@ -75,10 +76,12 @@ public class Keys extends ApiCommand {
 
         output.output(keyStorageItem.toBasicString());
         if (keyStorageItem.getType() == KeyStorageItem.KeyItemType.directory) {
-            keyStorageItem.getResources()
-                          .stream()
-                          .sorted()
-                          .forEach(i -> output.output("  " + i.toBasicString()));
+            output.output(
+                    keyStorageItem.getResources()
+                                  .stream()
+                                  .sorted()
+                                  .map(KeyStorageItem::toBasicString)
+                                  .collect(Collectors.toList()));
             return true;
         } else {
             output.error(String.format("Path is not a directory: %s", path));
