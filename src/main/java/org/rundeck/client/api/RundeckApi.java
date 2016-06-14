@@ -281,4 +281,8 @@ public interface RundeckApi {
             @Path("project") String project,
             @Path("name") String name
     );
+
+    @Headers("Accept: application/json")
+    @GET("system/info")
+    Call<SystemInfo> systemInfo();
 }

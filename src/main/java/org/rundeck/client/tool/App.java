@@ -31,7 +31,8 @@ public class App {
                                new Projects(client),
                                new Executions(client),
                                new Run(client),
-                               new Keys(client)
+                               new Keys(client),
+                               new RDSystem(client)
                        )
                        .commandInput(new JewelInput())
                        .buckle();
