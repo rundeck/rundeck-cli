@@ -23,7 +23,7 @@ import java.util.List;
  * Created by greg on 5/20/16.
  */
 
-@Command(description = "Dispatch and adhoc COMMAND to matching nodes.")
+@Command(description = "Dispatch adhoc COMMAND to matching nodes.")
 public class Adhoc extends ApiCommand {
     static final String COMMAND = "adhoc";
 
