@@ -35,12 +35,15 @@ public class NiceFormatter implements OutputFormatter {
             Object o1 = o.get(key);
 
             String format = format(o1);
+
             sb.append(keyValueSeparator);
-            if (format.contains(NL)) {
-                sb.append(NL);
-                indent(level + 1, format, sb, true);
-            } else {
-                sb.append(format);
+            if(null!=format) {
+                if (format.contains(NL)) {
+                    sb.append(NL);
+                    indent(level + 1, format, sb, true);
+                } else {
+                    sb.append(format);
+                }
             }
             sb.append(NL);
         }
@@ -63,11 +66,11 @@ public class NiceFormatter implements OutputFormatter {
                 sb.append(id);
             }
             if (split.length > 0) {
-                sb.append(split[0]);
+                sb.append(split[0]).append(NL);
             }
             for (int i = 1; i < split.length; i++) {
                 String s = split[i];
-                sb.append(id).append(sb.append(s).append(NL));
+                sb.append(id).append(s).append(NL);
             }
         } else {
             sb.append(id).append(msg);

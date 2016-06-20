@@ -6,6 +6,6 @@ package org.rundeck.util.toolbelt;
 public class ToStringFormatter implements OutputFormatter {
     @Override
     public String format(final Object o) {
-        return o.toString();
+        return o!=null?o.toString():null;
     }
 }
