@@ -60,7 +60,8 @@ public class Run extends ApiCommand {
                 jobId,
                 Adhoc.joinString(options.getCommandString()),
                 options.getLoglevel(),
-                options.getFilter()
+                options.getFilter(),
+                options.getUser()
         );
         Execution execution = client.checkError(executionListCall);
         out.output(String.format("Execution started: %s%n", execution.toBasicString()));

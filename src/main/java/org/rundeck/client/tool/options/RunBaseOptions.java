@@ -35,6 +35,11 @@ public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions {
 
     boolean isFilter();
 
+    @Option(shortName = "u", longName = "user", description = "A username to run the job as, (runAs access required).")
+    String getUser();
+
+    boolean isUser();
+
     @Unparsed(name = "-- -ARG VAL -ARG2 VAL", description = "Dispatch specified command string")
     List<String> getCommandString();
 

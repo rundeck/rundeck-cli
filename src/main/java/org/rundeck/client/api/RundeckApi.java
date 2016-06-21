@@ -210,6 +210,15 @@ public interface RundeckApi {
             @Query("loglevel") String loglevel,
             @Query("filter") String filter
     );
+    @Headers("Accept: application/json")
+    @POST("job/{id}/executions")
+    Call<Execution> runJob(
+            @Path("id") String id,
+            @Query("argString") String argString,
+            @Query("loglevel") String loglevel,
+            @Query("filter") String filter,
+            @Query("asUser") String user
+    );
 
     //key storage
 
