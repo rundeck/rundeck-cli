@@ -12,6 +12,7 @@ import retrofit2.Call;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -150,6 +151,21 @@ public class Executions extends ApiCommand {
         }
     }
 
+
+    @CommandLineInterface(application = "info") interface Info extends ExecutionIdOption {
+
+    }
+
+    @Command(isDefault = true, description = "List all running executions for a project.")
+    public void info(Info options, CommandOutput out) throws IOException {
+
+        Execution execution = client.checkError(client.getService()
+                                                      .getExecution(options.getId()));
+        HashMap<Object, Object> info = new HashMap<>();
+        info.put("execution", execution.getInfoMap());
+
+        out.output(info);
+    }
 
     @CommandLineInterface(application = "list") interface ListCmd extends ExecutionListOptions, ProjectNameOptions {
 

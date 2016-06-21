@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by greg on 5/20/16.
@@ -42,6 +44,24 @@ public class Execution {
             return String.format("[%s] (%s: %s) <%s>", id, status, dateEnded.toRelative(), permalink);
         }
         return String.format("[%s] <%s>", id, permalink);
+    }
+    public Map getInfoMap()  {
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("id", getId());
+        map.put("description", getDescription());
+        map.put("argstring", getArgstring());
+        map.put("permalink", getPermalink());
+        map.put("href", getHref());
+        map.put("status", getStatus());
+        map.put("project", getProject());
+        map.put("job", getJob());
+        map.put("user", getUser());
+        map.put("serverUUID", getServerUUID());
+        map.put("dateStarted", getDateStarted());
+        map.put("dateEnded", getDateEnded());
+        map.put("successfulNodes", getSuccessfulNodes());
+        map.put("failedNodes", getFailedNodes());
+        return map;
     }
 
     public String toStatusString() {
