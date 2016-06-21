@@ -219,8 +219,6 @@ public class ToolBelt {
                 StringWriter sb = new StringWriter();
                 commandRunFailure.printStackTrace(new PrintWriter(sb));
                 context.getOutput().error(sb.toString());
-
-
             }
             if (!result && exitSystem) {
                 System.exit(2);
