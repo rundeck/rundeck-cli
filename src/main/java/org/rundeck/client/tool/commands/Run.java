@@ -1,11 +1,10 @@
 package org.rundeck.client.tool.commands;
 
+import com.simplifyops.toolbelt.Command;
+import com.simplifyops.toolbelt.CommandOutput;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobItem;
-import org.rundeck.util.toolbelt.Command;
-import org.rundeck.util.toolbelt.CommandOutput;
-import org.rundeck.util.toolbelt.CommandRunFailure;
 import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Client;
 import retrofit2.Call;
