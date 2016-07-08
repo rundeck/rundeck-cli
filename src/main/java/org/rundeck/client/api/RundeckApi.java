@@ -298,4 +298,24 @@ public interface RundeckApi {
     @Headers("Accept: application/json")
     @GET("system/info")
     Call<SystemInfo> systemInfo();
+
+    //scheduler
+
+    /**
+     * List scheduler owned jobs for the target server
+     * @return list of jobs
+     */
+    @Headers("Accept: application/json")
+    @GET("scheduler/jobs")
+    Call<List<ScheduledJobItem>> listSchedulerJobs();
+
+    /**
+     * List scheduler owned jobs for the specified server
+     * @param uuid server uuid
+     * @return list of jobs
+     */
+    @Headers("Accept: application/json")
+    @GET("scheduler/server/{uuid}/jobs")
+    Call<List<ScheduledJobItem>> listSchedulerJobs(@Path("uuid") String uuid);
+
 }

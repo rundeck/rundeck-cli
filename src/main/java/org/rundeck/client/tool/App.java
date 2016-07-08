@@ -34,7 +34,8 @@ public class App {
                                new Executions(client),
                                new Run(client),
                                new Keys(client),
-                               new RDSystem(client)
+                               new RDSystem(client),
+                               new Scheduler(client)
                        )
                        .commandInput(new JewelInput())
                        .buckle();
