@@ -2,6 +2,8 @@ package org.rundeck.client.tool.commands.projects;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import com.simplifyops.toolbelt.Command;
+import com.simplifyops.toolbelt.CommandOutput;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
@@ -9,9 +11,6 @@ import org.rundeck.client.api.model.ACLPolicyItem;
 import org.rundeck.client.tool.commands.ApiCommand;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
-import org.rundeck.util.toolbelt.Command;
-import org.rundeck.util.toolbelt.CommandOutput;
-import org.rundeck.util.toolbelt.SubCommand;
 import retrofit2.Call;
 
 import java.io.File;

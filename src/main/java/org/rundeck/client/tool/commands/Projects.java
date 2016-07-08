@@ -1,14 +1,15 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
+import com.simplifyops.toolbelt.Command;
+import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.HasSubCommands;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.commands.projects.ACLs;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
-import org.rundeck.util.toolbelt.*;
-import org.rundeck.util.toolbelt.input.jewelcli.JewelInput;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -21,7 +22,7 @@ import java.util.stream.Collectors;
  * Created by greg on 5/19/16.
  */
 @Command(description = "List and manage projects.")
-public class Projects extends ApiCommand implements HasSubCommands{
+public class Projects extends ApiCommand implements HasSubCommands {
     public Projects(final Client<RundeckApi> client) {
         super(client);
     }

@@ -1,6 +1,8 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
+import com.simplifyops.toolbelt.Command;
+import com.simplifyops.toolbelt.CommandOutput;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -9,8 +11,6 @@ import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Util;
-import org.rundeck.util.toolbelt.Command;
-import org.rundeck.util.toolbelt.CommandOutput;
 import retrofit2.Call;
 
 import java.io.ByteArrayOutputStream;

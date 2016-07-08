@@ -1,10 +1,10 @@
 package org.rundeck.client.tool.commands;
 
+import com.simplifyops.toolbelt.Command;
+import com.simplifyops.toolbelt.CommandOutput;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.SystemInfo;
 import org.rundeck.client.util.Client;
-import org.rundeck.util.toolbelt.Command;
-import org.rundeck.util.toolbelt.CommandOutput;
 
 import java.io.IOException;
 

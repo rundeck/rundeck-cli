@@ -1,13 +1,13 @@
 package org.rundeck.client.tool;
 
+import com.simplifyops.toolbelt.CommandRunFailure;
+import com.simplifyops.toolbelt.Tool;
+import com.simplifyops.toolbelt.ToolBelt;
+import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
-import org.rundeck.util.toolbelt.CommandRunFailure;
-import org.rundeck.util.toolbelt.Tool;
-import org.rundeck.util.toolbelt.ToolBelt;
-import org.rundeck.util.toolbelt.input.jewelcli.JewelInput;
 
 import java.io.IOException;
 
@@ -24,7 +24,9 @@ public class App {
         Client<RundeckApi> client = createClient();
         return ToolBelt.belt(name)
                        .defaultHelpCommands()
-                       .ansiColorOutput("1".equals(System.getenv("RD_COLOR")))
+                       .ansiColorOutput("1".equals(System.getenv("RD_COLOR")) ||
+                                                   System.getenv("TERM") != null &&
+                                                   System.getenv("TERM").contains("color"))
                        .add(
                                new Adhoc(client),
                                new Jobs(client),

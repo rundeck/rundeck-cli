@@ -3,6 +3,8 @@ package org.rundeck.client.tool.commands;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.Unparsed;
+import com.simplifyops.toolbelt.Command;
+import com.simplifyops.toolbelt.CommandOutput;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -10,8 +12,6 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.KeyStorageItem;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Util;
-import org.rundeck.util.toolbelt.Command;
-import org.rundeck.util.toolbelt.CommandOutput;
 
 import java.io.File;
 import java.io.FileOutputStream;

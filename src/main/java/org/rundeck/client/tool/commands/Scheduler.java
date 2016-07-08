@@ -2,14 +2,14 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import com.simplifyops.toolbelt.Command;
+import com.simplifyops.toolbelt.CommandOutput;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.ScheduledJobItem;
 import org.rundeck.client.api.model.SystemInfo;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.util.Client;
-import org.rundeck.util.toolbelt.Command;
-import org.rundeck.util.toolbelt.CommandOutput;
 import retrofit2.Call;
 
 import java.io.IOException;

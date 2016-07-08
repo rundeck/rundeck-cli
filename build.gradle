@@ -28,7 +28,9 @@ ext.distInstallPath = '/var/lib/rundeck/cli'
 defaultTasks 'clean', 'build'
 
 repositories {
+    mavenLocal()
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -38,8 +40,11 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-simplexml:2.0.2'
     compile 'com.squareup.okhttp3:logging-interceptor:3.0.1'
     compile 'com.squareup.okhttp3:okhttp-urlconnection:3.0.1'
-    compile project(':toolbelt')
-    compile project(':toolbelt-jewelcli')
+//    compile 'com.github.simplifyops:cli-toolbelt:0.1.3' //all artifacts
+    compile 'com.github.simplifyops.cli-toolbelt:toolbelt:0.1.7'
+    compile 'com.github.simplifyops.cli-toolbelt:toolbelt-jewelcli:0.1.7'
+//    compile 'com.simplifyops.toolbelt:toolbelt:0.1.1-SNAPSHOT'
+//    compile 'com.simplifyops.toolbelt:toolbelt-jewelcli:0.1.1-SNAPSHOT'
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
