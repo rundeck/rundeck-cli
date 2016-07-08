@@ -3,6 +3,7 @@ package org.rundeck.client.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -58,8 +59,8 @@ public class ScheduledJobItem extends JobItem {
         this.serverOwner = serverOwner;
     }
 
-    public Map<String, Object> toMap() {
-        HashMap<String, Object> map = new HashMap<>();
+    public Map<Object, Object> toMap() {
+        HashMap<Object, Object> map = new LinkedHashMap<>();
         map.put("job", toBasicString());
         map.put("serverNodeUUID", getServerNodeUUID());
         map.put("scheduled", scheduled);
