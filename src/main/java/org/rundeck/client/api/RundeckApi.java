@@ -4,6 +4,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.util.Json;
 import org.rundeck.client.util.Xml;
 import retrofit2.Call;
 import retrofit2.http.*;
@@ -97,6 +98,18 @@ public interface RundeckApi {
             @Query("max") int max,
             @Query("olderFilter") String olderThan,
             @Query("recentFilter") String newerThan
+    );
+
+    /**
+     * Bulk delete
+     * @param delete
+     * @return
+     */
+    @Json
+    @Headers("Accept: application/json")
+    @POST("executions/delete")
+    Call<BulkExecutionDeleteResponse> deleteExecutions(
+            @Body BulkExecutionDelete delete
     );
 
     @Headers("Accept: application/json")

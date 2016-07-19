@@ -12,8 +12,10 @@ import retrofit2.Call;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by greg on 5/20/16.
@@ -202,7 +204,7 @@ public class Executions extends ApiCommand {
     }
 
     @Command(isDefault = true, description = "Query previous executions for a project.")
-    public void query(QueryCmd options, CommandOutput out) throws IOException {
+    public ExecutionList query(QueryCmd options, CommandOutput out) throws IOException {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
@@ -233,6 +235,57 @@ public class Executions extends ApiCommand {
         } else {
             out.output(String.format("End of results."));
         }
+        return executionList;
+    }
+
+    @CommandLineInterface(application = "deletebulk") interface BulkDeleteCmd extends QueryCmd {
+        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
+        boolean isConfirm();
+
+        @Option(shortName = "i", longName = "idlist", description = "Comma separated list of Execution IDs")
+        String getIdlist();
+
+        boolean isIdlist();
+    }
+
+    @Command(description = "Find and delete executions in a project. Use the query options to find and delete " +
+                           "executions, or specify executions with the `idlist` option.")
+    public boolean deletebulk(BulkDeleteCmd options, CommandOutput out) throws IOException {
+
+        List<String> execIds = null;
+        if (options.isIdlist()) {
+            execIds = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
+        } else {
+            ExecutionList executionList = query(options, out);
+
+            execIds = executionList.getExecutions()
+                                   .stream()
+                                   .map(Execution::getId)
+                                   .collect(Collectors.toList());
+        }
+
+        if (!options.isConfirm()) {
+            //request confirmation
+            String s = System.console().readLine("Really delete %d executions? (y/N) ", execIds.size());
+
+            if (!"y".equals(s)) {
+                out.warning("Not deleting executions.");
+                return false;
+            }
+        }
+        BulkExecutionDeleteResponse result = client.checkError(client.getService()
+                                                                     .deleteExecutions(new BulkExecutionDelete
+                                                                                               (execIds)));
+        if (!result.isAllsuccessful()) {
+            out.error(String.format("Failed to delete %d executions:", result.getFailedCount()));
+            out.error(result.getFailures()
+                            .stream()
+                            .map(BulkExecutionDeleteResponse.DeleteFailure::toString)
+                            .collect(Collectors.toList()));
+        }else{
+            out.output(String.format("Deleted %d executions.", result.getSuccessCount()));
+        }
+        return result.isAllsuccessful();
     }
 
     public static boolean maybeFollow(
