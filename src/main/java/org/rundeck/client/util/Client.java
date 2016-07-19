@@ -53,6 +53,10 @@ public class Client<T> {
 
     public <T> T checkError(final Call<T> execute) throws IOException {
         Response<T> response = execute.execute();
+        return checkError(response);
+    }
+
+    public <T> T checkError(final Response<T> response) throws IOException {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
             if (null != error) {
@@ -106,6 +110,20 @@ public class Client<T> {
             Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
                     ErrorResponse.class,
                     annotationsByType
+            );
+            return errorConverter.convert(responseBody);
+        } else {
+            return null;
+        }
+    }
+
+    public <X> X readError(Response<?> execute, Class<X> errorType, MediaType... mediaTypes) throws IOException {
+
+        ResponseBody responseBody = execute.errorBody();
+        if (hasAnyMediaType(responseBody, mediaTypes)) {
+            Converter<ResponseBody, X> errorConverter = getRetrofit().responseBodyConverter(
+                    errorType,
+                    new Annotation[0]
             );
             return errorConverter.convert(responseBody);
         } else {
