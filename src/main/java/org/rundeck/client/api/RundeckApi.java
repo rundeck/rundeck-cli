@@ -307,6 +307,38 @@ public interface RundeckApi {
             @Path("project") String project,
             @Path("name") String name
     );
+    //system ACLs
+    @Headers("Accept: application/json")
+    @GET("system/acl/")
+    Call<ACLPolicyItem> listSystemAcls(
+
+    );
+
+    @Headers("Accept: application/json")
+    @GET("system/acl/{name}")
+    Call<ACLPolicy> getSystemAclPolicy(
+            @Path("name") String name
+    );
+
+    @Headers("Accept: application/json")
+    @PUT("system/acl/{name}")
+    Call<ACLPolicy> updateSystemAclPolicy(
+            @Path("name") String name,
+            @Body RequestBody body
+    );
+
+    @Headers("Accept: application/json")
+    @POST("system/acl/{name}")
+    Call<ACLPolicy> createSystemAclPolicy(
+            @Path("name") String name,
+            @Body RequestBody body
+    );
+
+    @Headers("Accept: application/json")
+    @DELETE("system/acl/{name}")
+    Call<Void> deleteSystemAclPolicy(
+            @Path("name") String name
+    );
 
     @Headers("Accept: application/json")
     @GET("system/info")
