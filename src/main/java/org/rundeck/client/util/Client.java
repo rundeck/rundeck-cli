@@ -4,6 +4,7 @@ import okhttp3.MediaType;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.AuthorizationFailed;
 import org.rundeck.client.api.RequestFailed;
+import org.rundeck.client.api.model.ErrorDetail;
 import org.rundeck.client.api.model.ErrorResponse;
 import retrofit2.Call;
 import retrofit2.Converter;
@@ -53,7 +54,7 @@ public class Client<T> {
     public <T> T checkError(final Call<T> execute) throws IOException {
         Response<T> response = execute.execute();
         if (!response.isSuccessful()) {
-            ErrorResponse error = readError(response);
+            ErrorDetail error = readError(response);
             if (null != error) {
                 System.err.printf("Error: %s%n", error);
             }
@@ -90,14 +91,22 @@ public class Client<T> {
         return response.body();
     }
 
-    ErrorResponse readError(Response<?> execute) throws IOException {
+    ErrorDetail readError(Response<?> execute) throws IOException {
 
-        Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
-                ErrorResponse.class,
-                new Annotation[0]
-        );
         ResponseBody responseBody = execute.errorBody();
         if (hasAnyMediaType(responseBody, MEDIA_TYPE_JSON)) {
+            Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
+                    ErrorResponse.class,
+                    new Annotation[0]
+            );
+            return errorConverter.convert(responseBody);
+        } else if (hasAnyMediaType(responseBody, MEDIA_TYPE_TEXT_XML, MEDIA_TYPE_XML)) {
+            //specify xml annotation to parse as xml
+            Annotation[] annotationsByType = ErrorResponse.class.getAnnotationsByType(Xml.class);
+            Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
+                    ErrorResponse.class,
+                    annotationsByType
+            );
             return errorConverter.convert(responseBody);
         } else {
             return null;
