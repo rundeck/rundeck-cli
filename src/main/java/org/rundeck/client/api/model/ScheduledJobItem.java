@@ -62,6 +62,7 @@ public class ScheduledJobItem extends JobItem {
     public Map<Object, Object> toMap() {
         HashMap<Object, Object> map = new LinkedHashMap<>();
         map.put("job", toBasicString());
+        map.put("project", getProject());
         map.put("serverNodeUUID", getServerNodeUUID());
         map.put("scheduled", scheduled);
         map.put("scheduleEnabled", scheduleEnabled);
