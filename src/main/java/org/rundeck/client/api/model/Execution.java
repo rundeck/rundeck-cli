@@ -34,17 +34,28 @@ public class Execution {
 
 
     public String toBasicString() {
-        if(null!=description) {
-            return String.format("[%s] %s <%s>", id, description, permalink);
+        String desc = getBasicDescription();
+        if (null != desc) {
+            return String.format("[%s] %s <%s>", id, desc, permalink);
         }
         return String.format("[%s] <%s>", id, permalink);
     }
     public String toExtendedString() throws ParseException {
         if(null!=dateEnded) {
-            return String.format("[%s] (%s: %s) <%s>", id, status, dateEnded.toRelative(), permalink);
+            return String.format("[%s] %s: %s, %s <%s>", id, status, dateEnded.toRelative(),
+                                 getBasicDescription(), permalink
+            );
         }
         return String.format("[%s] <%s>", id, permalink);
     }
+
+    private String getBasicDescription() {
+        if (null != getJob()) {
+            return String.format("(Job: %s)", getJob().toBasicString());
+        }
+        return description;
+    }
+
     public Map getInfoMap()  {
         HashMap<Object, Object> map = new HashMap<>();
         map.put("id", getId());
