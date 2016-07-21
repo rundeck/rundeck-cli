@@ -7,6 +7,7 @@ import com.simplifyops.toolbelt.HasSubCommands;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.commands.projects.ACLs;
+import org.rundeck.client.tool.commands.projects.SCM;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
@@ -30,7 +31,8 @@ public class Projects extends ApiCommand implements HasSubCommands {
     @Override
     public List<Object> getSubCommands() {
         return Arrays.asList(
-                new ACLs(client)
+                new ACLs(client),
+                new SCM(client)
         );
     }
 

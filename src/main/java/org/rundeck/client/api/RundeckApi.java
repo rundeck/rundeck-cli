@@ -9,6 +9,7 @@ import org.rundeck.client.util.Xml;
 import retrofit2.Call;
 import retrofit2.http.*;
 
+import java.io.File;
 import java.net.URL;
 import java.util.List;
 
@@ -363,4 +364,38 @@ public interface RundeckApi {
     @GET("scheduler/server/{uuid}/jobs")
     Call<List<ScheduledJobItem>> listSchedulerJobs(@Path("uuid") String uuid);
 
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#get-project-scm-config">
+     * Get SCM Config for a project
+     * </a>
+     *
+     * @param project     project name
+     * @param integration integration type
+     *
+     * @return config
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/scm/{integration}/config")
+    Call<ScmConfig> getScmConfig(@Path("project") String project, @Path("integration") String integration);
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#setup-scm-plugin-for-a-project">Setup SCM Config for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     * @param type        plugin type
+     * @param body        request body
+     *
+     * @return result
+     */
+    @Headers("Accept: application/json")
+    @POST("project/{project}/scm/{integration}/plugin/{type}/setup")
+    Call<ScmActionResult> setupScmConfig(
+            @Path("project") String project,
+            @Path("integration") String integration,
+            @Path("type") String type,
+            @Body RequestBody body
+    );
 }
