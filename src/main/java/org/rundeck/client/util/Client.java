@@ -41,9 +41,15 @@ public class Client<T> {
         this.retrofit = retrofit;
     }
 
-    public static boolean hasAnyMediaType(final ResponseBody body, final MediaType... parse) {
+    /**
+     * @param body  body
+     * @param types list of media types
+     *
+     * @return true if body has one of the media types
+     */
+    public static boolean hasAnyMediaType(final ResponseBody body, final MediaType... types) {
         MediaType mediaType1 = body.contentType();
-        for (MediaType mediaType : parse) {
+        for (MediaType mediaType : types) {
             if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
                 return true;
             }
@@ -51,11 +57,33 @@ public class Client<T> {
         return false;
     }
 
+    /**
+     * Execute the remote call, and return the expected type if successful. if unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param execute call
+     * @param <T>     expected result type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
     public <T> T checkError(final Call<T> execute) throws IOException {
         Response<T> response = execute.execute();
         return checkError(response);
     }
 
+    /**
+     * return the expected type if successful. if response is unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param response call response
+     * @param <T>      expected type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
     public <T> T checkError(final Response<T> response) throws IOException {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
@@ -95,6 +123,15 @@ public class Client<T> {
         return response.body();
     }
 
+    /**
+     * Attempt to parse the response as a json or xml error and return the detail
+     *
+     * @param execute response
+     *
+     * @return parsed error detail or null if media types did not match
+     *
+     * @throws IOException if a parse error occurs
+     */
     ErrorDetail readError(Response<?> execute) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();
@@ -117,6 +154,18 @@ public class Client<T> {
         }
     }
 
+    /**
+     * If the response has one of the expected media types, parse into the error type
+     *
+     * @param execute    response
+     * @param errorType  class of response
+     * @param mediaTypes expected media types
+     * @param <X>        error type
+     *
+     * @return error type instance, or null if mediate type does not match
+     *
+     * @throws IOException if media type matched, but parsing was unsuccessful
+     */
     public <X> X readError(Response<?> execute, Class<X> errorType, MediaType... mediaTypes) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();
