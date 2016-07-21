@@ -11,16 +11,18 @@ deploy:
   provider: releases
   api_key:
     secure: E5dKfiXBUTFpIJFWSk2+jBcS6FdO++DHqqGp8XDtrrCpKJfynYqPR+/23oYKYVz+H21CnEiUTqtVKvlftccWbErcRAD3R0G1bw6efj3TNiBb0Z0dRa8qgP+3NVTWhRZ4hwSn/0mClY96kz3cEjiJlBs6lYgneKlmg2As++LDjGIWZEfPUBXK6gtG69ZtMj2NBibKg1KQWZV6nZApBvYtkGJJqhu82jlDMbi5ltaOayVl4ISy0NlfcyW9ZNeLsCgjq9NVl5UV7ti6wB25fosz3fc7OZVF0SlU7Txg5Gi0bsnvRAijZRpZQwuo0Dza3Tqv6YDTXmfZT8qaqF6+SGNBH1BLSVApk2pBddJATzM5o0SZkuywUK4tMq6qCJjdPgMXnR4b/t3jK5f5w/ahWgYsqU7z7dBpxDDWafDFibkylJEQaUexktYdxq7JQZ5F6CNcT+qkPhj6LELR9eYh22xnuorwh6sfBfQqWJ0zveD9IcAv4Fl0ogXniftaLxRJ+G9vSQtzruWCTQRT3Ys2eIjc67wI47uMFcU5naM/YDt9BAQZzBoP9vKGiiyRwoa5kqpEy++qtod8oQTN1mw0B3BubrtlDAKirp8S+Zoix7EAvBt0abIO+zOvblUAjzb4zf2DxXkakvWZ4hxq8LnOItxItyBBRbDxiNYigYd8lRW0los=
-  file: 
-    - 'build/distributions/rd-*.zip'
-    - 'build/distributions/rd-*.tar'
-    - 'build/distributions/rundeck-cli*.rpm'
-    - 'build/distributions/rundeck-cli*.deb'
-    - 'build/libs/rundeck-cli-*-all.jar'
+  file:
+  - build/distributions/rd-*.zip
+  - build/distributions/rd-*.tar
+  - build/distributions/rundeck-cli*.rpm
+  - build/distributions/rundeck-cli*.deb
+  - build/libs/rundeck-cli-*-all.jar
   on:
     repo: rundeck/rundeck-cli
     tags: true
   file_glob: true
 after_deploy:
-- export
-- ./gradlew -PbintrayUser=gschueler -PbintrayRepo=rundeck-rpm -PbintrayUserOrg=rundeck PbintrayUpload
+- ./gradlew -PbintrayUser=gschueler -PbintrayRepo=rundeck-maint-staging-rpm bintrayUpload
+env:
+  global:
+    secure: 2LDWRCZsuUYNUNHQz4oiaq9VIcdp0ziI7SKBxUxfqT4rehJ0J7kz+UPqwtgxMiUyQaHJQqzkcR+m6H3VZj9BREY+POiyu+yJOqhe3KRpDAfiN/gnwN81Nh9wloVaxyVe6i5yPaaBvE5vIREi7SAUdDtdsQ6WSkQ3JnaSL5Nz6e3DKR6+wgaTmBhh/TTW1YuN1qo5EjBpm0//M+KwY5BvVYOfPYLHCpVqnWFePQBkZY13lvufC5XPipXMf6c5Un/Uy6oVaRgLSPHDyELQvBzMSRPtzNmJSDm75LvclHHgDYEUcrcxRoWgAEISaBeIpGhe/PnsswCtQMfQBIm0W8Cv+HThbdCrrTdz/hWsohVvLFkCl9L8NOTOnATr2I9F0GBmsdhJvvr10JqGGol8Y9wwu5eiO9AWmchjZPicIWj5Dwo9E8AdT20aX4l287StESedS/Wtqh7gdf4d3Y1svWLEmh3gbERqOI9hRDV0DotfumhaW49SbaN/XecODiyPrnLBONSrYk1bWADDAvBZm/Jy0hvFbaVFFI8HfZMVJCO4GJJwna2MEMnsouNl2eDBFtvX5JHQ00JP4QacPFwW3/0NsgdaUGLiPSNezNJ1kBYtVbhQg4oL3yTkFaU6KuGhJcdSCVJUwOeP0YZF0oklofLhEhc4puzAi6EmGvLpMeh/huw=
