@@ -10,7 +10,7 @@ def bintrayRepo = project.hasProperty('bintrayRepo') ? project.property('bintray
 //def bintrayPassphrase = project.hasProperty('bintray.gpg.password') ? project.property('bintray.gpg.password') :
 //        System.getenv('BINTRAY_GPG_PASSWORD')
 
-if (bintrayUser && bintrayKey && bintrayUserOrg && bintrayRepo) {
+if (bintrayUser && bintrayKey && bintrayRepo) {
 
     apply plugin: 'com.jfrog.bintray'
     bintray {
@@ -26,7 +26,9 @@ if (bintrayUser && bintrayKey && bintrayUserOrg && bintrayRepo) {
         pkg {
             name = 'rundeck-cli'
             repo = bintrayRepo
-            userOrg = bintrayUserOrg
+            if(bintrayUserOrg) {
+                userOrg = bintrayUserOrg
+            }
             licenses = ['Apache-2.0']
             vcsUrl = 'https://github.com/rundeck/rundeck-cli.git'
             websiteUrl = 'https://github.com/rundeck/rundeck-cli'
