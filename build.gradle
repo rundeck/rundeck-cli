@@ -35,7 +35,7 @@ apply plugin: 'nebula.ospackage'
 mainClassName = 'org.rundeck.client.tool.App'
 applicationName = 'rd'
 //install path in rpm/deb
-ext.distInstallPath = '/var/lib/rundeck/rd'
+ext.distInstallPath = '/var/lib/rundeck-cli'
 defaultTasks 'clean', 'build'
 
 repositories {
