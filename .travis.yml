@@ -21,3 +21,6 @@ deploy:
     repo: rundeck/rundeck-cli
     tags: true
   file_glob: true
+after_deploy:
+- export
+- ./gradlew -PbintrayUser=gschueler -PbintrayRepo=rundeck-rpm -PbintrayUserOrg=rundeck PbintrayUpload
