@@ -95,7 +95,6 @@ ospackage {
 //depend on the shadow artifact
 buildDeb.dependsOn distShadowZip
 buildRpm.dependsOn distShadowZip
-
 assemble.dependsOn buildRpm, buildDeb
 
 apply from: 'gradle/bintray.gradle'

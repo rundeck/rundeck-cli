@@ -7,6 +7,12 @@ cache:
   directories:
   - $HOME/.gradle/caches/
   - $HOME/.gradle/wrapper/
+addons:
+  apt:
+    packages:
+    - expect
+    - rpm
+    - gnupg
 deploy:
   provider: releases
   api_key:
@@ -22,7 +28,14 @@ deploy:
     tags: true
   file_glob: true
 after_deploy:
-- ./gradlew -PbintrayUser=gschueler -PbintrayRepo=rundeck-maint-staging-rpm bintrayUpload
+- mkdir $HOME/.gnupg
+- openssl aes-256-cbc -K $encrypted_168997f84686_key -iv $encrypted_168997f84686_iv
+  -in gpg.tar.enc -out gpg.tar -d
+- tar xv -C $HOME/.gnupg -f gpg.tar
+- GPG_PATH=$HOME/.gnupg ./travis-sign-rpm.sh && 
+  ./gradlew -PbintrayUser=gschueler -PbintrayRepo=rundeck-maint-staging-rpm bintrayUpload
 env:
   global:
-    secure: 2LDWRCZsuUYNUNHQz4oiaq9VIcdp0ziI7SKBxUxfqT4rehJ0J7kz+UPqwtgxMiUyQaHJQqzkcR+m6H3VZj9BREY+POiyu+yJOqhe3KRpDAfiN/gnwN81Nh9wloVaxyVe6i5yPaaBvE5vIREi7SAUdDtdsQ6WSkQ3JnaSL5Nz6e3DKR6+wgaTmBhh/TTW1YuN1qo5EjBpm0//M+KwY5BvVYOfPYLHCpVqnWFePQBkZY13lvufC5XPipXMf6c5Un/Uy6oVaRgLSPHDyELQvBzMSRPtzNmJSDm75LvclHHgDYEUcrcxRoWgAEISaBeIpGhe/PnsswCtQMfQBIm0W8Cv+HThbdCrrTdz/hWsohVvLFkCl9L8NOTOnATr2I9F0GBmsdhJvvr10JqGGol8Y9wwu5eiO9AWmchjZPicIWj5Dwo9E8AdT20aX4l287StESedS/Wtqh7gdf4d3Y1svWLEmh3gbERqOI9hRDV0DotfumhaW49SbaN/XecODiyPrnLBONSrYk1bWADDAvBZm/Jy0hvFbaVFFI8HfZMVJCO4GJJwna2MEMnsouNl2eDBFtvX5JHQ00JP4QacPFwW3/0NsgdaUGLiPSNezNJ1kBYtVbhQg4oL3yTkFaU6KuGhJcdSCVJUwOeP0YZF0oklofLhEhc4puzAi6EmGvLpMeh/huw=
+  - secure: 2LDWRCZsuUYNUNHQz4oiaq9VIcdp0ziI7SKBxUxfqT4rehJ0J7kz+UPqwtgxMiUyQaHJQqzkcR+m6H3VZj9BREY+POiyu+yJOqhe3KRpDAfiN/gnwN81Nh9wloVaxyVe6i5yPaaBvE5vIREi7SAUdDtdsQ6WSkQ3JnaSL5Nz6e3DKR6+wgaTmBhh/TTW1YuN1qo5EjBpm0//M+KwY5BvVYOfPYLHCpVqnWFePQBkZY13lvufC5XPipXMf6c5Un/Uy6oVaRgLSPHDyELQvBzMSRPtzNmJSDm75LvclHHgDYEUcrcxRoWgAEISaBeIpGhe/PnsswCtQMfQBIm0W8Cv+HThbdCrrTdz/hWsohVvLFkCl9L8NOTOnATr2I9F0GBmsdhJvvr10JqGGol8Y9wwu5eiO9AWmchjZPicIWj5Dwo9E8AdT20aX4l287StESedS/Wtqh7gdf4d3Y1svWLEmh3gbERqOI9hRDV0DotfumhaW49SbaN/XecODiyPrnLBONSrYk1bWADDAvBZm/Jy0hvFbaVFFI8HfZMVJCO4GJJwna2MEMnsouNl2eDBFtvX5JHQ00JP4QacPFwW3/0NsgdaUGLiPSNezNJ1kBYtVbhQg4oL3yTkFaU6KuGhJcdSCVJUwOeP0YZF0oklofLhEhc4puzAi6EmGvLpMeh/huw=
+  - secure: 6GpsVqBV3P0pkok0KLljQZi9WsgIMTpV3hM/EwPRFygxsdiKi9w+RN8OmterBbyMNRhT/1IXcqwpRf80Yv5xESuzMF37J2+wUZij+ROO/j0vFud/uycrzFXhREE1uZHvSznRlREW12F+1KDHE4E8b4goXcDW4zxQrPNTaB3bpHi9HbkG9yeXJJykFxRQw512UkIavMFIH5ZyJFBh/7d+A3+s3BE0qEMtdNwJS8TjzYS7X0vG/nO+NHHLBY8pGE1vGCaRUgeWPpW/Fi35rPBcqiSNqpOh9HtFnhyvKvGZ1pqR68awRq8fL6x+zqKFZEBoP0I6Ff8NCDBVhZ1Z5YGj+VawbVmw3Dfbmb4vx/5eSCDv+cJjENsOY1H+wHbGPbqdrHGmeoon6q7VBi9LgXAOx3JxHsokL5Pah4e8w3+6fat4txLkNPvBApLGVB7+krYkEdqy5khaFschi4uHD0Ublltfj2JnHXBJrFgfNnxq0FcCsNpmqkicLIoLi/pykxR0d7h80PtAc7+1slr6wey0Zs8gcoukC+rchORqn8ie/HIL9ixRnUTiJDXPosBdcMsJnNfvejaMM1kpR/MYciR0wfR2Vaw7zQ1XayFJG62LOMGtMfi3bAodKNglTGfhonaUpVUv2+AwB0Xju5xyXXHfQJH6nZYHjQi9uaLWQ7NezoA=
+  - secure: db8ev7WNUw3+dgKVjbooV4Q6PlY/EMYMmfswbY2lywop/kAZ7ZaROHoKgoJUUvJBD4fU2RvMdjou7NoZKWL2T9v3TaNp6JyZvWORrLRDLsINZ3cYf1psu9XN5hV9Qm7Io0uj4plpy+QACY7oBjZi/yS8juagYA9MerwuLvfJL8f/o2hubObrAWtHeWyjoAUinlP7bPEjErW4eIW5OxaDyatPJoXZ597x0o2HXqzj7gmbiNiBwtkOHop/QvdFuVmLPCil2DbhcIctRkeyrNRYnJrBMGM3SputK+wN/Bin3uNDyUJDtDt8X5kFY9rVh8lO/w9ghDbg9Fdtb7Vd1Rjt5hpkbvFI0/dI8V08dqv8ugp0FcjS1MZMG7S03cNoMzPB3cvwcqDC1Z29g7YiLBlmoncnxatjR3xQ1VlANC5Z6Z4VfWvlSJWChbsQACEW8LpcxWjg7dBtte4uW0wBXFDXLG3OgZYKpYJS1kNUPrjtTKzOCnhq255C5xpwq+d3IPoikcIPwOzDjKJ+agGpukKytgd5tTR+X9vkMcuZMyQbtMMI9xN44ODuDRKMMFF+8b9ANeTrYFfVefwh0bYqVQazoWaVQDw7WUMUyIvbMXppoMkm09B43vNfo2PqPu4h2thmL6vZjgJawNVkLIFFOVeO9sW5rE534EzqX9nPmbCxyzQ=
