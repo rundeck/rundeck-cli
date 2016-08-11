@@ -103,7 +103,9 @@ public interface RundeckApi {
 
     /**
      * Bulk delete
+     *
      * @param delete
+     *
      * @return
      */
     @Json
@@ -228,6 +230,7 @@ public interface RundeckApi {
             @Query("loglevel") String loglevel,
             @Query("filter") String filter
     );
+
     @Headers("Accept: application/json")
     @POST("job/{id}/executions")
     Call<Execution> runJob(
@@ -308,6 +311,7 @@ public interface RundeckApi {
             @Path("project") String project,
             @Path("name") String name
     );
+
     //system ACLs
     @Headers("Accept: application/json")
     @GET("system/acl/")
@@ -349,6 +353,7 @@ public interface RundeckApi {
 
     /**
      * List scheduler owned jobs for the target server
+     *
      * @return list of jobs
      */
     @Headers("Accept: application/json")
@@ -357,7 +362,9 @@ public interface RundeckApi {
 
     /**
      * List scheduler owned jobs for the specified server
+     *
      * @param uuid server uuid
+     *
      * @return list of jobs
      */
     @Headers("Accept: application/json")
@@ -398,4 +405,52 @@ public interface RundeckApi {
             @Path("type") String type,
             @Body RequestBody body
     );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#list-tokens">List Tokens</a>
+     *
+     * @return list of tokens
+     */
+    @Headers("Accept: application/json")
+    @GET("tokens}")
+    Call<List<ApiToken>> listTokens();
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#list-tokens">List Tokens</a>
+     *
+     * @param user username
+     *
+     * @return list of tokens for a user
+     */
+    @Headers("Accept: application/json")
+    @GET("tokens/{user}")
+    Call<List<ApiToken>> listTokens(
+            @Path("user") String user
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#create-a-token">Create a Token</a>
+     *
+     * @param user username
+     *
+     * @return created token
+     */
+    @Headers("Accept: application/json")
+    @POST("tokens/{user}")
+    Call<ApiToken> createToken(
+            @Path("user") String user
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#delete-a-token">Delete a Token</a>
+     *
+     * @param id token
+     *
+     */
+    @Headers("Accept: application/json")
+    @DELETE("token/{id}")
+    Call<Void> deleteToken(
+            @Path("id") String id
+    );
+
 }
