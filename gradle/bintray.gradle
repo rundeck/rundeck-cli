@@ -17,7 +17,9 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
         user = bintrayUser
         key = bintrayKey
         filesSpec {
-            from buildRpm.outputs
+            from ("$buildDir/distributions"){
+                include "*.rpm"
+            }
             into "."
         }
         dryRun = false
@@ -40,11 +42,6 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
                 name = rpmVersion
                 desc = "Rundeck CLI Tools ${rpmVersion}"
                 vcsTag = "v${rpmVersion}"
-
-                gpg {
-                    sign = true //Determines whether to GPG sign the files. The default is false
-                    //passphrase = bintrayPassphrase //Optional. The passphrase for GPG signing'
-                }
             }
         }
 
