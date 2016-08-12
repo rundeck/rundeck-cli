@@ -17,6 +17,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.Charset;
 import java.util.stream.Collectors;
 
 /**
@@ -204,23 +207,53 @@ public class Keys extends ApiCommand {
                 longName = "file",
                 description = "File path for reading the upload contents.")
         File getFile();
+
+        boolean isFile();
+
+        @Option(
+                shortName = "p",
+                longName = "prompt",
+                description = "(password type only) prompt on console for the password value, if -f is not specified."
+        )
+        boolean isPrompt();
     }
 
-    @Command(description = "Create a new key entry")
+    @Command(description = "Create a new key entry.")
     public boolean create(Upload options, CommandOutput output) throws IOException {
 
-        File input = options.getFile();
-        if (!input.canRead() || !input.isFile()) {
-            throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
-        }
         MediaType contentType = getUploadContentType(options.getType());
         if (null == contentType) {
             throw new IllegalArgumentException(String.format("Type is not supported: %s", options.getType()));
         }
-        RequestBody requestBody = RequestBody.create(
-                contentType,
-                input
-        );
+        RequestBody requestBody;
+        if (options.getType() != KeyStorageItem.KeyFileType.password && !options.isFile()) {
+            throw new IllegalArgumentException(String.format("File (-f) is required for type: %s", options.getType()));
+        }
+        if (options.getType() == KeyStorageItem.KeyFileType.password && !options.isFile() && !options.isPrompt()) {
+            throw new IllegalArgumentException(String.format(
+                    "File (-f) or -p is required for type: %s",
+                    options.getType()
+            ));
+        }
+        if (options.isFile()) {
+            File input = options.getFile();
+            if (!input.canRead() || !input.isFile()) {
+                throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
+            }
+            requestBody = RequestBody.create(
+                    contentType,
+                    input
+            );
+        } else {
+            char[] chars = System.console().readPassword("Enter password: ");
+            ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap(chars));
+            requestBody = RequestBody.create(
+                    contentType,
+                    byteBuffer.array()
+            );
+        }
+
+
         Path path = argPath(options);
         KeyStorageItem keyStorageItem = client.checkError(client.getService()
                                                                 .createKeyStorage(
