@@ -21,6 +21,34 @@ Java 8
 * `rundeck-cli-x.y.noarch.rpm` rpm
 * `rundeck-cli-x.y_all.deb` debian
 
+
+### Yum usage
+
+Also, in bintray in unofficial repo for now: [bintray/gschueler/rundeck-maint-staging-rpm](https://bintray.com/gschueler/rundeck-maint-staging-rpm).
+
+~~~{.sh}
+$ wget https://bintray.com/gschueler/rundeck-maint-staging-rpm/rpm -O bintray.repo
+$ sudo mv bintray.repo /etc/yum.repos.d/
+$ yum install rundeck-cli
+~~~
+
+optional: enable all gpg checks:
+
+~~~{.sh}
+$ sed -i.bak s/gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/bintray.repo
+$ echo "gpgkey=https://bintray.com/user/downloadSubjectPublicKey?username=bintray" >> /etc/yum.repos.d/bintray.repo
+$ rpm --import http://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key 
+~~~
+
+optional: enable only rpm gpg checks:
+
+~~~{.sh}
+$ sed -i.bak s/^gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/bintray.repo
+$ echo "gpgkey=http://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key" >> /etc/yum.repos.d/bintray.repo 
+~~~
+
+TODO: move to primary rundeck bintray yum repo
+
 ## Usage
 
 Define access credentials as user/password or Token value:
