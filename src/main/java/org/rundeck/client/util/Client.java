@@ -33,6 +33,7 @@ public class Client<T> {
     public static final MediaType MEDIA_TYPE_YAML = MediaType.parse(APPLICATION_YAML);
     public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");
     public static final MediaType MEDIA_TYPE_TEXT_XML = MediaType.parse("text/xml");
+    public static final String API_ERROR_API_VERSION_UNSUPPORTED = "api.error.api-version.unsupported";
     private T service;
     private Retrofit retrofit;
 
@@ -89,6 +90,12 @@ public class Client<T> {
             ErrorDetail error = readError(response);
             if (null != error) {
                 System.err.printf("Error: %s%n", error);
+                if (API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
+                    System.err.printf("Note: You requested an API endpoint using an unsupported version. \n" +
+                              "You can set a specific version by using a Rundeck " +
+                              "URL in the format:\n" +
+                              "  [RUNDECK_BASE_URL]/api/%s\n\n", error.getApiVersion());
+                }
             }
             if (response.code() == 401 || response.code() == 403) {
                 //authorization
