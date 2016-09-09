@@ -1,6 +1,7 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
+import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import okhttp3.RequestBody;
@@ -18,6 +19,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by greg on 3/28/16.
@@ -180,6 +182,18 @@ public class Jobs extends ApiCommand {
                 output.output("* " + jobItem.toBasicString());
             }
         }
+    }
+
+    @CommandLineInterface(application = "info") interface InfoOpts {
+
+        @Option(shortName = "i", longName = "id", description = "Job ID")
+        String getId();
+    }
+
+    @Command(description = "Get info about a Job by ID (API v18)")
+    public void info(InfoOpts options, CommandOutput output) throws IOException {
+        ScheduledJobItem body = client.checkError(client.getService().getJobInfo(options.getId()));
+        output.output(body.toMap());
     }
 
     /**

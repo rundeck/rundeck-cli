@@ -33,6 +33,17 @@ public interface RundeckApi {
             @Query("idlist") String idlist
     );
 
+    /**
+     * new api
+     * @param jobid
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("job/{jobid}/info")
+    Call<ScheduledJobItem> getJobInfo(
+            @Path("jobid") String jobid
+    );
+
 
     @GET("project/{project}/jobs/export")
     Call<ResponseBody> exportJobs(
@@ -445,7 +456,6 @@ public interface RundeckApi {
      * <a href="http://rundeck.org/docs/api/index.html#delete-a-token">Delete a Token</a>
      *
      * @param id token
-     *
      */
     @Headers("Accept: application/json")
     @DELETE("token/{id}")
