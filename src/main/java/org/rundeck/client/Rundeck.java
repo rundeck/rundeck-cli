@@ -88,7 +88,7 @@ public class Rundeck {
 
             logging.setLevel(HttpLoggingInterceptor.Level.values()[httpLogging %
                                                                    HttpLoggingInterceptor.Level.values().length]);
-            callFactory.addInterceptor(logging);
+            callFactory.addNetworkInterceptor(logging);
         }
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(base)
@@ -164,7 +164,7 @@ public class Rundeck {
 
             logging.setLevel(HttpLoggingInterceptor.Level.values()[httpLogging %
                                                                    HttpLoggingInterceptor.Level.values().length]);
-            callFactory.addInterceptor(logging);
+            callFactory.addNetworkInterceptor(logging);
         }
 
         callFactory.cookieJar(new JavaNetCookieJar(cookieManager));
