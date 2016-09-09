@@ -1,12 +1,11 @@
 package org.rundeck.client;
 
-import okhttp3.*;
+import okhttp3.HttpUrl;
+import okhttp3.JavaNetCookieJar;
+import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.util.FormAuthInterceptor;
-import org.rundeck.client.util.Client;
-import org.rundeck.client.util.QualifiedTypeConverterFactory;
-import org.rundeck.client.util.StaticHeaderInterceptor;
+import org.rundeck.client.util.*;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
@@ -78,11 +77,21 @@ public class Rundeck {
             final int httpLogging
     )
     {
+        String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
         String base = buildApiUrlForVersion(baseUrl, apiVers);
 
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
                 .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
 
+        String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv("RUNDECK_BYPASS_URL"));
+
+        if (null != bypassUrl) {
+            //fix redirects to external Rundeck URL by rewriting as to the baseurl
+            callFactory.addNetworkInterceptor(new RedirectBypassInterceptor(
+                    appBaseUrl,
+                    bypassUrl
+            ));
+        }
         if (httpLogging > 0) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
@@ -158,7 +167,15 @@ public class Rundeck {
                 )
 
         ));
+        String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv("RUNDECK_BYPASS_URL"));
 
+        if (null != bypassUrl) {
+            //fix redirects to external Rundeck URL by rewriting as to the baseurl
+            callFactory.addNetworkInterceptor(new RedirectBypassInterceptor(
+                    appBaseUrl,
+                    normalizeUrlPath(bypassUrl)
+            ));
+        }
         if (httpLogging > 0) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 
@@ -190,8 +207,13 @@ public class Rundeck {
      */
     private static String buildApiUrlForVersion(String baseUrl, final int apiVers) {
         if (!baseUrl.matches("^.*/api/\\d+/?$")) {
-            return baseUrl + "/api/" + (apiVers) + "/";
-        } else if (!baseUrl.matches(".*/$")) {
+            return normalizeUrlPath(baseUrl) + "api/" + (apiVers) + "/";
+        }
+        return normalizeUrlPath(baseUrl);
+    }
+
+    private static String normalizeUrlPath(String baseUrl) {
+        if (!baseUrl.matches(".*/$")) {
             return baseUrl + "/";
         }
         return baseUrl;
@@ -205,10 +227,8 @@ public class Rundeck {
     private static String buildBaseAppUrlForVersion(String baseUrl) {
         Matcher matcher = API_VERS_PATTERN.matcher(baseUrl);
         if (matcher.matches()) {
-            return matcher.group(1);
-        } else if (!baseUrl.matches(".*/$")) {
-            return baseUrl + "/";
+            return normalizeUrlPath(matcher.group(1));
         }
-        return baseUrl;
+        return normalizeUrlPath(baseUrl);
     }
 }
