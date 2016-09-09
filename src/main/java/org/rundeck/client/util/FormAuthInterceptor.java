@@ -5,14 +5,13 @@ import okhttp3.*;
 import java.io.IOException;
 
 /**
- * Created by greg on 5/25/16.
+ * Handle Form authentication flow to Rundeck
  */
 public class FormAuthInterceptor implements Interceptor {
-    ;
-    boolean authorized;
-    String username;
-    String password;
-    String baseUrl;
+    private boolean authorized;
+    private String username;
+    private String password;
+    private String baseUrl;
     private String j_security_url;
     private String usernameField;
     private String passwordField;
@@ -24,7 +23,8 @@ public class FormAuthInterceptor implements Interceptor {
             final String baseUrl,
             final String securityUrl,
             final String usernameField,
-            final String passwordField, final String loginErrorPath
+            final String passwordField,
+            final String loginErrorPath
     )
     {
         this.username = username;
