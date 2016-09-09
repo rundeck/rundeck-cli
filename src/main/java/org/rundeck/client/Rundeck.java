@@ -35,7 +35,7 @@ public class Rundeck {
     public static Client<RundeckApi> client(
             String baseUrl,
             final String token,
-            final boolean debugHttp
+            final int debugHttp
     )
     {
         return client(baseUrl, API_VERS, token, debugHttp);
@@ -55,7 +55,7 @@ public class Rundeck {
             String baseUrl,
             final String username,
             final String password,
-            final boolean debugHttp
+            final int debugHttp
     )
     {
         return client(baseUrl, API_VERS, username, password, debugHttp);
@@ -75,17 +75,19 @@ public class Rundeck {
             String baseUrl,
             final int apiVers,
             final String authToken,
-            final boolean httpLogging
+            final int httpLogging
     )
     {
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY);
         String base = buildApiUrlForVersion(baseUrl, apiVers);
 
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
                 .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
-        if (httpLogging) {
+
+        if (httpLogging > 0) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+
+            logging.setLevel(HttpLoggingInterceptor.Level.values()[httpLogging %
+                                                                   HttpLoggingInterceptor.Level.values().length]);
             callFactory.addInterceptor(logging);
         }
         Retrofit build = new Retrofit.Builder()
@@ -117,13 +119,10 @@ public class Rundeck {
             final int apiVers,
             final String username,
             final String password,
-            final boolean httpLogging
+            final int httpLogging
     )
     {
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-
-        logging.setLevel(HttpLoggingInterceptor.Level.BASIC);
         String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
         String apiBaseUrl = buildApiUrlForVersion(baseUrl, apiVers);
 
@@ -160,7 +159,11 @@ public class Rundeck {
 
         ));
 
-        if (httpLogging) {
+        if (httpLogging > 0) {
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+
+            logging.setLevel(HttpLoggingInterceptor.Level.values()[httpLogging %
+                                                                   HttpLoggingInterceptor.Level.values().length]);
             callFactory.addInterceptor(logging);
         }
 

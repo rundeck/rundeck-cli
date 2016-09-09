@@ -55,14 +55,21 @@ public class App {
             throw new IllegalArgumentException(
                     "Environment variable RUNDECK_TOKEN or RUNDECK_USER and RUNDECK_PASSWORD are required");
         }
+        String debugVal = System.getenv("DEBUG");
+        int debuglevel = 0;
+        try {
+            debuglevel = Integer.parseInt(debugVal);
+        } catch (NumberFormatException e) {
+
+        }
         if (null != System.getenv("RUNDECK_TOKEN")) {
             String token = requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-            return Rundeck.client(baseUrl, token, System.getenv("DEBUG") != null);
+            return Rundeck.client(baseUrl, token, debuglevel);
         } else {
 
             String user = requireEnv("RUNDECK_USER", "Please specify the Rundeck username");
             String pass = requireEnv("RUNDECK_PASSWORD", "Please specify the Rundeck password");
-            return Rundeck.client(baseUrl, user, pass, System.getenv("DEBUG") != null);
+            return Rundeck.client(baseUrl, user, pass, debuglevel);
         }
     }
 
