@@ -1,5 +1,7 @@
 # Rundeck CLI Tool
 
+[![Build Status](https://travis-ci.org/rundeck/rundeck-cli.svg?branch=master)](https://travis-ci.org/rundeck/rundeck-cli)
+
 This is a new CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 
 Its goal is to replace the old CLI Tools currently included with Rundeck with a modernized,
@@ -51,6 +53,9 @@ TODO: move to primary rundeck bintray yum repo
 
 ## Usage
 
+
+### Configuration
+
 Define access credentials as user/password or Token value:
 
 	export RUNDECK_URL=http://rundeck:4440
@@ -62,6 +67,37 @@ Define access credentials as user/password or Token value:
 	export RUNDECK_USER=username
 	export RUNDECK_PASSWORD=password
 
+Define a specific API version to use, by using the complete API base:
+
+	export RUNDECK_URL=http://rundeck:4440/api/12
+
+All requests will be made using that API version.
+
+**Bypass an external URL**:
+
+If your Rundeck server has a different *external URL* than the one you are accessing,
+you can tell the `rd` tool to treat redirects to that external URL as
+if they were to the original URL you specified.
+
+	export RUNDECK_URL=http://internal-rundeck:4440/rundeck
+	export RUNDECK_BYPASS_URL=https://rundeck.mycompany.com
+
+This will rewrite any redirect to `https://rundeck.mycompany.com/blah`
+as `http://internal-rundeck:4440/rundeck/blah`.
+
+Note: if you include the API version in your `RUNDECK_URL`, e.g. `http://internal-rundeck:4440/rundeck/api/12` then
+the `RUNDECK_BYPASS_URL` will be replaced by `http://internal-rundeck:4440/rundeck`.
+
+**Debug HTTP**
+
+Use the `DEBUG` env var to turn on HTTP debugging:
+
+	export DEBUG=1 # basic http request debug
+	export DEBUG=2 # http headers
+	export DEBUG=3 # http body
+
+
+### Running
 
 Install `rd-0.x.y.zip`
 
