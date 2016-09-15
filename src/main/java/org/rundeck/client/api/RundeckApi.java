@@ -453,4 +453,51 @@ public interface RundeckApi {
             @Path("id") String id
     );
 
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#get-readme-file">Get Readme File</a>
+     *
+     * @param project project
+     * @param file    type of readme file
+     *
+     * @return readme contents
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/{file}")
+    Call<ProjectReadme> getReadme(
+            @Path("project") String project,
+            @Path("file") ReadmeFile file
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#put-readme-file">Put Readme File</a>
+     *
+     * @param project project
+     * @param file    type of readme file
+     *
+     * @return readme contents
+     */
+    @Headers("Accept: application/json")
+    @PUT("project/{project}/{file}")
+    Call<ProjectReadme> putReadme(
+            @Path("project") String project,
+            @Path("file") ReadmeFile file,
+            @Body RequestBody contents
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#get-readme-file">Get Readme File</a>
+     *
+     * @param project project
+     * @param file    type of readme file
+     *
+     * @return readme contents
+     */
+    @Headers("Accept: application/json")
+    @DELETE("project/{project}/{file}")
+    Call<Void> deleteReadme(
+            @Path("project") String project,
+            @Path("file") ReadmeFile file
+    );
+
 }
