@@ -10,13 +10,13 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
 import retrofit2.Call;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 
 /**
@@ -73,7 +73,7 @@ public class Adhoc extends ApiCommand {
                     MultipartBody.Part.createFormData("scriptFile", filename, scriptFileBody),
                     options.getThreadcount(),
                     options.isKeepgoing(),
-                    joinString(options.getCommandString()),
+                    Quoting.joinStringQuoted(options.getCommandString()),
                     null,
                     false,
                     null,
@@ -85,7 +85,7 @@ public class Adhoc extends ApiCommand {
                     options.getUrl(),
                     options.getThreadcount(),
                     options.isKeepgoing(),
-                    joinString(options.getCommandString()),
+                    Quoting.joinStringQuoted(options.getCommandString()),
                     null,
                     false,
                     null,
@@ -95,7 +95,7 @@ public class Adhoc extends ApiCommand {
             //command
             adhocResponseCall = client.getService().runCommand(
                     options.getProject(),
-                    joinString(options.getCommandString()),
+                    Quoting.joinStringQuoted(options.getCommandString()),
                     options.getThreadcount(),
                     options.isKeepgoing(),
                     options.getFilter()
@@ -108,24 +108,6 @@ public class Adhoc extends ApiCommand {
         output.output(adhocResponse.message);
         output.output("Started execution " + adhocResponse.execution.toBasicString());
         return Executions.maybeFollow(client, options, adhocResponse.execution.getId(), output);
-    }
-
-    static String joinString(final List<String> commandString) {
-        if (null == commandString) {
-            return null;
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String s : commandString) {
-            if (sb.length() > 0) {
-                sb.append(" ");
-            }
-            if (s.contains(" ")) {
-                sb.append("\"" + s.replaceAll("\\\\", "\\\\").replaceAll("\\\"", "\\\\\"") + "\"");
-            } else {
-                sb.append(s);
-            }
-        }
-        return sb.toString();
     }
 
 }
