@@ -3,7 +3,9 @@ package org.rundeck.client.tool.options;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.Unparsed;
+import org.rundeck.client.api.model.DateInfo;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,7 +42,14 @@ public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions {
 
     boolean isUser();
 
-    @Unparsed(name = "-- -ARG VAL -ARG2 VAL", description = "Dispatch specified command string")
+    @Option(shortName = "@",
+            longName = "at",
+            description = "Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ss'Z')")
+    DateInfo getRunAtDate();
+
+    boolean isRunAtDate();
+
+    @Unparsed(name = "-- -OPT VAL -OPT2 VAL", description = "Job options")
     List<String> getCommandString();
 
 }

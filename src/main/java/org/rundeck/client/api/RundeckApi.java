@@ -11,7 +11,9 @@ import retrofit2.http.*;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by greg on 3/28/16.
@@ -250,6 +252,14 @@ public interface RundeckApi {
             @Query("loglevel") String loglevel,
             @Query("filter") String filter,
             @Query("asUser") String user
+    );
+
+    @Headers("Accept: application/json")
+    @POST("job/{id}/executions")
+    Call<Execution> runJob(
+            @Path("id") String id,
+            @Body JobRun jobRun
+
     );
 
     //key storage
