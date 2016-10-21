@@ -156,14 +156,18 @@ public class Jobs extends ApiCommand {
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }
             InputStream inputStream = body.byteStream();
-            try (FileOutputStream out = new FileOutputStream(options.getFile())) {
-                long total = Util.copyStream(inputStream, out);
-                output.output(String.format(
-                        "Wrote %d bytes of %s to file %s%n",
-                        total,
-                        body.contentType(),
-                        options.getFile()
-                ));
+            if ("-".equals(options.getFile().getName())) {
+                long total = Util.copyStream(inputStream, System.out);
+            } else {
+                try (FileOutputStream out = new FileOutputStream(options.getFile())) {
+                    long total = Util.copyStream(inputStream, out);
+                    output.output(String.format(
+                            "Wrote %d bytes of %s to file %s%n",
+                            total,
+                            body.contentType(),
+                            options.getFile()
+                    ));
+                }
             }
         } else {
             Call<List<JobItem>> listCall;
