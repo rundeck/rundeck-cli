@@ -7,6 +7,7 @@ import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.Quoting;
 import retrofit2.Call;
 
 import java.io.IOException;
@@ -57,7 +58,7 @@ public class Run extends ApiCommand {
         }
         Call<Execution> executionListCall = client.getService().runJob(
                 jobId,
-                Adhoc.joinString(options.getCommandString()),
+                Quoting.joinStringQuoted(options.getCommandString()),
                 options.getLoglevel(),
                 options.getFilter(),
                 options.getUser()
