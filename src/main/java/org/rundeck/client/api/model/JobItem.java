@@ -5,6 +5,10 @@ import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * Created by greg on 3/28/16.
  */
@@ -24,6 +28,9 @@ public class JobItem {
     private String href;
     @Element(required = false)
     private String permalink;
+
+    @Attribute(required = false)
+    private Long averageDuration;
 
     public String getId() {
         return id;
@@ -94,7 +101,27 @@ public class JobItem {
                '}';
     }
 
+    public Map<Object, Object> toMap() {
+        HashMap<Object, Object> map = new LinkedHashMap<>();
+        map.put("id", getId());
+        map.put("name", getName());
+        map.put("group", getGroup());
+        map.put("project", getProject());
+        if(null!=getAverageDuration()){
+            map.put("averageDuration", getAverageDuration());
+        }
+        return map;
+    }
+
     public String toBasicString() {
         return String.format("[%s] %s%s", id, group != null ? group + "/" : "", name);
+    }
+
+    public Long getAverageDuration() {
+        return averageDuration;
+    }
+
+    public void setAverageDuration(Long averageDuration) {
+        this.averageDuration = averageDuration;
     }
 }

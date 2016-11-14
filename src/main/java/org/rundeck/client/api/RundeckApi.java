@@ -11,7 +11,9 @@ import retrofit2.http.*;
 
 import java.io.File;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by greg on 3/28/16.
@@ -31,6 +33,17 @@ public interface RundeckApi {
     Call<List<JobItem>> listJobs(
             @Path("project") String project,
             @Query("idlist") String idlist
+    );
+
+    /**
+     * new api
+     * @param jobid
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("job/{jobid}/info")
+    Call<ScheduledJobItem> getJobInfo(
+            @Path("jobid") String jobid
     );
 
 
@@ -241,6 +254,14 @@ public interface RundeckApi {
             @Query("asUser") String user
     );
 
+    @Headers("Accept: application/json")
+    @POST("job/{id}/executions")
+    Call<Execution> runJob(
+            @Path("id") String id,
+            @Body JobRun jobRun
+
+    );
+
     //key storage
 
     @Headers("Accept: application/json")
@@ -445,7 +466,6 @@ public interface RundeckApi {
      * <a href="http://rundeck.org/docs/api/index.html#delete-a-token">Delete a Token</a>
      *
      * @param id token
-     *
      */
     @Headers("Accept: application/json")
     @DELETE("token/{id}")

@@ -16,7 +16,7 @@ public class ScheduledJobItem extends JobItem {
     private boolean scheduled;
     private boolean scheduleEnabled;
     private boolean enabled;
-    private boolean serverOwner;
+    private Boolean serverOwner;
 
 
     public String getServerNodeUUID() {
@@ -51,23 +51,31 @@ public class ScheduledJobItem extends JobItem {
         this.enabled = enabled;
     }
 
-    public boolean isServerOwner() {
+    public Boolean isServerOwner() {
         return serverOwner;
     }
 
-    public void setServerOwner(boolean serverOwner) {
+    public void setServerOwner(Boolean serverOwner) {
         this.serverOwner = serverOwner;
     }
 
     public Map<Object, Object> toMap() {
         HashMap<Object, Object> map = new LinkedHashMap<>();
-        map.put("job", toBasicString());
-        map.put("project", getProject());
-        map.put("serverNodeUUID", getServerNodeUUID());
-        map.put("scheduled", scheduled);
-        map.put("scheduleEnabled", scheduleEnabled);
-        map.put("enabled", enabled);
-        map.put("serverOwner", serverOwner);
+
+
+        HashMap<Object, Object> detail = new LinkedHashMap<>(super.toMap());
+        detail.put("scheduled", scheduled);
+        detail.put("scheduleEnabled", scheduleEnabled);
+        detail.put("enabled", enabled);
+
+        map.put("job", detail);
+
+        if (null != serverOwner && null != getServerNodeUUID()) {
+            HashMap<Object, Object> schedule = new LinkedHashMap<>();
+            schedule.put("serverNodeUUID", getServerNodeUUID());
+            schedule.put("serverOwner", serverOwner);
+            map.put("scheduler", schedule);
+        }
         return map;
     }
 

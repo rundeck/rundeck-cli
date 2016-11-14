@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  */
 public class Rundeck {
     public static final int API_VERS = 16;
-    public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/\\d+/?)$");
+    public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
 
     /**
      * Create a client using the specified, or default version
@@ -79,6 +79,7 @@ public class Rundeck {
     {
         String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
         String base = buildApiUrlForVersion(baseUrl, apiVers);
+        int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
 
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
                 .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
@@ -109,7 +110,7 @@ public class Rundeck {
                 ))
                 .build();
 
-        return new Client<>(build.create(RundeckApi.class), build);
+        return new Client<>(build.create(RundeckApi.class), build, usedApiVers);
     }
 
     /**
@@ -134,6 +135,7 @@ public class Rundeck {
 
         String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
         String apiBaseUrl = buildApiUrlForVersion(baseUrl, apiVers);
+        int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
 
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
@@ -196,7 +198,7 @@ public class Rundeck {
                 ))
                 .build();
 
-        return new Client<>(build.create(RundeckApi.class), build);
+        return new Client<>(build.create(RundeckApi.class), build, usedApiVers);
     }
 
     /**
@@ -210,6 +212,20 @@ public class Rundeck {
             return normalizeUrlPath(baseUrl) + "api/" + (apiVers) + "/";
         }
         return normalizeUrlPath(baseUrl);
+    }
+
+    /**
+     * @param baseUrl input url
+     * @param apiVers api VERSION to append if /api/VERS is not present
+     *
+     * @return URL for API by appending /api/VERS if it is not present
+     */
+    private static int apiVersionForUrl(String baseUrl, final int apiVers) {
+        Matcher matcher = API_VERS_PATTERN.matcher(baseUrl);
+        if (matcher.matches()) {
+            return Integer.parseInt(matcher.group(3));
+        }
+        return apiVers;
     }
 
     private static String normalizeUrlPath(String baseUrl) {

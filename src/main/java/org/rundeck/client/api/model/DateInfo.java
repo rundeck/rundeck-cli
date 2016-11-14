@@ -16,8 +16,18 @@ public class DateInfo {
     public String date;
     public long unixtime;
 
-    Date toDate() throws ParseException {
-        SimpleDateFormat asdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+    public DateInfo(final String date) {
+        this.date = date;
+    }
+
+    public DateInfo() {
+    }
+
+    public Date toDate() throws ParseException {
+        return toDate("yyyy-MM-dd'T'HH:mm:ss'Z'");
+    }
+    public Date toDate(final String format) throws ParseException {
+        SimpleDateFormat asdf = new SimpleDateFormat(format, Locale.US);
         return asdf.parse(date);
     }
 
