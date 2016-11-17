@@ -263,6 +263,10 @@ public class Executions extends ApiCommand {
                                    .map(Execution::getId)
                                    .collect(Collectors.toList());
         }
+        if (null == execIds || execIds.size() < 1) {
+            out.warning("No executions found to delete");
+            return false;
+        }
 
         if (!options.isConfirm()) {
             //request confirmation
