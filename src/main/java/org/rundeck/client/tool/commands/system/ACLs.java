@@ -3,6 +3,7 @@ package org.rundeck.client.tool.commands.system;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
@@ -51,7 +52,7 @@ public class ACLs extends ApiCommand {
 
     @Command(description = "Upload a system ACL definition")
     public void upload(Put options, CommandOutput output)
-            throws IOException
+            throws IOException, InputError
     {
 
         ACLPolicy aclPolicy = performACLModify(
@@ -69,7 +70,7 @@ public class ACLs extends ApiCommand {
     }
 
     @Command(description = "Create a system ACL definition")
-    public void create(Create options, CommandOutput output) throws IOException {
+    public void create(Create options, CommandOutput output) throws IOException, InputError {
 
         ACLPolicy aclPolicy = performACLModify(
                 options,

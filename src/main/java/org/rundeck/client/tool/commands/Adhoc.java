@@ -3,6 +3,7 @@ package org.rundeck.client.tool.commands;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -36,7 +37,7 @@ public class Adhoc extends ApiCommand {
     }
 
     @Command(isSolo = true, isDefault = true)
-    public boolean dispatch(Dispatch options, CommandOutput output) throws IOException {
+    public boolean dispatch(Dispatch options, CommandOutput output) throws IOException, InputError {
         Call<AdhocResponse> adhocResponseCall = null;
 
         if (options.isScriptFile() || options.isStdin()) {
@@ -45,7 +46,7 @@ public class Adhoc extends ApiCommand {
             if (options.isScriptFile()) {
                 File input = options.getScriptFile();
                 if (!input.canRead() || !input.isFile()) {
-                    throw new IllegalArgumentException(String.format(
+                    throw new InputError(String.format(
                             "File is not readable or does not exist: %s",
                             input
                     ));
@@ -101,7 +102,7 @@ public class Adhoc extends ApiCommand {
                     options.getFilter()
             );
         } else {
-            throw new IllegalArgumentException("-s, -u, or -- command string, was expected");
+            throw new InputError("-s, -u, or -- command string, was expected");
         }
 
         AdhocResponse adhocResponse = client.checkError(adhocResponseCall);

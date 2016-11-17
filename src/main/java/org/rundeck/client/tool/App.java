@@ -1,6 +1,7 @@
 package org.rundeck.client.tool;
 
 import com.simplifyops.toolbelt.CommandRunFailure;
+import com.simplifyops.toolbelt.InputError;
 import com.simplifyops.toolbelt.Tool;
 import com.simplifyops.toolbelt.ToolBelt;
 import com.simplifyops.toolbelt.input.jewelcli.JewelInput;

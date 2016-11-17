@@ -4,6 +4,7 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.options.*;
@@ -33,9 +34,9 @@ public class Executions extends ApiCommand {
     }
 
     @Command(description = "Attempt to kill an execution by ID.")
-    public boolean kill(Kill options, CommandOutput out) throws IOException {
+    public boolean kill(Kill options, CommandOutput out) throws IOException, InputError {
         if (null == options.getId()) {
-            throw new IllegalArgumentException("-e is required");
+            throw new InputError("-e is required");
         }
         AbortResult abortResult = client.checkError(client.getService().abortExecution(options.getId()));
         AbortResult.Reason abort = abortResult.abort;
