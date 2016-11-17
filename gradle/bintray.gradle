@@ -5,26 +5,27 @@ def bintrayUserOrg = project.hasProperty('bintrayUserOrg') ? project.property('b
         System.getenv('BINTRAY_USER_ORG')
 def bintrayRepo = project.hasProperty('bintrayRepo') ? project.property('bintrayRepo') :
         System.getenv('BINTRAY_REPO')
-
+def debUpload = 'true' == (project.hasProperty('debUpload') ? project.property('debUpload') :
+        System.getenv('BINTRAY_DEB_UPLOAD'))
 //
 //def bintrayPassphrase = project.hasProperty('bintray.gpg.password') ? project.property('bintray.gpg.password') :
 //        System.getenv('BINTRAY_GPG_PASSWORD')
 
 if (bintrayUser && bintrayKey && bintrayRepo) {
-
+    def includePat = debUpload ? '*.deb' : '*.rpm'
     apply plugin: 'com.jfrog.bintray'
     bintray {
         user = bintrayUser
         key = bintrayKey
         filesSpec {
             from ("$buildDir/distributions"){
-                include "*.rpm"
+                include includePat
             }
             into "."
         }
         dryRun = false
         publish = true
-        override = false
+        override = true
         pkg {
             name = 'rundeck-cli'
             repo = bintrayRepo
