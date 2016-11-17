@@ -4,6 +4,7 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.HasSubCommands;
+import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.commands.projects.ACLs;
@@ -60,17 +61,17 @@ public class Projects extends ApiCommand implements HasSubCommands {
     }
 
     @Command(description = "Create a project.")
-    public void create(Create options, CommandOutput output) throws IOException {
+    public void create(Create options, CommandOutput output) throws IOException, InputError {
         Map<String, String> config = new HashMap<>();
         if (options.config().size() > 0) {
             for (String s : options.config()) {
                 if (!s.startsWith("--")) {
-                    throw new IllegalArgumentException("Expected --key=value, but saw: " + s);
+                    throw new InputError("Expected --key=value, but saw: " + s);
                 }
                 s = s.substring(2);
                 String[] arr = s.split("=", 2);
                 if (arr.length != 2) {
-                    throw new IllegalArgumentException("Expected --key=value, but saw: " + s);
+                    throw new InputError("Expected --key=value, but saw: " + s);
                 }
                 config.put(arr[0], arr[1]);
             }

@@ -2,6 +2,7 @@ package org.rundeck.client.tool.commands;
 
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobItem;
@@ -27,11 +28,11 @@ public class Run extends ApiCommand {
     }
 
     @Command(isDefault = true, isSolo = true)
-    public boolean run(RunBaseOptions options, CommandOutput out) throws IOException {
+    public boolean run(RunBaseOptions options, CommandOutput out) throws IOException, InputError {
         String jobId;
         if (options.isJob()) {
             if (!options.isProject()) {
-                throw new IllegalArgumentException("-p project is required with -j");
+                throw new InputError("-p project is required with -j");
             }
             String job = options.getJob();
             String[] parts = Jobs.splitJobNameParts(job);
@@ -57,7 +58,7 @@ public class Run extends ApiCommand {
         } else if (options.isId()) {
             jobId = options.getId();
         } else {
-            throw new IllegalArgumentException("-j job or -i id is required");
+            throw new InputError("-j job or -i id is required");
 
         }
         Call<Execution> executionListCall;
@@ -80,7 +81,7 @@ public class Run extends ApiCommand {
                 }
             }
             if (key != null) {
-                throw new IllegalArgumentException(
+                throw new InputError(
                         String.format(
                                 "Incorrect job options, expected: \"-%s value\", but saw only \"-%s\"",
                                 key,
@@ -93,7 +94,7 @@ public class Run extends ApiCommand {
                 try {
                     request.setRunAtTime(options.getRunAtDate().toDate("yyyy-MM-dd'T'HH:mm:ssXX"));
                 } catch (ParseException e) {
-                    throw new IllegalArgumentException("-@/--at date format is not valid", e);
+                    throw new InputError("-@/--at date format is not valid", e);
                 }
             }
             executionListCall = client.getService().runJob(jobId, request);

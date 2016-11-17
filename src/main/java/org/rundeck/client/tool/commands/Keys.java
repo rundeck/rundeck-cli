@@ -5,6 +5,7 @@ import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.Unparsed;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -141,11 +142,11 @@ public class Keys extends ApiCommand {
     }
 
     @Command(description = "Get the contents of a public key")
-    public boolean get(GetOpts options, CommandOutput output) throws IOException {
+    public boolean get(GetOpts options, CommandOutput output) throws IOException, InputError {
         Path path = argPath(options);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new IllegalArgumentException("-p/--path is required");
+            throw new InputError("-p/--path is required");
         }
         KeyStorageItem keyStorageItem = client.checkError(client.getService()
                                                                 .listKeyStorage(path.keysPath()));
@@ -189,11 +190,11 @@ public class Keys extends ApiCommand {
     }
 
     @Command(synonyms = {"rm"}, description = "Delete the key at the given path.")
-    public void delete(Delete opts, CommandOutput output) throws IOException {
+    public void delete(Delete opts, CommandOutput output) throws IOException, InputError {
         Path path = argPath(opts);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new IllegalArgumentException("-p/--path is required");
+            throw new InputError("-p/--path is required");
         }
         client.checkError(client.getService().deleteKeyStorage(path.keysPath()));
         output.output(String.format("Deleted: %s", path));
@@ -224,12 +225,12 @@ public class Keys extends ApiCommand {
     }
 
     @Command(description = "Create a new key entry.")
-    public boolean create(Upload options, CommandOutput output) throws IOException {
+    public boolean create(Upload options, CommandOutput output) throws IOException, InputError {
 
         Path path = argPath(options);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new IllegalArgumentException("-p/--path is required");
+            throw new InputError("-p/--path is required");
         }
         RequestBody requestBody = prepareKeyUpload(options);
 
@@ -243,17 +244,17 @@ public class Keys extends ApiCommand {
         return true;
     }
 
-    private RequestBody prepareKeyUpload(final Upload options) throws IOException {
+    private RequestBody prepareKeyUpload(final Upload options) throws IOException, InputError {
         MediaType contentType = getUploadContentType(options.getType());
         if (null == contentType) {
-            throw new IllegalArgumentException(String.format("Type is not supported: %s", options.getType()));
+            throw new InputError(String.format("Type is not supported: %s", options.getType()));
         }
         RequestBody requestBody;
         if (options.getType() != KeyStorageItem.KeyFileType.password && !options.isFile()) {
-            throw new IllegalArgumentException(String.format("File (-f) is required for type: %s", options.getType()));
+            throw new InputError(String.format("File (-f) is required for type: %s", options.getType()));
         }
         if (options.getType() == KeyStorageItem.KeyFileType.password && !options.isFile() && !options.isPrompt()) {
-            throw new IllegalArgumentException(String.format(
+            throw new InputError(String.format(
                     "File (-f) or -p is required for type: %s",
                     options.getType()
             ));
@@ -261,7 +262,7 @@ public class Keys extends ApiCommand {
         if (options.isFile()) {
             File input = options.getFile();
             if (!input.canRead() || !input.isFile()) {
-                throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
+                throw new InputError(String.format("File is not readable or does not exist: %s", input));
             }
             if (options.getType() == KeyStorageItem.KeyFileType.password) {
                 //read the first line of the file only, and leave off line breaks
@@ -304,11 +305,11 @@ public class Keys extends ApiCommand {
     }
 
     @Command(description = "Update an existing key entry")
-    public boolean update(Update options, CommandOutput output) throws IOException {
+    public boolean update(Update options, CommandOutput output) throws IOException, InputError {
         Path path = argPath(options);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new IllegalArgumentException("-p/--path is required");
+            throw new InputError("-p/--path is required");
         }
         RequestBody requestBody = prepareKeyUpload(options);
         KeyStorageItem keyStorageItem = client.checkError(client.getService()

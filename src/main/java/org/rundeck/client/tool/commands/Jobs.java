@@ -4,6 +4,7 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
@@ -40,7 +41,7 @@ public class Jobs extends ApiCommand {
     @Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
                            "before deleting from the server. " +
                            "--idlist/-i, or --job/-j or --group/-g Options are required.")
-    public boolean purge(Purge options, CommandOutput output) throws IOException {
+    public boolean purge(Purge options, CommandOutput output) throws IOException, InputError {
 
         //if id,idlist specified, use directly
         //otherwise query for the list and assemble the ids
@@ -50,7 +51,7 @@ public class Jobs extends ApiCommand {
             ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
             if (!options.isJob() && !options.isGroup()) {
-                throw new IllegalArgumentException("must specify -i, or -j/-g to specify jobs to delete.");
+                throw new InputError("must specify -i, or -j/-g to specify jobs to delete.");
             }
             Call<List<JobItem>> listCall;
             listCall = client.getService().listJobs(
@@ -85,13 +86,13 @@ public class Jobs extends ApiCommand {
     }
 
     @Command(description = "Load Job definitions from a file in XML or YAML format.")
-    public boolean load(Load options, CommandOutput output) throws IOException {
+    public boolean load(Load options, CommandOutput output) throws IOException, InputError {
         if (!options.isFile()) {
-            throw new IllegalArgumentException("-f is required");
+            throw new InputError("-f is required");
         }
         File input = options.getFile();
         if (!input.canRead() || !input.isFile()) {
-            throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
+            throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
 
         RequestBody requestBody = RequestBody.create(

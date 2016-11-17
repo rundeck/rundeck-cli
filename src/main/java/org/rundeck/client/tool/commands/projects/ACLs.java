@@ -5,6 +5,7 @@ import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.ANSIColorOutput;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
@@ -74,7 +75,7 @@ public class ACLs extends ApiCommand {
     }
 
     @Command(description = "Upload a project ACL definition")
-    public void upload(Put options, CommandOutput output) throws IOException {
+    public void upload(Put options, CommandOutput output) throws IOException, InputError {
         ACLPolicy aclPolicy = performACLModify(
                 options,
                 (RequestBody body) -> client.getService()
@@ -91,7 +92,7 @@ public class ACLs extends ApiCommand {
     }
 
     @Command(description = "Create a project ACL definition")
-    public void create(Create options, CommandOutput output) throws IOException {
+    public void create(Create options, CommandOutput output) throws IOException, InputError {
 
         ACLPolicy aclPolicy = performACLModify(
                 options,
@@ -120,12 +121,12 @@ public class ACLs extends ApiCommand {
             final Client<RundeckApi> client,
             final CommandOutput output
     )
-            throws IOException
+            throws IOException, InputError
     {
 
         File input = options.getFile();
         if (!input.canRead() || !input.isFile()) {
-            throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
+            throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
 
         RequestBody requestBody = RequestBody.create(
