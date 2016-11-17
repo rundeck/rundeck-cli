@@ -143,6 +143,10 @@ public class Keys extends ApiCommand {
     @Command(description = "Get the contents of a public key")
     public boolean get(GetOpts options, CommandOutput output) throws IOException {
         Path path = argPath(options);
+        String path1 = path.keysPath();
+        if (path1.length() < 1) {
+            throw new IllegalArgumentException("-p/--path is required");
+        }
         KeyStorageItem keyStorageItem = client.checkError(client.getService()
                                                                 .listKeyStorage(path.keysPath()));
 
@@ -187,6 +191,10 @@ public class Keys extends ApiCommand {
     @Command(synonyms = {"rm"}, description = "Delete the key at the given path.")
     public void delete(Delete opts, CommandOutput output) throws IOException {
         Path path = argPath(opts);
+        String path1 = path.keysPath();
+        if (path1.length() < 1) {
+            throw new IllegalArgumentException("-p/--path is required");
+        }
         client.checkError(client.getService().deleteKeyStorage(path.keysPath()));
         output.output(String.format("Deleted: %s", path));
     }
@@ -220,6 +228,9 @@ public class Keys extends ApiCommand {
 
         Path path = argPath(options);
         String path1 = path.keysPath();
+        if (path1.length() < 1) {
+            throw new IllegalArgumentException("-p/--path is required");
+        }
         RequestBody requestBody = prepareKeyUpload(options);
 
 
@@ -295,6 +306,10 @@ public class Keys extends ApiCommand {
     @Command(description = "Update an existing key entry")
     public boolean update(Update options, CommandOutput output) throws IOException {
         Path path = argPath(options);
+        String path1 = path.keysPath();
+        if (path1.length() < 1) {
+            throw new IllegalArgumentException("-p/--path is required");
+        }
         RequestBody requestBody = prepareKeyUpload(options);
         KeyStorageItem keyStorageItem = client.checkError(client.getService()
                                                                 .updateKeyStorage(
