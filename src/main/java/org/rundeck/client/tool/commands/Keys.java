@@ -13,10 +13,7 @@ import org.rundeck.client.api.model.KeyStorageItem;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Util;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
@@ -221,6 +218,21 @@ public class Keys extends ApiCommand {
     @Command(description = "Create a new key entry.")
     public boolean create(Upload options, CommandOutput output) throws IOException {
 
+        Path path = argPath(options);
+        String path1 = path.keysPath();
+        RequestBody requestBody = prepareKeyUpload(options);
+
+
+        KeyStorageItem keyStorageItem = client.checkError(client.getService()
+                                                                .createKeyStorage(
+                                                                        path1,
+                                                                        requestBody
+                                                                ));
+        output.output(String.format("Created: %s", keyStorageItem.toBasicString()));
+        return true;
+    }
+
+    private RequestBody prepareKeyUpload(final Upload options) throws IOException {
         MediaType contentType = getUploadContentType(options.getType());
         if (null == contentType) {
             throw new IllegalArgumentException(String.format("Type is not supported: %s", options.getType()));
@@ -240,10 +252,31 @@ public class Keys extends ApiCommand {
             if (!input.canRead() || !input.isFile()) {
                 throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
             }
-            requestBody = RequestBody.create(
-                    contentType,
-                    input
-            );
+            if (options.getType() == KeyStorageItem.KeyFileType.password) {
+                //read the first line of the file only, and leave off line breaks
+                char[] chars = null;
+                try (BufferedReader read = new BufferedReader(new InputStreamReader(new FileInputStream(input)))) {
+                    String s = read.readLine();
+                    if (null != s) {
+                        System.err.println("Read file string: '" + s + "'");
+                        chars = s.toCharArray();
+                    }
+                }
+                if (chars == null || chars.length == 0) {
+                    throw new IllegalStateException("Could not read first line of file: " + input);
+                }
+
+                ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap(chars));
+                requestBody = RequestBody.create(
+                        contentType,
+                        byteBuffer.array()
+                );
+            } else {
+                requestBody = RequestBody.create(
+                        contentType,
+                        input
+                );
+            }
         } else {
             char[] chars = System.console().readPassword("Enter password: ");
             ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap(chars));
@@ -252,16 +285,7 @@ public class Keys extends ApiCommand {
                     byteBuffer.array()
             );
         }
-
-
-        Path path = argPath(options);
-        KeyStorageItem keyStorageItem = client.checkError(client.getService()
-                                                                .createKeyStorage(
-                                                                        path.keysPath(),
-                                                                        requestBody
-                                                                ));
-        output.output(String.format("Created: %s", keyStorageItem.toBasicString()));
-        return true;
+        return requestBody;
     }
 
     @CommandLineInterface(application = "update")
@@ -270,20 +294,8 @@ public class Keys extends ApiCommand {
 
     @Command(description = "Update an existing key entry")
     public boolean update(Update options, CommandOutput output) throws IOException {
-
-        File input = options.getFile();
-        if (!input.canRead() || !input.isFile()) {
-            throw new IllegalArgumentException(String.format("File is not readable or does not exist: %s", input));
-        }
-        MediaType contentType = getUploadContentType(options.getType());
-        if (null == contentType) {
-            throw new IllegalArgumentException(String.format("Type is not supported: %s", options.getType()));
-        }
-        RequestBody requestBody = RequestBody.create(
-                contentType,
-                input
-        );
         Path path = argPath(options);
+        RequestBody requestBody = prepareKeyUpload(options);
         KeyStorageItem keyStorageItem = client.checkError(client.getService()
                                                                 .updateKeyStorage(
                                                                         path.keysPath(),
