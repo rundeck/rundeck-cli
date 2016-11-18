@@ -35,4 +35,4 @@
 
 - [ ] keys tool
     - [x] CRUD features
-    - [ ] create password without using a file (stdin/console?)
+    - [x] create password without using a file (stdin/console?)
