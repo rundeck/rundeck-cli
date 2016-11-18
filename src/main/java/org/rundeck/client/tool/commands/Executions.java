@@ -159,7 +159,7 @@ public class Executions extends ApiCommand {
 
     }
 
-    @Command(isDefault = true, description = "List all running executions for a project.")
+    @Command(description = "List all running executions for a project.")
     public void info(Info options, CommandOutput out) throws IOException {
 
         Execution execution = client.checkError(client.getService()
@@ -174,7 +174,7 @@ public class Executions extends ApiCommand {
 
     }
 
-    @Command(isDefault = true, description = "List all running executions for a project.")
+    @Command(description = "List all running executions for a project.")
     public void list(ListCmd options, CommandOutput out) throws IOException {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
@@ -204,7 +204,7 @@ public class Executions extends ApiCommand {
         boolean isOlderFilter();
     }
 
-    @Command(isDefault = true, description = "Query previous executions for a project.")
+    @Command(description = "Query previous executions for a project.")
     public ExecutionList query(QueryCmd options, CommandOutput out) throws IOException {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
