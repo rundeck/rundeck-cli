@@ -33,7 +33,7 @@ public class Readme extends ApiCommand {
         @Option(shortName = "m",
                 longName = "motd",
                 description = "Choose the 'motd.md' file. If unset, choose 'readme.md'.")
-        public boolean isMotd();
+        boolean isMotd();
 
     }
 
@@ -57,17 +57,17 @@ public class Readme extends ApiCommand {
          * @return
          */
         @Option(shortName = "f", longName = "file", description = "Path to a file to read for readme/motd contents.")
-        public File getFile();
+        File getFile();
 
-        public boolean isFile();
+        boolean isFile();
 
         /**
          * @return
          */
         @Option(shortName = "t", longName = "text", description = "Text to use for readme/motd contents.")
-        public String getText();
+        String getText();
 
-        public boolean isText();
+        boolean isText();
     }
 
 
@@ -105,6 +105,6 @@ public class Readme extends ApiCommand {
                                                       options.getProject(),
                                                       getReadmeFile(options)
                                               ));
-
+        output.info(String.format("Deleted %s for project %s", getReadmeFile(options), options.getProject()));
     }
 }

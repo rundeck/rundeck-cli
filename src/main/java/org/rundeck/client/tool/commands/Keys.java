@@ -51,7 +51,7 @@ public class Keys extends ApiCommand {
         }
     }
 
-    static interface PathArgs {
+    interface PathArgs {
 
         @Option(shortName = "p",
                 longName = "path",
@@ -63,8 +63,7 @@ public class Keys extends ApiCommand {
         Path getPath2();
     }
 
-    @CommandLineInterface(application = "list")
-    static interface ListArg extends PathArgs {
+    @CommandLineInterface(application = "list") interface ListArg extends PathArgs {
     }
 
     @Command(description = "List the keys and directories at a given path, or at the root by default.",
@@ -94,8 +93,7 @@ public class Keys extends ApiCommand {
         return options.getPath2() != null ? options.getPath2() : options.getPath();
     }
 
-    @CommandLineInterface(application = "info")
-    static interface Info extends PathArgs {
+    @CommandLineInterface(application = "info") interface Info extends PathArgs {
     }
 
     @Command(description = "Get metadata about the given path")
@@ -131,8 +129,7 @@ public class Keys extends ApiCommand {
         return path;
     }
 
-    @CommandLineInterface(application = "get")
-    static interface GetOpts extends PathArgs {
+    @CommandLineInterface(application = "get") interface GetOpts extends PathArgs {
 
         @Option(shortName = "f",
                 longName = "file",
@@ -172,7 +169,7 @@ public class Keys extends ApiCommand {
         if (outFile != null) {
             try (FileOutputStream out = new FileOutputStream(outFile)) {
                 long total = Util.copyStream(inputStream, out);
-                output.output(String.format(
+                output.info(String.format(
                         "Wrote %d bytes of %s to file %s%n",
                         total,
                         body.contentType(),
@@ -185,7 +182,7 @@ public class Keys extends ApiCommand {
         return true;
     }
 
-    @CommandLineInterface(application = "delete") static interface Delete extends PathArgs {
+    @CommandLineInterface(application = "delete") interface Delete extends PathArgs {
 
     }
 
@@ -197,11 +194,10 @@ public class Keys extends ApiCommand {
             throw new InputError("-p/--path is required");
         }
         client.checkError(client.getService().deleteKeyStorage(path.keysPath()));
-        output.output(String.format("Deleted: %s", path));
+        output.info(String.format("Deleted: %s", path));
     }
 
-    @CommandLineInterface(application = "create")
-    static interface Upload extends PathArgs {
+    @CommandLineInterface(application = "create") interface Upload extends PathArgs {
 
 
         @Option(shortName = "t",
@@ -240,7 +236,7 @@ public class Keys extends ApiCommand {
                                                                         path1,
                                                                         requestBody
                                                                 ));
-        output.output(String.format("Created: %s", keyStorageItem.toBasicString()));
+        output.info(String.format("Created: %s", keyStorageItem.toBasicString()));
         return true;
     }
 
@@ -300,8 +296,7 @@ public class Keys extends ApiCommand {
         return requestBody;
     }
 
-    @CommandLineInterface(application = "update")
-    static interface Update extends Upload {
+    @CommandLineInterface(application = "update") interface Update extends Upload {
     }
 
     @Command(description = "Update an existing key entry")
@@ -317,7 +312,7 @@ public class Keys extends ApiCommand {
                                                                         path.keysPath(),
                                                                         requestBody
                                                                 ));
-        output.output(String.format("Updated: %s", keyStorageItem.toBasicString()));
+        output.info(String.format("Updated: %s", keyStorageItem.toBasicString()));
         return true;
     }
 

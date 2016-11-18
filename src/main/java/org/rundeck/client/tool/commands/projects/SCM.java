@@ -68,7 +68,7 @@ public class SCM extends ApiCommand {
             //write to file
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.writeValue(options.getFile(), map);
-            output.output("Wrote config to file: " + options.getFile());
+            output.info("Wrote config to file: " + options.getFile());
         } else {
             output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.GREEN, ANSIColorOutput.Color.YELLOW));
 
@@ -114,12 +114,12 @@ public class SCM extends ApiCommand {
 
 
         if (result.success) {
-            output.output("Setup was successful.");
+            output.info("Setup was successful.");
         } else {
             output.warning("Setup was not successful.");
         }
         if (result.message != null) {
-            output.output("Result: " + result.message);
+            output.info("Result: " + result.message);
         }
         if (result.nextAction != null) {
             output.output(ANSIColorOutput.colorize(

@@ -11,13 +11,12 @@ import org.rundeck.client.api.model.ACLPolicyItem;
 import org.rundeck.client.tool.commands.ApiCommand;
 import org.rundeck.client.tool.commands.projects.ACLFileOptions;
 import org.rundeck.client.tool.commands.projects.ACLNameOptions;
+import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.util.Client;
 
 import java.io.IOException;
 
-import static org.rundeck.client.tool.commands.projects.ACLs.outputListResult;
-import static org.rundeck.client.tool.commands.projects.ACLs.outputPolicyResult;
-import static org.rundeck.client.tool.commands.projects.ACLs.performACLModify;
+import static org.rundeck.client.tool.commands.projects.ACLs.*;
 
 /**
  * System ACLs
@@ -28,11 +27,14 @@ public class ACLs extends ApiCommand {
         super(client);
     }
 
+    @CommandLineInterface(application = "list") interface ListOptions extends ACLOutputOptions {
+
+    }
     @Command(description = "list system acls")
-    public void list(CommandOutput output) throws IOException {
+    public void list(ListOptions options, CommandOutput output) throws IOException {
         ACLPolicyItem items = client.checkError(client.getService()
                                                       .listSystemAcls());
-        outputListResult(output, items, "system");
+        outputListResult(options, output, items, "system");
     }
 
 

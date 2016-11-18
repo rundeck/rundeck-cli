@@ -53,7 +53,7 @@ public class Run extends ApiCommand {
                 return false;
             }
             JobItem jobItem = jobItems.get(0);
-            out.output(String.format("Found matching job: %s%n", jobItem.toBasicString()));
+            out.info(String.format("Found matching job: %s%n", jobItem.toBasicString()));
             jobId = jobItem.getId();
         } else if (options.isId()) {
             jobId = options.getId();
@@ -108,7 +108,7 @@ public class Run extends ApiCommand {
             );
         }
         Execution execution = client.checkError(executionListCall);
-        out.output(String.format("Execution started: %s%n", execution.toBasicString()));
+        out.info(String.format("Execution started: %s%n", execution.toBasicString()));
 
         return Executions.maybeFollow(client, options, execution.getId(), out);
     }

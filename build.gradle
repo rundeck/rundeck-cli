@@ -44,6 +44,11 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
+ext.toolbelt = [
+        version: "0.1.12",
+        group  : "com.github.simplifyops.cli-toolbelt"
+//        group  : "com.simplifyops.cli-toolbelt" //use for local artifact
+]
 dependencies {
 
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
@@ -51,11 +56,11 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-simplexml:2.1.0'
     compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
     compile 'com.squareup.okhttp3:okhttp-urlconnection:3.4.1'
-    
-    compile 'com.github.simplifyops.cli-toolbelt:toolbelt:0.1.11'
-    compile 'com.github.simplifyops.cli-toolbelt:toolbelt-snakeyaml:0.1.11'
-    compile 'com.github.simplifyops.cli-toolbelt:toolbelt-json-jackson:0.1.11'
-    compile 'com.github.simplifyops.cli-toolbelt:toolbelt-jewelcli:0.1.11'
+
+    compile "$toolbelt.group:toolbelt:$toolbelt.version"
+    compile "$toolbelt.group:toolbelt-snakeyaml:$toolbelt.version"
+    compile "$toolbelt.group:toolbelt-json-jackson:$toolbelt.version"
+    compile "$toolbelt.group:toolbelt-jewelcli:$toolbelt.version"
 
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'

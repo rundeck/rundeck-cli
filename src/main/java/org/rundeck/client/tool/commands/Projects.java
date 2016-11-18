@@ -43,7 +43,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
     @Command(isDefault = true, description = "List all projects. (no options.)")
     public void list(CommandOutput output) throws IOException {
         List<ProjectItem> body = client.checkError(client.getService().listProjects());
-        output.output(String.format("%d Projects:%n", body.size()));
+        output.info(String.format("%d Projects:%n", body.size()));
         output.output(body.stream().map(ProjectItem::toBasicString).collect(Collectors.toList()));
     }
 
@@ -65,7 +65,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
             }
         }
         client.checkError(client.getService().deleteProject(options.getProject()));
-        output.output(String.format("Project was deleted: %s%n", options.getProject()));
+        output.info(String.format("Project was deleted: %s%n", options.getProject()));
         return true;
     }
 
@@ -74,7 +74,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
     }
 
     @Command(description = "Create a project.")
-    public void create(Create options, CommandOutput output) throws IOException, InputError {
+    public boolean create(Create options, CommandOutput output) throws IOException, InputError {
         Map<String, String> config = new HashMap<>();
         if (options.config().size() > 0) {
             for (String s : options.config()) {
@@ -94,7 +94,8 @@ public class Projects extends ApiCommand implements HasSubCommands {
         project.setConfig(config);
 
         ProjectItem body = client.checkError(client.getService().createProject(project));
-        output.output(String.format("Created project: \n\t%s%n", body.toBasicString()));
+        output.info(String.format("Created project: \n\t%s%n", body.toBasicString()));
+        return true;
     }
 
 }
