@@ -20,7 +20,7 @@ public class Tokens extends ApiCommand {
         super(client);
     }
 
-    public static interface CreateOptions {
+    public interface CreateOptions {
         @Option(longName = "user", shortName = "u", description = "user name")
         String getUser();
     }
@@ -28,12 +28,12 @@ public class Tokens extends ApiCommand {
     @Command(description = "Create a token for a user")
     public ApiToken create(CreateOptions options, CommandOutput output) throws IOException {
         ApiToken apiToken = client.checkError(client.getService().createToken(options.getUser()));
-        output.output("API Token created:");
+        output.info("API Token created:");
         output.output(apiToken.getId());
         return apiToken;
     }
 
-    public static interface ListOptions {
+    public interface ListOptions {
         @Option(longName = "user", shortName = "u", description = "user name")
         String getUser();
 
@@ -44,7 +44,7 @@ public class Tokens extends ApiCommand {
     @Command(description = "List tokens for a user")
     public List<ApiToken> list(ListOptions options, CommandOutput output) throws IOException {
         List<ApiToken> tokens = client.checkError(client.getService().listTokens(options.getUser()));
-        output.output(String.format("API Tokens for %s:", options.getUser()));
+        output.info(String.format("API Tokens for %s:", options.getUser()));
         output.output(tokens.stream().map(
                 options.isVerbose()
                 ? ApiToken::getId
@@ -54,7 +54,7 @@ public class Tokens extends ApiCommand {
         return tokens;
     }
 
-    public static interface DeleteOptions {
+    public interface DeleteOptions {
         @Option(longName = "token", shortName = "t", description = "API token")
         String getToken();
     }
@@ -62,6 +62,7 @@ public class Tokens extends ApiCommand {
     @Command(description = "Delete a token")
     public boolean delete(DeleteOptions options, CommandOutput output) throws IOException {
         Void aVoid = client.checkError(client.getService().deleteToken(options.getToken()));
+        output.info("Token deleted.");
         return true;
     }
 }

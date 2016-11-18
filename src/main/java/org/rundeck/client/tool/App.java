@@ -1,8 +1,6 @@
 package org.rundeck.client.tool;
 
-import com.simplifyops.toolbelt.CommandRunFailure;
-import com.simplifyops.toolbelt.Tool;
-import com.simplifyops.toolbelt.ToolBelt;
+import com.simplifyops.toolbelt.*;
 import com.simplifyops.toolbelt.format.json.jackson.JsonFormatter;
 import com.simplifyops.toolbelt.format.yaml.snakeyaml.YamlFormatter;
 import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
@@ -28,13 +26,9 @@ import java.io.IOException;
 public class App {
 
     public static void main(String[] args) throws IOException, CommandRunFailure {
-        setup(tool("rd"), args).runMain(args, true);
+        tool("rd").runMain(args, true);
     }
 
-    public static Tool setup(final ToolBelt belt, final String[] args) {
-        setupFormat(belt);
-        return belt.buckle();
-    }
 
     private static void setupFormat(final ToolBelt belt) {
         if ("yaml".equalsIgnoreCase(Env.getString("RD_FORMAT", null))) {
@@ -51,32 +45,47 @@ public class App {
             representer.addClassTag(DateInfo.class, Tag.MAP);
             representer.addClassTag(Execution.class, Tag.MAP);
             belt.formatter(new YamlFormatter(representer, dumperOptions));
+            belt.channels().infoEnabled(false);
         } else if ("json".equalsIgnoreCase(Env.getString("RD_FORMAT", null))) {
             belt.formatter(new JsonFormatter());
+            belt.channels().infoEnabled(false);
+        } else {
+            NiceFormatter formatter = new NiceFormatter(null);
+            formatter.setCollectionIndicator("");
+            belt.formatter(formatter);
+            belt.channels().info(new FormattedOutput(
+                    belt.defaultOutput(),
+                    new PrefixFormatter("# ", belt.defaultBaseFormatter())
+            ));
         }
     }
 
-    public static ToolBelt tool(final String name) {
+    public static Tool tool(final String name) {
         Client<RundeckApi> client = createClient();
-        return ToolBelt.belt(name)
-                       .defaultHelpCommands()
-                       .ansiColorOutput("1".equals(System.getenv("RD_COLOR")) ||
-                                                   System.getenv("TERM") != null &&
-                                                   System.getenv("TERM").contains("color"))
-                       .add(
-                               new Adhoc(client),
-                               new Jobs(client),
-                               new Projects(client),
-                               new Executions(client),
-                               new Run(client),
-                               new Keys(client),
-                               new RDSystem(client),
-                               new Scheduler(client),
-                               new Tokens(client)
-                       )
-                       .commandInput(new JewelInput());
+        ToolBelt belt = ToolBelt.belt(name)
+                                .defaultHelpCommands()
+                                .ansiColorOutput(isAnsiEnabled())
+                                .add(
+                                        new Adhoc(client),
+                                        new Jobs(client),
+                                        new Projects(client),
+                                        new Executions(client),
+                                        new Run(client),
+                                        new Keys(client),
+                                        new RDSystem(client),
+                                        new Scheduler(client),
+                                        new Tokens(client)
+                                )
+                                .commandInput(new JewelInput());
+        setupFormat(belt);
+        return belt.buckle();
     }
 
+    private static boolean isAnsiEnabled() {
+        return "1".equals(System.getenv("RD_COLOR")) ||
+               System.getenv("TERM") != null &&
+               System.getenv("TERM").contains("color");
+    }
 
 
     public static Client<RundeckApi> createClient() {

@@ -51,7 +51,7 @@ public class Executions extends ApiCommand {
         }
 
         if (failed) {
-            out.output(String.format("Kill request failed: %s", abort.reason));
+            out.warning(String.format("Kill request failed: %s", abort.reason));
         }
         return !failed;
     }
@@ -63,7 +63,7 @@ public class Executions extends ApiCommand {
     @Command(description = "Delete an execution by ID.")
     public void delete(Delete options, CommandOutput out) throws IOException {
         client.checkError(client.getService().deleteExecution(options.getId()));
-        out.output(String.format("Delete [%s] succeeded.", options.getId()));
+        out.info(String.format("Delete [%s] succeeded.", options.getId()));
     }
 
     @CommandLineInterface(application = "follow") interface Follow extends ExecutionsFollowOptions {
@@ -226,7 +226,7 @@ public class Executions extends ApiCommand {
 
         Paging page = executionList.getPaging();
         if (!options.isOutputFormat()) {
-            out.output(String.format(
+            out.info(String.format(
                     "Found executions: %d of %d%n",
                     page.getCount(),
                     page.getTotal()
@@ -238,9 +238,9 @@ public class Executions extends ApiCommand {
                 (page.getOffset() + page.getCount())) {
 
                 int nextOffset = page.getOffset() + page.getMax();
-                out.output(String.format("(more results available, append: -o %d)", nextOffset));
+                out.info(String.format("(more results available, append: -o %d)", nextOffset));
             } else {
-                out.output(String.format("End of results."));
+                out.info(String.format("End of results."));
             }
         }
         return executionList;
@@ -314,7 +314,7 @@ public class Executions extends ApiCommand {
                             .map(BulkExecutionDeleteResponse.DeleteFailure::toString)
                             .collect(Collectors.toList()));
         }else{
-            out.output(String.format("Deleted %d executions.", result.getSuccessCount()));
+            out.info(String.format("Deleted %d executions.", result.getSuccessCount()));
         }
         return result.isAllsuccessful();
     }

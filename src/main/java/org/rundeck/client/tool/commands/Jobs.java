@@ -15,7 +15,10 @@ import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Util;
 import retrofit2.Call;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -84,17 +87,15 @@ public class Jobs extends ApiCommand {
         DeleteJobsResult deletedJobs = client.checkError(client.getService().deleteJobs(ids));
 
         if (deletedJobs.isAllsuccessful()) {
-            output.output(String.format("%d Jobs were deleted%n", deletedJobs.getRequestCount()));
+            output.info(String.format("%d Jobs were deleted%n", deletedJobs.getRequestCount()));
             return true;
         }
-        output.output(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
-        for (DeleteJob deleteJob : deletedJobs.getFailed()) {
-            output.output(String.format("* " + deleteJob.toBasicString()));
-        }
+        output.error(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
+        output.output(deletedJobs.getFailed().stream().map(DeleteJob::toBasicString).collect(Collectors.toList()));
         return false;
     }
 
-    @CommandLineInterface(application = "load") interface Load extends JobLoadOptions {
+    @CommandLineInterface(application = "load") interface Load extends JobLoadOptions, VerboseOption {
     }
 
     @Command(description = "Load Job definitions from a file in XML or YAML format.")
@@ -123,18 +124,25 @@ public class Jobs extends ApiCommand {
 
         List<JobLoadItem> failed = importResult.getFailed();
 
-        printLoadResult(importResult.getSucceeded(), "Succeeded", output);
-        printLoadResult(importResult.getSkipped(), "Skipped", output);
-        printLoadResult(failed, "Failed", output);
+        printLoadResult(importResult.getSucceeded(), "Succeeded", output, options.isVerbose());
+        printLoadResult(importResult.getSkipped(), "Skipped", output, options.isVerbose());
+        printLoadResult(failed, "Failed", output, options.isVerbose());
 
         return failed == null || failed.size() == 0;
     }
 
-    private static void printLoadResult(final List<JobLoadItem> list, final String title, CommandOutput output) {
+    private static void printLoadResult(
+            final List<JobLoadItem> list,
+            final String title,
+            CommandOutput output, final boolean isVerbose
+    )
+    {
         if (null != list && list.size() > 0) {
-            output.output(String.format("%d Jobs " + title + ":%n", list != null ? list.size() : 0));
-            for (JobLoadItem jobLoadItem : list) {
-                output.output(String.format("* %s%n", jobLoadItem.toBasicString()));
+            output.info(String.format("%d Jobs " + title + ":%n", list.size()));
+            if (isVerbose) {
+                output.output(list);
+            } else {
+                output.output(list.stream().map(JobLoadItem::toBasicString).collect(Collectors.toList()));
             }
         }
     }
@@ -179,7 +187,7 @@ public class Jobs extends ApiCommand {
                 try (FileOutputStream out = new FileOutputStream(options.getFile())) {
                     long total = Util.copyStream(inputStream, out);
                     if (!options.isOutputFormat()) {
-                        output.output(String.format(
+                        output.info(String.format(
                                 "Wrote %d bytes of %s to file %s%n",
                                 total,
                                 body.contentType(),
@@ -201,7 +209,7 @@ public class Jobs extends ApiCommand {
             }
             List<JobItem> body = client.checkError(listCall);
             if (!options.isOutputFormat()) {
-                output.output(String.format("%d Jobs in project %s%n", body.size(), options.getProject()));
+                output.info(String.format("%d Jobs in project %s%n", body.size(), options.getProject()));
             }
             outputJobList(options, output, body);
         }
@@ -219,7 +227,7 @@ public class Jobs extends ApiCommand {
             outformat = JobItem::toBasicString;
         }
 
-        body.forEach(j -> output.output(outformat.apply(j)));
+        output.output(body.stream().map(outformat).collect(Collectors.toList()));
     }
 
     @CommandLineInterface(application = "info") interface InfoOpts extends JobResultOptions {

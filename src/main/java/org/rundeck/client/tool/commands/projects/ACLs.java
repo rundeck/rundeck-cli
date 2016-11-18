@@ -13,15 +13,18 @@ import org.rundeck.client.api.model.ACLPolicy;
 import org.rundeck.client.api.model.ACLPolicyItem;
 import org.rundeck.client.api.model.ACLPolicyValidation;
 import org.rundeck.client.tool.commands.ApiCommand;
+import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Colorz;
+import org.rundeck.client.util.Format;
 import retrofit2.Call;
 import retrofit2.Response;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by greg on 6/6/16.
@@ -32,25 +35,43 @@ public class ACLs extends ApiCommand {
         super(client);
     }
 
+
+    interface ListCommandOptions extends ProjectNameOptions, ACLOutputOptions {
+
+    }
     @Command(description = "list project acls")
-    public void list(ProjectNameOptions options, CommandOutput output) throws IOException {
+    public void list(ListCommandOptions options, CommandOutput output) throws IOException {
         ACLPolicyItem items = client.checkError(client.getService()
                                                       .listAcls(options.getProject()));
-        outputListResult(output, items, String.format("project %s", options.getProject()));
+        outputListResult(options, output, items, String.format("project %s", options.getProject()));
     }
 
     public static void outputListResult(
+            final ACLOutputOptions options,
             final CommandOutput output,
-            final ACLPolicyItem ACLPolicyItems,
+            final ACLPolicyItem aclList,
             final String ident
     )
     {
-        output.output(String.format(
+        output.info(String.format(
                 "%d ACL Policy items for %s",
-                ACLPolicyItems.getResources().size(),
+                aclList.getResources().size(),
                 ident
         ));
-        ACLPolicyItems.getResources().forEach(a -> output.output(String.format("* %s", a.getPath())));
+        final Function<ACLPolicyItem, ?> outformat;
+        if (options.isVerbose()) {
+            output.output(aclList.getResources().stream().map(ACLPolicyItem::toMap).collect(Collectors.toList()));
+            return;
+        } else if (options.isOutputFormat()) {
+            outformat = Format.formatter(options.getOutputFormat(), ACLPolicyItem::toMap, "%", "");
+        } else {
+            outformat = ACLPolicyItem::getPath;
+
+        }
+        output.output(aclList.getResources()
+                             .stream()
+                             .map(outformat)
+                             .collect(Collectors.toList()));
     }
 
     @CommandLineInterface(application = "get") interface Get extends ACLNameOptions, ProjectNameOptions {
@@ -181,6 +202,6 @@ public class ACLs extends ApiCommand {
     @Command(description = "Delete a project ACL definition")
     public void delete(Delete options, CommandOutput output) throws IOException {
         client.checkError(client.getService().deleteAclPolicy(options.getProject(), options.getName()));
-        output.output(String.format("Deleted ACL Policy for %s: %s", options.getProject(), options.getName()));
+        output.info(String.format("Deleted ACL Policy for %s: %s", options.getProject(), options.getName()));
     }
 }

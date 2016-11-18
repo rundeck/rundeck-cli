@@ -3,7 +3,10 @@ package org.rundeck.client.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Describes an ACLPolicy item or directory
@@ -46,5 +49,17 @@ public class ACLPolicyItem {
 
     public void setResources(List<ACLPolicyItem> resources) {
         this.resources = resources;
+    }
+
+    public Map<Object, Object> toMap() {
+        HashMap<Object, Object> map = new LinkedHashMap<>();
+        map.put("path", path);
+        map.put("type", type);
+        map.put("href", href);
+        if ("directory".equals(type)) {
+            map.put("resources", resources);
+        }
+
+        return map;
     }
 }
