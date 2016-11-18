@@ -1,6 +1,7 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
+import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.HasSubCommands;
@@ -47,13 +48,25 @@ public class Projects extends ApiCommand implements HasSubCommands {
     }
 
     @CommandLineInterface(application = "delete") interface ProjectDelete extends ProjectNameOptions {
+        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
+        boolean isConfirm();
 
     }
 
     @Command(description = "Delete a project")
-    public void delete(ProjectDelete options, CommandOutput output) throws IOException {
+    public boolean delete(ProjectDelete options, CommandOutput output) throws IOException {
+        if (!options.isConfirm()) {
+            //request confirmation
+            String s = System.console().readLine("Really delete project %s? (y/N) ", options.getProject());
+
+            if (!"y".equals(s)) {
+                output.warning(String.format("Not deleting project %s.", options.getProject()));
+                return false;
+            }
+        }
         client.checkError(client.getService().deleteProject(options.getProject()));
         output.output(String.format("Project was deleted: %s%n", options.getProject()));
+        return true;
     }
 
     @CommandLineInterface(application = "create") interface Create extends ProjectCreateOptions {

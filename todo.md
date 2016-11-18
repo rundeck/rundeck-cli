@@ -11,7 +11,7 @@
     - [x] list
     - [x] create
     - [x] delete
-        - [ ] -y confirm
+        - [x] -y confirm
 - [ ] executions tool
     - [x] list
     - [x] follow
