@@ -119,6 +119,25 @@ Use the `DEBUG` env var to turn on HTTP debugging:
 	export DEBUG=2 # http headers
 	export DEBUG=3 # http body
 
+### Scripting
+
+Specifying formatted output for Job and Execution lists:
+
+	# output only id and href
+	rd jobs list -p myproject -% "%id %href"
+
+	# output id and execution status
+	rd executions query -p myproject -O 3d -% "%id %status"
+
+### Json and Yaml support
+
+(currently work in progress)
+
+JSON and YAML output:
+
+	RD_FORMAT=json rd jobs list
+	RD_FORMAT=yaml rd jobs list
+
 
 ### Running
 
@@ -151,6 +170,7 @@ Available commands:
 	   run        - Run a Job
 	   scheduler  - View scheduler information
 	   system     - View system information
+	   tokens     - Create, and manage tokens
 
 	Use "rd [command] help" to get help on any command.
 
@@ -194,6 +214,7 @@ List and manage Jobs.
 
 	Available commands:
 
+	   info  - Get info about a Job by ID (API v18)
 	   list  - List jobs found in a project, or download Job definitions (-f)
 	   load  - Load Job definitions from a file in XML or YAML format
 	   purge - Delete jobs matching the query parameters
@@ -217,13 +238,14 @@ Specify the path using -p/--path, or as the last argument to the command.
 
 List and manage projects.
 
-
 	Available commands:
 
 	   acls   - Manage Project ACLs
 	   create - Create a project
 	   delete - Delete a project
 	   list   - List all projects
+	   readme - Manage Project readme
+	   scm    - Manage Project SCM
 
 ### run
 
