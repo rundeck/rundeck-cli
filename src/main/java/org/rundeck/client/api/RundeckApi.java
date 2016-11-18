@@ -115,6 +115,28 @@ public interface RundeckApi {
     );
 
     /**
+     * Query executions with all query parameters available
+     * @see <a href="http://rundeck.org/docs/api/index.html#execution-query">API</a>
+     * @param project
+     * @param options
+     * @param jobIdListFilter
+     * @param xjobIdListFilter
+     * @param jobListFilter
+     * @param excludeJobListFilters
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/executions")
+    Call<ExecutionList> listExecutions(
+            @Path("project") String project,
+            @QueryMap Map<String, String> options,
+            @Query("jobIdListFilter") List<String> jobIdListFilter,
+            @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
+            @Query("jobListFilter") List<String> jobListFilter,
+            @Query("excludeJobListFilter") List<String> excludeJobListFilters
+    );
+
+    /**
      * Bulk delete
      *
      * @param delete
