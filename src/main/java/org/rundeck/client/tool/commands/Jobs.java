@@ -37,6 +37,8 @@ public class Jobs extends ApiCommand {
     }
 
     @CommandLineInterface(application = "purge") interface Purge extends JobPurgeOptions, ListOpts {
+        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
+        boolean isConfirm();
     }
 
     @Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
@@ -68,6 +70,15 @@ public class Jobs extends ApiCommand {
 
         if (options.isFile()) {
             list(options, output);
+        }
+        if (!options.isConfirm()) {
+            //request confirmation
+            String s = System.console().readLine("Really delete %d Jobs? (y/N) ", ids.size());
+
+            if (!"y".equals(s)) {
+                output.warning(String.format("Not deleting %d jobs", ids.size()));
+                return false;
+            }
         }
 
         DeleteJobsResult deletedJobs = client.checkError(client.getService().deleteJobs(ids));

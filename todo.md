@@ -6,7 +6,7 @@
     - [x] upload
     - [x] purge
         - [x] support -f file out
-        - [ ] -y confirm
+        - [x] -y confirm
 - [ ] projects tool
     - [x] list
     - [x] create
