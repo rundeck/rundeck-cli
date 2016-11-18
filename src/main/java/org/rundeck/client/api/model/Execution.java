@@ -40,13 +40,23 @@ public class Execution {
         }
         return String.format("[%s] <%s>", id, permalink);
     }
-    public String toExtendedString() throws ParseException {
+
+    public String toExtendedString() {
         if(null!=dateEnded) {
-            return String.format("[%s] %s: %s, %s <%s>", id, status, dateEnded.toRelative(),
-                                 getBasicDescription(), permalink
-            );
+            try {
+                return String.format(
+                        "%s %s %s %s %s",
+                        id,
+                        status,
+                        dateEnded.toDate(),
+                        getBasicDescription(),
+                        permalink
+                );
+            } catch (ParseException e) {
+                return toBasicString();
+            }
         }
-        return String.format("[%s] <%s>", id, permalink);
+        return String.format("%s %s", id, permalink);
     }
 
     private String getBasicDescription() {

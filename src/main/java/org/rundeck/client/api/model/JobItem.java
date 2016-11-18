@@ -1,6 +1,7 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.util.Format;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -8,6 +9,8 @@ import org.simpleframework.xml.Root;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by greg on 3/28/16.
@@ -105,8 +108,13 @@ public class JobItem {
         HashMap<Object, Object> map = new LinkedHashMap<>();
         map.put("id", getId());
         map.put("name", getName());
-        map.put("group", getGroup());
+        if (null != getGroup()) {
+            map.put("group", getGroup());
+        }
         map.put("project", getProject());
+        map.put("href", getHref());
+        map.put("permalink", getPermalink());
+        map.put("description", getDescription());
         if(null!=getAverageDuration()){
             map.put("averageDuration", getAverageDuration());
         }
@@ -114,7 +122,7 @@ public class JobItem {
     }
 
     public String toBasicString() {
-        return String.format("[%s] %s%s", id, group != null ? group + "/" : "", name);
+        return String.format("%s %s%s", id, group != null ? group + "/" : "", name);
     }
 
     public Long getAverageDuration() {
