@@ -7,7 +7,7 @@ This is a new CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 Its goal is to replace the old CLI Tools currently included with Rundeck with a modernized,
 extensible, and nicer implementation.
 
-(This project is currently a work-in-progress, and development is ongoing.)
+This project is now at 1.0.x status.
 
 See [todos.md](https://github.com/rundeck/rundeck-cli/blob/master/todo.md)
 ## Requirements
@@ -26,10 +26,10 @@ Java 8
 
 ### Yum usage
 
-Also, in bintray in unofficial repo for now: [bintray/gschueler/rundeck-maint-staging-rpm](https://bintray.com/gschueler/rundeck-maint-staging-rpm).
+Also, in bintray: [bintray/rundeck/rundeck-rpm](https://bintray.com/rundeck/rundeck-rpm).
 
 ~~~{.sh}
-$ wget https://bintray.com/gschueler/rundeck-maint-staging-rpm/rpm -O bintray.repo
+$ wget https://bintray.com/rundeck/rundeck-rpm/rpm -O bintray.repo
 $ sudo mv bintray.repo /etc/yum.repos.d/
 $ yum install rundeck-cli
 ~~~
@@ -49,7 +49,11 @@ $ sed -i.bak s/^gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/bintray.repo
 $ echo "gpgkey=http://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key" >> /etc/yum.repos.d/bintray.repo 
 ~~~
 
-TODO: move to primary rundeck bintray yum repo
+### Debian usage
+
+(todo...)
+
+On bintray: [bintray/rundeck/rundeck-deb](https://bintray.com/rundeck/rundeck-deb).
 
 ## Usage
 
@@ -87,6 +91,25 @@ as `http://internal-rundeck:4440/rundeck/blah`.
 
 Note: if you include the API version in your `RUNDECK_URL`, e.g. `http://internal-rundeck:4440/rundeck/api/12` then
 the `RUNDECK_BYPASS_URL` will be replaced by `http://internal-rundeck:4440/rundeck`.
+
+**HTTP/connect timeout**
+
+Use `RD_HTTP_TIMEOUT` env var:
+
+	# 30 second timeout
+	export RD_HTTP_TIMEOUT=30
+
+Note: if the timeout seems longer than you specify, it is because the "connection retry" is set to true
+by default.
+
+**Connection Retry**
+
+Retry in case of recoverable connection issue (e.g. failure to connect):
+
+Use `RD_CONNECT_RETRY` (default `true`):
+
+	# don't retry
+	export RD_CONNECT_RETRY=false
 
 **Debug HTTP**
 
