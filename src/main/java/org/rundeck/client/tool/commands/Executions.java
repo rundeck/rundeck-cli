@@ -9,13 +9,14 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.Format;
 import retrofit2.Call;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -155,22 +156,21 @@ public class Executions extends ApiCommand {
     }
 
 
-    @CommandLineInterface(application = "info") interface Info extends ExecutionIdOption {
+    @CommandLineInterface(application = "info") interface Info extends ExecutionIdOption, QueryResultOptions {
 
     }
 
     @Command(description = "List all running executions for a project.")
     public void info(Info options, CommandOutput out) throws IOException {
 
-        Execution execution = client.checkError(client.getService()
-                                                      .getExecution(options.getId()));
-        HashMap<Object, Object> info = new HashMap<>();
-        info.put("execution", execution.getInfoMap());
+        Execution execution = client.checkError(client.getService().getExecution(options.getId()));
 
-        out.output(info);
+        outputList(options, out, Collections.singletonList(execution));
     }
 
-    @CommandLineInterface(application = "list") interface ListCmd extends ExecutionListOptions, ProjectNameOptions {
+    @CommandLineInterface(application = "list") interface ListCmd
+            extends ExecutionListOptions, ProjectNameOptions, QueryResultOptions
+    {
 
     }
 
@@ -181,13 +181,22 @@ public class Executions extends ApiCommand {
 
         ExecutionList executionList = client.checkError(client.getService()
                                                               .runningExecutions(options.getProject(), offset, max));
-        out.output(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
-        for (Execution execution : executionList.getExecutions()) {
-            out.output(execution.toBasicString());
+
+        if (!options.isOutputFormat()) {
+            out.output(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
         }
+
+        outputList(options, out, executionList.getExecutions());
     }
 
-    @CommandLineInterface(application = "query") interface QueryCmd extends ExecutionListOptions, ProjectNameOptions {
+
+    interface QueryResultOptions extends ExecutionOutputFormatOption, VerboseOption {
+
+    }
+
+    @CommandLineInterface(application = "query") interface QueryCmd
+            extends ExecutionListOptions, ProjectNameOptions, QueryResultOptions
+    {
         @Option(shortName = "d",
                 longName = "recent",
                 description = "Get executions newer than specified time. e.g. \"3m\" (3 months). \n" +
@@ -216,27 +225,44 @@ public class Executions extends ApiCommand {
                                                               ));
 
         Paging page = executionList.getPaging();
-        out.output(String.format(
-                "Found executions: %d of %d%n",
-                page.getCount(),
-                page.getTotal()
-        ));
-        for (Execution execution : executionList.getExecutions()) {
-            try {
-                out.output(execution.toExtendedString());
-            } catch (ParseException e) {
-                out.output(execution.toBasicString());
+        if (!options.isOutputFormat()) {
+            out.output(String.format(
+                    "Found executions: %d of %d%n",
+                    page.getCount(),
+                    page.getTotal()
+            ));
+        }
+        outputList(options, out, executionList.getExecutions());
+        if (!options.isOutputFormat()) {
+            if (page.getTotal() >
+                (page.getOffset() + page.getCount())) {
+
+                int nextOffset = page.getOffset() + page.getMax();
+                out.output(String.format("(more results available, append: -o %d)", nextOffset));
+            } else {
+                out.output(String.format("End of results."));
             }
         }
-        if (page.getTotal() >
-            (page.getOffset() + page.getCount())) {
-
-            int nextOffset = page.getOffset() + page.getMax();
-            out.output(String.format("(more results available, append: -o %d)", nextOffset));
-        } else {
-            out.output(String.format("End of results."));
-        }
         return executionList;
+    }
+
+    private void outputList(
+            final QueryResultOptions options,
+            final CommandOutput out,
+            final List<Execution> executionList
+    )
+    {
+        if (options.isVerbose()) {
+            out.output(executionList.stream().map(Execution::getInfoMap).collect(Collectors.toList()));
+            return;
+        }
+        final Function<Execution, ?> outformat;
+        if (options.isOutputFormat()) {
+            outformat = Format.formatter(options.getOutputFormat(), Execution::getInfoMap, "%", "");
+        } else {
+            outformat = Execution::toExtendedString;
+        }
+        executionList.forEach(e -> out.output(outformat.apply(e)));
     }
 
     @CommandLineInterface(application = "deletebulk") interface BulkDeleteCmd extends QueryCmd {

@@ -9,17 +9,18 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.options.JobListOptions;
-import org.rundeck.client.tool.options.JobLoadOptions;
-import org.rundeck.client.tool.options.JobPurgeOptions;
+import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Util;
 import retrofit2.Call;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -127,7 +128,11 @@ public class Jobs extends ApiCommand {
         }
     }
 
-    @CommandLineInterface(application = "list") interface ListOpts extends JobListOptions {
+    interface JobResultOptions extends JobOutputFormatOption, VerboseOption {
+
+    }
+
+    @CommandLineInterface(application = "list") interface ListOpts extends JobListOptions, JobResultOptions {
     }
 
     @Command(description = "List jobs found in a project, or download Job definitions (-f).")
@@ -162,12 +167,14 @@ public class Jobs extends ApiCommand {
             } else {
                 try (FileOutputStream out = new FileOutputStream(options.getFile())) {
                     long total = Util.copyStream(inputStream, out);
-                    output.output(String.format(
-                            "Wrote %d bytes of %s to file %s%n",
-                            total,
-                            body.contentType(),
-                            options.getFile()
-                    ));
+                    if (!options.isOutputFormat()) {
+                        output.output(String.format(
+                                "Wrote %d bytes of %s to file %s%n",
+                                total,
+                                body.contentType(),
+                                options.getFile()
+                        ));
+                    }
                 }
             }
         } else {
@@ -182,14 +189,29 @@ public class Jobs extends ApiCommand {
                 );
             }
             List<JobItem> body = client.checkError(listCall);
-            output.output(String.format("%d Jobs in project %s%n", body.size(), options.getProject()));
-            for (JobItem jobItem : body) {
-                output.output("* " + jobItem.toBasicString());
+            if (!options.isOutputFormat()) {
+                output.output(String.format("%d Jobs in project %s%n", body.size(), options.getProject()));
             }
+            outputJobList(options, output, body);
         }
     }
 
-    @CommandLineInterface(application = "info") interface InfoOpts {
+    private void outputJobList(final JobResultOptions options, final CommandOutput output, final List<JobItem> body) {
+        final Function<JobItem, ?> outformat;
+        if (options.isVerbose()) {
+            output.output(body.stream().map(JobItem::toMap).collect(Collectors.toList()));
+            return;
+        }
+        if (options.isOutputFormat()) {
+            outformat = Format.formatter(options.getOutputFormat(), JobItem::toMap, "%", "");
+        } else {
+            outformat = JobItem::toBasicString;
+        }
+
+        body.forEach(j -> output.output(outformat.apply(j)));
+    }
+
+    @CommandLineInterface(application = "info") interface InfoOpts extends JobResultOptions {
 
         @Option(shortName = "i", longName = "id", description = "Job ID")
         String getId();
@@ -198,7 +220,7 @@ public class Jobs extends ApiCommand {
     @Command(description = "Get info about a Job by ID (API v18)")
     public void info(InfoOpts options, CommandOutput output) throws IOException {
         ScheduledJobItem body = client.checkError(client.getService().getJobInfo(options.getId()));
-        output.output(body.toMap());
+        outputJobList(options, output, Collections.singletonList(body));
     }
 
     /**
