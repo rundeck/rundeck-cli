@@ -207,6 +207,37 @@ List running executions, attach and follow their output, or kill them.
 	   list       - List all running executions for a project
 	   query      - Query previous executions for a project
 
+#### execution query
+
+Query previous executions for a project.
+
+	Usage: query options
+		[--adhoconly -A] : Adhoc executions only
+		[--xgroup value] : Group or partial group path to exclude, "-" means top-level jobs only
+		[--xgroupexact value] : Exact group path to exclude, "-" means top-level jobs only
+		[--xnameexact value] : Exclude Exact Job Name Filter, exclude any name that is equal to this value
+		[--xname value] : Exclude Job Name Filter, exclude any name that matches this value
+		[--xjobids -x value...] : Job ID list to exclude
+		[--xjobs -X value...] : List of Full job group and name to exclude.
+		[--group -g value] : Group or partial group path to include, "-" means top-level jobs only
+		[--groupexact -G value] : Exact group path to include, "-" means top-level jobs only
+		[--jobonly -J] : Job executions only
+		[--nameexact -N value] : Exact Job Name Filter, include any name that is equal to this value
+		[--name -n value] : Job Name Filter, include any name that matches this value
+		[--jobids -i value...] : Job ID list to include
+		[--jobs -j value...] : List of Full job group and name to include.
+		[--max -m value] : Maximum number of results to retrieve at once.
+		[--offset -o value] : First result offset to receive.
+		[--older -O value] : Get executions older than specified time. e.g. "3m" (3 months).
+	Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)
+		[--outformat -% value] : Output format specifier for execution data. You can use "%key" where key is one of:id, project, description, argstring, permalink, href, status, job, user, serverUUID, dateStarted, dateEnded, successfulNodes, failedNodes. E.g. "%id %href"
+		--project -p value : Project name
+		[--recent -d value] : Get executions newer than specified time. e.g. "3m" (3 months).
+	Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)
+		[--status -s value] : Status filter, one of: running,succeeded,failed,aborted
+		[--user -u value] : User filter
+		[--verbose -v] : Extended verbose output
+
 ### jobs
 
 List and manage Jobs.
