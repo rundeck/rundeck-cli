@@ -12,6 +12,7 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -34,10 +35,12 @@ public class Rundeck {
     public static Client<RundeckApi> client(
             String baseUrl,
             final String token,
-            final int debugHttp
+            final int debugHttp,
+            Long timeout,
+            Boolean retryConnect
     )
     {
-        return client(baseUrl, API_VERS, token, debugHttp);
+        return client(baseUrl, API_VERS, token, debugHttp, timeout, retryConnect);
     }
 
     /**
@@ -54,10 +57,12 @@ public class Rundeck {
             String baseUrl,
             final String username,
             final String password,
-            final int debugHttp
+            final int debugHttp,
+            Long timeout,
+            Boolean retryConnect
     )
     {
-        return client(baseUrl, API_VERS, username, password, debugHttp);
+        return client(baseUrl, API_VERS, username, password, debugHttp, timeout, retryConnect);
     }
 
     /**
@@ -74,7 +79,9 @@ public class Rundeck {
             String baseUrl,
             final int apiVers,
             final String authToken,
-            final int httpLogging
+            final int httpLogging,
+            Long timeout,
+            Boolean retryConnect
     )
     {
         String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
@@ -100,9 +107,19 @@ public class Rundeck {
                                                                    HttpLoggingInterceptor.Level.values().length]);
             callFactory.addNetworkInterceptor(logging);
         }
+        if (null != timeout) {
+            callFactory
+                    .readTimeout(timeout, TimeUnit.SECONDS)
+                    .connectTimeout(timeout, TimeUnit.SECONDS)
+                    .writeTimeout(timeout, TimeUnit.SECONDS)
+            ;
+        }
+        if (null != retryConnect) {
+            callFactory.retryOnConnectionFailure(retryConnect);
+        }
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(base)
-                .callFactory(callFactory.build())
+                .client(callFactory.build())
                 .addConverterFactory(new QualifiedTypeConverterFactory(
                         JacksonConverterFactory.create(),
                         SimpleXmlConverterFactory.create(),
@@ -129,7 +146,9 @@ public class Rundeck {
             final int apiVers,
             final String username,
             final String password,
-            final int httpLogging
+            final int httpLogging,
+            Long timeout,
+            Boolean retryConnect
     )
     {
 
@@ -185,12 +204,22 @@ public class Rundeck {
                                                                    HttpLoggingInterceptor.Level.values().length]);
             callFactory.addNetworkInterceptor(logging);
         }
+        if (null != timeout) {
+            callFactory
+                    .readTimeout(timeout, TimeUnit.SECONDS)
+                    .connectTimeout(timeout, TimeUnit.SECONDS)
+                    .writeTimeout(timeout, TimeUnit.SECONDS)
+            ;
+        }
+        if (null != retryConnect) {
+            callFactory.retryOnConnectionFailure(retryConnect);
+        }
 
         callFactory.cookieJar(new JavaNetCookieJar(cookieManager));
 
         Retrofit build = new Retrofit.Builder()
                 .baseUrl(apiBaseUrl)
-                .callFactory(callFactory.build())
+                .client(callFactory.build())
                 .addConverterFactory(new QualifiedTypeConverterFactory(
                         JacksonConverterFactory.create(),
                         SimpleXmlConverterFactory.create(),

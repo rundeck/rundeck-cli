@@ -1,7 +1,6 @@
 package org.rundeck.client.tool;
 
 import com.simplifyops.toolbelt.CommandRunFailure;
-import com.simplifyops.toolbelt.InputError;
 import com.simplifyops.toolbelt.Tool;
 import com.simplifyops.toolbelt.ToolBelt;
 import com.simplifyops.toolbelt.format.json.jackson.JsonFormatter;
@@ -15,11 +14,13 @@ import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.ScheduledJobItem;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.Env;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
+
 
 /**
  * Entrypoint for commandline
@@ -77,8 +78,9 @@ public class App {
     }
 
 
+
     public static Client<RundeckApi> createClient() {
-        String baseUrl = requireEnv(
+        String baseUrl = Env.require(
                 "RUNDECK_URL",
                 "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
         );
@@ -89,35 +91,19 @@ public class App {
             throw new IllegalArgumentException(
                     "Environment variable RUNDECK_TOKEN or RUNDECK_USER and RUNDECK_PASSWORD are required");
         }
-        String debugVal = System.getenv("DEBUG");
-        int debuglevel = 0;
-        try {
-            debuglevel = Integer.parseInt(debugVal);
-        } catch (NumberFormatException e) {
+        int debuglevel = Env.getInt("DEBUG", 0);
+        Long httpTimeout = Env.getLong("RD_HTTP_TIMEOUT", null);
+        Boolean retryConnect = Env.getBool("RD_CONNECT_RETRY", true);
 
-        }
         if (null != System.getenv("RUNDECK_TOKEN")) {
-            String token = requireEnv("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-            return Rundeck.client(baseUrl, token, debuglevel);
+            String token = Env.require("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
+            return Rundeck.client(baseUrl, token, debuglevel, httpTimeout, retryConnect);
         } else {
 
-            String user = requireEnv("RUNDECK_USER", "Please specify the Rundeck username");
-            String pass = requireEnv("RUNDECK_PASSWORD", "Please specify the Rundeck password");
-            return Rundeck.client(baseUrl, user, pass, debuglevel);
+            String user = Env.require("RUNDECK_USER", "Please specify the Rundeck username");
+            String pass = Env.require("RUNDECK_PASSWORD", "Please specify the Rundeck password");
+            return Rundeck.client(baseUrl, user, pass, debuglevel, httpTimeout, retryConnect);
         }
-    }
-
-
-    public static String requireEnv(final String name, final String description) {
-        String value = System.getenv(name);
-        if (null == value) {
-            throw new IllegalArgumentException(String.format(
-                    "Environment variable %s is required: %s",
-                    name,
-                    description
-            ));
-        }
-        return value;
     }
 
 }
