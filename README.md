@@ -13,4 +13,4 @@ See [todos.md](https://github.com/rundeck/rundeck-cli/blob/master/todo.md)
 
 # Documentation 
 
-[http://rundeck.github.io/rundeck-cli/](http://rundeck.github.io/rundeck-cli/)
+[https://rundeck.github.io/rundeck-cli/](https://rundeck.github.io/rundeck-cli/)
