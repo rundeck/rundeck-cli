@@ -28,7 +28,7 @@ Java 8
 * [{{ post.title }}]({{ post.permalink }})
 {% endfor %}
 
-* [Install]({{site.url}}/install)
-* [Configuration]({{site.url}}/configuration)
-* [Commands]({{site.url}}/commands)
-* [Scripting]({{site.url}}/scripting)
+* [Install]({{site.url}}{{site.baseurl}}/install)
+* [Configuration]({{site.url}}{{site.baseurl}}/configuration)
+* [Commands]({{site.url}}{{site.baseurl}}/commands)
+* [Scripting]({{site.url}}{{site.baseurl}}/scripting)
