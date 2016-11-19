@@ -19,6 +19,13 @@ scmVersion {
         prefix = 'v'
         versionSeparator = ''
     }
+    hooks {
+        pre 'fileUpdate', [file       : 'docs/_config.yml',
+                           pattern    : { v, c -> /app_version: [^\s]+/ },
+                           replacement: { v, c -> "app_version: $v" }]
+        pre 'commit'
+        post 'push'
+    }
 }
 
 allprojects {
