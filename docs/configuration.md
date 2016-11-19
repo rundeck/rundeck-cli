@@ -1,7 +1,8 @@
 ---
 layout: page
+category: doc
 title: Configuration
-permalink: configuration.html
+permalink: /configuration/
 ---
 
 # Configuration

@@ -21,7 +21,8 @@ baseurl: "" # the subpath of your site, e.g. /blog
 url: "" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: rundeck
 github_username:  rundeck
-
+github_url: https://github.com/rundeck/rundeck-cli
+app_version: 0.1.23
 # Build settings
 markdown: kramdown
 theme: minima

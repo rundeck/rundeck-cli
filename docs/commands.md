@@ -1,10 +1,13 @@
 ---
 layout: page
+category: doc
 title: Commands
-permalink: commands.html
+permalink: /commands/
 ---
 
-# Commands
+(Page is work in progress)
+
+The `rd` command provides top level commands:
 
 Available commands:
 

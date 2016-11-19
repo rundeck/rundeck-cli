@@ -1,7 +1,8 @@
 ---
 layout: page
+category: doc
 title: Scripting
-permalink: scripting.html
+permalink: /scripting/
 ---
 
 # Scripting
