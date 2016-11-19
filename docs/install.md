@@ -15,7 +15,7 @@ Download all artifacts from: [github releases](https://github.com/rundeck/rundec
 
 Additional Yum/Debian repos hosted by:
 
-[![bintray](/images/downloads-by-bintray-150.png)](https://bintray.com)
+[![bintray]({{site.url}}{{site.baseurl}}/images/downloads-by-bintray-150.png)](https://bintray.com)
 
 ### Jar install
 
