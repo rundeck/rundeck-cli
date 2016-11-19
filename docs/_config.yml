@@ -17,8 +17,8 @@ title: Rundeck CLI
 email: greg@simplifyops.com
 description: > # this means to ignore newlines until "baseurl:"
   A simple commandline interface for the Rundeck API
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+baseurl: "/rundeck-cli" # the subpath of your site, e.g. /blog
+url: "https://rundeck.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 twitter_username: rundeck
 github_username:  rundeck
 github_url: https://github.com/rundeck/rundeck-cli
