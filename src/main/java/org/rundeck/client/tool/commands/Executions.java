@@ -181,7 +181,7 @@ public class Executions extends ApiCommand {
                                                               .runningExecutions(options.getProject(), offset, max));
 
         if (!options.isOutputFormat()) {
-            out.output(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
+            out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
         }
 
         outputList(options, out, executionList.getExecutions());
