@@ -1,5 +1,7 @@
 package org.rundeck.client.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -36,4 +38,9 @@ public class Format {
     {
         return (X obj) -> format(format, convert.apply(obj), start, end);
     }
+
+    public static String date(Date date, String simpleFormat) {
+        return new SimpleDateFormat(simpleFormat).format(date);
+    }
+
 }
