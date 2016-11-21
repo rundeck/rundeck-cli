@@ -31,5 +31,20 @@ See [Java SimpleDateFormat][1]
 
 JSON and YAML output:
 
-	RD_FORMAT=json rd jobs list
-	RD_FORMAT=yaml rd jobs list
+Use
+	
+	RD_FORMAT=json
+
+or
+
+	RD_FORMAT=yaml
+
+Examples:
+
+	RD_FORMAT=json rd jobs list -v
+	RD_FORMAT=json rd executions query -v
+	RD_FORMAT=json rd executions list -v
+	
+	RD_FORMAT=yaml rd jobs list -v
+	RD_FORMAT=yaml rd executions query -v
+	RD_FORMAT=yaml rd executions list -v
