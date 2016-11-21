@@ -1,10 +1,8 @@
 package org.rundeck.client.api.model;
 
-import com.fasterxml.jackson.annotation.JacksonAnnotation;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,26 +40,21 @@ public class Execution {
     }
 
     public String toExtendedString() {
-        if(null!=dateEnded) {
-            try {
-                return String.format(
-                        "%s %s %s %s %s",
-                        id,
-                        status,
-                        dateEnded.toDate(),
-                        getBasicDescription(),
-                        permalink
-                );
-            } catch (ParseException e) {
-                return toBasicString();
-            }
-        }
-        return String.format("%s %s", id, permalink);
+        return String.format(
+                "%s %s %s %s %s %s %s",
+                id,
+                status,
+                null != dateStarted ? dateStarted.format() : "-",
+                null != dateEnded ? dateEnded.format() : "-",
+                permalink,
+                null != getJob() ? "job" : "adhoc",
+                getBasicDescription()
+        );
     }
 
     private String getBasicDescription() {
         if (null != getJob()) {
-            return String.format("(Job: %s)", getJob().toBasicString());
+            return getJob().toBasicString();
         }
         return description;
     }
@@ -78,8 +71,8 @@ public class Execution {
         map.put("job", getJob());
         map.put("user", getUser());
         map.put("serverUUID", getServerUUID());
-        map.put("dateStarted", getDateStarted());
-        map.put("dateEnded", getDateEnded());
+        map.put("dateStarted", null != getDateStarted() ? getDateStarted().format() : null);
+        map.put("dateEnded", null != getDateEnded() ? getDateEnded().format() : null);
         map.put("successfulNodes", getSuccessfulNodes());
         map.put("failedNodes", getFailedNodes());
         return map;
