@@ -1,6 +1,8 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.util.Env;
+import org.rundeck.client.util.Format;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -26,6 +28,19 @@ public class DateInfo {
     public Date toDate() throws ParseException {
         return toDate("yyyy-MM-dd'T'HH:mm:ss'Z'");
     }
+
+    /**
+     * Format using the default or configured date format
+     * @return
+     */
+    public String format() {
+        try {
+            return Format.date(toDate(), Env.getString("DATE_FORMAT", "yyyy-MM-ddHH:mm:ssZ"));
+        } catch (ParseException e) {
+            return "?";
+        }
+    }
+
     public Date toDate(final String format) throws ParseException {
         SimpleDateFormat asdf = new SimpleDateFormat(format, Locale.US);
         return asdf.parse(date);
