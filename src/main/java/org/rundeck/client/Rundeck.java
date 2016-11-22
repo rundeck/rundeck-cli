@@ -84,6 +84,13 @@ public class Rundeck {
             Boolean retryConnect
     )
     {
+        HttpUrl parse = HttpUrl.parse(baseUrl);
+        if (null == parse) {
+            throw new IllegalArgumentException("Not a valid base URL: " + baseUrl);
+        }
+        if ("".equals(authToken) || null == authToken) {
+            throw new IllegalArgumentException("Token cannot be blank or null");
+        }
         String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
         String base = buildApiUrlForVersion(baseUrl, apiVers);
         int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
@@ -152,6 +159,16 @@ public class Rundeck {
     )
     {
 
+        HttpUrl parse = HttpUrl.parse(baseUrl);
+        if (null == parse) {
+            throw new IllegalArgumentException("Not a valid base URL: " + baseUrl);
+        }
+        if ("".equals(username) || null == username) {
+            throw new IllegalArgumentException("User cannot be blank or null");
+        }
+        if ("".equals(password) || null == password) {
+            throw new IllegalArgumentException("Password cannot be blank or null");
+        }
         String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
         String apiBaseUrl = buildApiUrlForVersion(baseUrl, apiVers);
         int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
@@ -160,15 +177,15 @@ public class Rundeck {
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
 
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder();
-        String postUrl = HttpUrl.parse(baseUrl)
-                                .newBuilder()
-                                .addPathSegment(
-                                        System.getProperty(
-                                                "rundeck.client.j_security_check",
-                                                "j_security_check"
-                                        ))
-                                .build()
-                                .toString();
+        String postUrl = parse
+                .newBuilder()
+                .addPathSegment(
+                        System.getProperty(
+                                "rundeck.client.j_security_check",
+                                "j_security_check"
+                        ))
+                .build()
+                .toString();
         callFactory.addInterceptor(new FormAuthInterceptor(
                 username,
                 password,
