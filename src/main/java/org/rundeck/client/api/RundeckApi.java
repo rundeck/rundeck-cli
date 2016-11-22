@@ -88,6 +88,15 @@ public interface RundeckApi {
     @GET("projects")
     Call<List<ProjectItem>> listProjects();
 
+    /**
+     *
+     * @param project
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/resources")
+    Call<Map<String,ProjectNode>> listNodes(@Path("project") String project);
+
     @Headers("Accept: application/json")
     @POST("projects")
     Call<ProjectItem> createProject(@Body ProjectItem properties);

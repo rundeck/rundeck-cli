@@ -6,10 +6,7 @@ import com.simplifyops.toolbelt.format.yaml.snakeyaml.YamlFormatter;
 import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.DateInfo;
-import org.rundeck.client.api.model.Execution;
-import org.rundeck.client.api.model.JobItem;
-import org.rundeck.client.api.model.ScheduledJobItem;
+import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Env;
@@ -76,7 +73,8 @@ public class App {
                                         new Keys(App::createClient),
                                         new RDSystem(App::createClient),
                                         new Scheduler(App::createClient),
-                                        new Tokens(App::createClient)
+                                        new Tokens(App::createClient),
+                                        new Nodes(App::createClient)
                                 )
                                 .commandInput(new JewelInput());
         setupFormat(belt);
