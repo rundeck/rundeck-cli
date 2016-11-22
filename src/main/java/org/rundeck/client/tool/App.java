@@ -109,7 +109,7 @@ public class App {
             }
             if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
                 throw new IllegalArgumentException("Password must be entered, or use environment variable " +
-                                                   "RUNDECK_PASS");
+                                                   "RUNDECK_PASSWORD");
             }
 
             return Rundeck.client(
