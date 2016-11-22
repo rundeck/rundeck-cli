@@ -18,6 +18,9 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.function.Function;
 
 
 /**
@@ -86,32 +89,191 @@ public class App {
                System.getenv("TERM").contains("color");
     }
 
-
     public static Client<RundeckApi> createClient() {
         String baseUrl = Env.require(
                 "RUNDECK_URL",
                 "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
         );
-        if (System.getenv("RUNDECK_TOKEN") == null
-            && System.getenv("RUNDECK_USER") == null
-            && System.getenv("RUNDECK_PASSWORD") == null) {
-
-            throw new IllegalArgumentException(
-                    "Environment variable RUNDECK_TOKEN or RUNDECK_USER and RUNDECK_PASSWORD are required");
-        }
         int debuglevel = Env.getInt("DEBUG", 0);
         Long httpTimeout = Env.getLong("RD_HTTP_TIMEOUT", null);
         Boolean retryConnect = Env.getBool("RD_CONNECT_RETRY", true);
 
-        if (null != System.getenv("RUNDECK_TOKEN")) {
-            String token = Env.require("RUNDECK_TOKEN", "Please specify the Rundeck authentication Token");
-            return Rundeck.client(baseUrl, token, debuglevel, httpTimeout, retryConnect);
-        } else {
+        Auth auth = getAuth();
 
-            String user = Env.require("RUNDECK_USER", "Please specify the Rundeck username");
-            String pass = Env.require("RUNDECK_PASSWORD", "Please specify the Rundeck password");
-            return Rundeck.client(baseUrl, user, pass, debuglevel, httpTimeout, retryConnect);
+        if (auth.isTokenAuth()) {
+            return Rundeck.client(baseUrl, auth.getToken(), debuglevel, httpTimeout, retryConnect);
+        } else {
+            if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
+                throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
+                                                   "RUNDECK_USER or RUNDECK_TOKEN");
+            }
+            if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
+                throw new IllegalArgumentException("Password must be entered, or use environment variable " +
+                                                   "RUNDECK_PASS");
+            }
+
+            return Rundeck.client(
+                    baseUrl,
+                    auth.getUsername(),
+                    auth.getPassword(),
+                    debuglevel,
+                    httpTimeout,
+                    retryConnect
+            );
         }
+    }
+
+    static interface Auth {
+        String getUsername();
+
+        String getPassword();
+
+        String getToken();
+
+        default boolean isTokenAuth() {
+            String username = getUsername();
+            if (null != username && !"".equals(username.trim())) {
+                return false;
+            }
+            String token = getToken();
+            return null != token && !"".equals(token);
+        }
+
+        default Auth chain(Auth auth) {
+            return new ChainAuth(Arrays.asList(this, auth));
+        }
+
+        default Auth memoize() {
+            return new MemoAuth(this);
+        }
+    }
+
+
+    static class EnvAuth implements Auth {
+        @Override
+        public String getUsername() {
+            return System.getenv("RUNDECK_USER");
+        }
+
+        @Override
+        public String getPassword() {
+            return System.getenv("RUNDECK_PASSWORD");
+        }
+
+        @Override
+        public String getToken() {
+            return System.getenv("RUNDECK_TOKEN");
+        }
+    }
+
+    static class ConsoleAuth implements Auth {
+        String username;
+        String pass;
+        String token;
+
+        @Override
+        public String getUsername() {
+            return System.console().readLine("Enter username (blank for token auth): ");
+        }
+
+        @Override
+        public String getPassword() {
+            char[] chars = System.console().readPassword("Enter password: ");
+            return new String(chars);
+        }
+
+        @Override
+        public String getToken() {
+            char[] chars = System.console().readPassword("Enter auth token: ");
+            return new String(chars);
+        }
+    }
+
+    static class ChainAuth implements Auth {
+        Collection<Auth> chain;
+
+        public ChainAuth(final Collection<Auth> chain) {
+            this.chain = chain;
+        }
+
+        @Override
+        public String getUsername() {
+            return findFirst(Auth::getUsername);
+        }
+
+        private String findFirst(Function<Auth, String> func) {
+            for (Auth auth : chain) {
+                String user = func.apply(auth);
+                if (null != user) {
+                    return user;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public String getPassword() {
+            return findFirst(Auth::getPassword);
+        }
+
+        @Override
+        public String getToken() {
+            return findFirst(Auth::getToken);
+        }
+    }
+
+
+    static class MemoAuth implements Auth {
+        Auth auth;
+
+        public MemoAuth(final Auth auth) {
+            this.auth = auth;
+        }
+
+        String username;
+        boolean usermemo = false;
+        String pass;
+        boolean passmemo = false;
+        String token;
+        boolean tokenmemo = false;
+
+        @Override
+        public String getUsername() {
+            if (usermemo) {
+                return username;
+            }
+            username = auth.getUsername();
+            usermemo = true;
+            return username;
+        }
+
+        @Override
+        public String getPassword() {
+            if (passmemo) {
+                return pass;
+            }
+            pass = auth.getPassword();
+            passmemo = true;
+            return pass;
+        }
+
+        @Override
+        public String getToken() {
+            if (tokenmemo) {
+                return token;
+            }
+            token = auth.getToken();
+            tokenmemo = true;
+            return token;
+        }
+    }
+
+    private static Auth getAuth() {
+        Auth auth = new EnvAuth();
+        if (Env.getBool("RD_AUTH_PROMPT", true) && null != System.console()) {
+            auth = auth.chain(new ConsoleAuth().memoize());
+        }
+        return auth;
     }
 
 }
