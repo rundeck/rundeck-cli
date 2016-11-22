@@ -30,5 +30,6 @@ Java 8
 
 * [Install]({{site.url}}{{site.baseurl}}/install)
 * [Configuration]({{site.url}}{{site.baseurl}}/configuration)
+* [SSL Configuration]({{site.url}}{{site.baseurl}}/configuration/ssl/)
 * [Commands]({{site.url}}{{site.baseurl}}/commands)
 * [Scripting]({{site.url}}{{site.baseurl}}/scripting)
