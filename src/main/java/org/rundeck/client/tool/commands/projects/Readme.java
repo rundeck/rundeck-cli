@@ -15,6 +15,7 @@ import org.rundeck.client.util.Client;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Supplier;
 
 /**
  * Created by greg on 9/15/16.
@@ -22,7 +23,7 @@ import java.io.IOException;
 
 @Command(description = "Manage Project readme.md/motd.md")
 public class Readme extends ApiCommand {
-    public Readme(final Client<RundeckApi> client) {
+    public Readme(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -43,8 +44,8 @@ public class Readme extends ApiCommand {
 
     @Command(description = "get project readme/motd file")
     public void get(GetOptions options, CommandOutput output) throws IOException {
-        ProjectReadme readme = client.checkError(client.getService()
-                                                       .getReadme(
+        ProjectReadme readme = getClient().checkError(getClient().getService()
+                                                                 .getReadme(
                                                                options.getProject(),
                                                                getReadmeFile(options)
                                                        ));
@@ -88,8 +89,8 @@ public class Readme extends ApiCommand {
                     options.getText()
             );
         }
-        ProjectReadme readme = client.checkError(client.getService()
-                                                       .putReadme(
+        ProjectReadme readme = getClient().checkError(getClient().getService()
+                                                                 .putReadme(
                                                                options.getProject(),
                                                                getReadmeFile(options),
                                                                requestBody
@@ -100,8 +101,8 @@ public class Readme extends ApiCommand {
 
     @Command(description = "delete project readme/motd file")
     public void delete(GetOptions options, CommandOutput output) throws IOException {
-        Void readme = client.checkError(client.getService()
-                                              .deleteReadme(
+        Void readme = getClient().checkError(getClient().getService()
+                                                        .deleteReadme(
                                                       options.getProject(),
                                                       getReadmeFile(options)
                                               ));

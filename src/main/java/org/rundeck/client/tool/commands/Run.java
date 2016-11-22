@@ -17,13 +17,14 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Created by greg on 5/20/16.
  */
 @Command(description = "Run a Job.")
 public class Run extends ApiCommand {
-    public Run(final Client<RundeckApi> client) {
+    public Run(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -36,8 +37,8 @@ public class Run extends ApiCommand {
             }
             String job = options.getJob();
             String[] parts = Jobs.splitJobNameParts(job);
-            Call<List<JobItem>> listCall = client.getService().listJobs(options.getProject(), parts[1], parts[0]);
-            List<JobItem> jobItems = client.checkError(listCall);
+            Call<List<JobItem>> listCall = getClient().getService().listJobs(options.getProject(), parts[1], parts[0]);
+            List<JobItem> jobItems = getClient().checkError(listCall);
             if (jobItems.size() != 1) {
                 out.error(String.format("Could not find a unique job with name: %s%n", job));
                 if (jobItems.size() > 0) {
@@ -62,7 +63,7 @@ public class Run extends ApiCommand {
 
         }
         Call<Execution> executionListCall;
-        if (client.getApiVersion() >= 18) {
+        if (getClient().getApiVersion() >= 18) {
             JobRun request = new JobRun();
             request.setLoglevel(options.getLoglevel());
             request.setFilter(options.getFilter());
@@ -97,9 +98,9 @@ public class Run extends ApiCommand {
                     throw new InputError("-@/--at date format is not valid", e);
                 }
             }
-            executionListCall = client.getService().runJob(jobId, request);
+            executionListCall = getClient().getService().runJob(jobId, request);
         } else {
-            executionListCall = client.getService().runJob(
+            executionListCall = getClient().getService().runJob(
                     jobId,
                     Quoting.joinStringQuoted(options.getCommandString()),
                     options.getLoglevel(),
@@ -107,9 +108,9 @@ public class Run extends ApiCommand {
                     options.getUser()
             );
         }
-        Execution execution = client.checkError(executionListCall);
+        Execution execution = getClient().checkError(executionListCall);
         out.info(String.format("Execution started: %s%n", execution.toBasicString()));
 
-        return Executions.maybeFollow(client, options, execution.getId(), out);
+        return Executions.maybeFollow(getClient(), options, execution.getId(), out);
     }
 }

@@ -18,6 +18,7 @@ import retrofit2.Call;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.function.Supplier;
 
 
 /**
@@ -28,7 +29,7 @@ import java.io.IOException;
 public class Adhoc extends ApiCommand {
     static final String COMMAND = "adhoc";
 
-    public Adhoc(final Client<RundeckApi> client) {
+    public Adhoc(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -69,7 +70,7 @@ public class Adhoc extends ApiCommand {
                 filename = "script.sh";
             }
 
-            adhocResponseCall = client.getService().runScript(
+            adhocResponseCall = getClient().getService().runScript(
                     options.getProject(),
                     MultipartBody.Part.createFormData("scriptFile", filename, scriptFileBody),
                     options.getThreadcount(),
@@ -81,7 +82,7 @@ public class Adhoc extends ApiCommand {
                     options.getFilter()
             );
         } else if (options.isUrl()) {
-            adhocResponseCall = client.getService().runUrl(
+            adhocResponseCall = getClient().getService().runUrl(
                     options.getProject(),
                     options.getUrl(),
                     options.getThreadcount(),
@@ -94,7 +95,7 @@ public class Adhoc extends ApiCommand {
             );
         } else if (options.getCommandString() != null && options.getCommandString().size() > 0) {
             //command
-            adhocResponseCall = client.getService().runCommand(
+            adhocResponseCall = getClient().getService().runCommand(
                     options.getProject(),
                     Quoting.joinStringQuoted(options.getCommandString()),
                     options.getThreadcount(),
@@ -105,10 +106,10 @@ public class Adhoc extends ApiCommand {
             throw new InputError("-s, -u, or -- command string, was expected");
         }
 
-        AdhocResponse adhocResponse = client.checkError(adhocResponseCall);
+        AdhocResponse adhocResponse = getClient().checkError(adhocResponseCall);
         output.output(adhocResponse.message);
         output.output("Started execution " + adhocResponse.execution.toBasicString());
-        return Executions.maybeFollow(client, options, adhocResponse.execution.getId(), output);
+        return Executions.maybeFollow(getClient(), options, adhocResponse.execution.getId(), output);
     }
 
 }

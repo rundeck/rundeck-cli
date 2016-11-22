@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -27,22 +28,22 @@ import java.util.stream.Collectors;
  */
 @Command(description = "List and manage projects.")
 public class Projects extends ApiCommand implements HasSubCommands {
-    public Projects(final Client<RundeckApi> client) {
+    public Projects(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
     @Override
     public List<Object> getSubCommands() {
         return Arrays.asList(
-                new ACLs(client),
-                new SCM(client),
-                new Readme(client)
+                new ACLs(this::getClient),
+                new SCM(this::getClient),
+                new Readme(this::getClient)
         );
     }
 
     @Command(isDefault = true, description = "List all projects. (no options.)")
     public void list(CommandOutput output) throws IOException {
-        List<ProjectItem> body = client.checkError(client.getService().listProjects());
+        List<ProjectItem> body = getClient().checkError(getClient().getService().listProjects());
         output.info(String.format("%d Projects:%n", body.size()));
         output.output(body.stream().map(ProjectItem::toBasicString).collect(Collectors.toList()));
     }
@@ -64,7 +65,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
                 return false;
             }
         }
-        client.checkError(client.getService().deleteProject(options.getProject()));
+        getClient().checkError(getClient().getService().deleteProject(options.getProject()));
         output.info(String.format("Project was deleted: %s%n", options.getProject()));
         return true;
     }
@@ -93,7 +94,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
         project.setName(options.getProject());
         project.setConfig(config);
 
-        ProjectItem body = client.checkError(client.getService().createProject(project));
+        ProjectItem body = getClient().checkError(getClient().getService().createProject(project));
         output.info(String.format("Created project: \n\t%s%n", body.toBasicString()));
         return true;
     }

@@ -20,6 +20,7 @@ import retrofit2.Response;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.function.Supplier;
 
 /**
  * Created by greg on 7/21/16.
@@ -27,7 +28,7 @@ import java.util.HashMap;
 
 @Command(description = "Manage Project SCM")
 public class SCM extends ApiCommand {
-    public SCM(final Client<RundeckApi> client) {
+    public SCM(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -53,8 +54,8 @@ public class SCM extends ApiCommand {
 
     @Command(description = "Get SCM Config for a Project")
     public void config(ConfigOptions options, CommandOutput output) throws IOException {
-        ScmConfig scmConfig1 = client.checkError(client.getService()
-                                                       .getScmConfig(options.getProject(), options.getIntegration()));
+        ScmConfig scmConfig1 = getClient().checkError(getClient().getService()
+                                                                 .getScmConfig(options.getProject(), options.getIntegration()));
 
         HashMap<String, Object> basic = new HashMap<>();
         basic.put("Project", scmConfig1.project);
@@ -96,8 +97,8 @@ public class SCM extends ApiCommand {
         );
 
         //dont use client.checkError, we want to handle 400 validation error
-        Call<ScmActionResult> execute = client.getService()
-                                              .setupScmConfig(
+        Call<ScmActionResult> execute = getClient().getService()
+                                                   .setupScmConfig(
                                                       options.getProject(),
                                                       options.getIntegration(),
                                                       options.getType(),
@@ -107,10 +108,10 @@ public class SCM extends ApiCommand {
         Response<ScmActionResult> response = execute.execute();
 
         //check for 400 error with validation information
-        checkValidationError(output, client, response, options.getFile().getAbsolutePath());
+        checkValidationError(output, getClient(), response, options.getFile().getAbsolutePath());
 
         //otherwise check other error codes and fail if necessary
-        ScmActionResult result = client.checkError(response);
+        ScmActionResult result = getClient().checkError(response);
 
 
         if (result.success) {

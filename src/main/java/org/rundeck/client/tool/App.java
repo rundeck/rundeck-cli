@@ -61,20 +61,19 @@ public class App {
     }
 
     public static Tool tool(final String name) {
-        Client<RundeckApi> client = createClient();
         ToolBelt belt = ToolBelt.belt(name)
                                 .defaultHelpCommands()
                                 .ansiColorOutput(isAnsiEnabled())
                                 .add(
-                                        new Adhoc(client),
-                                        new Jobs(client),
-                                        new Projects(client),
-                                        new Executions(client),
-                                        new Run(client),
-                                        new Keys(client),
-                                        new RDSystem(client),
-                                        new Scheduler(client),
-                                        new Tokens(client)
+                                        new Adhoc(App::createClient),
+                                        new Jobs(App::createClient),
+                                        new Projects(App::createClient),
+                                        new Executions(App::createClient),
+                                        new Run(App::createClient),
+                                        new Keys(App::createClient),
+                                        new RDSystem(App::createClient),
+                                        new Scheduler(App::createClient),
+                                        new Tokens(App::createClient)
                                 )
                                 .commandInput(new JewelInput());
         setupFormat(belt);

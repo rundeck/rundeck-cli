@@ -18,6 +18,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
                        "\nSpecify the path using -p/--path, or as the last argument to the command.")
 
 public class Keys extends ApiCommand {
-    public Keys(final Client<RundeckApi> client) {
+    public Keys(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -71,8 +72,8 @@ public class Keys extends ApiCommand {
     public boolean list(ListArg options, CommandOutput output) throws IOException {
 
         Path path = argPath(options);
-        KeyStorageItem keyStorageItem = client.checkError(client.getService()
-                                                                .listKeyStorage(path.keysPath()));
+        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
+                                                                          .listKeyStorage(path.keysPath()));
 
         output.output(keyStorageItem.toBasicString());
         if (keyStorageItem.getType() == KeyStorageItem.KeyItemType.directory) {
@@ -99,8 +100,8 @@ public class Keys extends ApiCommand {
     @Command(description = "Get metadata about the given path")
     public void info(Info options, CommandOutput output) throws IOException {
         Path path = argPath(options);
-        KeyStorageItem keyStorageItem = client.checkError(client.getService()
-                                                                .listKeyStorage(keysPath(path
+        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
+                                                                          .listKeyStorage(keysPath(path
                                                                                                  .keysPath())));
 
         output.output(String.format("Path: %s", keyStorageItem.getPath()));
@@ -145,8 +146,8 @@ public class Keys extends ApiCommand {
         if (path1.length() < 1) {
             throw new InputError("-p/--path is required");
         }
-        KeyStorageItem keyStorageItem = client.checkError(client.getService()
-                                                                .listKeyStorage(path.keysPath()));
+        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
+                                                                          .listKeyStorage(path.keysPath()));
 
         if (keyStorageItem.getType() != KeyStorageItem.KeyItemType.file) {
             output.error(String.format("Requested path (%s) is not a file", path));
@@ -160,7 +161,7 @@ public class Keys extends ApiCommand {
             ));
             return false;
         }
-        ResponseBody body = client.checkError(client.getService().getPublicKey(path.keysPath()));
+        ResponseBody body = getClient().checkError(getClient().getService().getPublicKey(path.keysPath()));
         if (!Client.hasAnyMediaType(body, Client.MEDIA_TYPE_GPG_KEYS)) {
             throw new IllegalStateException("Unexpected response format: " + body.contentType());
         }
@@ -193,7 +194,7 @@ public class Keys extends ApiCommand {
         if (path1.length() < 1) {
             throw new InputError("-p/--path is required");
         }
-        client.checkError(client.getService().deleteKeyStorage(path.keysPath()));
+        getClient().checkError(getClient().getService().deleteKeyStorage(path.keysPath()));
         output.info(String.format("Deleted: %s", path));
     }
 
@@ -231,8 +232,8 @@ public class Keys extends ApiCommand {
         RequestBody requestBody = prepareKeyUpload(options);
 
 
-        KeyStorageItem keyStorageItem = client.checkError(client.getService()
-                                                                .createKeyStorage(
+        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
+                                                                          .createKeyStorage(
                                                                         path1,
                                                                         requestBody
                                                                 ));
@@ -307,8 +308,8 @@ public class Keys extends ApiCommand {
             throw new InputError("-p/--path is required");
         }
         RequestBody requestBody = prepareKeyUpload(options);
-        KeyStorageItem keyStorageItem = client.checkError(client.getService()
-                                                                .updateKeyStorage(
+        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
+                                                                          .updateKeyStorage(
                                                                         path.keysPath(),
                                                                         requestBody
                                                                 ));

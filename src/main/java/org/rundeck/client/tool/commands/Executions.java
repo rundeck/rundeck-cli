@@ -15,6 +15,7 @@ import retrofit2.Call;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -24,7 +25,7 @@ import java.util.stream.Collectors;
 @Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends ApiCommand {
 
-    public Executions(final Client<RundeckApi> client) {
+    public Executions(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -37,7 +38,7 @@ public class Executions extends ApiCommand {
         if (null == options.getId()) {
             throw new InputError("-e is required");
         }
-        AbortResult abortResult = client.checkError(client.getService().abortExecution(options.getId()));
+        AbortResult abortResult = getClient().checkError(getClient().getService().abortExecution(options.getId()));
         AbortResult.Reason abort = abortResult.abort;
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
@@ -60,7 +61,7 @@ public class Executions extends ApiCommand {
 
     @Command(description = "Delete an execution by ID.")
     public void delete(Delete options, CommandOutput out) throws IOException {
-        client.checkError(client.getService().deleteExecution(options.getId()));
+        getClient().checkError(getClient().getService().deleteExecution(options.getId()));
         out.info(String.format("Delete [%s] succeeded.", options.getId()));
     }
 
@@ -76,7 +77,7 @@ public class Executions extends ApiCommand {
         int max = 500;
 
         Call<ExecOutput> output = startFollowOutput(
-                client,
+                getClient(),
                 max,
                 options.isRestart(),
                 options.getId(),
@@ -84,7 +85,7 @@ public class Executions extends ApiCommand {
         );
 
 
-        return followOutput(client, output, options.isProgress(), options.isQuiet(), options.getId(), max, out);
+        return followOutput(getClient(), output, options.isProgress(), options.isQuiet(), options.getId(), max, out);
     }
 
     public static Call<ExecOutput> startFollowOutput(
@@ -161,7 +162,7 @@ public class Executions extends ApiCommand {
     @Command(description = "List all running executions for a project.")
     public void info(Info options, CommandOutput out) throws IOException {
 
-        Execution execution = client.checkError(client.getService().getExecution(options.getId()));
+        Execution execution = getClient().checkError(getClient().getService().getExecution(options.getId()));
 
         outputList(options, out, Collections.singletonList(execution));
     }
@@ -177,8 +178,8 @@ public class Executions extends ApiCommand {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
-        ExecutionList executionList = client.checkError(client.getService()
-                                                              .runningExecutions(options.getProject(), offset, max));
+        ExecutionList executionList = getClient().checkError(getClient().getService()
+                                                                        .runningExecutions(options.getProject(), offset, max));
 
         if (!options.isOutputFormat()) {
             out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
@@ -355,8 +356,8 @@ public class Executions extends ApiCommand {
         }
 
 
-        ExecutionList executionList = client.checkError(client.getService()
-                                                              .listExecutions(
+        ExecutionList executionList = getClient().checkError(getClient().getService()
+                                                                        .listExecutions(
                                                                       options.getProject(),
                                                                       query,
                                                                       options.getJobIdList(),
@@ -445,8 +446,8 @@ public class Executions extends ApiCommand {
                 return false;
             }
         }
-        BulkExecutionDeleteResponse result = client.checkError(client.getService()
-                                                                     .deleteExecutions(new BulkExecutionDelete
+        BulkExecutionDeleteResponse result = getClient().checkError(getClient().getService()
+                                                                               .deleteExecutions(new BulkExecutionDelete
                                                                                                (execIds)));
         if (!result.isAllsuccessful()) {
             out.error(String.format("Failed to delete %d executions:", result.getFailedCount()));

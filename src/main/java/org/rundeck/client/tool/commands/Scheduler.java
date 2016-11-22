@@ -5,15 +5,13 @@ import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.ScheduledJobItem;
-import org.rundeck.client.api.model.SystemInfo;
-import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.util.Client;
 import retrofit2.Call;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -21,7 +19,7 @@ import java.util.stream.Collectors;
  */
 @Command(description = "View scheduler information")
 public class Scheduler extends ApiCommand {
-    public Scheduler(final Client<RundeckApi> client) {
+    public Scheduler(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -41,11 +39,11 @@ public class Scheduler extends ApiCommand {
     public void jobs(SchedulerJobs options, CommandOutput output) throws IOException {
         Call<List<ScheduledJobItem>> call;
         if (options.isUuid()) {
-            call = client.getService().listSchedulerJobs(options.getUuid());
+            call = getClient().getService().listSchedulerJobs(options.getUuid());
         } else {
-            call = client.getService().listSchedulerJobs();
+            call = getClient().getService().listSchedulerJobs();
         }
-        List<ScheduledJobItem> jobInfo = client.checkError(call);
+        List<ScheduledJobItem> jobInfo = getClient().checkError(call);
         output.output(jobInfo.stream().map(ScheduledJobItem::toMap).collect(Collectors.toList()));
     }
 }

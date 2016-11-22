@@ -9,6 +9,7 @@ import org.rundeck.client.util.Client;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
  */
 @Command(description = "Create, and manage tokens")
 public class Tokens extends ApiCommand {
-    public Tokens(final Client<RundeckApi> client) {
+    public Tokens(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -27,7 +28,7 @@ public class Tokens extends ApiCommand {
 
     @Command(description = "Create a token for a user")
     public ApiToken create(CreateOptions options, CommandOutput output) throws IOException {
-        ApiToken apiToken = client.checkError(client.getService().createToken(options.getUser()));
+        ApiToken apiToken = getClient().checkError(getClient().getService().createToken(options.getUser()));
         output.info("API Token created:");
         output.output(apiToken.getId());
         return apiToken;
@@ -43,7 +44,7 @@ public class Tokens extends ApiCommand {
 
     @Command(description = "List tokens for a user")
     public List<ApiToken> list(ListOptions options, CommandOutput output) throws IOException {
-        List<ApiToken> tokens = client.checkError(client.getService().listTokens(options.getUser()));
+        List<ApiToken> tokens = getClient().checkError(getClient().getService().listTokens(options.getUser()));
         output.info(String.format("API Tokens for %s:", options.getUser()));
         output.output(tokens.stream().map(
                 options.isVerbose()
@@ -61,7 +62,7 @@ public class Tokens extends ApiCommand {
 
     @Command(description = "Delete a token")
     public boolean delete(DeleteOptions options, CommandOutput output) throws IOException {
-        Void aVoid = client.checkError(client.getService().deleteToken(options.getToken()));
+        Void aVoid = getClient().checkError(getClient().getService().deleteToken(options.getToken()));
         output.info("Token deleted.");
         return true;
     }

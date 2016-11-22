@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +36,7 @@ public class Jobs extends ApiCommand {
     public static final String UUID_REMOVE = "remove";
     public static final String UUID_PRESERVE = "preserve";
 
-    public Jobs(final Client<RundeckApi> client) {
+    public Jobs(final Supplier<Client<RundeckApi>> client) {
         super(client);
     }
 
@@ -60,12 +61,12 @@ public class Jobs extends ApiCommand {
                 throw new InputError("must specify -i, or -j/-g to specify jobs to delete.");
             }
             Call<List<JobItem>> listCall;
-            listCall = client.getService().listJobs(
+            listCall = getClient().getService().listJobs(
                     options.getProject(),
                     options.getJob(),
                     options.getGroup()
             );
-            List<JobItem> body = client.checkError(listCall);
+            List<JobItem> body = getClient().checkError(listCall);
             for (JobItem jobItem : body) {
                 ids.add(jobItem.getId());
             }
@@ -84,7 +85,7 @@ public class Jobs extends ApiCommand {
             }
         }
 
-        DeleteJobsResult deletedJobs = client.checkError(client.getService().deleteJobs(ids));
+        DeleteJobsResult deletedJobs = getClient().checkError(getClient().getService().deleteJobs(ids));
 
         if (deletedJobs.isAllsuccessful()) {
             output.info(String.format("%d Jobs were deleted%n", deletedJobs.getRequestCount()));
@@ -113,14 +114,14 @@ public class Jobs extends ApiCommand {
                 input
         );
 
-        Call<ImportResult> importResultCall = client.getService().loadJobs(
+        Call<ImportResult> importResultCall = getClient().getService().loadJobs(
                 options.getProject(),
                 requestBody,
                 options.getFormat(),
                 options.getDuplicate(),
                 options.isRemoveUuids() ? UUID_REMOVE : UUID_PRESERVE
         );
-        ImportResult importResult = client.checkError(importResultCall);
+        ImportResult importResult = getClient().checkError(importResultCall);
 
         List<JobLoadItem> failed = importResult.getFailed();
 
@@ -160,20 +161,20 @@ public class Jobs extends ApiCommand {
             //write response to file instead of parsing it
             Call<ResponseBody> responseCall;
             if (options.isIdlist()) {
-                responseCall = client.getService().exportJobs(
+                responseCall = getClient().getService().exportJobs(
                         options.getProject(),
                         options.getIdlist(),
                         options.getFormat()
                 );
             } else {
-                responseCall = client.getService().exportJobs(
+                responseCall = getClient().getService().exportJobs(
                         options.getProject(),
                         options.getJob(),
                         options.getGroup(),
                         options.getFormat()
                 );
             }
-            ResponseBody body = client.checkError(responseCall);
+            ResponseBody body = getClient().checkError(responseCall);
             if ((!"yaml".equals(options.getFormat()) ||
                  !Client.hasAnyMediaType(body, Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
                 !Client.hasAnyMediaType(body, Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
@@ -199,15 +200,15 @@ public class Jobs extends ApiCommand {
         } else {
             Call<List<JobItem>> listCall;
             if (options.isIdlist()) {
-                listCall = client.getService().listJobs(options.getProject(), options.getIdlist());
+                listCall = getClient().getService().listJobs(options.getProject(), options.getIdlist());
             } else {
-                listCall = client.getService().listJobs(
+                listCall = getClient().getService().listJobs(
                         options.getProject(),
                         options.getJob(),
                         options.getGroup()
                 );
             }
-            List<JobItem> body = client.checkError(listCall);
+            List<JobItem> body = getClient().checkError(listCall);
             if (!options.isOutputFormat()) {
                 output.info(String.format("%d Jobs in project %s%n", body.size(), options.getProject()));
             }
@@ -238,7 +239,7 @@ public class Jobs extends ApiCommand {
 
     @Command(description = "Get info about a Job by ID (API v18)")
     public void info(InfoOpts options, CommandOutput output) throws IOException {
-        ScheduledJobItem body = client.checkError(client.getService().getJobInfo(options.getId()));
+        ScheduledJobItem body = getClient().checkError(getClient().getService().getJobInfo(options.getId()));
         outputJobList(options, output, Collections.singletonList(body));
     }
 
