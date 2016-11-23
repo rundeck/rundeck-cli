@@ -90,12 +90,11 @@ public interface RundeckApi {
 
     /**
      *
-     * @param project
-     * @return
+     * @see <a href="http://rundeck.org/docs/api/index.html#listing-resources">api</a>
      */
     @Headers("Accept: application/json")
     @GET("project/{project}/resources")
-    Call<Map<String,ProjectNode>> listNodes(@Path("project") String project);
+    Call<Map<String, ProjectNode>> listNodes(@Path("project") String project, @Query("filter") String filter);
 
     @Headers("Accept: application/json")
     @POST("projects")

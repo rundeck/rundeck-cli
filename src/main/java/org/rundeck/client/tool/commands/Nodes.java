@@ -1,6 +1,8 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
+import com.lexicalscope.jewel.cli.Option;
+import com.lexicalscope.jewel.cli.Unparsed;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import org.rundeck.client.api.RundeckApi;
@@ -12,6 +14,7 @@ import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -31,15 +34,39 @@ public class Nodes extends ApiCommand {
             VerboseOption,
             NodeOutputFormatOption
     {
+        @Option(shortName = "f", longName = "filter", description = "Node filter")
+        String getFilter();
 
+        boolean isFilter();
+
+        @Unparsed(name = "NODE FILTER", description = "Node filter")
+        List<String> getFilterTokens();
+
+        boolean isFilterTokens();
     }
 
-    @Command(description = "List all nodes for a project")
+    String filterString(ListOptions options) {
+        if (options.isFilter()) {
+            return options.getFilter();
+        } else if (options.isFilterTokens()) {
+            return String.join(" ", options.getFilterTokens());
+        }
+        return null;
+    }
+
+    @Command(description = "List all nodes for a project.  You can use the -f/--filter to specify a node filter, or " +
+                           "simply add the filter on the end of the command")
     public void list(ListOptions options, CommandOutput output) throws IOException {
         Map<String, ProjectNode> body = getClient().checkError(getClient().getService()
-                                                                          .listNodes(options.getProject()));
+                                                                          .listNodes(
+                                                                                  options.getProject(),
+                                                                                  filterString(options)
+                                                                          ));
         if (!options.isOutputFormat()) {
-            output.info(String.format("%d Nodes in project %s:%n", body.size(), options.getProject()));
+            output.info(String.format("%d Nodes%s in project %s:%n", body.size(),
+                                      options.isFilter() ? " matching filter" : "",
+                                      options.getProject()
+            ));
         }
         Function<ProjectNode, ?> field;
         if (options.isOutputFormat()) {
