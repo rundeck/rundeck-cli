@@ -155,7 +155,7 @@ public class Executions extends ApiCommand {
     }
 
 
-    @CommandLineInterface(application = "info") interface Info extends ExecutionIdOption, QueryResultOptions {
+    @CommandLineInterface(application = "info") interface Info extends ExecutionIdOption, ExecutionResultOptions {
 
     }
 
@@ -164,11 +164,11 @@ public class Executions extends ApiCommand {
 
         Execution execution = getClient().checkError(getClient().getService().getExecution(options.getId()));
 
-        outputList(options, out, Collections.singletonList(execution));
+        outputExecutionList(options, out, Collections.singletonList(execution));
     }
 
     @CommandLineInterface(application = "list") interface ListCmd
-            extends ExecutionListOptions, ProjectNameOptions, QueryResultOptions
+            extends ExecutionListOptions, ProjectNameOptions, ExecutionResultOptions
     {
 
     }
@@ -185,16 +185,16 @@ public class Executions extends ApiCommand {
             out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
         }
 
-        outputList(options, out, executionList.getExecutions());
+        outputExecutionList(options, out, executionList.getExecutions());
     }
 
 
-    interface QueryResultOptions extends ExecutionOutputFormatOption, VerboseOption {
+    public static interface ExecutionResultOptions extends ExecutionOutputFormatOption, VerboseOption {
 
     }
 
     @CommandLineInterface(application = "query") interface QueryCmd
-            extends ExecutionListOptions, ProjectNameOptions, QueryResultOptions
+            extends ExecutionListOptions, ProjectNameOptions, ExecutionResultOptions
     {
         @Option(shortName = "d",
                 longName = "recent",
@@ -374,7 +374,7 @@ public class Executions extends ApiCommand {
                     page.getTotal()
             ));
         }
-        outputList(options, out, executionList.getExecutions());
+        outputExecutionList(options, out, executionList.getExecutions());
         if (!options.isOutputFormat()) {
             if (page.getTotal() >
                 (page.getOffset() + page.getCount())) {
@@ -388,8 +388,8 @@ public class Executions extends ApiCommand {
         return executionList;
     }
 
-    private void outputList(
-            final QueryResultOptions options,
+    public static void outputExecutionList(
+            final ExecutionResultOptions options,
             final CommandOutput out,
             final List<Execution> executionList
     )

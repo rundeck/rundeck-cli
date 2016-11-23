@@ -9,6 +9,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
+import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Quoting;
@@ -18,6 +19,8 @@ import retrofit2.Call;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.function.Supplier;
 
 
@@ -33,7 +36,9 @@ public class Adhoc extends ApiCommand {
         super(client);
     }
 
-    @CommandLineInterface(application = COMMAND) interface Dispatch extends AdhocBaseOptions {
+    @CommandLineInterface(application = COMMAND) interface Dispatch extends AdhocBaseOptions,
+            Executions.ExecutionResultOptions
+    {
 
     }
 
@@ -107,8 +112,18 @@ public class Adhoc extends ApiCommand {
         }
 
         AdhocResponse adhocResponse = getClient().checkError(adhocResponseCall);
-        output.output(adhocResponse.message);
-        output.output("Started execution " + adhocResponse.execution.toBasicString());
+
+        Execution execution = getClient().checkError(getClient().getService()
+                                                                .getExecution(adhocResponse.execution.getId()));
+        if (options.isFollow()) {
+            output.info("Started execution " + execution.toExtendedString());
+        } else {
+            if (!options.isOutputFormat()) {
+                output.info(adhocResponse.message);
+            }
+            Executions.outputExecutionList(options, output, Collections.singletonList(execution));
+        }
+
         return Executions.maybeFollow(getClient(), options, adhocResponse.execution.getId(), output);
     }
 
