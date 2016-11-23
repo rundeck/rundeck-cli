@@ -80,8 +80,30 @@ public class App {
                                         new Nodes(App::createClient)
                                 )
                                 .commandInput(new JewelInput());
+        setupColor(belt);
         setupFormat(belt);
         return belt.buckle();
+    }
+
+    private static void setupColor(final ToolBelt belt) {
+        if (isAnsiEnabled()) {
+            String info = System.getenv("RD_COLOR_INFO");
+            if (null != info) {
+                belt.ansiColor().info(info);
+            }
+            String output = System.getenv("RD_COLOR_OUTPUT");
+            if (null != output) {
+                belt.ansiColor().output(output);
+            }
+            String warn = System.getenv("RD_COLOR_WARN");
+            if (null != warn) {
+                belt.ansiColor().warning(warn);
+            }
+            String error = System.getenv("RD_COLOR_ERROR");
+            if (null != error) {
+                belt.ansiColor().error(error);
+            }
+        }
     }
 
     private static boolean isAnsiEnabled() {

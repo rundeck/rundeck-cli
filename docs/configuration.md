@@ -43,6 +43,12 @@ You can disable this:
 
     export RD_COLOR=0
 
+You can set the default colors used by info/output/error/warning output:
+
+    export RD_COLOR_INFO=blue
+    export RD_COLOR_WARN=orange
+    export RD_COLOR_ERROR=cyan
+
 **Bypass an external URL**:
 
 If your Rundeck server has a different *external URL* than the one you are accessing,
