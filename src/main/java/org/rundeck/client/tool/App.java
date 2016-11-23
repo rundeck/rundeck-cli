@@ -14,9 +14,12 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Properties;
 import java.util.function.Function;
 
 
@@ -88,15 +91,30 @@ public class App {
     }
 
     public static Client<RundeckApi> createClient() {
-        String baseUrl = Env.require(
-                "RUNDECK_URL",
-                "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
-        );
+        Auth auth = new Auth() {
+        };
+        String baseUrl = null;
+        if (RdeckBaseAuth.isAvailable()) {
+            RdeckBaseAuth rdeckBaseAuth = RdeckBaseAuth.get();
+            auth = auth.chain(rdeckBaseAuth);
+            baseUrl = rdeckBaseAuth.getBaseUrl();
+        }
+        auth = auth.chain(new EnvAuth());
+
+        if (null == baseUrl) {
+            baseUrl = Env.require(
+                    "RUNDECK_URL",
+                    "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
+            );
+        }
+
+        if (Env.getBool("RD_AUTH_PROMPT", true) && null != System.console()) {
+            auth = auth.chain(new ConsoleAuth().memoize());
+        }
+
         int debuglevel = Env.getInt("DEBUG", 0);
         Long httpTimeout = Env.getLong("RD_HTTP_TIMEOUT", null);
         Boolean retryConnect = Env.getBool("RD_CONNECT_RETRY", true);
-
-        Auth auth = getAuth();
 
         if (auth.isTokenAuth()) {
             return Rundeck.client(baseUrl, auth.getToken(), debuglevel, httpTimeout, retryConnect);
@@ -122,11 +140,17 @@ public class App {
     }
 
     static interface Auth {
-        String getUsername();
+        default String getUsername() {
+            return null;
+        }
 
-        String getPassword();
+        default String getPassword() {
+            return null;
+        }
 
-        String getToken();
+        default String getToken() {
+            return null;
+        }
 
         default boolean isTokenAuth() {
             String username = getUsername();
@@ -266,12 +290,58 @@ public class App {
         }
     }
 
-    private static Auth getAuth() {
-        Auth auth = new EnvAuth();
-        if (Env.getBool("RD_AUTH_PROMPT", true) && null != System.console()) {
-            auth = auth.chain(new ConsoleAuth().memoize());
+    /**
+     * Use credentials from framework.properties if set
+     */
+    static class RdeckBaseAuth implements Auth {
+        File rdeckBase;
+        Properties properties;
+
+        public RdeckBaseAuth(final File rdeckBase) {
+            this.rdeckBase = rdeckBase;
         }
-        return auth;
+
+        public String getBaseUrl() {
+            return loadProps().getProperty("framework.server.url");
+        }
+
+        @Override
+        public String getUsername() {
+            return loadProps().getProperty("framework.server.username");
+        }
+
+        private Properties loadProps() {
+            if (properties != null) {
+                return properties;
+            }
+            properties = new Properties();
+            try {
+                try (FileInputStream fis = new FileInputStream(new File(rdeckBase, "etc/framework.properties"))) {
+                    properties.load(fis);
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return properties;
+        }
+
+        @Override
+        public String getPassword() {
+            return loadProps().getProperty("framework.server.password");
+        }
+
+        @Override
+        public String getToken() {
+            return null;
+        }
+
+        static boolean isAvailable() {
+            return Env.getString("RDECK_BASE", null) != null;
+        }
+
+        static RdeckBaseAuth get() {
+            return new RdeckBaseAuth(new File(Env.getString("RDECK_BASE", null)));
+        }
     }
 
 }
