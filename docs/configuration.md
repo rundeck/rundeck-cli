@@ -24,6 +24,14 @@ Define a specific API version to use, by using the complete API base:
 
 All requests will be made using that API version.
 
+**ANSI color**
+
+By default, `rd` will print some output using ANSI escapes for colorized output.
+
+You can disable this:
+
+    export RD_COLOR=0
+
 **Bypass an external URL**:
 
 If your Rundeck server has a different *external URL* than the one you are accessing,

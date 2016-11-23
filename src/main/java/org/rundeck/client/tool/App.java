@@ -86,8 +86,11 @@ public class App {
 
     private static boolean isAnsiEnabled() {
         return "1".equals(System.getenv("RD_COLOR")) ||
-               System.getenv("TERM") != null &&
-               System.getenv("TERM").contains("color");
+               (
+                       System.getenv("TERM") != null
+                       && System.getenv("TERM").contains("color")
+                       && !"0".equals(System.getenv("RD_COLOR"))
+               );
     }
 
     public static Client<RundeckApi> createClient() {
