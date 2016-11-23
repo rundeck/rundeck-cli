@@ -28,6 +28,15 @@ import java.util.function.Function;
  */
 public class App {
 
+    public static final String ENV_USER = "RD_USER";
+    public static final String ENV_PASSWORD = "RD_PASSWORD";
+    public static final String ENV_TOKEN = "RD_TOKEN";
+    public static final String ENV_URL = "RD_URL";
+    public static final String ENV_AUTH_PROMPT = "RD_AUTH_PROMPT";
+    public static final String ENV_DEBUG = "RD_DEBUG";
+    public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
+    public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
+
     public static void main(String[] args) throws IOException, CommandRunFailure {
         tool("rd").runMain(args, true);
     }
@@ -123,29 +132,29 @@ public class App {
 
         if (null == baseUrl) {
             baseUrl = Env.require(
-                    "RUNDECK_URL",
+                    ENV_URL,
                     "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
             );
         }
 
-        if (Env.getBool("RD_AUTH_PROMPT", true) && null != System.console()) {
+        if (Env.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
             auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
 
-        int debuglevel = Env.getInt("DEBUG", 0);
-        Long httpTimeout = Env.getLong("RD_HTTP_TIMEOUT", null);
-        Boolean retryConnect = Env.getBool("RD_CONNECT_RETRY", true);
+        int debuglevel = Env.getInt(ENV_DEBUG, 0);
+        Long httpTimeout = Env.getLong(ENV_HTTP_TIMEOUT, null);
+        Boolean retryConnect = Env.getBool(ENV_CONNECT_RETRY, true);
 
         if (auth.isTokenAuth()) {
             return Rundeck.client(baseUrl, auth.getToken(), debuglevel, httpTimeout, retryConnect);
         } else {
             if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
                 throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
-                                                   "RUNDECK_USER or RUNDECK_TOKEN");
+                                                   ENV_USER + " or " + ENV_TOKEN);
             }
             if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
                 throw new IllegalArgumentException("Password must be entered, or use environment variable " +
-                                                   "RUNDECK_PASSWORD");
+                                                   ENV_PASSWORD);
             }
 
             return Rundeck.client(
@@ -194,17 +203,17 @@ public class App {
     static class EnvAuth implements Auth {
         @Override
         public String getUsername() {
-            return System.getenv("RUNDECK_USER");
+            return System.getenv(ENV_USER);
         }
 
         @Override
         public String getPassword() {
-            return System.getenv("RUNDECK_PASSWORD");
+            return System.getenv(ENV_PASSWORD);
         }
 
         @Override
         public String getToken() {
-            return System.getenv("RUNDECK_TOKEN");
+            return System.getenv(ENV_TOKEN);
         }
     }
 

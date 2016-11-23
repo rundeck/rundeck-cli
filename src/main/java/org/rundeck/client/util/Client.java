@@ -96,7 +96,7 @@ public class Client<T> {
                     System.err.printf("Note: You requested an API endpoint using an unsupported version. \n" +
                               "You can set a specific version by using a Rundeck " +
                               "URL in the format:\n" +
-                              "  [RUNDECK_BASE_URL]/api/%s\n\n", error.getApiVersion());
+                              "  export RD_URL=[URL]/api/%s\n\n", error.getApiVersion());
                 }
             }
             if (response.code() == 401 || response.code() == 403) {

@@ -22,6 +22,7 @@ import java.util.regex.Pattern;
 public class Rundeck {
     public static final int API_VERS = 16;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
+    public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
 
     /**
      * Create a client using the specified, or default version
@@ -98,7 +99,7 @@ public class Rundeck {
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
                 .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
 
-        String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv("RUNDECK_BYPASS_URL"));
+        String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv(ENV_BYPASS_URL));
 
         if (null != bypassUrl) {
             //fix redirects to external Rundeck URL by rewriting as to the baseurl
@@ -205,7 +206,7 @@ public class Rundeck {
                 )
 
         ));
-        String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv("RUNDECK_BYPASS_URL"));
+        String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv(ENV_BYPASS_URL));
 
         if (null != bypassUrl) {
             //fix redirects to external Rundeck URL by rewriting as to the baseurl
