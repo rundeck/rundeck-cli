@@ -97,11 +97,6 @@ public class App {
         Auth auth = new Auth() {
         };
         String baseUrl = null;
-        if (RdeckBaseAuth.isAvailable()) {
-            RdeckBaseAuth rdeckBaseAuth = RdeckBaseAuth.get();
-            auth = auth.chain(rdeckBaseAuth);
-            baseUrl = rdeckBaseAuth.getBaseUrl();
-        }
         auth = auth.chain(new EnvAuth());
 
         if (null == baseUrl) {
@@ -339,7 +334,8 @@ public class App {
         }
 
         static boolean isAvailable() {
-            return Env.getString("RDECK_BASE", null) != null;
+            return Env.getString("RDECK_BASE", null) != null
+                   && Env.getBool("RD_USE_RDECK_BASE", false);
         }
 
         static RdeckBaseAuth get() {
