@@ -56,13 +56,25 @@ public class Execution {
         if (null != getJob()) {
             return getJob().toBasicString();
         }
+        return shortened(description);
+    }
+
+    private String shortened(final String description) {
+        if (description.indexOf("\n") > 0) {
+            String[] list = description.split("\\r?\\n");
+            if (list.length > 1) {
+                return String.format("%s (%d more lines)", list[0], list.length - 1);
+            } else {
+                return list[0];
+            }
+        }
         return description;
     }
 
     public Map getInfoMap()  {
         HashMap<Object, Object> map = new HashMap<>();
         map.put("id", getId());
-        map.put("description", getDescription());
+        map.put("description", shortened(getDescription()));
         map.put("argstring", getArgstring());
         map.put("permalink", getPermalink());
         map.put("href", getHref());
