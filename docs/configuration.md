@@ -24,6 +24,17 @@ Define a specific API version to use, by using the complete API base:
 
 All requests will be made using that API version.
 
+**Prompting**
+
+If you do not define the credentials as environment variables,
+you will be prompted to enter a username/password or token in
+the shell if a TTY is avaliable.
+
+You can disable automatic prompting:
+
+    export RD_PROMPT=false
+
+
 **ANSI color**
 
 By default, `rd` will print some output using ANSI escapes for colorized output.
