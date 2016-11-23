@@ -107,7 +107,7 @@ public class App {
         }
 
         if (Env.getBool("RD_AUTH_PROMPT", true) && null != System.console()) {
-            auth = auth.chain(new ConsoleAuth().memoize());
+            auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
 
         int debuglevel = Env.getInt("DEBUG", 0);
@@ -190,20 +190,39 @@ public class App {
         String username;
         String pass;
         String token;
+        String header;
+        boolean echoHeader;
+
+        public ConsoleAuth(final String header) {
+            this.header = header;
+            echoHeader = false;
+        }
 
         @Override
         public String getUsername() {
+            echo();
             return System.console().readLine("Enter username (blank for token auth): ");
+        }
+
+        private void echo() {
+            if (!echoHeader) {
+                if (null != header) {
+                    System.out.println(header);
+                }
+                echoHeader = true;
+            }
         }
 
         @Override
         public String getPassword() {
+            echo();
             char[] chars = System.console().readPassword("Enter password: ");
             return new String(chars);
         }
 
         @Override
         public String getToken() {
+            echo();
             char[] chars = System.console().readPassword("Enter auth token: ");
             return new String(chars);
         }
