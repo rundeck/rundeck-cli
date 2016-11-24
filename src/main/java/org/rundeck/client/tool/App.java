@@ -88,6 +88,7 @@ public class App {
                                         new Tokens(App::createClient),
                                         new Nodes(App::createClient)
                                 )
+                                .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
         setupColor(belt);
         setupFormat(belt);
