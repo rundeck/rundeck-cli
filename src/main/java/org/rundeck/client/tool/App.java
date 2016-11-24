@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
+import java.util.Random;
 import java.util.function.Function;
 
 
@@ -86,7 +87,8 @@ public class App {
                                         new RDSystem(App::createClient),
                                         new Scheduler(App::createClient),
                                         new Tokens(App::createClient),
-                                        new Nodes(App::createClient)
+                                        new Nodes(App::createClient),
+                                        new Something()
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
@@ -394,4 +396,30 @@ public class App {
         }
     }
 
+    @Hidden
+    @Command("pond")
+    public static class Something {
+        @Command
+        public void pond(CommandOutput out) {
+            int i = new Random().nextInt(4);
+            ANSIColorOutput.ColorString kind;
+            switch (i) {
+                case 1:
+                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.BLUE, "A little luck.");
+                    break;
+                case 2:
+                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.GREEN, "Good luck.");
+                    break;
+                case 3:
+                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.ORANGE, "Great luck.");
+                    break;
+                default:
+                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.RESET, "Big trouble.");
+                    break;
+            }
+
+            out.output("For your reference, today you will have:");
+            out.output(kind);
+        }
+    }
 }
