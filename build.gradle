@@ -29,6 +29,7 @@ scmVersion {
         pre 'fileUpdate', [file       : 'src/main/resources/rd-banner.txt',
                            pattern    : { v, c -> /\(v$v\)/ },
                            replacement: { v, c -> "(v$v)" }]
+        pre 'commit'
     }
 }
 
