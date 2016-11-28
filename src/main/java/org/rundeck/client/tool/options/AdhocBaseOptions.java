@@ -15,7 +15,7 @@ public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions {
 
     @Option(shortName = "C",
             longName = "threadcount",
-            description = "Dispatch execution to Nodes using COUNT threads",
+            description = "Execute using COUNT threads",
             defaultValue = {"1"})
     int getThreadcount();
 
@@ -23,7 +23,7 @@ public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions {
 
     @Option(shortName = "K",
             longName = "keepgoing",
-            description = "Keep going when an error occurs on multiple dispatch")
+            description = "Keep going when an error occurs")
     boolean isKeepgoing();
 
     @Option(shortName = "F", longName = "filter", description = "A node filter string")

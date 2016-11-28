@@ -7,11 +7,9 @@ import com.simplifyops.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
-import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
 import retrofit2.Call;
@@ -19,16 +17,14 @@ import retrofit2.Call;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.function.Supplier;
 
 
 /**
  * Created by greg on 5/20/16.
  */
 
-@Command(description = "Dispatch adhoc COMMAND to matching nodes.")
+@Command(description = "Run adhoc command or script on matching nodes.")
 public class Adhoc extends ApiCommand {
     static final String COMMAND = "adhoc";
 
@@ -36,14 +32,14 @@ public class Adhoc extends ApiCommand {
         super(client);
     }
 
-    @CommandLineInterface(application = COMMAND) interface Dispatch extends AdhocBaseOptions,
+    @CommandLineInterface(application = COMMAND) interface AdhocOptions extends AdhocBaseOptions,
             Executions.ExecutionResultOptions
     {
 
     }
 
     @Command(isSolo = true, isDefault = true)
-    public boolean dispatch(Dispatch options, CommandOutput output) throws IOException, InputError {
+    public boolean adhoc(AdhocOptions options, CommandOutput output) throws IOException, InputError {
         Call<AdhocResponse> adhocResponseCall = null;
 
         if (options.isScriptFile() || options.isStdin()) {
