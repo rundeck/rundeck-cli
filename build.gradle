@@ -23,8 +23,12 @@ scmVersion {
         pre 'fileUpdate', [file       : 'docs/_config.yml',
                            pattern    : { v, c -> /app_version: [^\s]+/ },
                            replacement: { v, c -> "app_version: $v" }]
-        pre 'commit'
-        post 'push'
+        pre 'fileUpdate', [file       : 'src/main/java/org/rundeck/client/Version.java',
+                           pattern    : { v, c -> /VERSION = "[^\s]+?"/ },
+                           replacement: { v, c -> "VERSION = \"$v\"" }]
+        pre 'fileUpdate', [file       : 'src/main/resources/rd-banner.txt',
+                           pattern    : { v, c -> /\(v$v\)/ },
+                           replacement: { v, c -> "(v$v)" }]
     }
 }
 
