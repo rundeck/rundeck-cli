@@ -1,6 +1,6 @@
 
 - ${red}RD$$
-- Rundeck API Client Tool
+- Rundeck API Client Tool (v0.1.27)
 - ${cyan}https://rundeck.github.io/rundeck-cli/$$
 
 ${red}

@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
  * Created by greg on 3/28/16.
  */
 public class Rundeck {
+    public static final String USER_AGENT = "rundeck-cli/" + Version.CLI_VERS;
     public static final int API_VERS = 16;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
@@ -97,7 +98,8 @@ public class Rundeck {
         int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
 
         OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
-                .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
+                .addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken))
+                .addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
 
         String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv(ENV_BYPASS_URL));
 
@@ -177,7 +179,8 @@ public class Rundeck {
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
 
-        OkHttpClient.Builder callFactory = new OkHttpClient.Builder();
+        OkHttpClient.Builder callFactory = new OkHttpClient.Builder()
+                .addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
         String postUrl = parse
                 .newBuilder()
                 .addPathSegment(
