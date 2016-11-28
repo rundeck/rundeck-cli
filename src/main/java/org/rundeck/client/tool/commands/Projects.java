@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  */
 @Command(description = "List and manage projects.")
 public class Projects extends ApiCommand implements HasSubCommands {
-    public Projects(final Supplier<Client<RundeckApi>> client) {
+    public Projects(final HasClient client) {
         super(client);
     }
 
@@ -42,7 +42,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
     }
 
     @Command(isDefault = true, description = "List all projects. (no options.)")
-    public void list(CommandOutput output) throws IOException {
+    public void list(CommandOutput output) throws IOException, InputError {
         List<ProjectItem> body = getClient().checkError(getClient().getService().listProjects());
         output.info(String.format("%d Projects:%n", body.size()));
         output.output(body.stream().map(ProjectItem::toBasicString).collect(Collectors.toList()));
@@ -55,7 +55,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
     }
 
     @Command(description = "Delete a project")
-    public boolean delete(ProjectDelete options, CommandOutput output) throws IOException {
+    public boolean delete(ProjectDelete options, CommandOutput output) throws IOException, InputError {
         if (!options.isConfirm()) {
             //request confirmation
             String s = System.console().readLine("Really delete project %s? (y/N) ", options.getProject());

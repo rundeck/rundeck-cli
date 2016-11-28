@@ -5,6 +5,7 @@ import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.Unparsed;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectNode;
 import org.rundeck.client.tool.options.NodeOutputFormatOption;
@@ -26,7 +27,7 @@ import java.util.stream.Collectors;
  */
 @Command(description = "List and manage node resources.")
 public class Nodes extends ApiCommand {
-    public Nodes(final Supplier<Client<RundeckApi>> builder) {
+    public Nodes(final HasClient builder) {
         super(builder);
     }
 
@@ -56,7 +57,7 @@ public class Nodes extends ApiCommand {
 
     @Command(description = "List all nodes for a project.  You can use the -f/--filter to specify a node filter, or " +
                            "simply add the filter on the end of the command")
-    public void list(ListOptions options, CommandOutput output) throws IOException {
+    public void list(ListOptions options, CommandOutput output) throws IOException, InputError {
         Map<String, ProjectNode> body = getClient().checkError(getClient().getService()
                                                                           .listNodes(
                                                                                   options.getProject(),

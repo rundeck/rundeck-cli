@@ -32,7 +32,7 @@ import java.util.function.Supplier;
 public class Adhoc extends ApiCommand {
     static final String COMMAND = "adhoc";
 
-    public Adhoc(final Supplier<Client<RundeckApi>> client) {
+    public Adhoc(final HasClient client) {
         super(client);
     }
 

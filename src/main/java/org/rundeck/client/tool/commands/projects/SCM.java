@@ -6,6 +6,7 @@ import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.ANSIColorOutput;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
@@ -28,7 +29,7 @@ import java.util.function.Supplier;
 
 @Command(description = "Manage Project SCM")
 public class SCM extends ApiCommand {
-    public SCM(final Supplier<Client<RundeckApi>> client) {
+    public SCM(final HasClient client) {
         super(client);
     }
 
@@ -53,7 +54,7 @@ public class SCM extends ApiCommand {
     }
 
     @Command(description = "Get SCM Config for a Project")
-    public void config(ConfigOptions options, CommandOutput output) throws IOException {
+    public void config(ConfigOptions options, CommandOutput output) throws IOException, InputError {
         ScmConfig scmConfig1 = getClient().checkError(getClient().getService()
                                                                  .getScmConfig(options.getProject(), options.getIntegration()));
 
@@ -86,7 +87,7 @@ public class SCM extends ApiCommand {
     }
 
     @Command(description = "Setup SCM Config for a Project")
-    public boolean setup(SetupOptions options, CommandOutput output) throws IOException {
+    public boolean setup(SetupOptions options, CommandOutput output) throws IOException, InputError {
 
         /*
          * body containing the file

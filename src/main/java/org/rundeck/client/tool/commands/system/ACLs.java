@@ -24,7 +24,7 @@ import static org.rundeck.client.tool.commands.projects.ACLs.*;
  */
 @Command(description = "Manage System ACLs")
 public class ACLs extends ApiCommand {
-    public ACLs(final Supplier<Client<RundeckApi>> client) {
+    public ACLs(final HasClient client) {
         super(client);
     }
 
@@ -32,7 +32,7 @@ public class ACLs extends ApiCommand {
 
     }
     @Command(description = "list system acls")
-    public void list(ListOptions options, CommandOutput output) throws IOException {
+    public void list(ListOptions options, CommandOutput output) throws IOException, InputError {
         ACLPolicyItem items = getClient().checkError(getClient().getService()
                                                                 .listSystemAcls());
         outputListResult(options, output, items, "system");
@@ -43,7 +43,7 @@ public class ACLs extends ApiCommand {
     }
 
     @Command(description = "get a system ACL definition")
-    public void get(Get options, CommandOutput output) throws IOException {
+    public void get(Get options, CommandOutput output) throws IOException, InputError {
         ACLPolicy aclPolicy = getClient().checkError(getClient().getService()
                                                                 .getSystemAclPolicy(options.getName()));
         outputPolicyResult(output, aclPolicy);
@@ -58,11 +58,12 @@ public class ACLs extends ApiCommand {
             throws IOException, InputError
     {
 
+        Client<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> getClient().getService()
-                                                 .updateSystemAclPolicy(options.getName(), body),
-                getClient(), output
+                (RequestBody body) -> client.getService()
+                                            .updateSystemAclPolicy(options.getName(), body),
+                client, output
         );
         outputPolicyResult(output, aclPolicy);
     }
@@ -75,11 +76,12 @@ public class ACLs extends ApiCommand {
     @Command(description = "Create a system ACL definition")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
 
+        Client<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> getClient().getService()
-                                                 .createSystemAclPolicy(options.getName(), body),
-                getClient(), output
+                (RequestBody body) -> client.getService()
+                                            .createSystemAclPolicy(options.getName(), body),
+                client, output
         );
         outputPolicyResult(output, aclPolicy);
     }
@@ -90,8 +92,9 @@ public class ACLs extends ApiCommand {
     }
 
     @Command(description = "Delete a system ACL definition")
-    public void delete(Delete options, CommandOutput output) throws IOException {
-        getClient().checkError(getClient().getService().deleteSystemAclPolicy(options.getName()));
+    public void delete(Delete options, CommandOutput output) throws IOException, InputError {
+        Client<RundeckApi> client = getClient();
+        client.checkError(client.getService().deleteSystemAclPolicy(options.getName()));
         output.output(String.format("Deleted System ACL Policy: %s", options.getName()));
     }
 }

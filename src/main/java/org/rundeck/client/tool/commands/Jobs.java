@@ -7,7 +7,6 @@ import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
@@ -24,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +34,7 @@ public class Jobs extends ApiCommand {
     public static final String UUID_REMOVE = "remove";
     public static final String UUID_PRESERVE = "preserve";
 
-    public Jobs(final Supplier<Client<RundeckApi>> client) {
+    public Jobs(final HasClient client) {
         super(client);
     }
 
@@ -156,7 +154,7 @@ public class Jobs extends ApiCommand {
     }
 
     @Command(description = "List jobs found in a project, or download Job definitions (-f).")
-    public void list(ListOpts options, CommandOutput output) throws IOException {
+    public void list(ListOpts options, CommandOutput output) throws IOException, InputError {
         if (options.isFile()) {
             //write response to file instead of parsing it
             Call<ResponseBody> responseCall;
@@ -238,7 +236,7 @@ public class Jobs extends ApiCommand {
     }
 
     @Command(description = "Get info about a Job by ID (API v18)")
-    public void info(InfoOpts options, CommandOutput output) throws IOException {
+    public void info(InfoOpts options, CommandOutput output) throws IOException, InputError {
         ScheduledJobItem body = getClient().checkError(getClient().getService().getJobInfo(options.getId()));
         outputJobList(options, output, Collections.singletonList(body));
     }

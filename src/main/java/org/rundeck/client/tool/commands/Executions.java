@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends ApiCommand {
 
-    public Executions(final Supplier<Client<RundeckApi>> client) {
+    public Executions(final HasClient client) {
         super(client);
     }
 
@@ -60,7 +60,7 @@ public class Executions extends ApiCommand {
     }
 
     @Command(description = "Delete an execution by ID.")
-    public void delete(Delete options, CommandOutput out) throws IOException {
+    public void delete(Delete options, CommandOutput out) throws IOException, InputError {
         getClient().checkError(getClient().getService().deleteExecution(options.getId()));
         out.info(String.format("Delete [%s] succeeded.", options.getId()));
     }
@@ -72,7 +72,7 @@ public class Executions extends ApiCommand {
 
     @Command(description = "Follow the output of an execution. Restart from the beginning, or begin tailing as it " +
                            "runs.")
-    public boolean follow(Follow options, CommandOutput out) throws IOException {
+    public boolean follow(Follow options, CommandOutput out) throws IOException, InputError {
 
         int max = 500;
 
@@ -160,7 +160,7 @@ public class Executions extends ApiCommand {
     }
 
     @Command(description = "List all running executions for a project.")
-    public void info(Info options, CommandOutput out) throws IOException {
+    public void info(Info options, CommandOutput out) throws IOException, InputError {
 
         Execution execution = getClient().checkError(getClient().getService().getExecution(options.getId()));
 
@@ -174,7 +174,7 @@ public class Executions extends ApiCommand {
     }
 
     @Command(description = "List all running executions for a project.")
-    public void list(ListCmd options, CommandOutput out) throws IOException {
+    public void list(ListCmd options, CommandOutput out) throws IOException, InputError {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
@@ -309,7 +309,7 @@ public class Executions extends ApiCommand {
     }
 
     @Command(description = "Query previous executions for a project.")
-    public ExecutionList query(QueryCmd options, CommandOutput out) throws IOException {
+    public ExecutionList query(QueryCmd options, CommandOutput out) throws IOException, InputError {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
         Map<String, String> query = new HashMap<>();
@@ -419,7 +419,7 @@ public class Executions extends ApiCommand {
 
     @Command(description = "Find and delete executions in a project. Use the query options to find and delete " +
                            "executions, or specify executions with the `idlist` option.")
-    public boolean deletebulk(BulkDeleteCmd options, CommandOutput out) throws IOException {
+    public boolean deletebulk(BulkDeleteCmd options, CommandOutput out) throws IOException, InputError {
 
         List<String> execIds = null;
         if (options.isIdlist()) {

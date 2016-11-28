@@ -1,5 +1,7 @@
 package org.rundeck.client.util;
 
+import com.simplifyops.toolbelt.InputError;
+
 /**
  * Created by greg on 11/17/16.
  */
@@ -36,10 +38,10 @@ public class Env {
         }
     }
 
-    public static String require(final String name, final String description) {
+    public static String require(final String name, final String description) throws InputError {
         String value = System.getenv(name);
         if (null == value) {
-            throw new IllegalArgumentException(String.format(
+            throw new InputError(String.format(
                     "Environment variable %s is required: %s",
                     name,
                     description

@@ -130,7 +130,7 @@ public class App {
                );
     }
 
-    public static Client<RundeckApi> createClient() {
+    public static Client<RundeckApi> createClient() throws InputError {
         Auth auth = new Auth() {
         };
         String baseUrl = null;

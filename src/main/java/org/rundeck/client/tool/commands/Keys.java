@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
                        "\nSpecify the path using -p/--path, or as the last argument to the command.")
 
 public class Keys extends ApiCommand {
-    public Keys(final Supplier<Client<RundeckApi>> client) {
+    public Keys(final HasClient client) {
         super(client);
     }
 
@@ -69,7 +69,7 @@ public class Keys extends ApiCommand {
 
     @Command(description = "List the keys and directories at a given path, or at the root by default.",
              synonyms = {"ls"})
-    public boolean list(ListArg options, CommandOutput output) throws IOException {
+    public boolean list(ListArg options, CommandOutput output) throws IOException, InputError {
 
         Path path = argPath(options);
         KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
@@ -98,7 +98,7 @@ public class Keys extends ApiCommand {
     }
 
     @Command(description = "Get metadata about the given path")
-    public void info(Info options, CommandOutput output) throws IOException {
+    public void info(Info options, CommandOutput output) throws IOException, InputError {
         Path path = argPath(options);
         KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
                                                                           .listKeyStorage(keysPath(path

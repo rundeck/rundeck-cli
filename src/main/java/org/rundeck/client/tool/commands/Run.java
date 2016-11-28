@@ -24,7 +24,7 @@ import java.util.function.Supplier;
  */
 @Command(description = "Run a Job.")
 public class Run extends ApiCommand {
-    public Run(final Supplier<Client<RundeckApi>> client) {
+    public Run(final HasClient client) {
         super(client);
     }
 

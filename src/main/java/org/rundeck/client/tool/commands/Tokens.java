@@ -3,6 +3,7 @@ package org.rundeck.client.tool.commands;
 import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ApiToken;
 import org.rundeck.client.util.Client;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  */
 @Command(description = "Create, and manage tokens")
 public class Tokens extends ApiCommand {
-    public Tokens(final Supplier<Client<RundeckApi>> client) {
+    public Tokens(final HasClient client) {
         super(client);
     }
 
@@ -27,7 +28,7 @@ public class Tokens extends ApiCommand {
     }
 
     @Command(description = "Create a token for a user")
-    public ApiToken create(CreateOptions options, CommandOutput output) throws IOException {
+    public ApiToken create(CreateOptions options, CommandOutput output) throws IOException, InputError {
         ApiToken apiToken = getClient().checkError(getClient().getService().createToken(options.getUser()));
         output.info("API Token created:");
         output.output(apiToken.getId());
@@ -43,7 +44,7 @@ public class Tokens extends ApiCommand {
     }
 
     @Command(description = "List tokens for a user")
-    public List<ApiToken> list(ListOptions options, CommandOutput output) throws IOException {
+    public List<ApiToken> list(ListOptions options, CommandOutput output) throws IOException, InputError {
         List<ApiToken> tokens = getClient().checkError(getClient().getService().listTokens(options.getUser()));
         output.info(String.format("API Tokens for %s:", options.getUser()));
         output.output(tokens.stream().map(
@@ -61,7 +62,7 @@ public class Tokens extends ApiCommand {
     }
 
     @Command(description = "Delete a token")
-    public boolean delete(DeleteOptions options, CommandOutput output) throws IOException {
+    public boolean delete(DeleteOptions options, CommandOutput output) throws IOException, InputError {
         Void aVoid = getClient().checkError(getClient().getService().deleteToken(options.getToken()));
         output.info("Token deleted.");
         return true;

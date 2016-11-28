@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
  */
 @Command(description = "Manage Project ACLs")
 public class ACLs extends ApiCommand {
-    public ACLs(final Supplier<Client<RundeckApi>> client) {
+    public ACLs(final HasClient client) {
         super(client);
     }
 
@@ -41,7 +41,7 @@ public class ACLs extends ApiCommand {
 
     }
     @Command(description = "list project acls")
-    public void list(ListCommandOptions options, CommandOutput output) throws IOException {
+    public void list(ListCommandOptions options, CommandOutput output) throws IOException, InputError {
         ACLPolicyItem items = getClient().checkError(getClient().getService()
                                                                 .listAcls(options.getProject()));
         outputListResult(options, output, items, String.format("project %s", options.getProject()));
@@ -79,7 +79,7 @@ public class ACLs extends ApiCommand {
     }
 
     @Command(description = "get a project ACL definition")
-    public void get(Get options, CommandOutput output) throws IOException {
+    public void get(Get options, CommandOutput output) throws IOException, InputError {
         ACLPolicy aclPolicy = getClient().checkError(getClient().getService()
                                                                 .getAclPolicy(options.getProject(), options.getName()));
         outputPolicyResult(output, aclPolicy);
@@ -98,11 +98,12 @@ public class ACLs extends ApiCommand {
 
     @Command(description = "Upload a project ACL definition")
     public void upload(Put options, CommandOutput output) throws IOException, InputError {
+        Client<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> getClient().getService()
-                                                 .updateAclPolicy(options.getProject(), options.getName(), body),
-                getClient(),
+                (RequestBody body) -> client.getService()
+                                            .updateAclPolicy(options.getProject(), options.getName(), body),
+                client,
                 output
         );
         outputPolicyResult(output, aclPolicy);
@@ -117,11 +118,12 @@ public class ACLs extends ApiCommand {
     @Command(description = "Create a project ACL definition")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
 
+        Client<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> getClient().getService()
-                                                 .createAclPolicy(options.getProject(), options.getName(), body),
-                getClient(), output
+                (RequestBody body) -> client.getService()
+                                            .createAclPolicy(options.getProject(), options.getName(), body),
+                client, output
         );
         outputPolicyResult(output, aclPolicy);
     }
@@ -202,7 +204,7 @@ public class ACLs extends ApiCommand {
     }
 
     @Command(description = "Delete a project ACL definition")
-    public void delete(Delete options, CommandOutput output) throws IOException {
+    public void delete(Delete options, CommandOutput output) throws IOException, InputError {
         getClient().checkError(getClient().getService().deleteAclPolicy(options.getProject(), options.getName()));
         output.info(String.format("Deleted ACL Policy for %s: %s", options.getProject(), options.getName()));
     }

@@ -4,6 +4,7 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ScheduledJobItem;
 import org.rundeck.client.util.Client;
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  */
 @Command(description = "View scheduler information")
 public class Scheduler extends ApiCommand {
-    public Scheduler(final Supplier<Client<RundeckApi>> client) {
+    public Scheduler(final HasClient client) {
         super(client);
     }
 
@@ -36,7 +37,7 @@ public class Scheduler extends ApiCommand {
     }
 
     @Command(description = "List jobs for the current target server, or a specified server.")
-    public void jobs(SchedulerJobs options, CommandOutput output) throws IOException {
+    public void jobs(SchedulerJobs options, CommandOutput output) throws IOException, InputError {
         Call<List<ScheduledJobItem>> call;
         if (options.isUuid()) {
             call = getClient().getService().listSchedulerJobs(options.getUuid());

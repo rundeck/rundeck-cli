@@ -7,15 +7,12 @@ import com.simplifyops.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.ReadmeFile;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectReadme;
 import org.rundeck.client.tool.commands.ApiCommand;
 import org.rundeck.client.tool.options.ProjectNameOptions;
-import org.rundeck.client.util.Client;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.function.Supplier;
 
 /**
  * Created by greg on 9/15/16.
@@ -23,7 +20,7 @@ import java.util.function.Supplier;
 
 @Command(description = "Manage Project readme.md/motd.md")
 public class Readme extends ApiCommand {
-    public Readme(final Supplier<Client<RundeckApi>> client) {
+    public Readme(final HasClient client) {
         super(client);
     }
 
@@ -43,7 +40,7 @@ public class Readme extends ApiCommand {
     }
 
     @Command(description = "get project readme/motd file")
-    public void get(GetOptions options, CommandOutput output) throws IOException {
+    public void get(GetOptions options, CommandOutput output) throws IOException, InputError {
         ProjectReadme readme = getClient().checkError(getClient().getService()
                                                                  .getReadme(
                                                                options.getProject(),
@@ -100,7 +97,7 @@ public class Readme extends ApiCommand {
 
 
     @Command(description = "delete project readme/motd file")
-    public void delete(GetOptions options, CommandOutput output) throws IOException {
+    public void delete(GetOptions options, CommandOutput output) throws IOException, InputError {
         Void readme = getClient().checkError(getClient().getService()
                                                         .deleteReadme(
                                                       options.getProject(),
