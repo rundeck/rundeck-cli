@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
  * Created by greg on 3/28/16.
  */
 public class Rundeck {
-    public static final String USER_AGENT = "rundeck-cli/" + Version.CLI_VERS;
+    public static final String USER_AGENT = Version.NAME + "/" + Version.VERSION;
     public static final int API_VERS = 16;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
