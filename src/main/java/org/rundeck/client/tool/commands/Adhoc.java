@@ -23,6 +23,8 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.function.Supplier;
 
+import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
+
 
 /**
  * Created by greg on 5/20/16.
@@ -46,6 +48,7 @@ public class Adhoc extends ApiCommand {
     public boolean dispatch(Dispatch options, CommandOutput output) throws IOException, InputError {
         Call<AdhocResponse> adhocResponseCall = null;
 
+        String project = projectOrEnv(options);
         if (options.isScriptFile() || options.isStdin()) {
             RequestBody scriptFileBody;
             String filename;
@@ -76,7 +79,7 @@ public class Adhoc extends ApiCommand {
             }
 
             adhocResponseCall = getClient().getService().runScript(
-                    options.getProject(),
+                    project,
                     MultipartBody.Part.createFormData("scriptFile", filename, scriptFileBody),
                     options.getThreadcount(),
                     options.isKeepgoing(),
@@ -88,7 +91,7 @@ public class Adhoc extends ApiCommand {
             );
         } else if (options.isUrl()) {
             adhocResponseCall = getClient().getService().runUrl(
-                    options.getProject(),
+                    project,
                     options.getUrl(),
                     options.getThreadcount(),
                     options.isKeepgoing(),
@@ -101,7 +104,7 @@ public class Adhoc extends ApiCommand {
         } else if (options.getCommandString() != null && options.getCommandString().size() > 0) {
             //command
             adhocResponseCall = getClient().getService().runCommand(
-                    options.getProject(),
+                    project,
                     Quoting.joinStringQuoted(options.getCommandString()),
                     options.getThreadcount(),
                     options.isKeepgoing(),
