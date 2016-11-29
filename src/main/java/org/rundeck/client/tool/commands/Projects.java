@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
+
 /**
  * Created by greg on 5/19/16.
  */
@@ -56,17 +58,18 @@ public class Projects extends ApiCommand implements HasSubCommands {
 
     @Command(description = "Delete a project")
     public boolean delete(ProjectDelete options, CommandOutput output) throws IOException, InputError {
+        String project = projectOrEnv(options);
         if (!options.isConfirm()) {
             //request confirmation
-            String s = System.console().readLine("Really delete project %s? (y/N) ", options.getProject());
+            String s = System.console().readLine("Really delete project %s? (y/N) ", project);
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not deleting project %s.", options.getProject()));
+                output.warning(String.format("Not deleting project %s.", project));
                 return false;
             }
         }
-        getClient().checkError(getClient().getService().deleteProject(options.getProject()));
-        output.info(String.format("Project was deleted: %s%n", options.getProject()));
+        getClient().checkError(getClient().getService().deleteProject(project));
+        output.info(String.format("Project was deleted: %s%n", project));
         return true;
     }
 
@@ -91,7 +94,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
             }
         }
         ProjectItem project = new ProjectItem();
-        project.setName(options.getProject());
+        project.setName(projectOrEnv(options));
         project.setConfig(config);
 
         ProjectItem body = getClient().checkError(getClient().getService().createProject(project));

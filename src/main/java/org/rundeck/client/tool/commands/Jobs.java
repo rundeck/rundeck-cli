@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
+
 /**
  * Created by greg on 3/28/16.
  */
@@ -60,7 +62,7 @@ public class Jobs extends ApiCommand {
             }
             Call<List<JobItem>> listCall;
             listCall = getClient().getService().listJobs(
-                    options.getProject(),
+                    projectOrEnv(options),
                     options.getJob(),
                     options.getGroup()
             );
@@ -113,7 +115,7 @@ public class Jobs extends ApiCommand {
         );
 
         Call<ImportResult> importResultCall = getClient().getService().loadJobs(
-                options.getProject(),
+                projectOrEnv(options),
                 requestBody,
                 options.getFormat(),
                 options.getDuplicate(),
@@ -155,18 +157,19 @@ public class Jobs extends ApiCommand {
 
     @Command(description = "List jobs found in a project, or download Job definitions (-f).")
     public void list(ListOpts options, CommandOutput output) throws IOException, InputError {
+        String project = projectOrEnv(options);
         if (options.isFile()) {
             //write response to file instead of parsing it
             Call<ResponseBody> responseCall;
             if (options.isIdlist()) {
                 responseCall = getClient().getService().exportJobs(
-                        options.getProject(),
+                        project,
                         options.getIdlist(),
                         options.getFormat()
                 );
             } else {
                 responseCall = getClient().getService().exportJobs(
-                        options.getProject(),
+                        project,
                         options.getJob(),
                         options.getGroup(),
                         options.getFormat()
@@ -198,17 +201,17 @@ public class Jobs extends ApiCommand {
         } else {
             Call<List<JobItem>> listCall;
             if (options.isIdlist()) {
-                listCall = getClient().getService().listJobs(options.getProject(), options.getIdlist());
+                listCall = getClient().getService().listJobs(project, options.getIdlist());
             } else {
                 listCall = getClient().getService().listJobs(
-                        options.getProject(),
+                        project,
                         options.getJob(),
                         options.getGroup()
                 );
             }
             List<JobItem> body = getClient().checkError(listCall);
             if (!options.isOutputFormat()) {
-                output.info(String.format("%d Jobs in project %s%n", body.size(), options.getProject()));
+                output.info(String.format("%d Jobs in project %s%n", body.size(), project));
             }
             outputJobList(options, output, body);
         }

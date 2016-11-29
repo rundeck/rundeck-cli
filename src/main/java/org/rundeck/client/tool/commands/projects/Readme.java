@@ -14,6 +14,8 @@ import org.rundeck.client.tool.options.ProjectNameOptions;
 import java.io.File;
 import java.io.IOException;
 
+import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
+
 /**
  * Created by greg on 9/15/16.
  */
@@ -43,8 +45,8 @@ public class Readme extends ApiCommand {
     public void get(GetOptions options, CommandOutput output) throws IOException, InputError {
         ProjectReadme readme = getClient().checkError(getClient().getService()
                                                                  .getReadme(
-                                                               options.getProject(),
-                                                               getReadmeFile(options)
+                                                                         projectOrEnv(options),
+                                                                         getReadmeFile(options)
                                                        ));
         output.output(readme.getContents());
     }
@@ -88,9 +90,9 @@ public class Readme extends ApiCommand {
         }
         ProjectReadme readme = getClient().checkError(getClient().getService()
                                                                  .putReadme(
-                                                               options.getProject(),
-                                                               getReadmeFile(options),
-                                                               requestBody
+                                                                         projectOrEnv(options),
+                                                                         getReadmeFile(options),
+                                                                         requestBody
                                                        ));
         output.output(readme.getContents());
     }
@@ -98,11 +100,12 @@ public class Readme extends ApiCommand {
 
     @Command(description = "delete project readme/motd file")
     public void delete(GetOptions options, CommandOutput output) throws IOException, InputError {
+        String project = projectOrEnv(options);
         Void readme = getClient().checkError(getClient().getService()
                                                         .deleteReadme(
-                                                      options.getProject(),
-                                                      getReadmeFile(options)
+                                                                project,
+                                                                getReadmeFile(options)
                                               ));
-        output.info(String.format("Deleted %s for project %s", getReadmeFile(options), options.getProject()));
+        output.info(String.format("Deleted %s for project %s", getReadmeFile(options), project));
     }
 }

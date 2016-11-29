@@ -18,6 +18,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
+
 /**
  * Created by greg on 5/20/16.
  */
@@ -178,8 +180,9 @@ public class Executions extends ApiCommand {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
+        String project = projectOrEnv(options);
         ExecutionList executionList = getClient().checkError(getClient().getService()
-                                                                        .runningExecutions(options.getProject(), offset, max));
+                                                                        .runningExecutions(project, offset, max));
 
         if (!options.isOutputFormat()) {
             out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
@@ -358,7 +361,7 @@ public class Executions extends ApiCommand {
 
         ExecutionList executionList = getClient().checkError(getClient().getService()
                                                                         .listExecutions(
-                                                                      options.getProject(),
+                                                                      projectOrEnv(options),
                                                                       query,
                                                                       options.getJobIdList(),
                                                                       options.getExcludeJobIdList(),

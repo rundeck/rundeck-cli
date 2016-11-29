@@ -21,6 +21,8 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
+import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
+
 /**
  * @author greg
  * @since 11/22/16
@@ -58,15 +60,16 @@ public class Nodes extends ApiCommand {
     @Command(description = "List all nodes for a project.  You can use the -f/--filter to specify a node filter, or " +
                            "simply add the filter on the end of the command")
     public void list(ListOptions options, CommandOutput output) throws IOException, InputError {
+        String project = projectOrEnv(options);
         Map<String, ProjectNode> body = getClient().checkError(getClient().getService()
                                                                           .listNodes(
-                                                                                  options.getProject(),
+                                                                                  project,
                                                                                   filterString(options)
                                                                           ));
         if (!options.isOutputFormat()) {
             output.info(String.format("%d Nodes%s in project %s:%n", body.size(),
                                       options.isFilter() ? " matching filter" : "",
-                                      options.getProject()
+                                      project
             ));
         }
         Function<ProjectNode, ?> field;
