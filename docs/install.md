@@ -66,4 +66,11 @@ $ echo "gpgkey=http://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key" >> /etc/yu
  [ ![Download](https://api.bintray.com/packages/rundeck/rundeck-deb/rundeck-cli/images/download.svg?version={{site.app_version}}) ](https://bintray.com/rundeck/rundeck-deb/rundeck-cli/{{site.app_version}}/link)
 via Bintray
 
-*TODO: describe install...*
+~~~{.sh}
+echo "deb https://dl.bintray.com/rundeck/rundeck-deb /" | sudo tee -a /etc/apt/sources.list
+curl "https://bintray.com/user/downloadSubjectPublicKey?username=bintray" > /tmp/bintray.gpg.key
+apt-key add - < /tmp/bintray.gpg.key
+apt-get -y install apt-transport-https
+apt-get -y update
+apt-get -y install rundeck-cli
+~~~
