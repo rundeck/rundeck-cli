@@ -114,6 +114,7 @@ Specify the path using -p/--path, or as the last argument to the command.
 	   info   - Get metadata about the given path
 	   list   - List the keys and directories at a given path, or at the root by default
 	   update - Update an existing key entry
+
 ## nodes
 
 List and manage node resources.
