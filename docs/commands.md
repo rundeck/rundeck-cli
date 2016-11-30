@@ -15,6 +15,7 @@ Available commands:
 	   executions - List running executions, attach and follow their output, or kill them
 	   jobs       - List and manage Jobs
 	   keys       - Manage Keys via the Key Storage Facility.
+	   nodes      - List and manage node resources
 	   projects   - List and manage projects
 	   run        - Run a Job
 	   scheduler  - View scheduler information
@@ -113,6 +114,17 @@ Specify the path using -p/--path, or as the last argument to the command.
 	   info   - Get metadata about the given path
 	   list   - List the keys and directories at a given path, or at the root by default
 	   update - Update an existing key entry
+## nodes
+
+List and manage node resources.
+
+List all nodes for a project.  You can use the -F/--filter to specify a node filter, or simply add the filter on the end of the command
+
+	Usage: list [options] NODE FILTER...
+		[--filter -F value] : A node filter string
+		[--outformat -% value] : Output format specifier for Node info. You can use "%key" where key is one of:nodename, hostname, osFamily, osVersion, osArch, description, username, tags, or any attribute. E.g. "%nodename %tags"
+		[--project -p value] : Project name
+		[--verbose -v] : Extended verbose output
 
 ## projects
 
