@@ -169,4 +169,36 @@ List jobs for the current target server, or a specified server.
 
 View system information
 
+
+	Available commands:
+
+	   acls - Manage System ACLs
+	   info - Print system information and stats
+
+### system acls
+
+Manage System ACLs
+
+
+	Available commands:
+
+	   create - Create a system ACL definition
+	   delete - Delete a system ACL definition
+	   get    - get a system ACL definition
+	   list   - list system acls
+	   upload - Upload a system ACL definition
+
+### system info
+
 Print system information and stats.
+
+## tokens
+
+Create, and manage tokens
+
+
+	Available commands:
+
+	   create - Create a token for a user
+	   delete - Delete a token
+	   list   - List tokens for a user
