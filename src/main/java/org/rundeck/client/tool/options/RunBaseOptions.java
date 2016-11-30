@@ -12,7 +12,7 @@ import java.util.List;
  * Created by greg on 5/21/16.
  */
 @CommandLineInterface(application = "run")
-public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions {
+public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions, NodeFilterOptions {
     @Option(shortName = "l",
             longName = "logevel",
             description = "Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.",
@@ -32,10 +32,6 @@ public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions {
 
     boolean isId();
 
-    @Option(shortName = "F", longName = "filter", description = "A node filter string")
-    String getFilter();
-
-    boolean isFilter();
 
     @Option(shortName = "u", longName = "user", description = "A username to run the job as, (runAs access required).")
     String getUser();

@@ -8,6 +8,7 @@ import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectNode;
+import org.rundeck.client.tool.options.NodeFilterOptions;
 import org.rundeck.client.tool.options.NodeOutputFormatOption;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.VerboseOption;
@@ -35,12 +36,9 @@ public class Nodes extends ApiCommand {
 
     @CommandLineInterface(application = "list") interface ListOptions extends ProjectNameOptions,
             VerboseOption,
-            NodeOutputFormatOption
+            NodeOutputFormatOption,
+            NodeFilterOptions
     {
-        @Option(shortName = "f", longName = "filter", description = "Node filter")
-        String getFilter();
-
-        boolean isFilter();
 
         @Unparsed(name = "NODE FILTER", description = "Node filter")
         List<String> getFilterTokens();
@@ -57,7 +55,7 @@ public class Nodes extends ApiCommand {
         return null;
     }
 
-    @Command(description = "List all nodes for a project.  You can use the -f/--filter to specify a node filter, or " +
+    @Command(description = "List all nodes for a project.  You can use the -F/--filter to specify a node filter, or " +
                            "simply add the filter on the end of the command")
     public void list(ListOptions options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);

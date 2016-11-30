@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * Created by greg on 5/20/16.
  */
-public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions {
+public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions, NodeFilterOptions {
 
 
     @Option(shortName = "C",
@@ -26,10 +26,6 @@ public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions {
             description = "Keep going when an error occurs")
     boolean isKeepgoing();
 
-    @Option(shortName = "F", longName = "filter", description = "A node filter string")
-    String getFilter();
-
-    boolean isFilter();
 
 
     @Option(shortName = "s", longName = "script", description = "Dispatch specified script file")
