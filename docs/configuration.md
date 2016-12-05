@@ -32,7 +32,7 @@ the shell if a TTY is avaliable.
 
 You can disable automatic prompting:
 
-    export RD_PROMPT=false
+    export RD_AUTH_PROMPT=false
 
 
 **ANSI color**
