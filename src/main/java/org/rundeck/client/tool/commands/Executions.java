@@ -15,7 +15,6 @@ import retrofit2.Call;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
@@ -124,8 +123,8 @@ public class Executions extends ApiCommand {
         while (!done) {
             ExecOutput execOutput = client.checkError(callOutput);
             printLogOutput(execOutput.entries, progress, quiet, out);
-            done = execOutput.completed;
             status = execOutput.execState;
+            done = !"running".equals(status);
             if (!done) {
                 try {
                     Thread.sleep(2000);
@@ -192,7 +191,7 @@ public class Executions extends ApiCommand {
     }
 
 
-    public static interface ExecutionResultOptions extends ExecutionOutputFormatOption, VerboseOption {
+    public interface ExecutionResultOptions extends ExecutionOutputFormatOption, VerboseOption {
 
     }
 
