@@ -5,7 +5,7 @@ package org.rundeck.client;
  * @since 11/28/16
  */
 public final class Version {
-    public static final String VERSION = "1.0.1";
+    public static final String VERSION = "1.0.2";
     public static final String NAME = "rundeck-cli";
 
     private Version() {
