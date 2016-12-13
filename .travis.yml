@@ -25,7 +25,6 @@ deploy:
     secure: E5dKfiXBUTFpIJFWSk2+jBcS6FdO++DHqqGp8XDtrrCpKJfynYqPR+/23oYKYVz+H21CnEiUTqtVKvlftccWbErcRAD3R0G1bw6efj3TNiBb0Z0dRa8qgP+3NVTWhRZ4hwSn/0mClY96kz3cEjiJlBs6lYgneKlmg2As++LDjGIWZEfPUBXK6gtG69ZtMj2NBibKg1KQWZV6nZApBvYtkGJJqhu82jlDMbi5ltaOayVl4ISy0NlfcyW9ZNeLsCgjq9NVl5UV7ti6wB25fosz3fc7OZVF0SlU7Txg5Gi0bsnvRAijZRpZQwuo0Dza3Tqv6YDTXmfZT8qaqF6+SGNBH1BLSVApk2pBddJATzM5o0SZkuywUK4tMq6qCJjdPgMXnR4b/t3jK5f5w/ahWgYsqU7z7dBpxDDWafDFibkylJEQaUexktYdxq7JQZ5F6CNcT+qkPhj6LELR9eYh22xnuorwh6sfBfQqWJ0zveD9IcAv4Fl0ogXniftaLxRJ+G9vSQtzruWCTQRT3Ys2eIjc67wI47uMFcU5naM/YDt9BAQZzBoP9vKGiiyRwoa5kqpEy++qtod8oQTN1mw0B3BubrtlDAKirp8S+Zoix7EAvBt0abIO+zOvblUAjzb4zf2DxXkakvWZ4hxq8LnOItxItyBBRbDxiNYigYd8lRW0los=
   file:
   - build/distributions/rd-*.zip
-  - build/distributions/rd-*.tar
   - build/distributions/rundeck-cli*.rpm
   - build/distributions/rundeck-cli*.deb
   - build/libs/rundeck-cli-*-all.jar
