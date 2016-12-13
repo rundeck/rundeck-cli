@@ -267,7 +267,6 @@ public class Keys extends ApiCommand {
                 try (BufferedReader read = new BufferedReader(new InputStreamReader(new FileInputStream(input)))) {
                     String s = read.readLine();
                     if (null != s) {
-                        System.err.println("Read file string: '" + s + "'");
                         chars = s.toCharArray();
                     }
                 }
