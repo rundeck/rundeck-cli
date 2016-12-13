@@ -25,7 +25,9 @@ public interface RundeckApi {
     Call<List<JobItem>> listJobs(
             @Path("project") String project,
             @Query("jobFilter") String jobName,
-            @Query("groupPath") String groupPath
+            @Query("groupPath") String groupPath,
+            @Query("jobExactFilter") String jobNameExact,
+            @Query("groupPathExact") String groupPathExact
     );
 
     @Headers("Accept: application/json")
@@ -52,6 +54,8 @@ public interface RundeckApi {
             @Path("project") String project,
             @Query("jobFilter") String jobName,
             @Query("groupPath") String groupPath,
+            @Query("jobExactFilter") String jobNameExact,
+            @Query("groupPathExact") String groupPathExact,
             @Query("format") String format
     );
 

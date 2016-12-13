@@ -64,7 +64,9 @@ public class Jobs extends ApiCommand {
             listCall = getClient().getService().listJobs(
                     projectOrEnv(options),
                     options.getJob(),
-                    options.getGroup()
+                    options.getGroup(),
+                    options.getJobExact(),
+                    options.getGroupExact()
             );
             List<JobItem> body = getClient().checkError(listCall);
             for (JobItem jobItem : body) {
@@ -77,6 +79,11 @@ public class Jobs extends ApiCommand {
         }
         if (!options.isConfirm()) {
             //request confirmation
+            if (null == System.console()) {
+                output.error("No user interaction available. Use --confirm to confirm purge without user interaction");
+                output.warning(String.format("Not deleting %d jobs", ids.size()));
+                return false;
+            }
             String s = System.console().readLine("Really delete %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
@@ -172,6 +179,8 @@ public class Jobs extends ApiCommand {
                         project,
                         options.getJob(),
                         options.getGroup(),
+                        options.getJobExact(),
+                        options.getGroupExact(),
                         options.getFormat()
                 );
             }
@@ -206,7 +215,9 @@ public class Jobs extends ApiCommand {
                 listCall = getClient().getService().listJobs(
                         project,
                         options.getJob(),
-                        options.getGroup()
+                        options.getGroup(),
+                        options.getJobExact(),
+                        options.getGroupExact()
                 );
             }
             List<JobItem> body = getClient().checkError(listCall);
