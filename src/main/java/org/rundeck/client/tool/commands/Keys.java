@@ -214,7 +214,7 @@ public class Keys extends ApiCommand {
         boolean isFile();
 
         @Option(
-                shortName = "p",
+                shortName = "P",
                 longName = "prompt",
                 description = "(password type only) prompt on console for the password value, if -f is not specified."
         )
