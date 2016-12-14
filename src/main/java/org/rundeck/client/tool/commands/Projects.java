@@ -6,21 +6,18 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.HasSubCommands;
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.commands.projects.ACLs;
 import org.rundeck.client.tool.commands.projects.Readme;
 import org.rundeck.client.tool.commands.projects.SCM;
+import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
-import org.rundeck.client.util.Client;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
@@ -79,20 +76,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
 
     @Command(description = "Create a project.")
     public boolean create(Create options, CommandOutput output) throws IOException, InputError {
-        Map<String, String> config = new HashMap<>();
-        if (options.config().size() > 0) {
-            for (String s : options.config()) {
-                if (!s.startsWith("--")) {
-                    throw new InputError("Expected --key=value, but saw: " + s);
-                }
-                s = s.substring(2);
-                String[] arr = s.split("=", 2);
-                if (arr.length != 2) {
-                    throw new InputError("Expected --key=value, but saw: " + s);
-                }
-                config.put(arr[0], arr[1]);
-            }
-        }
+        Map<String, String> config = OptionUtil.parseKeyValueMap(options.config());
         ProjectItem project = new ProjectItem();
         project.setName(projectOrEnv(options));
         project.setConfig(config);
