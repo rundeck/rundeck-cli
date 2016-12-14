@@ -1,3 +1,5 @@
+import java.util.regex.Matcher
+
 buildscript {
     repositories {
         jcenter()
@@ -29,6 +31,37 @@ scmVersion {
         pre 'fileUpdate', [file       : 'src/main/resources/rd-banner.txt',
                            pattern    : { v, c -> /\(v$v\)/ },
                            replacement: { v, c -> "(v$v)" }]
+        pre { context ->
+            def ghurl = "https://github.com/rundeck/rundeck-cli"
+            def changelog = file('CHANGELOG.md')
+            def changes = file('docs/changes.md')
+            def changest = file('docs/_changes.md')
+            def diff = "v${context.previousVersion}..."
+            def serr = new StringBuilder(), sout = new StringBuilder()
+            def proc = ['git', 'log', '--grep=fix #', '--grep=log:', '--pretty=format:%s', diff].execute()
+            proc.consumeProcessOutput(sout, serr)
+            proc.waitForOrKill(1000)
+            def logs = sout.toString().readLines()
+
+            logs = logs.findAll { it }.
+                    collect { '* ' + it.replaceAll(/(#(\d+))/, "[Issue \$1]($ghurl/issues/\$2)") }.join('\n')
+            logs = logs ? logs + '\n' : ''
+            def text = """## ${context.currentVersion}
+
+$logs
+[Changes]($ghurl/compare/${diff}v${context.currentVersion})
+
+"""
+            def newtext = changelog.text.replaceAll(
+                    ~/(?m)^(## ${context.previousVersion}.*)$/,
+                    Matcher.quoteReplacement(text) + '$1'
+            )
+            changelog.text = newtext
+            changes.text = changest.text + newtext
+
+            context.addCommitPattern('docs/changes.md')
+            context.addCommitPattern('CHANGELOG.md')
+        }
         pre 'commit'
     }
 }
