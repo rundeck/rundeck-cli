@@ -9,9 +9,7 @@ import org.rundeck.client.util.Xml;
 import retrofit2.Call;
 import retrofit2.http.*;
 
-import java.io.File;
 import java.net.URL;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -459,6 +457,127 @@ public interface RundeckApi {
             @Path("integration") String integration,
             @Path("type") String type,
             @Body RequestBody body
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#setup-scm-plugin-for-a-project">Setup SCM Config for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     *
+     * @return result
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/scm/{integration}/status")
+    Call<ScmProjectStatusResult> getScmProjectStatus(
+            @Path("project") String project,
+            @Path("integration") String integration
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#get-scm-plugin-input-fields">Get SCM Setup Inputs for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     * @param type        plugin type
+     *
+     * @return result
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/scm/{integration}/plugin/{type}/input")
+    Call<ScmSetupInputsResult> getScmSetupInputs(
+            @Path("project") String project,
+            @Path("integration") String integration,
+            @Path("type") String type
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#get-project-scm-action-input-fields">Get SCM Action Inputs for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     * @param action      plugin type
+     *
+     * @return result
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/scm/{integration}/action/{action}/input")
+    Call<ScmActionInputsResult> getScmActionInputs(
+            @Path("project") String project,
+            @Path("integration") String integration,
+            @Path("action") String action
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#get-project-scm-action-input-fields">Get SCM Action Inputs for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     * @param action      plugin type
+     *
+     * @return result
+     */
+    @Headers("Accept: application/json")
+    @POST("project/{project}/scm/{integration}/action/{action}")
+    Call<ScmActionResult> performScmAction(
+            @Path("project") String project,
+            @Path("integration") String integration,
+            @Path("action") String action,
+            @Body ScmActionPerform body
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#get-project-scm-action-input-fields">Get SCM Action Inputs for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     *
+     * @return result
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/scm/{integration}/plugins")
+    Call<ScmPluginsResult> listScmPlugins(
+            @Path("project") String project,
+            @Path("integration") String integration
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#enable-scm-plugin-for-a-project">Enable SCM Integration for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     * @param type        type
+     *
+     */
+    @Headers("Accept: application/json")
+    @POST("project/{project}/scm/{integration}/plugin/{type}/enable")
+    Call<Void> enableScmPlugin(
+            @Path("project") String project,
+            @Path("integration") String integration,
+            @Path("type") String type
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#enable-scm-plugin-for-a-project">Disable SCM Integration for a
+     * Project</a>
+     *
+     * @param project     project
+     * @param integration integration
+     * @param type        type
+     *
+     */
+    @Headers("Accept: application/json")
+    @POST("project/{project}/scm/{integration}/plugin/{type}/disable")
+    Call<Void> disableScmPlugin(
+            @Path("project") String project,
+            @Path("integration") String integration,
+            @Path("type") String type
     );
 
     /**

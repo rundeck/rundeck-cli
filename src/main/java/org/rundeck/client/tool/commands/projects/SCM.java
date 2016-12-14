@@ -10,9 +10,9 @@ import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.ScmActionResult;
-import org.rundeck.client.api.model.ScmConfig;
+import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.ApiCommand;
+import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Colorz;
 import retrofit2.Call;
@@ -20,8 +20,10 @@ import retrofit2.Response;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.function.Supplier;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by greg on 7/21/16.
@@ -62,7 +64,7 @@ public class SCM extends ApiCommand {
         basic.put("Project", scmConfig1.project);
         basic.put("SCM Plugin type", scmConfig1.type);
         basic.put("SCM Plugin integration", scmConfig1.integration);
-        output.output(Colorz.colorizeMapRecurse(basic, ANSIColorOutput.Color.GREEN));
+        output.info(basic);
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("config", scmConfig1.config);
@@ -72,8 +74,7 @@ public class SCM extends ApiCommand {
             objectMapper.writeValue(options.getFile(), map);
             output.info("Wrote config to file: " + options.getFile());
         } else {
-            output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.GREEN, ANSIColorOutput.Color.YELLOW));
-
+            output.output(map);
         }
     }
 
@@ -100,25 +101,33 @@ public class SCM extends ApiCommand {
         //dont use client.checkError, we want to handle 400 validation error
         Call<ScmActionResult> execute = getClient().getService()
                                                    .setupScmConfig(
-                                                      options.getProject(),
-                                                      options.getIntegration(),
-                                                      options.getType(),
-                                                      requestBody
-                                              );
+                                                           options.getProject(),
+                                                           options.getIntegration(),
+                                                           options.getType(),
+                                                           requestBody
+                                                   );
 
         Response<ScmActionResult> response = execute.execute();
 
         //check for 400 error with validation information
-        checkValidationError(output, getClient(), response, options.getFile().getAbsolutePath());
+        if (!checkValidationError(output, getClient(), response,
+                                  "Setup config Validation for file: " + options.getFile().getAbsolutePath()
+        )) {
+            return false;
+        }
 
         //otherwise check other error codes and fail if necessary
         ScmActionResult result = getClient().checkError(response);
 
 
+        return outputScmActionResult(output, result, "Setup");
+    }
+
+    private boolean outputScmActionResult(final CommandOutput output, final ScmActionResult result, final String name) {
         if (result.success) {
-            output.info("Setup was successful.");
+            output.info(name + " was successful.");
         } else {
-            output.warning("Setup was not successful.");
+            output.warning(name + " was not successful.");
         }
         if (result.message != null) {
             output.info("Result: " + result.message);
@@ -134,25 +143,222 @@ public class SCM extends ApiCommand {
         return result.success;
     }
 
+    @CommandLineInterface(application = "status")
+    public interface StatusOptions extends BaseScmOptions {
+    }
+
+    @Command(description = "Get SCM Status for a Project")
+    public boolean status(StatusOptions options, CommandOutput output) throws IOException, InputError {
+        ScmProjectStatusResult result = getClient().checkError(getClient().getService()
+                                                                          .getScmProjectStatus(
+                                                                                  options.getProject(),
+                                                                                  options.getIntegration()
+                                                                          ).execute());
+
+
+        output.output(result.toMap());
+        return result.synchState == ScmSynchState.CLEAN;
+    }
+
+    @CommandLineInterface(application = "enable")
+    public interface EnableOptions extends BaseScmOptions {
+        @Option(longName = "type", shortName = "t", description = "Plugin type")
+        String getType();
+    }
+
+    @Command(description = "Enable plugin ")
+    public void enable(EnableOptions options, CommandOutput output) throws IOException, InputError {
+        //otherwise check other error codes and fail if necessary
+        Void result = getClient().checkError(getClient().getService()
+                                                        .enableScmPlugin(
+                                                                options.getProject(),
+                                                                options.getIntegration(),
+                                                                options.getType()
+                                                        ).execute());
+
+    }
+
+    @CommandLineInterface(application = "disable")
+    public interface DisableOptions extends EnableOptions {
+    }
+
+    @Command(description = "Disable plugin ")
+    public void disable(DisableOptions options, CommandOutput output) throws IOException, InputError {
+        //otherwise check other error codes and fail if necessary
+        Void result = getClient().checkError(getClient().getService()
+                                                        .disableScmPlugin(
+                                                                options.getProject(),
+                                                                options.getIntegration(),
+                                                                options.getType()
+                                                        ).execute());
+
+    }
+
+    @CommandLineInterface(application = "setupinputs")
+    public interface InputsOptions extends BaseScmOptions {
+        @Option(longName = "type", shortName = "t", description = "Plugin type")
+        String getType();
+    }
+
+    @Command(description = "Get SCM Setup inputs")
+    public void setupinputs(InputsOptions options, CommandOutput output) throws IOException, InputError {
+
+
+        //dont use client.checkError, we want to handle 400 validation error
+        Call<ScmSetupInputsResult> execute = getClient().getService()
+                                                        .getScmSetupInputs(
+                                                                options.getProject(),
+                                                                options.getIntegration(),
+                                                                options.getType()
+                                                        );
+
+
+        //otherwise check other error codes and fail if necessary
+        ScmSetupInputsResult result = getClient().checkError(execute.execute());
+
+        output.output(result.fields.stream().map(ScmInputField::toMap).collect(Collectors.toList()));
+    }
+
+    @CommandLineInterface(application = "setupinputs")
+    public interface ActionInputsOptions extends BaseScmOptions {
+        @Option(longName = "action", shortName = "a", description = "Action ID")
+        String getAction();
+
+    }
+
+    @Command(description = "Get SCM action inputs")
+    public void inputs(ActionInputsOptions options, CommandOutput output) throws IOException, InputError {
+
+
+        //dont use client.checkError, we want to handle 400 validation error
+        Call<ScmActionInputsResult> execute = getClient().getService()
+                                                         .getScmActionInputs(
+                                                                 options.getProject(),
+                                                                 options.getIntegration(),
+                                                                 options.getAction()
+                                                         );
+
+
+        //otherwise check other error codes and fail if necessary
+        ScmActionInputsResult result = getClient().checkError(execute.execute());
+
+        output.output(result.title + ": " + result.description);
+        output.output("Fields:");
+        output.output(result.fields.stream().map(ScmInputField::toMap).collect(Collectors.toList()));
+        output.output("Items:");
+        if ("export".equals(options.getIntegration())) {
+            output.output(result.exportItems.stream().map(ScmExportItem::toMap).collect(Collectors.toList()));
+        } else {
+            output.output(result.importItems.stream().map(ScmImportItem::toMap).collect(Collectors.toList()));
+        }
+    }
+
+    @CommandLineInterface(application = "perform")
+    public interface ActionPerformOptions extends BaseScmOptions {
+        @Option(longName = "action", shortName = "a", description = "Action ID")
+        String getAction();
+
+        @Option(longName = "field", shortName = "f", description = "Field input values, space separated key=value list")
+        List<String> getFields();
+
+        boolean isFields();
+
+        @Option(longName = "item", shortName = "I", description = "Items to include, space separated list")
+        List<String> getItem();
+
+        boolean isItem();
+
+        @Option(longName = "job", shortName = "j", description = "Job IDs to include, space separated list")
+        List<String> getJob();
+
+        boolean isJob();
+
+        @Option(longName = "delete",
+                shortName = "d",
+                description = "Job IDs or Item Ids to delete, space separated list")
+        List<String> getDelete();
+
+        boolean isDelete();
+    }
+
+    @Command(description = "Perform SCM action")
+    public boolean perform(ActionPerformOptions options, CommandOutput output) throws IOException, InputError {
+
+        ScmActionPerform perform = performFromOptions(options);
+        Call<ScmActionResult> execute = getClient().getService().performScmAction(
+                options.getProject(),
+                options.getIntegration(),
+                options.getAction(),
+                perform
+        );
+        Response<ScmActionResult> response = execute.execute();
+
+        //check for 400 error with validation information
+        if (!checkValidationError(output, getClient(), response,
+                                  "Action " + options.getAction()
+        )) {
+            return false;
+        }
+
+        //otherwise check other error codes and fail if necessary
+        ScmActionResult result = getClient().checkError(response);
+        return outputScmActionResult(output, result, "Action " + options.getAction());
+    }
+
+    private ScmActionPerform performFromOptions(final ActionPerformOptions options) throws InputError {
+        ScmActionPerform perform = new ScmActionPerform();
+        if (null != options.getFields()) {
+            perform.setInput(OptionUtil.parseKeyValueMap(options.getFields(), null, "="));
+        } else {
+            perform.setInput(new HashMap<>());
+        }
+        List<String> item = options.getItem();
+        perform.setItems(item != null ? item : new ArrayList<>());
+        List<String> job = options.getJob();
+        perform.setJobs(job != null ? job : new ArrayList<>());
+        List<String> delete = options.getDelete();
+        perform.setDeleted(delete != null ? delete : new ArrayList<>());
+        return perform;
+    }
+
+    @CommandLineInterface(application = "plugins")
+    public interface ListPluginsOptions extends BaseScmOptions {
+
+    }
+
+    @Command(description = "List SCM plugins")
+    public void plugins(ListPluginsOptions options, CommandOutput output) throws IOException, InputError {
+
+
+        //dont use client.checkError, we want to handle 400 validation error
+
+
+        //otherwise check other error codes and fail if necessary
+        ScmPluginsResult result = getClient().checkError(getClient().getService()
+                                                                    .listScmPlugins(
+                                                                            options.getProject(),
+                                                                            options.getIntegration()
+                                                                    ).execute());
+        output.output(result.plugins.stream().map(ScmPlugin::toMap).collect(Collectors.toList()));
+    }
+
     /**
      * Check for validation info from resposne
      *
      * @param output
      * @param client
      * @param response
-     * @param filename
-     *
+     * @param name
      * @throws IOException
      */
-    private static void checkValidationError(
+    private static boolean checkValidationError(
             CommandOutput output,
             final Client<RundeckApi> client,
             final Response<ScmActionResult> response,
-            final String filename
+            final String name
     )
             throws IOException
     {
-
         if (!response.isSuccessful()) {
             if (response.code() == 400) {
                 try {
@@ -164,26 +370,28 @@ public class SCM extends ApiCommand {
                     );
                     if (null != error) {
                         //
-                        output.error("Setup config Validation failed for the file: ");
-                        output.output(filename + "\n");
+                        output.error(name + " failed");
                         if (null != error.message) {
                             output.warning(error.message);
                         }
 
-                        output.output(Colorz.colorizeMapRecurse(error.toMap(), ANSIColorOutput.Color.YELLOW));
+                        if (null != error.toMap()) {
+                            output.output(Colorz.colorizeMapRecurse(error.toMap(), ANSIColorOutput.Color.YELLOW));
+                        }
                     }
                 } catch (IOException e) {
                     //unable to parse body as expected
-                    System.err.println("Expected SCM Validation error response, but was unable to parse it: " + e);
-                }
-                throw new RequestFailed(String.format(
-                        "Setup config Validation failed: (error: %d %s)",
-                        response.code(),
-                        response.message()
+                    throw new RequestFailed(String.format(
+                            name + " failed: (error: %d %s)",
+                            response.code(),
+                            response.message()
 
-                ), response.code(), response.message());
+                    ), response.code(), response.message());
+                }
+
             }
         }
+        return response.isSuccessful();
     }
 
 
