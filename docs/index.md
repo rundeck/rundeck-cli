@@ -20,6 +20,10 @@ The functionality of previous "rd-*" tools (from Rundeck) is now split into subc
 
 Java 8
 
+# Change Log 
+
+[Change Log]({{site.url}}{{site.baseurl}}/changes/)
+
 ## Pages
 
 {% for post in site.categories.doc %}
