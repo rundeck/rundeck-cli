@@ -4,6 +4,13 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.3
+
+* Add CHANGELOG fix [Issue #48](https://github.com/rundeck/rundeck-cli/issues/48)
+* fix [Issue #44](https://github.com/rundeck/rundeck-cli/issues/44) add more SCM commands:
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.2...v1.0.3)
+
 ## 1.0.2
 
 Date: 2016-12-13
