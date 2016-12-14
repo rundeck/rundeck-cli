@@ -140,6 +140,22 @@ List and manage projects.
 	   readme - Manage Project readme
 	   scm    - Manage Project SCM
 
+### projects scm
+
+Manage Project SCM
+
+	Available commands:
+
+	   config      - Get SCM Config for a Project
+	   disable     - Disable plugin
+	   enable      - Enable plugin
+	   inputs      - Get SCM action inputs
+	   perform     - Perform SCM action
+	   plugins     - List SCM plugins
+	   setup       - Setup SCM Config for a Project
+	   setupinputs - Get SCM Setup inputs
+	   status      - Get SCM Status for a Project
+
 ## run
 
 Run a Job.
