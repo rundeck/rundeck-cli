@@ -16,8 +16,6 @@ with a modernized, extensible, and nicer implementation.
 
 The functionality of previous "rd-*" tools (from Rundeck) is now split into subcommands.
 
-This project is (almost) at 1.0.x status.
-
 ## Requirements
 
 Java 8
