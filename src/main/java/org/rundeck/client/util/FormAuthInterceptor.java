@@ -42,6 +42,7 @@ public class FormAuthInterceptor implements Interceptor {
         if (origResponse.isSuccessful() || authorized) {
             return origResponse;
         }
+        origResponse.body().close();
         //not authorized, not a successful result, attempt to authenticate
         return authenticate(chain);
     }
@@ -57,13 +58,14 @@ public class FormAuthInterceptor implements Interceptor {
      */
     private Response authenticate(final Chain chain) throws IOException {
         Response execute = chain.proceed(baseUrlRequest());
+        execute.body().close();
         if (!execute.isSuccessful()) {
             throw new IllegalStateException(String.format("Expected successful response from: %s", baseUrl));
         }
 
         //now post username/password
         Response execute1 = chain.proceed(postAuthRequest());
-
+        execute1.body().close();
         if (!execute1.isSuccessful() || execute1.request().url().toString().contains(loginErrorURLPath)) {
             throw new IllegalStateException("Password Authentication failed, expected a successful response.");
         }
