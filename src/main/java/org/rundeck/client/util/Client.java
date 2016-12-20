@@ -90,15 +90,7 @@ public class Client<T> {
     public <T> T checkError(final Response<T> response) throws IOException {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
-            if (null != error) {
-                System.err.printf("Error: %s%n", error);
-                if (API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
-                    System.err.printf("Note: You requested an API endpoint using an unsupported version. \n" +
-                              "You can set a specific version by using a Rundeck " +
-                              "URL in the format:\n" +
-                              "  export RD_URL=[URL]/api/%s\n\n", error.getApiVersion());
-                }
-            }
+            reportApiError(error);
             if (response.code() == 401 || response.code() == 403) {
                 //authorization
                 throw new AuthorizationFailed(
@@ -130,6 +122,18 @@ public class Client<T> {
             );
         }
         return response.body();
+    }
+
+    public void reportApiError(final ErrorDetail error) {
+        if (null != error) {
+            System.err.printf("Error: %s%n", error);
+            if (API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
+                System.err.printf("Note: You requested an API endpoint using an unsupported version. \n" +
+                          "You can set a specific version by using a Rundeck " +
+                          "URL in the format:\n" +
+                          "  export RD_URL=[URL]/api/%s\n\n", error.getApiVersion());
+            }
+        }
     }
 
     /**

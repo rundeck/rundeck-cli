@@ -23,6 +23,8 @@ import retrofit2.Response;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -190,16 +192,22 @@ public class ACLs extends ApiCommand {
                         Client.MEDIA_TYPE_JSON
                 );
                 if (null != error) {
-                    output.error("ACL Policy Validation failed for the file: ");
-                    output.output(filename + "\n");
-
-                    output.output(Colorz.colorizeMapRecurse(error.toMap(), ANSIColorOutput.Color.YELLOW));
+                    Optional<Map<String, Object>> validationData = Optional.ofNullable(error.toMap());
+                    validationData.ifPresent(map -> {
+                        output.error("ACL Policy Validation failed for the file: ");
+                        output.output(filename + "\n");
+                        output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW));
+                    });
+                    if (!validationData.isPresent() && "true".equals(error.error)) {
+                        output.error("Invalid Request:");
+                        //other error
+                        client.reportApiError(error);
+                    }
                 }
                 throw new RequestFailed(String.format(
                         "ACLPolicy Validation failed: (error: %d %s)",
                         response.code(),
                         response.message()
-
                 ), response.code(), response.message());
             }
         }

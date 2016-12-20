@@ -20,9 +20,7 @@ import retrofit2.Response;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -374,10 +372,10 @@ public class SCM extends ApiCommand {
                         if (null != error.message) {
                             output.warning(error.message);
                         }
-
-                        if (null != error.toMap()) {
-                            output.output(Colorz.colorizeMapRecurse(error.toMap(), ANSIColorOutput.Color.YELLOW));
-                        }
+                        Optional<? extends Map<?, ?>> errorData = Optional.ofNullable(error.toMap());
+                        errorData.ifPresent(map -> {
+                            output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW));
+                        });
                     }
                 } catch (IOException e) {
                     //unable to parse body as expected

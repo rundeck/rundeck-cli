@@ -10,7 +10,7 @@ import java.util.Map;
  * Created by greg on 7/19/16.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ACLPolicyValidation {
+public class ACLPolicyValidation extends ErrorResponse {
     public boolean valid;
     public List<ValidationError> policies;
 
@@ -28,6 +28,5 @@ public class ACLPolicyValidation {
         public String policy;
         public List<String> errors;
     }
-
 
 }
