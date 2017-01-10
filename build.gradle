@@ -38,7 +38,7 @@ scmVersion {
             def changest = file('docs/_changes.md')
             def diff = "v${context.previousVersion}..."
             def serr = new StringBuilder(), sout = new StringBuilder()
-            def proc = ['git', 'log', '--grep=fix #', '--grep=log:', '--pretty=format:%s', diff].execute()
+            def proc = ['git', 'log', '--grep=[fF]ix #', '--grep=log:', '--pretty=format:%s', diff].execute()
             proc.consumeProcessOutput(sout, serr)
             proc.waitForOrKill(1000)
             def logs = sout.toString().readLines()
