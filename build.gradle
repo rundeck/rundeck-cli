@@ -116,7 +116,40 @@ dependencies {
 distShadowZip.mustRunAfter distZip
 distShadowTar.mustRunAfter distTar
 
+startScripts {
 
+    def addConfigSource = { regexTest, additionalText, line ->
+        // Looking for the line that starts with either CLASSPATH=
+        // or set CLASSPATH=, defined by the regexTest closure argument.
+        line = line.replaceAll(~/${regexTest}/) { original ->
+            original += "\n${additionalText}"
+        }
+    }
+
+    def addUnixConfigSource = addConfigSource.curry(
+            '^CLASSPATH=.*$',
+            '''
+# Source user's config file
+APP_CONFIG=$HOME/.$APP_NAME/$APP_NAME.conf
+test -f $APP_CONFIG && source $APP_CONFIG
+'''
+    )
+
+    // The default script content is generated and
+    // with the doLast method we can still alter
+    // the contents before the complete task ends.
+    doLast {
+        // Alter the start script for Unix systems.
+        unixScript.text =
+                unixScript
+                        .readLines()
+                        .collect(addUnixConfigSource)
+                        .join('\n')
+
+        //TODO: modify windows start script to load config
+    }
+
+}
 /**
  * Define rpm/deb details
  */
