@@ -6,6 +6,7 @@ import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.DeleteJobsResult
 import org.rundeck.client.api.model.JobItem
+import org.rundeck.client.api.model.ScheduledJobItem
 import org.rundeck.client.util.Client
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -137,5 +138,36 @@ class JobsSpec extends Specification {
         job  | group | jobexact | groupexact
         'a'  | 'b/c' | null     | null
         null | null  | 'a'      | 'b/c'
+    }
+
+    def "jobs info outformat"() {
+        given:
+
+        def api = Mock(RundeckApi)
+        def opts = Mock(Jobs.InfoOpts) {
+            getId() >> "123"
+            getOutputFormat() >> outFormat
+            isOutputFormat() >> true
+        }
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, 18)
+        def hasclient = Mock(ApiCommand.HasClient) {
+            getClient() >> client
+        }
+        Jobs jobs = new Jobs(hasclient)
+        def out = Mock(CommandOutput)
+
+        when:
+        jobs.info(opts, out)
+
+        then:
+        1 * api.getJobInfo('123') >> Calls.response(new ScheduledJobItem(id: '123', href: 'monkey'))
+        1 * out.output([result])
+
+
+        where:
+        outFormat   | result
+        '%id %href' | '123 monkey'
     }
 }

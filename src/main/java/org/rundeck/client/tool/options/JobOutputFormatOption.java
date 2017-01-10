@@ -10,7 +10,9 @@ public interface JobOutputFormatOption {
     @Option(shortName = "%",
             longName = "outformat",
             description = "Output format specifier for job data. You can use \"%key\" where key is one of:" +
-                          "id, name, group, project, description, href, permalink, averageDuration. E.g. \"%id %href\"")
+                          "id, name, group, project, description, href, permalink, averageDuration. E.g. \"%id " +
+                          "%href\". For 'jobs info' additional keys: scheduled, scheduleEnabled, enabled, scheduler" +
+                          ".serverOwner, scheduler.serverNodeUUID.")
     String getOutputFormat();
 
     boolean isOutputFormat();

@@ -68,15 +68,14 @@ public class ScheduledJobItem extends JobItem {
         detail.put("scheduleEnabled", scheduleEnabled);
         detail.put("enabled", enabled);
 
-        map.put("job", detail);
 
         if (null != serverOwner && null != getServerNodeUUID()) {
             HashMap<Object, Object> schedule = new LinkedHashMap<>();
             schedule.put("serverNodeUUID", getServerNodeUUID());
             schedule.put("serverOwner", serverOwner);
-            map.put("scheduler", schedule);
+            detail.put("scheduler", schedule);
         }
-        return map;
+        return detail;
     }
 
     @Override
