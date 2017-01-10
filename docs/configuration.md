@@ -7,9 +7,21 @@ permalink: /configuration/
 
 # Configuration
 
-Define access credentials as user/password or Token value:
+Export environment variables in your shell, or in a `~/.rd/rd.conf` file (unix only).
+
+**Connection Info**
 
 	export RD_URL=http://rundeck:4440
+
+Define a specific API version to use, by using the complete API base:
+
+	export RD_URL=http://rundeck:4440/api/12
+
+All requests will be made using that API version.
+
+**Credentials**
+
+Define access credentials as user/password or Token value:
 
 	export RD_TOKEN=....
 
@@ -17,12 +29,6 @@ Define access credentials as user/password or Token value:
 
 	export RD_USER=username
 	export RD_PASSWORD=password
-
-Define a specific API version to use, by using the complete API base:
-
-	export RD_URL=http://rundeck:4440/api/12
-
-All requests will be made using that API version.
 
 **Prompting**
 
