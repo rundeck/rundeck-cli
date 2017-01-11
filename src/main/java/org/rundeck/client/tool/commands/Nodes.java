@@ -59,11 +59,7 @@ public class Nodes extends ApiCommand {
                            "simply add the filter on the end of the command")
     public void list(ListOptions options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
-        Map<String, ProjectNode> body = getClient().checkError(getClient().getService()
-                                                                          .listNodes(
-                                                                                  project,
-                                                                                  filterString(options)
-                                                                          ));
+        Map<String, ProjectNode> body = apiCall(api -> api.listNodes(project, filterString(options)));
         if (!options.isOutputFormat()) {
             output.info(String.format("%d Nodes%s in project %s:%n", body.size(),
                                       options.isFilter() ? " matching filter" : "",

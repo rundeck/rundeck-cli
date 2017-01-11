@@ -38,13 +38,14 @@ public class Scheduler extends ApiCommand {
 
     @Command(description = "List jobs for the current target server, or a specified server.")
     public void jobs(SchedulerJobs options, CommandOutput output) throws IOException, InputError {
-        Call<List<ScheduledJobItem>> call;
-        if (options.isUuid()) {
-            call = getClient().getService().listSchedulerJobs(options.getUuid());
-        } else {
-            call = getClient().getService().listSchedulerJobs();
-        }
-        List<ScheduledJobItem> jobInfo = getClient().checkError(call);
+        List<ScheduledJobItem> jobInfo = apiCall(api -> {
+            if (options.isUuid()) {
+                return api.listSchedulerJobs(options.getUuid());
+            } else {
+                return api.listSchedulerJobs();
+            }
+
+        });
         output.output(jobInfo.stream().map(ScheduledJobItem::toMap).collect(Collectors.toList()));
     }
 }

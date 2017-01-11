@@ -39,7 +39,7 @@ public class Executions extends ApiCommand {
         if (null == options.getId()) {
             throw new InputError("-e is required");
         }
-        AbortResult abortResult = getClient().checkError(getClient().getService().abortExecution(options.getId()));
+        AbortResult abortResult = apiCall(api -> api.abortExecution(options.getId()));
         AbortResult.Reason abort = abortResult.abort;
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
@@ -62,7 +62,7 @@ public class Executions extends ApiCommand {
 
     @Command(description = "Delete an execution by ID.")
     public void delete(Delete options, CommandOutput out) throws IOException, InputError {
-        getClient().checkError(getClient().getService().deleteExecution(options.getId()));
+        apiCall(api -> api.deleteExecution(options.getId()));
         out.info(String.format("Delete [%s] succeeded.", options.getId()));
     }
 
@@ -163,7 +163,7 @@ public class Executions extends ApiCommand {
     @Command(description = "List all running executions for a project.")
     public void info(Info options, CommandOutput out) throws IOException, InputError {
 
-        Execution execution = getClient().checkError(getClient().getService().getExecution(options.getId()));
+        Execution execution = apiCall(api -> api.getExecution(options.getId()));
 
         outputExecutionList(options, out, Collections.singletonList(execution));
     }
@@ -180,8 +180,7 @@ public class Executions extends ApiCommand {
         int max = options.isMax() ? options.getMax() : 20;
 
         String project = projectOrEnv(options);
-        ExecutionList executionList = getClient().checkError(getClient().getService()
-                                                                        .runningExecutions(project, offset, max));
+        ExecutionList executionList = apiCall(api -> api.runningExecutions(project, offset, max));
 
         if (!options.isOutputFormat()) {
             out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
@@ -358,15 +357,18 @@ public class Executions extends ApiCommand {
         }
 
 
-        ExecutionList executionList = getClient().checkError(getClient().getService()
-                                                                        .listExecutions(
-                                                                      projectOrEnv(options),
-                                                                      query,
-                                                                      options.getJobIdList(),
-                                                                      options.getExcludeJobIdList(),
-                                                                      options.getJobList(),
-                                                                      options.getExcludeJobList()
-                                                              ));
+        String project = projectOrEnv(options);
+        ExecutionList executionList = apiCall(api -> {
+            return api
+                    .listExecutions(
+                            project,
+                            query,
+                            options.getJobIdList(),
+                            options.getExcludeJobIdList(),
+                            options.getJobList(),
+                            options.getExcludeJobList()
+                    );
+        });
 
         Paging page = executionList.getPaging();
         if (!options.isOutputFormat()) {
@@ -448,9 +450,9 @@ public class Executions extends ApiCommand {
                 return false;
             }
         }
-        BulkExecutionDeleteResponse result = getClient().checkError(getClient().getService()
-                                                                               .deleteExecutions(new BulkExecutionDelete
-                                                                                               (execIds)));
+        final List<String> finalExecIds = execIds;
+        BulkExecutionDeleteResponse result = apiCall(api -> api.deleteExecutions(new BulkExecutionDelete
+                                                                                         (finalExecIds)));
         if (!result.isAllsuccessful()) {
             out.error(String.format("Failed to delete %d executions:", result.getFailedCount()));
             out.error(result.getFailures()

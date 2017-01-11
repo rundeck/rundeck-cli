@@ -43,11 +43,8 @@ public class Readme extends ApiCommand {
 
     @Command(description = "get project readme/motd file")
     public void get(GetOptions options, CommandOutput output) throws IOException, InputError {
-        ProjectReadme readme = getClient().checkError(getClient().getService()
-                                                                 .getReadme(
-                                                                         projectOrEnv(options),
-                                                                         getReadmeFile(options)
-                                                       ));
+        String project = projectOrEnv(options);
+        ProjectReadme readme = apiCall(api -> api.getReadme(project, getReadmeFile(options)));
         output.output(readme.getContents());
     }
 
@@ -88,12 +85,8 @@ public class Readme extends ApiCommand {
                     options.getText()
             );
         }
-        ProjectReadme readme = getClient().checkError(getClient().getService()
-                                                                 .putReadme(
-                                                                         projectOrEnv(options),
-                                                                         getReadmeFile(options),
-                                                                         requestBody
-                                                       ));
+        String project = projectOrEnv(options);
+        ProjectReadme readme = apiCall(api -> api.putReadme(project, getReadmeFile(options), requestBody));
         output.output(readme.getContents());
     }
 
@@ -101,11 +94,7 @@ public class Readme extends ApiCommand {
     @Command(description = "delete project readme/motd file")
     public void delete(GetOptions options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
-        Void readme = getClient().checkError(getClient().getService()
-                                                        .deleteReadme(
-                                                                project,
-                                                                getReadmeFile(options)
-                                              ));
+        Void readme = apiCall(api -> api.deleteReadme(project, getReadmeFile(options)));
         output.info(String.format("Deleted %s for project %s", getReadmeFile(options), project));
     }
 }
