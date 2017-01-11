@@ -1,28 +1,23 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.Unparsed;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectNode;
 import org.rundeck.client.tool.options.NodeFilterOptions;
 import org.rundeck.client.tool.options.NodeOutputFormatOption;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.VerboseOption;
-import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * @author greg

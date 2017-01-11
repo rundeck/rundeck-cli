@@ -25,7 +25,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 3/28/16.

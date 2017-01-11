@@ -9,12 +9,12 @@ import okhttp3.RequestBody;
 import org.rundeck.client.api.ReadmeFile;
 import org.rundeck.client.api.model.ProjectReadme;
 import org.rundeck.client.tool.commands.ApiCommand;
+import org.rundeck.client.tool.commands.HasClient;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 
 import java.io.File;
 import java.io.IOException;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 9/15/16.

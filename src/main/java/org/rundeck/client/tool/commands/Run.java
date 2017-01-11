@@ -3,12 +3,10 @@ package org.rundeck.client.tool.commands;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.JobRun;
 import org.rundeck.client.tool.options.RunBaseOptions;
-import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Quoting;
 import retrofit2.Call;
 
@@ -17,9 +15,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 5/20/16.

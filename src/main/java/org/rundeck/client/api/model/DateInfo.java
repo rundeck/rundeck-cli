@@ -33,9 +33,9 @@ public class DateInfo {
      * Format using the default or configured date format
      * @return
      */
-    public String format() {
+    public String format(String format) {
         try {
-            return Format.date(toDate(), Env.getString("DATE_FORMAT", "yyyy-MM-ddHH:mm:ssZ"));
+            return Format.date(toDate(), format);
         } catch (ParseException e) {
             return "?";
         }

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 5/19/16.
@@ -35,9 +34,9 @@ public class Projects extends ApiCommand implements HasSubCommands {
     @Override
     public List<Object> getSubCommands() {
         return Arrays.asList(
-                new ACLs(this::getClient),
-                new SCM(this::getClient),
-                new Readme(this::getClient)
+                new ACLs(this),
+                new SCM(this),
+                new Readme(this)
         );
     }
 

@@ -4,13 +4,10 @@ import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ApiToken;
-import org.rundeck.client.util.Client;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**

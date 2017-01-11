@@ -13,6 +13,7 @@ import org.rundeck.client.api.model.ACLPolicy;
 import org.rundeck.client.api.model.ACLPolicyItem;
 import org.rundeck.client.api.model.ACLPolicyValidation;
 import org.rundeck.client.tool.commands.ApiCommand;
+import org.rundeck.client.tool.commands.HasClient;
 import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
@@ -26,10 +27,8 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 6/6/16.

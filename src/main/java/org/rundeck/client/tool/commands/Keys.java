@@ -9,7 +9,6 @@ import com.simplifyops.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.KeyStorageItem;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Util;
@@ -18,7 +17,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**

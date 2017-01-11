@@ -2,6 +2,7 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.rundeck.client.tool.App;
 
 import java.util.HashMap;
 import java.util.List;
@@ -39,13 +40,13 @@ public class Execution {
         return String.format("[%s] <%s>", id, permalink);
     }
 
-    public String toExtendedString() {
+    public String toExtendedString(App.AppConfig config) {
         return String.format(
                 "%s %s %s %s %s %s %s",
                 id,
                 status,
-                null != dateStarted ? dateStarted.format() : "-",
-                null != dateEnded ? dateEnded.format() : "-",
+                null != dateStarted ? dateStarted.format(config.getDateFormat()) : "-",
+                null != dateEnded ? dateEnded.format(config.getDateFormat()) : "-",
                 permalink,
                 null != getJob() ? "job" : "adhoc",
                 getBasicDescription()
@@ -71,7 +72,7 @@ public class Execution {
         return description;
     }
 
-    public Map getInfoMap()  {
+    public Map getInfoMap(App.AppConfig config)  {
         HashMap<Object, Object> map = new HashMap<>();
         map.put("id", getId());
         map.put("description", shortened(getDescription()));
@@ -83,8 +84,8 @@ public class Execution {
         map.put("job", getJob());
         map.put("user", getUser());
         map.put("serverUUID", getServerUUID());
-        map.put("dateStarted", null != getDateStarted() ? getDateStarted().format() : null);
-        map.put("dateEnded", null != getDateEnded() ? getDateEnded().format() : null);
+        map.put("dateStarted", null != getDateStarted() ? getDateStarted().format(config.getDateFormat()) : null);
+        map.put("dateEnded", null != getDateEnded() ? getDateEnded().format(config.getDateFormat()) : null);
         map.put("successfulNodes", getSuccessfulNodes());
         map.put("failedNodes", getFailedNodes());
         return map;

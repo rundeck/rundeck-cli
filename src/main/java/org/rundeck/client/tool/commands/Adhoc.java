@@ -19,7 +19,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 
 /**
@@ -114,12 +113,12 @@ public class Adhoc extends ApiCommand {
 
         Execution execution = apiCall(api -> api.getExecution(adhocResponse.execution.getId()));
         if (options.isFollow()) {
-            output.info("Started execution " + execution.toExtendedString());
+            output.info("Started execution " + execution.toExtendedString(getAppConfig()));
         } else {
             if (!options.isOutputFormat()) {
                 output.info(adhocResponse.message);
             }
-            Executions.outputExecutionList(options, output, Collections.singletonList(execution));
+            Executions.outputExecutionList(options, output, Collections.singletonList(execution), getAppConfig());
         }
 
         return Executions.maybeFollow(getClient(), options, adhocResponse.execution.getId(), output);

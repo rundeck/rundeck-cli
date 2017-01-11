@@ -28,7 +28,7 @@ class RunSpec extends Specification {
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, 17)
-        def hasclient = Mock(ApiCommand.HasClient) {
+        def hasclient = Mock(HasClient) {
             getClient() >> client
         }
         Run run = new Run(hasclient)

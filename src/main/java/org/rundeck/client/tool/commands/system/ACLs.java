@@ -9,13 +9,13 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
 import org.rundeck.client.api.model.ACLPolicyItem;
 import org.rundeck.client.tool.commands.ApiCommand;
+import org.rundeck.client.tool.commands.HasClient;
 import org.rundeck.client.tool.commands.projects.ACLFileOptions;
 import org.rundeck.client.tool.commands.projects.ACLNameOptions;
 import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.util.Client;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 import static org.rundeck.client.tool.commands.projects.ACLs.*;
 
