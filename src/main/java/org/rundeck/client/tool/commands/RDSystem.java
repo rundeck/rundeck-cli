@@ -35,7 +35,7 @@ public class RDSystem extends ApiCommand implements HasSubCommands {
      */
     @Command(description = "Print system information and stats.")
     public void info(CommandOutput output) throws IOException, InputError {
-        SystemInfo systemInfo = getClient().checkError(getClient().getService().systemInfo());
+        SystemInfo systemInfo = apiCall(RundeckApi::systemInfo);
         output.output(systemInfo.system.toMap());
     }
 

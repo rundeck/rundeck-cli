@@ -60,15 +60,14 @@ public class Jobs extends ApiCommand {
             if (!options.isJob() && !options.isGroup()) {
                 throw new InputError("must specify -i, or -j/-g to specify jobs to delete.");
             }
-            Call<List<JobItem>> listCall;
-            listCall = getClient().getService().listJobs(
-                    projectOrEnv(options),
+            String project = projectOrEnv(options);
+            List<JobItem> body = apiCall(api -> api.listJobs(
+                    project,
                     options.getJob(),
                     options.getGroup(),
                     options.getJobExact(),
                     options.getGroupExact()
-            );
-            List<JobItem> body = getClient().checkError(listCall);
+            ));
             for (JobItem jobItem : body) {
                 ids.add(jobItem.getId());
             }
@@ -92,7 +91,8 @@ public class Jobs extends ApiCommand {
             }
         }
 
-        DeleteJobsResult deletedJobs = getClient().checkError(getClient().getService().deleteJobs(ids));
+        final List<String> finalIds = ids;
+        DeleteJobsResult deletedJobs = apiCall(api -> api.deleteJobs(finalIds));
 
         if (deletedJobs.isAllsuccessful()) {
             output.info(String.format("%d Jobs were deleted%n", deletedJobs.getRequestCount()));
@@ -121,14 +121,14 @@ public class Jobs extends ApiCommand {
                 input
         );
 
-        Call<ImportResult> importResultCall = getClient().getService().loadJobs(
-                projectOrEnv(options),
+        String project = projectOrEnv(options);
+        ImportResult importResult = apiCall(api -> api.loadJobs(
+                project,
                 requestBody,
                 options.getFormat(),
                 options.getDuplicate(),
                 options.isRemoveUuids() ? UUID_REMOVE : UUID_PRESERVE
-        );
-        ImportResult importResult = getClient().checkError(importResultCall);
+        ));
 
         List<JobLoadItem> failed = importResult.getFailed();
 
@@ -251,7 +251,7 @@ public class Jobs extends ApiCommand {
 
     @Command(description = "Get info about a Job by ID (API v18)")
     public void info(InfoOpts options, CommandOutput output) throws IOException, InputError {
-        ScheduledJobItem body = getClient().checkError(getClient().getService().getJobInfo(options.getId()));
+        ScheduledJobItem body = apiCall(api -> api.getJobInfo(options.getId()));
         outputJobList(options, output, Collections.singletonList(body));
     }
 

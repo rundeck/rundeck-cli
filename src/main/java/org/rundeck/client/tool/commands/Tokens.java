@@ -29,7 +29,7 @@ public class Tokens extends ApiCommand {
 
     @Command(description = "Create a token for a user")
     public ApiToken create(CreateOptions options, CommandOutput output) throws IOException, InputError {
-        ApiToken apiToken = getClient().checkError(getClient().getService().createToken(options.getUser()));
+        ApiToken apiToken = apiCall(api -> api.createToken(options.getUser()));
         output.info("API Token created:");
         output.output(apiToken.getId());
         return apiToken;
@@ -45,7 +45,7 @@ public class Tokens extends ApiCommand {
 
     @Command(description = "List tokens for a user")
     public List<ApiToken> list(ListOptions options, CommandOutput output) throws IOException, InputError {
-        List<ApiToken> tokens = getClient().checkError(getClient().getService().listTokens(options.getUser()));
+        List<ApiToken> tokens = apiCall(api -> api.listTokens(options.getUser()));
         output.info(String.format("API Tokens for %s:", options.getUser()));
         output.output(tokens.stream().map(
                 options.isVerbose()
@@ -63,7 +63,7 @@ public class Tokens extends ApiCommand {
 
     @Command(description = "Delete a token")
     public boolean delete(DeleteOptions options, CommandOutput output) throws IOException, InputError {
-        Void aVoid = getClient().checkError(getClient().getService().deleteToken(options.getToken()));
+        Void aVoid = apiCall(api -> api.deleteToken(options.getToken()));
         output.info("Token deleted.");
         return true;
     }

@@ -6,6 +6,7 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.HasSubCommands;
 import com.simplifyops.toolbelt.InputError;
+import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.commands.projects.ACLs;
 import org.rundeck.client.tool.commands.projects.Readme;
@@ -42,7 +43,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
 
     @Command(isDefault = true, description = "List all projects. (no options.)")
     public void list(CommandOutput output) throws IOException, InputError {
-        List<ProjectItem> body = getClient().checkError(getClient().getService().listProjects());
+        List<ProjectItem> body = apiCall(RundeckApi::listProjects);
         output.info(String.format("%d Projects:%n", body.size()));
         output.output(body.stream().map(ProjectItem::toBasicString).collect(Collectors.toList()));
     }
@@ -65,7 +66,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
                 return false;
             }
         }
-        getClient().checkError(getClient().getService().deleteProject(project));
+        apiCall(api -> api.deleteProject(project));
         output.info(String.format("Project was deleted: %s%n", project));
         return true;
     }
@@ -81,7 +82,7 @@ public class Projects extends ApiCommand implements HasSubCommands {
         project.setName(projectOrEnv(options));
         project.setConfig(config);
 
-        ProjectItem body = getClient().checkError(getClient().getService().createProject(project));
+        ProjectItem body = apiCall(api -> api.createProject(project));
         output.info(String.format("Created project: \n\t%s%n", body.toBasicString()));
         return true;
     }

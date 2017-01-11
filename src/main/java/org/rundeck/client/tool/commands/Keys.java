@@ -72,8 +72,7 @@ public class Keys extends ApiCommand {
     public boolean list(ListArg options, CommandOutput output) throws IOException, InputError {
 
         Path path = argPath(options);
-        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
-                                                                          .listKeyStorage(path.keysPath()));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(path.keysPath()));
 
         output.output(keyStorageItem.toBasicString());
         if (keyStorageItem.getType() == KeyStorageItem.KeyItemType.directory) {
@@ -100,9 +99,7 @@ public class Keys extends ApiCommand {
     @Command(description = "Get metadata about the given path")
     public void info(Info options, CommandOutput output) throws IOException, InputError {
         Path path = argPath(options);
-        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
-                                                                          .listKeyStorage(keysPath(path
-                                                                                                 .keysPath())));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(keysPath(path.keysPath())));
 
         output.output(String.format("Path: %s", keyStorageItem.getPath()));
         output.output(String.format("Type: %s", keyStorageItem.getType()));
@@ -146,8 +143,7 @@ public class Keys extends ApiCommand {
         if (path1.length() < 1) {
             throw new InputError("-p/--path is required");
         }
-        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
-                                                                          .listKeyStorage(path.keysPath()));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(path.keysPath()));
 
         if (keyStorageItem.getType() != KeyStorageItem.KeyItemType.file) {
             output.error(String.format("Requested path (%s) is not a file", path));
@@ -161,7 +157,7 @@ public class Keys extends ApiCommand {
             ));
             return false;
         }
-        ResponseBody body = getClient().checkError(getClient().getService().getPublicKey(path.keysPath()));
+        ResponseBody body = apiCall(api -> api.getPublicKey(path.keysPath()));
         if (!Client.hasAnyMediaType(body, Client.MEDIA_TYPE_GPG_KEYS)) {
             throw new IllegalStateException("Unexpected response format: " + body.contentType());
         }
@@ -194,7 +190,7 @@ public class Keys extends ApiCommand {
         if (path1.length() < 1) {
             throw new InputError("-p/--path is required");
         }
-        getClient().checkError(getClient().getService().deleteKeyStorage(path.keysPath()));
+        apiCall(api -> api.deleteKeyStorage(path.keysPath()));
         output.info(String.format("Deleted: %s", path));
     }
 
@@ -232,11 +228,7 @@ public class Keys extends ApiCommand {
         RequestBody requestBody = prepareKeyUpload(options);
 
 
-        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
-                                                                          .createKeyStorage(
-                                                                        path1,
-                                                                        requestBody
-                                                                ));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.createKeyStorage(path1, requestBody));
         output.info(String.format("Created: %s", keyStorageItem.toBasicString()));
         return true;
     }
@@ -307,11 +299,7 @@ public class Keys extends ApiCommand {
             throw new InputError("-p/--path is required");
         }
         RequestBody requestBody = prepareKeyUpload(options);
-        KeyStorageItem keyStorageItem = getClient().checkError(getClient().getService()
-                                                                          .updateKeyStorage(
-                                                                        path.keysPath(),
-                                                                        requestBody
-                                                                ));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.updateKeyStorage(path.keysPath(), requestBody));
         output.info(String.format("Updated: %s", keyStorageItem.toBasicString()));
         return true;
     }

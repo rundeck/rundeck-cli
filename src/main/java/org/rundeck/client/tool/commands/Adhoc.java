@@ -112,8 +112,7 @@ public class Adhoc extends ApiCommand {
 
         AdhocResponse adhocResponse = getClient().checkError(adhocResponseCall);
 
-        Execution execution = getClient().checkError(getClient().getService()
-                                                                .getExecution(adhocResponse.execution.getId()));
+        Execution execution = apiCall(api -> api.getExecution(adhocResponse.execution.getId()));
         if (options.isFollow()) {
             output.info("Started execution " + execution.toExtendedString());
         } else {

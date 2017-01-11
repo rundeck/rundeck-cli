@@ -39,14 +39,14 @@ public class Run extends ApiCommand {
             }
             String job = options.getJob();
             String[] parts = Jobs.splitJobNameParts(job);
-            Call<List<JobItem>> listCall = getClient().getService().listJobs(
-                    projectOrEnv(options),
+            String project = projectOrEnv(options);
+            List<JobItem> jobItems = apiCall(api -> api.listJobs(
+                    project,
                     null,
                     null,
                     parts[1],
                     parts[0]
-            );
-            List<JobItem> jobItems = getClient().checkError(listCall);
+            ));
             if (jobItems.size() != 1) {
                 out.error(String.format("Could not find a unique job with name: %s%n", job));
                 if (jobItems.size() > 0) {

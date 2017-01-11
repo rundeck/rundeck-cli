@@ -55,8 +55,7 @@ public class SCM extends ApiCommand {
 
     @Command(description = "Get SCM Config for a Project")
     public void config(ConfigOptions options, CommandOutput output) throws IOException, InputError {
-        ScmConfig scmConfig1 = getClient().checkError(getClient().getService()
-                                                                 .getScmConfig(options.getProject(), options.getIntegration()));
+        ScmConfig scmConfig1 = apiCall(api -> api.getScmConfig(options.getProject(), options.getIntegration()));
 
         HashMap<String, Object> basic = new HashMap<>();
         basic.put("Project", scmConfig1.project);
@@ -97,15 +96,14 @@ public class SCM extends ApiCommand {
         );
 
         //dont use client.checkError, we want to handle 400 validation error
-        Call<ScmActionResult> execute = getClient().getService()
-                                                   .setupScmConfig(
+
+        Response<ScmActionResult> response = getClient().getService()
+                                                        .setupScmConfig(
                                                            options.getProject(),
                                                            options.getIntegration(),
                                                            options.getType(),
                                                            requestBody
-                                                   );
-
-        Response<ScmActionResult> response = execute.execute();
+                                                        ).execute();
 
         //check for 400 error with validation information
         if (!checkValidationError(output, getClient(), response,
@@ -147,11 +145,10 @@ public class SCM extends ApiCommand {
 
     @Command(description = "Get SCM Status for a Project")
     public boolean status(StatusOptions options, CommandOutput output) throws IOException, InputError {
-        ScmProjectStatusResult result = getClient().checkError(getClient().getService()
-                                                                          .getScmProjectStatus(
-                                                                                  options.getProject(),
-                                                                                  options.getIntegration()
-                                                                          ).execute());
+        ScmProjectStatusResult result = apiCall(api -> api.getScmProjectStatus(
+                options.getProject(),
+                options.getIntegration()
+        ));
 
 
         output.output(result.toMap());
@@ -167,12 +164,11 @@ public class SCM extends ApiCommand {
     @Command(description = "Enable plugin ")
     public void enable(EnableOptions options, CommandOutput output) throws IOException, InputError {
         //otherwise check other error codes and fail if necessary
-        Void result = getClient().checkError(getClient().getService()
-                                                        .enableScmPlugin(
-                                                                options.getProject(),
-                                                                options.getIntegration(),
-                                                                options.getType()
-                                                        ).execute());
+        Void result = apiCall(api -> api.enableScmPlugin(
+                options.getProject(),
+                options.getIntegration(),
+                options.getType()
+        ));
 
     }
 
@@ -183,12 +179,11 @@ public class SCM extends ApiCommand {
     @Command(description = "Disable plugin ")
     public void disable(DisableOptions options, CommandOutput output) throws IOException, InputError {
         //otherwise check other error codes and fail if necessary
-        Void result = getClient().checkError(getClient().getService()
-                                                        .disableScmPlugin(
-                                                                options.getProject(),
-                                                                options.getIntegration(),
-                                                                options.getType()
-                                                        ).execute());
+        Void result = apiCall(api -> api.disableScmPlugin(
+                options.getProject(),
+                options.getIntegration(),
+                options.getType()
+        ));
 
     }
 
@@ -202,17 +197,12 @@ public class SCM extends ApiCommand {
     public void setupinputs(InputsOptions options, CommandOutput output) throws IOException, InputError {
 
 
-        //dont use client.checkError, we want to handle 400 validation error
-        Call<ScmSetupInputsResult> execute = getClient().getService()
-                                                        .getScmSetupInputs(
-                                                                options.getProject(),
-                                                                options.getIntegration(),
-                                                                options.getType()
-                                                        );
-
-
         //otherwise check other error codes and fail if necessary
-        ScmSetupInputsResult result = getClient().checkError(execute.execute());
+        ScmSetupInputsResult result = apiCall(api -> api.getScmSetupInputs(
+                options.getProject(),
+                options.getIntegration(),
+                options.getType()
+        ));
 
         output.output(result.fields.stream().map(ScmInputField::toMap).collect(Collectors.toList()));
     }
@@ -228,17 +218,11 @@ public class SCM extends ApiCommand {
     public void inputs(ActionInputsOptions options, CommandOutput output) throws IOException, InputError {
 
 
-        //dont use client.checkError, we want to handle 400 validation error
-        Call<ScmActionInputsResult> execute = getClient().getService()
-                                                         .getScmActionInputs(
-                                                                 options.getProject(),
-                                                                 options.getIntegration(),
-                                                                 options.getAction()
-                                                         );
-
-
-        //otherwise check other error codes and fail if necessary
-        ScmActionInputsResult result = getClient().checkError(execute.execute());
+        ScmActionInputsResult result = apiCall(api -> api.getScmActionInputs(
+                options.getProject(),
+                options.getIntegration(),
+                options.getAction()
+        ));
 
         output.output(result.title + ": " + result.description);
         output.output("Fields:");
@@ -283,13 +267,12 @@ public class SCM extends ApiCommand {
     public boolean perform(ActionPerformOptions options, CommandOutput output) throws IOException, InputError {
 
         ScmActionPerform perform = performFromOptions(options);
-        Call<ScmActionResult> execute = getClient().getService().performScmAction(
+        Response<ScmActionResult> response = getClient().getService().performScmAction(
                 options.getProject(),
                 options.getIntegration(),
                 options.getAction(),
                 perform
-        );
-        Response<ScmActionResult> response = execute.execute();
+        ).execute();
 
         //check for 400 error with validation information
         if (!checkValidationError(output, getClient(), response,
@@ -332,11 +315,7 @@ public class SCM extends ApiCommand {
 
 
         //otherwise check other error codes and fail if necessary
-        ScmPluginsResult result = getClient().checkError(getClient().getService()
-                                                                    .listScmPlugins(
-                                                                            options.getProject(),
-                                                                            options.getIntegration()
-                                                                    ).execute());
+        ScmPluginsResult result = apiCall(api -> api.listScmPlugins(options.getProject(), options.getIntegration()));
         output.output(result.plugins.stream().map(ScmPlugin::toMap).collect(Collectors.toList()));
     }
 

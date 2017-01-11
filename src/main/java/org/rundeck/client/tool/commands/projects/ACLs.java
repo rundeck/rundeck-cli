@@ -47,8 +47,7 @@ public class ACLs extends ApiCommand {
     @Command(description = "list project acls")
     public void list(ListCommandOptions options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
-        ACLPolicyItem items = getClient().checkError(getClient().getService()
-                                                                .listAcls(project));
+        ACLPolicyItem items = apiCall(api -> api.listAcls(project));
         outputListResult(options, output, items, String.format("project %s", project));
     }
 
@@ -85,8 +84,8 @@ public class ACLs extends ApiCommand {
 
     @Command(description = "get a project ACL definition")
     public void get(Get options, CommandOutput output) throws IOException, InputError {
-        ACLPolicy aclPolicy = getClient().checkError(getClient().getService()
-                                                                .getAclPolicy(projectOrEnv(options), options.getName()));
+        String project = projectOrEnv(options);
+        ACLPolicy aclPolicy = apiCall(api -> api.getAclPolicy(project, options.getName()));
         outputPolicyResult(output, aclPolicy);
     }
 
@@ -223,7 +222,7 @@ public class ACLs extends ApiCommand {
     @Command(description = "Delete a project ACL definition")
     public void delete(Delete options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
-        getClient().checkError(getClient().getService().deleteAclPolicy(project, options.getName()));
+        apiCall(api -> api.deleteAclPolicy(project, options.getName()));
         output.info(String.format("Deleted ACL Policy for %s: %s", project, options.getName()));
     }
 }
