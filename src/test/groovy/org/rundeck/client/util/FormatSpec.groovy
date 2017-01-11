@@ -21,4 +21,19 @@ class FormatSpec extends Specification {
         '%'   | ''  | 'a %b %c'     | [b: 'x'] | 'a x '
 
     }
+
+    def "format descend map"() {
+        given:
+        when:
+        def result = Format.format(format, data, start, end)
+        then:
+        result == expected
+        where:
+        start | end | format         | data                  | expected
+        '${'  | '}' | '${a} b c'     | [a: 'x', b: [c: 'd']] | 'x b c'
+        '${'  | '}' | '${b.c} b c'   | [a: 'x', b: [c: 'd']] | 'd b c'
+        '${'  | '}' | '${b.DNE} b c' | [a: 'x', b: [c: 'd']] | ' b c'
+        '${'  | '}' | '${a.b} b c'   | [a: 'x', b: [c: 'd']] | ' b c'
+
+    }
 }
