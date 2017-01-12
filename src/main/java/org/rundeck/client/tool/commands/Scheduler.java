@@ -6,6 +6,7 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.model.ScheduledJobItem;
+import org.rundeck.client.tool.RdApp;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,8 +16,8 @@ import java.util.stream.Collectors;
  * Created by greg on 7/8/16.
  */
 @Command(description = "View scheduler information")
-public class Scheduler extends ApiCommand {
-    public Scheduler(final HasClient client) {
+public class Scheduler extends AppCommand {
+    public Scheduler(final RdApp client) {
         super(client);
     }
 

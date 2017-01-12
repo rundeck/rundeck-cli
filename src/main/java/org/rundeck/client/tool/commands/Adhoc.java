@@ -9,6 +9,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.api.model.Execution;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
@@ -26,10 +27,10 @@ import java.util.Collections;
  */
 
 @Command(description = "Run adhoc command or script on matching nodes.")
-public class Adhoc extends ApiCommand {
+public class Adhoc extends AppCommand {
     static final String COMMAND = "adhoc";
 
-    public Adhoc(final HasClient client) {
+    public Adhoc(final RdApp client) {
         super(client);
     }
 

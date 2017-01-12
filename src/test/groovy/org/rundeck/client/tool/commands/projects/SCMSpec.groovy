@@ -4,9 +4,8 @@ import com.simplifyops.toolbelt.CommandOutput
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ScmProjectStatusResult
 import org.rundeck.client.api.model.ScmSynchState
-import org.rundeck.client.tool.App
-import org.rundeck.client.tool.commands.HasClient
-import org.rundeck.client.tool.options.EnvOptions
+import org.rundeck.client.tool.AppConfig
+import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
@@ -24,9 +23,9 @@ class SCMSpec extends Specification {
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, 18)
 
-        def appConfig = Mock(App.AppConfig)
+        def appConfig = Mock(AppConfig)
 
-        def hasclient = Mock(HasClient) {
+        def hasclient = Mock(RdApp) {
             getClient() >> client
             getAppConfig() >> appConfig
         }

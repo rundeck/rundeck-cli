@@ -2,7 +2,7 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.rundeck.client.tool.App;
+import org.rundeck.client.tool.AppConfig;
 
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +40,7 @@ public class Execution {
         return String.format("[%s] <%s>", id, permalink);
     }
 
-    public String toExtendedString(App.AppConfig config) {
+    public String toExtendedString(AppConfig config) {
         return String.format(
                 "%s %s %s %s %s %s %s",
                 id,
@@ -72,7 +72,7 @@ public class Execution {
         return description;
     }
 
-    public Map getInfoMap(App.AppConfig config)  {
+    public Map getInfoMap(AppConfig config)  {
         HashMap<Object, Object> map = new HashMap<>();
         map.put("id", getId());
         map.put("description", shortened(getDescription()));

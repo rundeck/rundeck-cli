@@ -8,8 +8,8 @@ import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.ReadmeFile;
 import org.rundeck.client.api.model.ProjectReadme;
-import org.rundeck.client.tool.commands.ApiCommand;
-import org.rundeck.client.tool.commands.HasClient;
+import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 
 import java.io.File;
@@ -21,8 +21,8 @@ import java.io.IOException;
  */
 
 @Command(description = "Manage Project readme.md/motd.md")
-public class Readme extends ApiCommand {
-    public Readme(final HasClient client) {
+public class Readme extends AppCommand {
+    public Readme(final RdApp client) {
         super(client);
     }
 

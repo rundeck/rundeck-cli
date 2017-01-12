@@ -5,6 +5,7 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.model.ApiToken;
+import org.rundeck.client.tool.RdApp;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,8 +15,8 @@ import java.util.stream.Collectors;
  * Created by greg on 8/9/16.
  */
 @Command(description = "Create, and manage tokens")
-public class Tokens extends ApiCommand {
-    public Tokens(final HasClient client) {
+public class Tokens extends AppCommand {
+    public Tokens(final RdApp client) {
         super(client);
     }
 

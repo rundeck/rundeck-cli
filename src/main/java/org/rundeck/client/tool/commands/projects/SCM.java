@@ -11,8 +11,8 @@ import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.commands.ApiCommand;
-import org.rundeck.client.tool.commands.HasClient;
+import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
@@ -30,8 +30,8 @@ import java.util.stream.Collectors;
  */
 
 @Command(description = "Manage Project SCM")
-public class SCM extends ApiCommand {
-    public SCM(final HasClient client) {
+public class SCM extends AppCommand {
+    public SCM(final RdApp client) {
         super(client);
     }
 

@@ -6,6 +6,7 @@ import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.JobRun;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Quoting;
 import retrofit2.Call;
@@ -21,8 +22,8 @@ import java.util.Map;
  * Created by greg on 5/20/16.
  */
 @Command(description = "Run a Job.")
-public class Run extends ApiCommand {
-    public Run(final HasClient client) {
+public class Run extends AppCommand {
+    public Run(final RdApp client) {
         super(client);
     }
 

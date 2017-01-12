@@ -12,8 +12,8 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
 import org.rundeck.client.api.model.ACLPolicyItem;
 import org.rundeck.client.api.model.ACLPolicyValidation;
-import org.rundeck.client.tool.commands.ApiCommand;
-import org.rundeck.client.tool.commands.HasClient;
+import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
@@ -34,8 +34,8 @@ import java.util.stream.Collectors;
  * Created by greg on 6/6/16.
  */
 @Command(description = "Manage Project ACLs")
-public class ACLs extends ApiCommand {
-    public ACLs(final HasClient client) {
+public class ACLs extends AppCommand {
+    public ACLs(final RdApp client) {
         super(client);
     }
 

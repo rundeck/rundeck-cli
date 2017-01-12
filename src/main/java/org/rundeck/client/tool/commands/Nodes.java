@@ -6,6 +6,7 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.model.ProjectNode;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.NodeFilterOptions;
 import org.rundeck.client.tool.options.NodeOutputFormatOption;
 import org.rundeck.client.tool.options.ProjectNameOptions;
@@ -24,8 +25,8 @@ import java.util.stream.Collectors;
  * @since 11/22/16
  */
 @Command(description = "List and manage node resources.")
-public class Nodes extends ApiCommand {
-    public Nodes(final HasClient builder) {
+public class Nodes extends AppCommand {
+    public Nodes(final RdApp builder) {
         super(builder);
     }
 

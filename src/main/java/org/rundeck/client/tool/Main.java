@@ -29,7 +29,7 @@ import java.util.function.Function;
 /**
  * Entrypoint for commandline
  */
-public class App {
+public class Main {
 
     public static final String ENV_USER = "RD_USER";
     public static final String ENV_PASSWORD = "RD_PASSWORD";
@@ -41,7 +41,7 @@ public class App {
     public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
 
     public static void main(String[] args) throws IOException, CommandRunFailure {
-        tool("rd", new Config(new Env())).runMain(args, true);
+        tool("rd", new Rd(new Env())).runMain(args, true);
     }
 
 
@@ -75,38 +75,34 @@ public class App {
         }
     }
 
-    public static Tool tool(final String name, final Config config) {
+    public static Tool tool(final String name, final Rd rd) {
         ToolBelt belt = ToolBelt.belt(name)
                                 .defaultHelpCommands()
-                                .ansiColorOutput(config.isAnsiEnabled())
+                                .ansiColorOutput(rd.isAnsiEnabled())
                                 .add(
-                                        new Adhoc(config),
-                                        new Jobs(config),
-                                        new Projects(config),
-                                        new Executions(config),
-                                        new Run(config),
-                                        new Keys(config),
-                                        new RDSystem(config),
-                                        new Scheduler(config),
-                                        new Tokens(config),
-                                        new Nodes(config),
+                                        new Adhoc(rd),
+                                        new Jobs(rd),
+                                        new Projects(rd),
+                                        new Executions(rd),
+                                        new Run(rd),
+                                        new Keys(rd),
+                                        new RDSystem(rd),
+                                        new Scheduler(rd),
+                                        new Tokens(rd),
+                                        new Nodes(rd),
                                         new Something()
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
-        setupColor(belt, config);
-        setupFormat(belt, config);
+        setupColor(belt, rd);
+        setupFormat(belt, rd);
         return belt.buckle();
     }
 
-    public static interface AppConfig extends ConfigSource {
-        boolean isAnsiEnabled();
+    static class Rd extends ExtConfigSource implements RdApp, AppConfig {
+        Client<RundeckApi> client;
 
-        String getDateFormat();
-    }
-
-    static class Config extends ExtConfigSource implements HasClient, AppConfig {
-        public Config(final ConfigSource src) {
+        public Rd(final ConfigSource src) {
             super(src);
         }
 
@@ -125,13 +121,10 @@ public class App {
             return getString("RD_DATE_FORMAT", "yyyy-MM-ddHH:mm:ssZ");
         }
 
-
-        Client<RundeckApi> client;
-
         @Override
         public Client<RundeckApi> getClient() throws InputError {
             if (null == client) {
-                client = App.createClient(this);
+                client = Main.createClient(this);
             }
             return client;
         }
@@ -164,7 +157,7 @@ public class App {
     }
 
 
-    public static Client<RundeckApi> createClient(Config config) throws InputError {
+    public static Client<RundeckApi> createClient(AppConfig config) throws InputError {
         Auth auth = new Auth() {
         };
         String baseUrl = null;
@@ -187,25 +180,25 @@ public class App {
 
         if (auth.isTokenAuth()) {
             return Rundeck.client(baseUrl, auth.getToken(), debuglevel, httpTimeout, retryConnect);
-        } else {
-            if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
-                throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
-                                                   ENV_USER + " or " + ENV_TOKEN);
-            }
-            if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
-                throw new IllegalArgumentException("Password must be entered, or use environment variable " +
-                                                   ENV_PASSWORD);
-            }
-
-            return Rundeck.client(
-                    baseUrl,
-                    auth.getUsername(),
-                    auth.getPassword(),
-                    debuglevel,
-                    httpTimeout,
-                    retryConnect
-            );
         }
+
+        if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
+            throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
+                                               ENV_USER + " or " + ENV_TOKEN);
+        }
+        if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
+            throw new IllegalArgumentException("Password must be entered, or use environment variable " +
+                                               ENV_PASSWORD);
+        }
+
+        return Rundeck.client(
+                baseUrl,
+                auth.getUsername(),
+                auth.getPassword(),
+                debuglevel,
+                httpTimeout,
+                retryConnect
+        );
     }
 
     static interface Auth {
@@ -241,9 +234,9 @@ public class App {
 
 
     static class ConfigAuth implements Auth {
-        Config config;
+        ConfigSource config;
 
-        public ConfigAuth(final Config config) {
+        public ConfigAuth(final ConfigSource config) {
             this.config = config;
         }
 

@@ -77,7 +77,7 @@ apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'nebula.ospackage'
 
-mainClassName = 'org.rundeck.client.tool.App'
+mainClassName = 'org.rundeck.client.tool.Main'
 applicationName = 'rd'
 //install path in rpm/deb
 ext.distInstallPath = '/var/lib/rundeck-cli'

@@ -14,12 +14,6 @@ import java.util.regex.Pattern;
  * @since 11/28/16
  */
 public class OptionUtil {
-    public String projectOrEnv(ProjectNameOptions options, ConfigSource source) throws InputError {
-        if (null != options.getProject()) {
-            return options.getProject();
-        }
-        return source.require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
-    }
 
     /**
      * Parse a list of "--key=value" into a map

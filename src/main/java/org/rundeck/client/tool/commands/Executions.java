@@ -7,7 +7,8 @@ import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.App;
+import org.rundeck.client.tool.AppConfig;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
@@ -24,9 +25,9 @@ import java.util.stream.Collectors;
  */
 
 @Command(description = "List running executions, attach and follow their output, or kill them.")
-public class Executions extends ApiCommand {
+public class Executions extends AppCommand {
 
-    public Executions(final HasClient client) {
+    public Executions(final RdApp client) {
         super(client);
     }
 
@@ -396,7 +397,7 @@ public class Executions extends ApiCommand {
             final ExecutionResultOptions options,
             final CommandOutput out,
             final List<Execution> executionList,
-            final App.AppConfig config
+            final AppConfig config
     )
     {
         if (options.isVerbose()) {
