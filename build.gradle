@@ -16,6 +16,22 @@ plugins {
     id "nebula.ospackage" version "3.6.1"
 }
 
+def genChangelog(prevTag, baseUrl) {
+    def diff = "${prevTag}..."
+    def serr = new StringBuilder(), sout = new StringBuilder()
+    def proc = ['git', 'log', '--no-merges',/* '--grep=[fF]ix #', '--grep=log:',*/ '--pretty=format:%s', diff].execute()
+    proc.consumeProcessOutput(sout, serr)
+    proc.waitForOrKill(1000)
+    def logs = sout.toString().readLines()
+    def include = [~/.*[fF]ix(es)? #\d+.*/, ~/^[fF]ix(es)?(:|\s).*/, ~/^[lL]og:?.*/]
+
+    logs = logs.
+            findAll { t -> t && include.any { t ==~ it } }.
+            collect { '* ' + it.replaceAll(/(#(\d+))/, "[Issue \$1]($baseUrl/issues/\$2)") }.
+            join('\n')
+    return logs ? logs + '\n' : ''
+}
+
 scmVersion {
     tag {
         prefix = 'v'
@@ -37,15 +53,7 @@ scmVersion {
             def changes = file('docs/changes.md')
             def changest = file('docs/_changes.md')
             def diff = "v${context.previousVersion}..."
-            def serr = new StringBuilder(), sout = new StringBuilder()
-            def proc = ['git', 'log', '--grep=[fF]ix #', '--grep=log:', '--pretty=format:%s', diff].execute()
-            proc.consumeProcessOutput(sout, serr)
-            proc.waitForOrKill(1000)
-            def logs = sout.toString().readLines()
-
-            logs = logs.findAll { it }.
-                    collect { '* ' + it.replaceAll(/(#(\d+))/, "[Issue \$1]($ghurl/issues/\$2)") }.join('\n')
-            logs = logs ? logs + '\n' : ''
+            def logs = genChangelog("v${context.previousVersion}", ghurl)
             def text = """## ${context.currentVersion}
 
 $logs
@@ -70,6 +78,24 @@ allprojects {
     project.version = scmVersion.version
     ext.rpmVersion=project.version.replaceAll('-', '.')
 }
+
+def getAxionVersion() {
+    def ctx = pl.allegro.tech.build.axion.release.infrastructure.di.GradleAwareContext.create(project)
+    def rules = ctx.rules
+    scmVersion.versionService.currentVersion(
+            rules.version,
+            rules.tag,
+            rules.nextVersion
+    )
+}
+
+task previousVersion << {
+    println "Previous version: ${axionVersion.previousVersion}"
+}
+task changeLog << {
+    println genChangelog(axionVersion.position.latestTag, "https://github.com/rundeck/rundeck-cli")
+}
+
 
 apply plugin: 'idea'
 apply plugin: 'groovy'
