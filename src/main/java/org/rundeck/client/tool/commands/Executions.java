@@ -7,6 +7,8 @@ import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.tool.AppConfig;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
@@ -17,16 +19,15 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 5/20/16.
  */
 
 @Command(description = "List running executions, attach and follow their output, or kill them.")
-public class Executions extends ApiCommand {
+public class Executions extends AppCommand {
 
-    public Executions(final HasClient client) {
+    public Executions(final RdApp client) {
         super(client);
     }
 
@@ -165,7 +166,7 @@ public class Executions extends ApiCommand {
 
         Execution execution = apiCall(api -> api.getExecution(options.getId()));
 
-        outputExecutionList(options, out, Collections.singletonList(execution));
+        outputExecutionList(options, out, Collections.singletonList(execution), getAppConfig());
     }
 
     @CommandLineInterface(application = "list") interface ListCmd
@@ -186,7 +187,7 @@ public class Executions extends ApiCommand {
             out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
         }
 
-        outputExecutionList(options, out, executionList.getExecutions());
+        outputExecutionList(options, out, executionList.getExecutions(), getAppConfig());
     }
 
 
@@ -378,7 +379,7 @@ public class Executions extends ApiCommand {
                     page.getTotal()
             ));
         }
-        outputExecutionList(options, out, executionList.getExecutions());
+        outputExecutionList(options, out, executionList.getExecutions(), getAppConfig());
         if (!options.isOutputFormat()) {
             if (page.getTotal() >
                 (page.getOffset() + page.getCount())) {
@@ -395,18 +396,20 @@ public class Executions extends ApiCommand {
     public static void outputExecutionList(
             final ExecutionResultOptions options,
             final CommandOutput out,
-            final List<Execution> executionList
+            final List<Execution> executionList,
+            final AppConfig config
     )
     {
         if (options.isVerbose()) {
-            out.output(executionList.stream().map(Execution::getInfoMap).collect(Collectors.toList()));
+
+            out.output(executionList.stream().map(e -> e.getInfoMap(config)).collect(Collectors.toList()));
             return;
         }
         final Function<Execution, ?> outformat;
         if (options.isOutputFormat()) {
-            outformat = Format.formatter(options.getOutputFormat(), Execution::getInfoMap, "%", "");
+            outformat = Format.formatter(options.getOutputFormat(), e -> e.getInfoMap(config), "%", "");
         } else {
-            outformat = Execution::toExtendedString;
+            outformat = e -> e.toExtendedString(config);
         }
         executionList.forEach(e -> out.output(outformat.apply(e)));
     }

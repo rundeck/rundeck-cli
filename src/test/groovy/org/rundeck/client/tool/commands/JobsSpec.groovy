@@ -7,8 +7,8 @@ import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.DeleteJobsResult
 import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.ScheduledJobItem
+import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
-import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -45,7 +45,7 @@ class JobsSpec extends Specification {
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, 17)
-        def hasclient = Mock(ApiCommand.HasClient) {
+        def hasclient = Mock(RdApp) {
             getClient() >> client
         }
         Jobs jobs = new Jobs(hasclient)
@@ -81,7 +81,7 @@ class JobsSpec extends Specification {
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, 17)
-        def hasclient = Mock(ApiCommand.HasClient) {
+        def hasclient = Mock(RdApp) {
             getClient() >> client
         }
         Jobs jobs = new Jobs(hasclient)
@@ -119,7 +119,7 @@ class JobsSpec extends Specification {
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, 17)
-        def hasclient = Mock(ApiCommand.HasClient) {
+        def hasclient = Mock(RdApp) {
             getClient() >> client
         }
         Jobs jobs = new Jobs(hasclient)
@@ -152,7 +152,7 @@ class JobsSpec extends Specification {
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, 18)
-        def hasclient = Mock(ApiCommand.HasClient) {
+        def hasclient = Mock(RdApp) {
             getClient() >> client
         }
         Jobs jobs = new Jobs(hasclient)

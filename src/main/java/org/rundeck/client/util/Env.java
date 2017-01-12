@@ -5,9 +5,9 @@ import com.simplifyops.toolbelt.InputError;
 /**
  * Created by greg on 11/17/16.
  */
-public class Env {
+public class Env implements ConfigSource {
 
-    public static int getInt(final String debug, final int defval) {
+    public int getInt(final String debug, final int defval) {
         String envProp = getString(debug, null);
         if (null != envProp) {
             return Integer.parseInt(envProp);
@@ -16,7 +16,7 @@ public class Env {
         }
     }
 
-    public static Long getLong(final String key, final Long defval) {
+    public Long getLong(final String key, final Long defval) {
         String timeoutEnv = getString(key, null);
         if (null != timeoutEnv) {
             return Long.parseLong(timeoutEnv);
@@ -25,11 +25,11 @@ public class Env {
         }
     }
 
-    public static boolean getBool(final String key, final boolean defval) {
+    public boolean getBool(final String key, final boolean defval) {
         return "true".equalsIgnoreCase(getString(key, defval ? "true" : "false"));
     }
 
-    public static String getString(final String key, final String defval) {
+    public String getString(final String key, final String defval) {
         String val = System.getenv(key);
         if (val != null) {
             return val;
@@ -38,7 +38,12 @@ public class Env {
         }
     }
 
-    public static String require(final String name, final String description) throws InputError {
+    @Override
+    public String get(final String key) {
+        return getString(key, null);
+    }
+
+    public String require(final String name, final String description) throws InputError {
         String value = System.getenv(name);
         if (null == value) {
             throw new InputError(String.format(

@@ -6,27 +6,26 @@ import com.simplifyops.toolbelt.HasSubCommands;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.SystemInfo;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.system.ACLs;
-import org.rundeck.client.util.Client;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Supplier;
 
 /**
  * Created by greg on 6/13/16.
  */
 @Command(description = "View system information", value = "system")
-public class RDSystem extends ApiCommand implements HasSubCommands {
-    public RDSystem(final HasClient client) {
+public class RDSystem extends AppCommand implements HasSubCommands {
+    public RDSystem(final RdApp client) {
         super(client);
     }
 
     @Override
     public List<Object> getSubCommands() {
         return Arrays.asList(
-                new ACLs(this::getClient)
+                new ACLs(this)
         );
     }
 

@@ -8,14 +8,14 @@ import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
 import org.rundeck.client.api.model.ACLPolicyItem;
-import org.rundeck.client.tool.commands.ApiCommand;
+import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.projects.ACLFileOptions;
 import org.rundeck.client.tool.commands.projects.ACLNameOptions;
 import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.util.Client;
 
 import java.io.IOException;
-import java.util.function.Supplier;
 
 import static org.rundeck.client.tool.commands.projects.ACLs.*;
 
@@ -23,8 +23,8 @@ import static org.rundeck.client.tool.commands.projects.ACLs.*;
  * System ACLs
  */
 @Command(description = "Manage System ACLs")
-public class ACLs extends ApiCommand {
-    public ACLs(final HasClient client) {
+public class ACLs extends AppCommand {
+    public ACLs(final RdApp client) {
         super(client);
     }
 

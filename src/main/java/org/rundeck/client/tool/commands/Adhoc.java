@@ -9,6 +9,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.api.model.Execution;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
@@ -19,7 +20,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 
 /**
@@ -27,10 +27,10 @@ import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
  */
 
 @Command(description = "Run adhoc command or script on matching nodes.")
-public class Adhoc extends ApiCommand {
+public class Adhoc extends AppCommand {
     static final String COMMAND = "adhoc";
 
-    public Adhoc(final HasClient client) {
+    public Adhoc(final RdApp client) {
         super(client);
     }
 
@@ -114,12 +114,12 @@ public class Adhoc extends ApiCommand {
 
         Execution execution = apiCall(api -> api.getExecution(adhocResponse.execution.getId()));
         if (options.isFollow()) {
-            output.info("Started execution " + execution.toExtendedString());
+            output.info("Started execution " + execution.toExtendedString(getAppConfig()));
         } else {
             if (!options.isOutputFormat()) {
                 output.info(adhocResponse.message);
             }
-            Executions.outputExecutionList(options, output, Collections.singletonList(execution));
+            Executions.outputExecutionList(options, output, Collections.singletonList(execution), getAppConfig());
         }
 
         return Executions.maybeFollow(getClient(), options, adhocResponse.execution.getId(), output);

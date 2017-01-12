@@ -8,6 +8,7 @@ import com.simplifyops.toolbelt.HasSubCommands;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.projects.ACLs;
 import org.rundeck.client.tool.commands.projects.Readme;
 import org.rundeck.client.tool.commands.projects.SCM;
@@ -21,23 +22,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 5/19/16.
  */
 @Command(description = "List and manage projects.")
-public class Projects extends ApiCommand implements HasSubCommands {
-    public Projects(final HasClient client) {
+public class Projects extends AppCommand implements HasSubCommands {
+    public Projects(final RdApp client) {
         super(client);
     }
 
     @Override
     public List<Object> getSubCommands() {
         return Arrays.asList(
-                new ACLs(this::getClient),
-                new SCM(this::getClient),
-                new Readme(this::getClient)
+                new ACLs(this),
+                new SCM(this),
+                new Readme(this)
         );
     }
 

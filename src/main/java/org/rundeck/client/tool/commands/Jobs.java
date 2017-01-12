@@ -8,6 +8,7 @@ import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
@@ -25,18 +26,17 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.options.OptionUtil.projectOrEnv;
 
 /**
  * Created by greg on 3/28/16.
  */
 @Command(description = "List and manage Jobs.")
-public class Jobs extends ApiCommand {
+public class Jobs extends AppCommand {
 
     public static final String UUID_REMOVE = "remove";
     public static final String UUID_PRESERVE = "preserve";
 
-    public Jobs(final HasClient client) {
+    public Jobs(final RdApp client) {
         super(client);
     }
 

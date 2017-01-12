@@ -4,6 +4,7 @@ import com.simplifyops.toolbelt.CommandOutput
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobItem
+import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.options.RunBaseOptions
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
@@ -28,7 +29,7 @@ class RunSpec extends Specification {
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, 17)
-        def hasclient = Mock(ApiCommand.HasClient) {
+        def hasclient = Mock(RdApp) {
             getClient() >> client
         }
         Run run = new Run(hasclient)

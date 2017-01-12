@@ -9,8 +9,8 @@ import com.simplifyops.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.KeyStorageItem;
+import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Util;
 
@@ -18,7 +18,6 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -27,8 +26,8 @@ import java.util.stream.Collectors;
 @Command(description = "Manage Keys via the Key Storage Facility." +
                        "\nSpecify the path using -p/--path, or as the last argument to the command.")
 
-public class Keys extends ApiCommand {
-    public Keys(final HasClient client) {
+public class Keys extends AppCommand {
+    public Keys(final RdApp client) {
         super(client);
     }
 
