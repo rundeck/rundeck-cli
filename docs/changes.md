@@ -4,6 +4,15 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.4
+
+* Fix [Issue #51](https://github.com/rundeck/rundeck-cli/issues/51) rd project scm should honor RD_PROJECT env var
+* Fix [Issue #55](https://github.com/rundeck/rundeck-cli/issues/55) jobs info -%/--outformat option causes blank output
+* unix: ~/.rd/rd.conf file can export env vars like RD_URL. fix [Issue #54](https://github.com/rundeck/rundeck-cli/issues/54)
+* fix: NPE on 400 response to keys upload/create
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.3...v1.0.4)
+
 ## 1.0.3
 
 * Add CHANGELOG fix [Issue #48](https://github.com/rundeck/rundeck-cli/issues/48)
