@@ -142,18 +142,18 @@ dependencies {
 distShadowZip.mustRunAfter distZip
 distShadowTar.mustRunAfter distTar
 
-startScripts {
+def scriptsClos = {
 
     def addConfigSource = { regexTest, additionalText, line ->
         // Looking for the line that starts with either CLASSPATH=
         // or set CLASSPATH=, defined by the regexTest closure argument.
         line = line.replaceAll(~/${regexTest}/) { original ->
-            original += "\n${additionalText}"
+            additionalText + "\n" + original
         }
     }
 
     def addUnixConfigSource = addConfigSource.curry(
-            '^CLASSPATH=.*$',
+            '^# Determine the Java command to use to start the JVM.*',
             '''
 # Source user's config file
 APP_CONFIG=$HOME/.$APP_NAME/$APP_NAME.conf
@@ -176,6 +176,22 @@ test -f $APP_CONFIG && source $APP_CONFIG
     }
 
 }
+startScripts scriptsClos
+startShadowScripts scriptsClos
+
+task verifyScripts {
+    group = "Verification"
+    description = 'Verify the start scripts (normal and shadow) contain the modifications for the APP_CONFIG'
+    doFirst {
+        [startScripts.outputDir, startShadowScripts.outputDir].each { dir ->
+            def f = new File(dir, applicationName)
+            assert f.exists()
+            assert f.text ==~ /(?s)^.*APP_CONFIG.*\u0024/
+        }
+    }
+}
+check.dependsOn verifyScripts
+
 /**
  * Define rpm/deb details
  */
