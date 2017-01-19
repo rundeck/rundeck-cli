@@ -186,7 +186,7 @@ task verifyScripts {
         [startScripts.outputDir, startShadowScripts.outputDir].each { dir ->
             def f = new File(dir, applicationName)
             assert f.exists()
-            assert f.text ==~ /(?s)^.*APP_CONFIG.*\u0024/
+            assert f.text ==~ /(?s)^.*APP_CONFIG.*$/
         }
     }
 }
