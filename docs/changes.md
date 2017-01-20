@@ -4,6 +4,13 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.5
+
+* Fix weird character
+* Fix [Issue #60](https://github.com/rundeck/rundeck-cli/issues/60) add conf file sourcing in shadow rd script
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.4...v1.0.5)
+
 ## 1.0.4
 
 * Fix [Issue #51](https://github.com/rundeck/rundeck-cli/issues/51) rd project scm should honor RD_PROJECT env var
