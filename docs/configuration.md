@@ -9,7 +9,7 @@ permalink: /configuration/
 
 Export environment variables in your shell, or in a `~/.rd/rd.conf` file (unix only).
 
-**Connection Info**
+## Connection Info
 
 	export RD_URL=http://rundeck:4440
 
@@ -19,7 +19,7 @@ Define a specific API version to use, by using the complete API base:
 
 All requests will be made using that API version.
 
-**Credentials**
+## Credentials
 
 Define access credentials as user/password or Token value:
 
@@ -30,7 +30,7 @@ Define access credentials as user/password or Token value:
 	export RD_USER=username
 	export RD_PASSWORD=password
 
-**Prompting**
+## Prompting
 
 If you do not define the credentials as environment variables,
 you will be prompted to enter a username/password or token in
@@ -41,7 +41,7 @@ You can disable automatic prompting:
     export RD_AUTH_PROMPT=false
 
 
-**ANSI color**
+## ANSI color
 
 By default, `rd` will print some output using ANSI escapes for colorized output.
 
@@ -55,7 +55,7 @@ You can set the default colors used by info/output/error/warning output:
     export RD_COLOR_WARN=orange
     export RD_COLOR_ERROR=cyan
 
-**Bypass an external URL**:
+## Bypass an external URL
 
 If your Rundeck server has a different *external URL* than the one you are accessing,
 you can tell the `rd` tool to treat redirects to that external URL as
@@ -70,7 +70,7 @@ as `http://internal-rundeck:4440/rundeck/blah`.
 Note: if you include the API version in your `RD_URL`, e.g. `http://internal-rundeck:4440/rundeck/api/12` then
 the `RD_BYPASS_URL` will be replaced by `http://internal-rundeck:4440/rundeck`.
 
-**HTTP/connect timeout**
+## HTTP/connect timeout
 
 Use `RD_HTTP_TIMEOUT` env var:
 
@@ -80,7 +80,7 @@ Use `RD_HTTP_TIMEOUT` env var:
 Note: if the timeout seems longer than you specify, it is because the "connection retry" is set to true
 by default.
 
-**Connection Retry**
+## Connection Retry
 
 Retry in case of recoverable connection issue (e.g. failure to connect):
 
@@ -89,7 +89,7 @@ Use `RD_CONNECT_RETRY` (default `true`):
 	# don't retry
 	export RD_CONNECT_RETRY=false
 
-**Debug HTTP**
+## Debug HTTP
 
 Use the `RD_DEBUG` env var to turn on HTTP debugging:
 
@@ -97,7 +97,11 @@ Use the `RD_DEBUG` env var to turn on HTTP debugging:
 	export RD_DEBUG=2 # http headers
 	export RD_DEBUG=3 # http body
 
-**Insecure SSL**
+## SSL Configuration
+
+See [SSL Configuration]({{site.url}}{{site.baseurl}}/configuration/ssl/)
+
+## Insecure SSL
 
 To disable *all* SSL certificate checks, and hostname verifications:
 
