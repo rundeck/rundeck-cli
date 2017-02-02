@@ -160,18 +160,20 @@ Manage Project SCM
 
 Run a Job.
 
-	Usage: run [options] -- -ARG VAL -ARG2 VAL...
-		[--filter -F value] : A node filter string
-		[--follow -f] : Follow execution output as it runs
-		[--id -i value] : Run the Job with this IDENTIFIER
-		[--job -j value] : Job job (group and name). Run a Job specified by Job name and group. eg: 'group/name'.
-		[--logevel -l /(verbose|info|warning|error)/] : Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.
-		[--progress -r] : Do not echo log text, just an indicator that output is being received.
-		[--project -p value] : Project name
-		[--quiet -q] : Echo no output, just wait until the execution completes.
-		[--restart -t] : Restart from the beginning
-		[--tail -T value] : Number of lines to tail from the end, default: 1
-		[--user -u value] : A username to run the job as, (runAs access required).
+    Usage: run [options] -- -OPT VAL -OPT2 VAL...
+         [--filter -F value] : A node filter string
+         [--follow -f] : Follow execution output as it runs
+         [--id -i value] : Run the Job with this IDENTIFIER
+         [--job -j value] : Job job (group and name). Run a Job specified by Job name and group. eg: 'group/name'.
+         [--logevel -l /(verbose|info|warning|error)/] : Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.
+         [--progress -r] : Do not echo log text, just an indicator that output is being received.
+         [--project -p value] : Project name
+         [--quiet -q] : Echo no output, just wait until the execution completes.
+         [--restart -t] : Restart from the beginning
+         [--at -@ value] : Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ss'Z')
+         [--delay -d /(\d+[smhdwMY]\s*)+/] : Run the job at a certain time from now. Format: ##[smhdwMY] where ## is an integer and the units are seconds, minutes, hours, days, weeks, Months, Years. Can combine units, e.g. "2h30m", "20m30s"
+         [--tail -T value] : Number of lines to tail from the end, default: 1
+         [--user -u value] : A username to run the job as, (runAs access required).
 
 ## scheduler
 

@@ -8,15 +8,15 @@ import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.JobRun;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.RunBaseOptions;
+import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Quoting;
 import retrofit2.Call;
 
 import java.io.IOException;
 import java.text.ParseException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 /**
@@ -24,6 +24,13 @@ import java.util.Map;
  */
 @Command(description = "Run a Job.")
 public class Run extends AppCommand {
+
+    public static final int SEC_MS = 1000;
+    public static final int MIN_MS = 60 * 1000;
+    public static final int HOUR_MS = 60 * 60 * 1000;
+    public static final int DAY_MS = 24 * 60 * 60 * 1000;
+    public static final int WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
     public Run(final RdApp client) {
         super(client);
     }
@@ -105,6 +112,14 @@ public class Run extends AppCommand {
                 } catch (ParseException e) {
                     throw new InputError("-@/--at date format is not valid", e);
                 }
+            } else if (options.isRunDelay()) {
+                runat = parseDelayTime(options.getRunDelay());
+                request.setRunAtTime(runat);
+                out.info(String.format(
+                        "Scheduling execution in %s, at: %s",
+                        options.getRunDelay(),
+                        Format.date(runat, "yyyy-MM-dd'T'HH:mm:ssXX")
+                ));
             }
             executionListCall = getClient().getService().runJob(jobId, request);
         } else {
@@ -117,10 +132,10 @@ public class Run extends AppCommand {
             );
         }
         Execution execution = getClient().checkError(executionListCall);
-        String started = options.isRunAtDate() ? "scheduled" : "started";
+        String started = runat != null ? "scheduled" : "started";
         out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
 
-        if (options.isRunAtDate() && runat != null) {
+        if (runat != null) {
             Date now = new Date();
             long diff = runat.getTime() - now.getTime();
             out.info(String.format("Waiting until scheduled execution starts...(in %dms)", diff));
@@ -135,5 +150,59 @@ public class Run extends AppCommand {
             out.info("Started.");
         }
         return Executions.maybeFollow(getClient(), options, execution.getId(), out);
+    }
+
+    private Date parseDelayTime(final String delayString) throws InputError {
+        long delayms = System.currentTimeMillis();
+        Pattern p = Pattern.compile("(?<digits>\\d+)(?<unit>[smhdwMY])\\s*");
+        Matcher matcher = p.matcher(delayString);
+        int months = 0;
+        int years = 0;
+        while (matcher.find()) {
+            String digit = matcher.group("digits");
+            String unit = matcher.group("unit");
+            long count = Integer.parseInt(digit);
+            long unitms = 0;
+            //simple addition for time units
+            switch (unit) {
+                case "s":
+                    unitms = SEC_MS;
+                    break;
+                case "m":
+                    unitms = MIN_MS;
+                    break;
+                case "h":
+                    unitms = HOUR_MS;
+                    break;
+                case "d":
+                    unitms = DAY_MS;
+                    break;
+                case "w":
+                    unitms = WEEK_MS;
+                    break;
+                default:
+                    unitms = 0;
+            }
+            if ("M".equals(unit)) {
+                months += count;
+            } else if ("Y".equals(unit)) {
+                years += count;
+            }
+            delayms += (count * unitms);
+        }
+        Date date = new Date(delayms);
+        if (months > 0 || years > 0) {
+            //use calendar for date units
+            GregorianCalendar gregorianCalendar = new GregorianCalendar(TimeZone.getDefault());
+            gregorianCalendar.setTime(date);
+            if (months > 0) {
+                gregorianCalendar.add(Calendar.MONTH, months);
+            }
+            if (years > 0) {
+                gregorianCalendar.add(Calendar.YEAR, years);
+            }
+            date = gregorianCalendar.getTime();
+        }
+        return date;
     }
 }

@@ -15,6 +15,7 @@ import java.util.Locale;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DateInfo {
+    public static final String ISO = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public String date;
     public long unixtime;
 
@@ -26,7 +27,7 @@ public class DateInfo {
     }
 
     public Date toDate() throws ParseException {
-        return toDate("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        return toDate(ISO);
     }
 
     /**
@@ -54,6 +55,12 @@ public class DateInfo {
     public String toRelative(final Date time) throws ParseException {
         long diff = time.getTime() - toDate().getTime();
         return String.format("%dms ago", diff);
+    }
+
+    public static DateInfo withDate(Date input) {
+        SimpleDateFormat asdf = new SimpleDateFormat(ISO, Locale.US);
+
+        return new DateInfo(asdf.format(input));
     }
 
     @Override

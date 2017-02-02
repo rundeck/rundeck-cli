@@ -45,6 +45,16 @@ public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions, No
 
     boolean isRunAtDate();
 
+    @Option(shortName = "d",
+            longName = "delay",
+            description = "Run the job at a certain time from now. Format: ##[smhdwMY] where ## " +
+                          "is an integer and the units are seconds, minutes, hours, days, weeks, Months, Years. Can combine " +
+                          "units, e.g. \"2h30m\", \"20m30s\"",
+            pattern = "(\\d+[smhdwMY]\\s*)+")
+    String getRunDelay();
+
+    boolean isRunDelay();
+
     @Unparsed(name = "-- -OPT VAL -OPT2 VAL", description = "Job options")
     List<String> getCommandString();
 
