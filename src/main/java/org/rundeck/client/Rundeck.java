@@ -10,8 +10,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
 import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
+import javax.net.ssl.*;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.security.GeneralSecurityException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,6 +29,8 @@ public class Rundeck {
     public static final int API_VERS = 16;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
+    public static final String ENV_INSECURE_SSL = "RD_INSECURE_SSL";
+    public static final int INSECURE_SSL_LOGGING = 2;
 
     /**
      * Create a client using the specified, or default version
@@ -102,6 +109,10 @@ public class Rundeck {
                 .addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
 
         String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv(ENV_BYPASS_URL));
+        boolean insecureSsl = Boolean.parseBoolean(System.getProperty(
+                "rundeck.client.insecure.ssl",
+                System.getenv(ENV_INSECURE_SSL)
+        ));
 
         if (null != bypassUrl) {
             //fix redirects to external Rundeck URL by rewriting as to the baseurl
@@ -109,6 +120,10 @@ public class Rundeck {
                     appBaseUrl,
                     bypassUrl
             ));
+        }
+
+        if (insecureSsl) {
+            addInsecureSsl(callFactory, httpLogging);
         }
         if (httpLogging > 0) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -210,6 +225,10 @@ public class Rundeck {
 
         ));
         String bypassUrl = System.getProperty("rundeck.client.bypass.url", System.getenv(ENV_BYPASS_URL));
+        boolean insecureSsl = Boolean.parseBoolean(System.getProperty(
+                "rundeck.client.insecure.ssl",
+                System.getenv(ENV_INSECURE_SSL)
+        ));
 
         if (null != bypassUrl) {
             //fix redirects to external Rundeck URL by rewriting as to the baseurl
@@ -217,6 +236,9 @@ public class Rundeck {
                     appBaseUrl,
                     normalizeUrlPath(bypassUrl)
             ));
+        }
+        if (insecureSsl) {
+            addInsecureSsl(callFactory, httpLogging);
         }
         if (httpLogging > 0) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
@@ -249,6 +271,60 @@ public class Rundeck {
                 .build();
 
         return new Client<>(build.create(RundeckApi.class), build, usedApiVers);
+    }
+
+    private static void addInsecureSsl(final OkHttpClient.Builder callFactory, int logging) {
+
+        X509TrustManager trustManager;
+        SSLSocketFactory sslSocketFactory;
+        try {
+            trustManager = createInsecureSslTrustManager(logging);
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, new TrustManager[]{trustManager}, null);
+            sslSocketFactory = sslContext.getSocketFactory();
+        } catch (GeneralSecurityException e) {
+            throw new RuntimeException(e);
+        }
+        callFactory.sslSocketFactory(sslSocketFactory, trustManager);
+        callFactory.hostnameVerifier((hostname, session) -> {
+            if (logging >= INSECURE_SSL_LOGGING) {
+                System.err.println("INSECURE_SSL:hostnameVerifier: trust host: " + hostname);
+            }
+            return true;
+        });
+    }
+
+    private static X509TrustManager createInsecureSslTrustManager(int logging)
+            throws GeneralSecurityException
+    {
+        return new X509TrustManager() {
+            @Override
+            public X509Certificate[] getAcceptedIssuers() {
+                X509Certificate[] cArrr = new X509Certificate[0];
+                return cArrr;
+            }
+
+            @Override
+            public void checkServerTrusted(
+                    final X509Certificate[] chain,
+                    final String authType
+            ) throws CertificateException
+            {
+                if (logging >= INSECURE_SSL_LOGGING) {
+                    System.err.printf("INSECURE_SSL:TrustManager:checkServerTrusted: %s: chain: %s%n", authType,
+                                      Arrays.toString(chain)
+                    );
+                }
+            }
+
+            @Override
+            public void checkClientTrusted(
+                    final X509Certificate[] chain,
+                    final String authType
+            ) throws CertificateException
+            {
+            }
+        };
     }
 
     /**
