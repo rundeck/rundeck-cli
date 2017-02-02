@@ -16,6 +16,7 @@ import retrofit2.Call;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -108,6 +109,21 @@ public class Executions extends AppCommand {
         return out;
     }
 
+    /**
+     * Follow output, wait 2s between refreshing data from server, halts when interrupted
+     *
+     * @param client
+     * @param output
+     * @param progress
+     * @param quiet
+     * @param id
+     * @param max
+     * @param out
+     *
+     * @return
+     *
+     * @throws IOException
+     */
     public static boolean followOutput(
             final Client<RundeckApi> client,
             final Call<ExecOutput> output,
@@ -118,6 +134,41 @@ public class Executions extends AppCommand {
             CommandOutput out
     ) throws IOException
     {
+        return followOutput(client, output, progress, quiet, id, max, out, () -> {
+            try {
+                Thread.sleep(2000);
+                return true;
+            } catch (InterruptedException e) {
+                return false;
+            }
+        });
+    }
+
+    /**
+     * @param client
+     * @param output
+     * @param progress
+     * @param quiet
+     * @param id
+     * @param max
+     * @param out
+     * @param waitFunc function for waiting, return false to halt
+     *
+     * @return
+     *
+     * @throws IOException
+     */
+    public static boolean followOutput(
+            final Client<RundeckApi> client,
+            final Call<ExecOutput> output,
+            final boolean progress,
+            final boolean quiet,
+            final String id,
+            long max,
+            CommandOutput out,
+            BooleanSupplier waitFunc
+    ) throws IOException
+    {
         boolean done = false;
         String status = null;
         Call<ExecOutput> callOutput = output;
@@ -125,14 +176,11 @@ public class Executions extends AppCommand {
             ExecOutput execOutput = client.checkError(callOutput);
             printLogOutput(execOutput.entries, progress, quiet, out);
             status = execOutput.execState;
-            done = !"running".equals(status);
+            done = execOutput.execCompleted && execOutput.completed;
             if (!done) {
-                try {
-                    Thread.sleep(2000);
-                } catch (InterruptedException e) {
+                if (!waitFunc.getAsBoolean()){
                     break;
                 }
-
                 callOutput = client.getService().getOutput(id, execOutput.offset, execOutput.lastModified, max);
             }
         }
