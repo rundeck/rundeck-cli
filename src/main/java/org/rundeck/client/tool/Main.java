@@ -25,6 +25,8 @@ import java.util.Collection;
 import java.util.Random;
 import java.util.function.Function;
 
+import static org.rundeck.client.Rundeck.ENV_INSECURE_SSL;
+
 
 /**
  * Entrypoint for commandline
@@ -61,9 +63,13 @@ public class Main {
             representer.addClassTag(Execution.class, Tag.MAP);
             belt.formatter(new YamlFormatter(representer, dumperOptions));
             belt.channels().infoEnabled(false);
+            belt.channels().warningEnabled(false);
+            belt.channels().errorEnabled(false);
         } else if ("json".equalsIgnoreCase(config.get("RD_FORMAT"))) {
             belt.formatter(new JsonFormatter());
             belt.channels().infoEnabled(false);
+            belt.channels().warningEnabled(false);
+            belt.channels().errorEnabled(false);
         } else {
             NiceFormatter formatter = new NiceFormatter(null);
             formatter.setCollectionIndicator("");
@@ -96,6 +102,15 @@ public class Main {
                                 .commandInput(new JewelInput());
         setupColor(belt, rd);
         setupFormat(belt, rd);
+
+        boolean insecureSsl = Boolean.parseBoolean(System.getProperty(
+                "rundeck.client.insecure.ssl",
+                System.getenv(ENV_INSECURE_SSL)
+        ));
+        if (insecureSsl) {
+            belt.finalOutput().warning(
+                    "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
+        }
         return belt.buckle();
     }
 

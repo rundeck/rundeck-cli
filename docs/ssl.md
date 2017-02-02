@@ -5,12 +5,14 @@ title: SSL Configuration
 permalink: /configuration/ssl/
 ---
 
-# Setup SSL 
-
 To use a self-signed or custom server certificate for `rd`, you will need to do the following:
 
 1. Import the certificate to a truststore/keystore
 2. Set the JVM properties needed to use the truststore
+
+(**Note**: if you want to skip the rigamarole, and simply accept *all*
+SSL certificates without verification,
+see [Configuration - Insecure SSL](({{site.url}}{{site.baseurl}}/configuration/#insecure-ssl))
 
 ## 1. Import the certificate
 
