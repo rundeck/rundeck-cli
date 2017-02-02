@@ -175,17 +175,13 @@ public class Main {
     public static Client<RundeckApi> createClient(AppConfig config) throws InputError {
         Auth auth = new Auth() {
         };
-        String baseUrl = null;
         auth = auth.chain(new ConfigAuth(config));
+        String baseUrl = config.require(
+                ENV_URL,
+                "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
+        );
 
-        if (null == baseUrl) {
-            baseUrl = config.require(
-                    ENV_URL,
-                    "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
-            );
-        }
-
-        if (config.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
+        if (!auth.isConfigured() && config.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
             auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
 
@@ -217,6 +213,12 @@ public class Main {
     }
 
     static interface Auth {
+        default boolean isConfigured() {
+            return null != getToken() || (
+                    null != getUsername() && null != getPassword()
+            );
+        }
+
         default String getUsername() {
             return null;
         }
