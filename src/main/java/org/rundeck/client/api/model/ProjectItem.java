@@ -3,6 +3,8 @@ package org.rundeck.client.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -49,6 +51,22 @@ public class ProjectItem {
         this.config = config;
     }
 
+    public Map<Object, Object> toBasicMap() {
+
+        HashMap<Object, Object> detail = new LinkedHashMap<>();
+        detail.put("name", getName());
+        detail.put("description", description != null && !"".equals(description.trim()) ? description : "");
+        detail.put("url", getUrl());
+        return detail;
+    }
+    public Map<Object, Object> toMap() {
+
+        HashMap<Object, Object> detail = new LinkedHashMap<>(toBasicMap());
+        if (null != getConfig()) {
+            detail.put("config", getConfig());
+        }
+        return detail;
+    }
     public String toBasicString() {
         return String.format(
                 "%s%s",
