@@ -96,3 +96,12 @@ Use the `RD_DEBUG` env var to turn on HTTP debugging:
 	export RD_DEBUG=1 # basic http request debug
 	export RD_DEBUG=2 # http headers
 	export RD_DEBUG=3 # http body
+
+**Insecure SSL**
+
+To disable *all* SSL certificate checks, and hostname verifications:
+
+    export RD_INSECURE_SSL=true
+
+When enabled, a value of `RD_DEBUG=2` will also report SSL certificate
+information.
