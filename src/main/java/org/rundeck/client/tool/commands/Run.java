@@ -13,6 +13,7 @@ import retrofit2.Call;
 
 import java.io.IOException;
 import java.text.ParseException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -68,6 +69,7 @@ public class Run extends AppCommand {
 
         }
         Call<Execution> executionListCall;
+        Date runat = null;
         if (getClient().getApiVersion() >= 18) {
             JobRun request = new JobRun();
             request.setLoglevel(options.getLoglevel());
@@ -96,9 +98,10 @@ public class Run extends AppCommand {
             }
 
             request.setOptions(jobopts);
-            if (null != options.getRunAtDate()) {
+            if (options.isRunAtDate()) {
                 try {
-                    request.setRunAtTime(options.getRunAtDate().toDate("yyyy-MM-dd'T'HH:mm:ssXX"));
+                    runat = options.getRunAtDate().toDate("yyyy-MM-dd'T'HH:mm:ssXX");
+                    request.setRunAtTime(runat);
                 } catch (ParseException e) {
                     throw new InputError("-@/--at date format is not valid", e);
                 }
@@ -114,8 +117,23 @@ public class Run extends AppCommand {
             );
         }
         Execution execution = getClient().checkError(executionListCall);
-        out.info(String.format("Execution started: %s%n", execution.toBasicString()));
+        String started = options.isRunAtDate() ? "scheduled" : "started";
+        out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
 
+        if (options.isRunAtDate() && runat != null) {
+            Date now = new Date();
+            long diff = runat.getTime() - now.getTime();
+            out.info(String.format("Waiting until scheduled execution starts...(in %dms)", diff));
+            while (now.compareTo(runat) < 0) {
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    break;
+                }
+                now = new Date();
+            }
+            out.info("Started.");
+        }
         return Executions.maybeFollow(getClient(), options, execution.getId(), out);
     }
 }
