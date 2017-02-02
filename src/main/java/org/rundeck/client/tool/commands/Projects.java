@@ -12,14 +12,14 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.projects.ACLs;
 import org.rundeck.client.tool.commands.projects.Readme;
 import org.rundeck.client.tool.commands.projects.SCM;
-import org.rundeck.client.tool.options.OptionUtil;
-import org.rundeck.client.tool.options.ProjectCreateOptions;
-import org.rundeck.client.tool.options.ProjectNameOptions;
+import org.rundeck.client.tool.options.*;
+import org.rundeck.client.util.Format;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 
@@ -41,11 +41,42 @@ public class Projects extends AppCommand implements HasSubCommands {
         );
     }
 
+    interface ProjectResultOptions extends ProjectListFormatOptions, VerboseOption {
+
+    }
+
+    @CommandLineInterface(application = "list") interface ProjectListOpts extends ProjectResultOptions {
+
+    }
+
     @Command(isDefault = true, description = "List all projects. (no options.)")
-    public void list(CommandOutput output) throws IOException, InputError {
+    public void list(ProjectListOpts opts, CommandOutput output) throws IOException, InputError {
         List<ProjectItem> body = apiCall(RundeckApi::listProjects);
-        output.info(String.format("%d Projects:%n", body.size()));
-        output.output(body.stream().map(ProjectItem::toBasicString).collect(Collectors.toList()));
+        if (!opts.isOutputFormat()) {
+            output.info(String.format("%d Projects:%n", body.size()));
+        }
+
+        outputProjectList(opts, output, body);
+    }
+
+    private void outputProjectList(
+            final ProjectResultOptions options,
+            final CommandOutput output,
+            final List<ProjectItem> body
+    )
+    {
+        final Function<ProjectItem, ?> outformat;
+        if (options.isVerbose()) {
+            output.output(body.stream().map(ProjectItem::toMap).collect(Collectors.toList()));
+            return;
+        }
+        if (options.isOutputFormat()) {
+            outformat = Format.formatter(options.getOutputFormat(), ProjectItem::toMap, "%", "");
+        } else {
+            outformat = ProjectItem::getName;
+        }
+
+        output.output(body.stream().map(outformat).collect(Collectors.toList()));
     }
 
     @CommandLineInterface(application = "delete") interface ProjectDelete extends ProjectNameOptions {
