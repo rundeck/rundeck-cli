@@ -51,12 +51,17 @@ public class ProjectItem {
         this.config = config;
     }
 
-    public Map<Object, Object> toMap() {
+    public Map<Object, Object> toBasicMap() {
 
         HashMap<Object, Object> detail = new LinkedHashMap<>();
         detail.put("name", getName());
         detail.put("description", description != null && !"".equals(description.trim()) ? description : "");
         detail.put("url", getUrl());
+        return detail;
+    }
+    public Map<Object, Object> toMap() {
+
+        HashMap<Object, Object> detail = new LinkedHashMap<>(toBasicMap());
         if (null != getConfig()) {
             detail.put("config", getConfig());
         }

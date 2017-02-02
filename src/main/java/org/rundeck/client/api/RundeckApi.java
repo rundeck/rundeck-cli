@@ -91,6 +91,13 @@ public interface RundeckApi {
     Call<List<ProjectItem>> listProjects();
 
     /**
+     * @see <a href="http://rundeck.org/docs/api/#getting-project-info">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}")
+    Call<ProjectItem> getProjectInfo(@Path("project") String project);
+
+    /**
      *
      * @see <a href="http://rundeck.org/docs/api/index.html#listing-resources">api</a>
      */

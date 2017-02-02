@@ -17,6 +17,7 @@ import org.rundeck.client.util.Format;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -49,31 +50,49 @@ public class Projects extends AppCommand implements HasSubCommands {
 
     }
 
-    @Command(isDefault = true, description = "List all projects. (no options.)")
+    @Command(isDefault = true, description = "List all projects.")
     public void list(ProjectListOpts opts, CommandOutput output) throws IOException, InputError {
         List<ProjectItem> body = apiCall(RundeckApi::listProjects);
         if (!opts.isOutputFormat()) {
             output.info(String.format("%d Projects:%n", body.size()));
         }
 
-        outputProjectList(opts, output, body);
+        outputProjectList(opts, output, body, ProjectItem::getName, ProjectItem::toMap);
+    }
+
+    @CommandLineInterface(application = "info") interface ProjectInfoOpts extends ProjectResultOptions {
+
+        @Option(shortName = "p", longName = "project", description = "Project name")
+        String getProject();
+
+    }
+
+    @Command(isDefault = true,
+             description = "Get info about a project. Use -v/--verbose to output all available config data, or use " +
+                           "-%/--outformat for selective data.")
+    public void info(ProjectInfoOpts opts, CommandOutput output) throws IOException, InputError {
+        ProjectItem body = apiCall(api -> api.getProjectInfo(opts.getProject()));
+
+        outputProjectList(opts, output, Collections.singletonList(body), ProjectItem::toBasicMap, ProjectItem::toMap);
     }
 
     private void outputProjectList(
             final ProjectResultOptions options,
             final CommandOutput output,
-            final List<ProjectItem> body
+            final List<ProjectItem> body,
+            final Function<ProjectItem, Object> basicOutput,
+            final Function<ProjectItem, Map<Object, Object>> verboseOutput
     )
     {
         final Function<ProjectItem, ?> outformat;
         if (options.isVerbose()) {
-            output.output(body.stream().map(ProjectItem::toMap).collect(Collectors.toList()));
+            output.output(body.stream().map(verboseOutput).collect(Collectors.toList()));
             return;
         }
         if (options.isOutputFormat()) {
             outformat = Format.formatter(options.getOutputFormat(), ProjectItem::toMap, "%", "");
         } else {
-            outformat = ProjectItem::getName;
+            outformat = basicOutput;
         }
 
         output.output(body.stream().map(outformat).collect(Collectors.toList()));
