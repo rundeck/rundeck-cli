@@ -22,6 +22,8 @@ class ExecutionsSpec extends Specification {
 
         ExecOutput execOutputFinal = new ExecOutput()
         execOutputFinal.execState = finalState
+        execOutputFinal.execCompleted = true
+        execOutputFinal.completed = true
         execOutputFinal.entries = []
 
         def api = Mock(RundeckApi)
@@ -30,28 +32,40 @@ class ExecutionsSpec extends Specification {
         def client = new Client(api, retrofit, 18)
 
         ExecOutput execOutput = new ExecOutput()
-        execOutput.execState = 'running'
+        execOutput.execState = initState
         execOutput.offset = 123
         execOutput.lastModified = 01L
         execOutput.entries = []
+        execOutput.execCompleted = initExecCompleted
+        execOutput.completed = initCompleted
 
 
         def output = Calls.response(execOutput)
 
         when:
 
-        boolean result = Executions.followOutput(client, output, progress, quiet, id, max, Mock(CommandOutput))
+        boolean result = Executions.followOutput(client, output, progress, quiet, id, max, Mock(CommandOutput)) {
+            -> true
+        }
 
         then:
         1 * api.getOutput(id, 123, 01L, max) >> Calls.response(execOutputFinal)
         result == exit
 
         where:
-        finalState  | exit
-        'succeeded' | true
-        'succeeded' | true
-        'failed'    | false
-        'failed'    | false
+        initState   | initExecCompleted | initCompleted | finalState  | exit
+        'running'   | false             | false         | 'succeeded' | true
+        'running'   | true              | false         | 'succeeded' | true
+        'running'   | false             | true          | 'succeeded' | true
+        'running'   | false             | false         | 'failed'    | false
+        'running'   | true              | false         | 'failed'    | false
+        'running'   | false             | true          | 'failed'    | false
+        'scheduled' | false             | false         | 'succeeded' | true
+        'scheduled' | true              | false         | 'succeeded' | true
+        'scheduled' | false             | true          | 'succeeded' | true
+        'scheduled' | false             | false         | 'failed'    | false
+        'scheduled' | true              | false         | 'failed'    | false
+        'scheduled' | false             | true          | 'failed'    | false
 
     }
 }
