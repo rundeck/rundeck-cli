@@ -125,7 +125,7 @@ public class Executions extends AppCommand {
             ExecOutput execOutput = client.checkError(callOutput);
             printLogOutput(execOutput.entries, progress, quiet, out);
             status = execOutput.execState;
-            done = !"running".equals(status);
+            done = execOutput.execCompleted && execOutput.completed;
             if (!done) {
                 try {
                     Thread.sleep(2000);
