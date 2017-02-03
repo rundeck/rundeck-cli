@@ -1,3 +1,15 @@
+## 1.0.6
+
+* log: add `rd run --delay` flag relative schedule
+* log: `run --follow --at` waits before following
+* Fix [Issue #65](https://github.com/rundeck/rundeck-cli/issues/65) run -f halts before job execution finishes
+* log: add projects info -p name
+* Fix [Issue #68](https://github.com/rundeck/rundeck-cli/issues/68) improve projects list output
+* Fix [Issue #66](https://github.com/rundeck/rundeck-cli/issues/66) don't prompt when token or user+pass set
+* Fix [Issue #63](https://github.com/rundeck/rundeck-cli/issues/63) allow RD_INSECURE_SSL=true
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.5...v1.0.6)
+
 ## 1.0.5
 
 * Fix weird character
