@@ -105,6 +105,41 @@ public interface RundeckApi {
     @GET("project/{project}/resources")
     Call<Map<String, ProjectNode>> listNodes(@Path("project") String project, @Query("filter") String filter);
 
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#put-project-configuration">api</a>
+     */
+    @Headers("Accept: application/json")
+    @PUT("project/{project}/config")
+    Call<ProjectConfig> setProjectConfiguration(@Path("project") String project, @Body ProjectConfig config);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#get-project-configuration">api</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/config")
+    Call<ProjectConfig> getProjectConfiguration(@Path("project") String project);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#put-project-configuration-key">api</a>
+     */
+    @Headers({"Accept: application/json", "Content-Type: application/json"})
+    @PUT("project/{project}/config/{key}")
+    Call<ProjectConfig> setProjectConfigurationKey(
+            @Path("project") String project,
+            @Path("key") String key,
+            @Body ProjectConfig value
+    );
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#delete-project-configuration-key">api</a>
+     */
+    @DELETE("project/{project}/config/{key}")
+    Call<Void> deleteProjectConfigurationKey(
+            @Path("project") String project,
+            @Path("key") String key
+    );
+
+
     @Headers("Accept: application/json")
     @POST("projects")
     Call<ProjectItem> createProject(@Body ProjectItem properties);
