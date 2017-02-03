@@ -133,12 +133,14 @@ List and manage projects.
 
 	Available commands:
 
-	   acls   - Manage Project ACLs
-	   create - Create a project
-	   delete - Delete a project
-	   list   - List all projects
-	   readme - Manage Project readme
-	   scm    - Manage Project SCM
+        acls      - Manage Project ACLs
+        configure - Manage Project configuration
+        create    - Create a project
+        delete    - Delete a project
+        info      - Get info about a project
+        list      - List all projects
+        readme    - Manage Project readme
+        scm       - Manage Project SCM
 
 ### projects scm
 
@@ -155,6 +157,17 @@ Manage Project SCM
 	   setup       - Setup SCM Config for a Project
 	   setupinputs - Get SCM Setup inputs
 	   status      - Get SCM Status for a Project
+
+### projects configure
+
+Manage Project configuration
+
+    Available commands:
+
+       delete - Remove configuration properties for a project
+       get    - Get all configuration properties for a project
+       set    - Overwrite all configuration properties for a project
+       update - Modify configuration properties for a project
 
 ## run
 
