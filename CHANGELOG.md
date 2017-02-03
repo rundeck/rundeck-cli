@@ -1,3 +1,9 @@
+## 1.0.7
+
+* add `rd projects configure` subcommands
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.6...v1.0.7)
+
 ## 1.0.6
 
 * log: add `rd run --delay` flag relative schedule

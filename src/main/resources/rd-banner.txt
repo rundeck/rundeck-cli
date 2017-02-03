@@ -1,5 +1,5 @@
 
-- ${red}RD$$ - Rundeck API Client Tool (v1.0.6) - ${cyan}https://rundeck.github.io/rundeck-cli/$$
+- ${red}RD$$ - Rundeck API Client Tool (v1.0.7) - ${cyan}https://rundeck.github.io/rundeck-cli/$$
 
 ${red}
     .:'/*/'`:,·:~·:.,              ,._., ._
