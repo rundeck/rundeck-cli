@@ -19,15 +19,15 @@ plugins {
 def genChangelog(prevTag, baseUrl) {
     def diff = "${prevTag}..."
     def serr = new StringBuilder(), sout = new StringBuilder()
-    def proc = ['git', 'log', '--no-merges',/* '--grep=[fF]ix #', '--grep=log:',*/ '--pretty=format:%s', diff].execute()
+    def proc = ['git', 'log', '--no-merges','--pretty=format:%s', diff].execute()
     proc.consumeProcessOutput(sout, serr)
     proc.waitForOrKill(1000)
     def logs = sout.toString().readLines()
-    def include = [~/.*[fF]ix(es)? #\d+.*/, ~/^[fF]ix(es)?(:|\s).*/, ~/^[lL]og:?.*/]
+    def include = [~/.*[fF]ix(e[sd])? #\d+.*/, ~/^[fF]ix(e[sd])?(:|\s).*/, ~/^[lL]og:?.*/]
 
     logs = logs.
             findAll { t -> t && include.any { t ==~ it } }.
-            collect { '* ' + it.replaceAll(/(#(\d+))/, "[Issue \$1]($baseUrl/issues/\$2)") }.
+            collect { '* ' + it.replaceAll(/^[lL]og:\s+/,'').replaceAll(/(#(\d+))/, "[Issue \$1]($baseUrl/issues/\$2)") }.
             join('\n')
     return logs ? logs + '\n' : ''
 }
