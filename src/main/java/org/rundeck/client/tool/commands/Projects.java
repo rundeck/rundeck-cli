@@ -10,6 +10,7 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.projects.ACLs;
+import org.rundeck.client.tool.commands.projects.Configure;
 import org.rundeck.client.tool.commands.projects.Readme;
 import org.rundeck.client.tool.commands.projects.SCM;
 import org.rundeck.client.tool.options.*;
@@ -38,7 +39,8 @@ public class Projects extends AppCommand implements HasSubCommands {
         return Arrays.asList(
                 new ACLs(this),
                 new SCM(this),
-                new Readme(this)
+                new Readme(this),
+                new Configure(this)
         );
     }
 

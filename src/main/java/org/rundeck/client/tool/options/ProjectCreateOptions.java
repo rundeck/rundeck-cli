@@ -7,10 +7,6 @@ import java.util.List;
 /**
  * Created by greg on 5/20/16.
  */
-public interface ProjectCreateOptions extends ProjectNameOptions {
+public interface ProjectCreateOptions extends ProjectNameOptions,UnparsedConfigOptions {
 
-    @Unparsed(name = "-- --configkey=value",
-              defaultValue = {},
-              description = "A set of config properties for the project, in the form --key=value")
-    List<String> config();
 }
