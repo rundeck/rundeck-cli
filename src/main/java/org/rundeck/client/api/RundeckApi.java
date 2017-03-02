@@ -46,6 +46,75 @@ public interface RundeckApi {
             @Path("jobid") String jobid
     );
 
+    /**
+     * Get uploaded file info
+     *
+     * @param fileid
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("jobs/file/{fileid}")
+    Call<JobFileItem> getJobFileInfo(
+            @Path("fileid") String fileid
+    );
+
+    /**
+     * List uploaded files for a job
+     *
+     * @param jobid     job id
+     * @param fileState file state
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("job/{jobid}/input/files")
+    Call<JobFileItemList> listJobFiles(
+            @Path("jobid") String jobid,
+            @Query("fileState") String fileState,
+            @Query("offset") int offset,
+            @Query("max") int max
+    );
+
+    /**
+     * List uploaded files for a job in state 'temp'
+     *
+     * @param jobid job id
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("job/{jobid}/input/files")
+    Call<JobFileItemList> listJobFiles(
+            @Path("jobid") String jobid,
+            @Query("offset") int offset,
+            @Query("max") int max
+    );
+
+    /**
+     * List uploaded files for an execution
+     *
+     * @param execid execution id
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("execution/{execid}/input/files")
+    Call<JobFileItemList> listExecutionFiles(
+            @Path("execid") String execid,
+            @Query("offset") int offset,
+            @Query("max") int max
+    );
+
+    @Headers("Accept: application/json")
+    @POST("job/{jobid}/input/file")
+    Call<JobFileUploadResult> uploadJobOptionFile(
+            @Path("jobid") String jobid,
+            @Query("optionName") String optionName,
+            @Query("fileName") String fileName,
+            @Body RequestBody body
+    );
+
 
     @GET("project/{project}/jobs/export")
     Call<ResponseBody> exportJobs(

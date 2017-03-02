@@ -44,4 +44,22 @@ public class Paging {
     public void setOffset(int offset) {
         this.offset = offset;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Paged results %d - %d (of %d by %d).", offset, count + offset, total, max);
+    }
+
+    public String moreResults(final String offsetArg) {
+        if (hasMoreResults()) {
+            int nextOffset = getOffset() + getMax();
+            return String.format("(more results available, append: %s %d)", offsetArg, nextOffset);
+        } else {
+            return "End of results.";
+        }
+    }
+
+    public boolean hasMoreResults() {
+        return getTotal() > (getOffset() + getCount());
+    }
 }

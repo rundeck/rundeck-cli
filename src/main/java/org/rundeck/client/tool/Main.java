@@ -6,10 +6,7 @@ import com.simplifyops.toolbelt.format.yaml.snakeyaml.YamlFormatter;
 import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
 import org.rundeck.client.Rundeck;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.DateInfo;
-import org.rundeck.client.api.model.Execution;
-import org.rundeck.client.api.model.JobItem;
-import org.rundeck.client.api.model.ScheduledJobItem;
+import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ConfigSource;
@@ -20,9 +17,7 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Random;
+import java.util.*;
 import java.util.function.Function;
 
 import static org.rundeck.client.Rundeck.ENV_INSECURE_SSL;
@@ -71,7 +66,23 @@ public class Main {
             belt.channels().warningEnabled(false);
             belt.channels().errorEnabled(false);
         } else {
-            NiceFormatter formatter = new NiceFormatter(null);
+            NiceFormatter formatter = new NiceFormatter(null) {
+                @Override
+                public String format(final Object o) {
+                    if (o instanceof Formatable) {
+                        Formatable o1 = (Formatable) o;
+                        Map<?, ?> map = o1.asMap();
+                        if (null != map) {
+                            return super.format(map);
+                        }
+                        List<?> objects = o1.asList();
+                        if (null != objects) {
+                            return super.format(objects);
+                        }
+                    }
+                    return super.format(o);
+                }
+            };
             formatter.setCollectionIndicator("");
             belt.formatter(formatter);
             belt.channels().info(new FormattedOutput(
