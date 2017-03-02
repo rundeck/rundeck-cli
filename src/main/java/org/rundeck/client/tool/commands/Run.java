@@ -4,14 +4,17 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.model.Execution;
+import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.JobRun;
 import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.commands.jobs.Files;
 import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Quoting;
 import retrofit2.Call;
 
+import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
@@ -22,7 +25,8 @@ import java.util.regex.Pattern;
 /**
  * Created by greg on 5/20/16.
  */
-@Command(description = "Run a Job.")
+@Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
+                       "@path\". Note: For literal '@' in option value that starts with @, use @@.")
 public class Run extends AppCommand {
 
     public static final int SEC_MS = 1000;
@@ -84,12 +88,23 @@ public class Run extends AppCommand {
             request.setAsUser(options.getUser());
             List<String> commandString = options.getCommandString();
             Map<String, String> jobopts = new HashMap<>();
+            Map<String, File> fileinputs = new HashMap<>();
             String key = null;
             if (null != commandString) {
                 for (String s : commandString) {
                     if (key == null && s.startsWith("-")) {
                         key = s.substring(1);
                     } else if (key != null) {
+                        if (s.charAt(0) == '@') {
+                            //file input
+                            if (s.length() > 1 && s.charAt(1) != '@') {
+                                File file = new File(s.substring(1));
+                                fileinputs.put(key, file);
+                            } else {
+                                //replace escaped @ signs
+                                s = s.replaceAll(Pattern.quote("@@"), Matcher.quoteReplacement("@"));
+                            }
+                        }
                         jobopts.put(key, s);
                         key = null;
                     }
@@ -102,6 +117,33 @@ public class Run extends AppCommand {
                                 key,
                                 key
                         ));
+            }
+            if (fileinputs.size() > 0 && getClient().getApiVersion() < 19) {
+                out.warning(
+                        String.format(
+                                "APIv19 is required for option file inputs (using %d). The option values will be used" +
+                                " verbatim.",
+                                getClient().getApiVersion()
+                        ));
+            } else if (fileinputs.size() > 0) {
+                for (String optionName : fileinputs.keySet()) {
+                    File file = fileinputs.get(optionName);
+                    if (!Files.validInputFile(file)) {
+                        throw new InputError("File Option -" + optionName + ": File cannot be read: " + file);
+                    }
+                }
+                for (String optionName : fileinputs.keySet()) {
+                    File file = fileinputs.get(optionName);
+                    JobFileUploadResult jobFileUploadResult = Files.uploadFileForJob(
+                            getClient(),
+                            file,
+                            jobId,
+                            optionName
+                    );
+                    String fileid = jobFileUploadResult.getFileIdForOption(optionName);
+                    jobopts.put(optionName, fileid);
+                    out.info(String.format("File Upload OK (%s -> %s)", file, fileid));
+                }
             }
 
             request.setOptions(jobopts);

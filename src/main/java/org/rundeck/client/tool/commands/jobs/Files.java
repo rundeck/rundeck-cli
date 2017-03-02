@@ -6,6 +6,7 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
+import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.JobFileItem;
 import org.rundeck.client.api.model.JobFileItemList;
 import org.rundeck.client.api.model.JobFileUploadResult;
@@ -17,7 +18,6 @@ import org.rundeck.client.util.Client;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * @author greg
@@ -132,25 +132,68 @@ public class Files extends AppCommand {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
 
-        RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
         String fileName = input.getName();
-        JobFileUploadResult jobFileUploadResult = apiCall(api -> api.uploadJobOptionFile(
+        JobFileUploadResult jobFileUploadResult = uploadFileForJob(
+                getClient(),
+                input,
                 options.getId(),
-                options.getOption(),
-                fileName,
-                requestBody
-        ));
-        if (jobFileUploadResult.getTotal() == 1) {
-            if (null != jobFileUploadResult.getOptions() &&
-                null != jobFileUploadResult.getOptions().get(options.getOption())) {
-                out.info("File " + fileName + " uploaded successfully for option " + options.getOption());
-                out.info("File key:");
-                out.output(jobFileUploadResult.getOptions().get(options.getOption()));
-                return true;
-            }
+                options.getOption()
+        );
+
+        String fileid = jobFileUploadResult.getFileIdForOption(options.getOption());
+        if (null != fileid) {
+            out.info("File " + fileName + " uploaded successfully for option " + options.getOption());
+            out.info("File key:");
+            out.output(fileid);
+            return true;
+        } else {
+            out.error(String.format("Expected one option result for option %s, but saw: ", options.getOption()));
         }
-        out.warning(String.format("Expected one option result for option %s, but saw: ", options.getOption()));
         out.output(jobFileUploadResult);
         return false;
+    }
+
+    /**
+     * Upload a file for a job option input and return the result
+     *
+     * @param client
+     * @param input
+     * @param jobId
+     * @param optionName
+     *
+     * @return
+     *
+     * @throws InputError
+     * @throws IOException
+     */
+    public static JobFileUploadResult uploadFileForJob(
+            final Client<RundeckApi> client,
+            final File input,
+            final String jobId,
+            final String optionName
+    ) throws InputError, IOException
+    {
+        if (!validInputFile(input)) {
+            throw new IOException("Can't read file: " + input);
+        }
+        RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
+        return apiCall(
+                client,
+                api -> api.uploadJobOptionFile(
+                        jobId,
+                        optionName,
+                        input.getName(),
+                        requestBody
+                )
+        );
+    }
+
+    /**
+     * @param input
+     *
+     * @return true if the file can be read
+     */
+    public static boolean validInputFile(final File input) {
+        return input.exists() && input.canRead() && input.isFile();
     }
 }

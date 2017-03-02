@@ -30,7 +30,17 @@ public abstract class AppCommand implements RdApp {
     }
 
     public <T> T apiCall(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
-        return getClient().checkError(func.apply(getClient().getService()));
+        Client<RundeckApi> client = getClient();
+        return apiCall(client, func);
+    }
+
+    public static <T> T apiCall(
+            final Client<RundeckApi> client,
+            final Function<RundeckApi, Call<T>> func
+    )
+            throws IOException
+    {
+        return client.checkError(func.apply(client.getService()));
     }
 
     public String projectOrEnv(final ProjectNameOptions options) throws InputError {

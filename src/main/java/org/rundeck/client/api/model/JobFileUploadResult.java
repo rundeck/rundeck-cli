@@ -45,4 +45,19 @@ public class JobFileUploadResult implements Formatable {
         map.put("options", options);
         return map;
     }
+
+    /**
+     * Return the result file ID for the given option if available, or null
+     * @param option
+     * @return
+     */
+    public String getFileIdForOption(String option) {
+        if (getTotal() > 0) {
+            if (null != getOptions() &&
+                null != getOptions().get(option)) {
+                return getOptions().get(option);
+            }
+        }
+        return null;
+    }
 }
