@@ -1,3 +1,7 @@
+## unreleased
+
+* Check the follow flag on run with delay. Fixes #76
+
 ## 1.0.7
 
 * add `rd projects configure` subcommands
