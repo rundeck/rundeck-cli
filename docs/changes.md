@@ -4,6 +4,13 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.8
+
+* Check the follow flag on run with delay. Fixes [Issue #76](https://github.com/rundeck/rundeck-cli/issues/76)
+* Default API version set to 18, fixes [Issue #74](https://github.com/rundeck/rundeck-cli/issues/74)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.7...v1.0.8)
+
 ## 1.0.7
 
 * add `rd projects configure` subcommands
