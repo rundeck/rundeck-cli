@@ -16,8 +16,33 @@ plugins {
     id "nebula.ospackage" version "3.6.1"
     id 'de.fuerstenau.buildconfig' version '1.1.8'
 }
+ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
+ext.changelogFile = file("CHANGELOG.md")
 
-def genChangelog(prevTag, baseUrl) {
+/**
+ * Unreleased changes list from the changelog file
+ * @param prevVersion
+ * @param changelog
+ * @return
+ */
+def unreleasedLog(prevVersion, changelog) {
+    def m = changelog?.text =~ ~/(?si)^(## unreleased(.*))## ${prevVersion}.*$/
+    if (m.find()) {
+        return m.group(2)?.split(/\n/).findAll { it }.collect { it.replaceAll(/^[\*-]\s*/, '') }
+    }
+}
+
+/**
+ * Generate partial or full changelog
+ * @param prevTag
+ * @param baseUrl
+ * @param curVersion
+ * @param prevVersion
+ * @param changelog
+ * @param full
+ * @return
+ */
+def genChangelog(prevTag, baseUrl, curVersion, prevVersion, File changelog, full = false) {
     def diff = "${prevTag}..."
     def serr = new StringBuilder(), sout = new StringBuilder()
     def proc = ['git', 'log', '--no-merges','--pretty=format:%s', diff].execute()
@@ -26,11 +51,26 @@ def genChangelog(prevTag, baseUrl) {
     def logs = sout.toString().readLines()
     def include = [~/.*[fF]ix(e[sd])? #\d+.*/, ~/^[fF]ix(e[sd])?(:|\s).*/, ~/^[lL]og:?.*/]
 
-    logs = logs.
-            findAll { t -> t && include.any { t ==~ it } }.
+    def unrel = changelog ? unreleasedLog(prevVersion, changelog) ?: [] : []
+
+    unrel.addAll(logs.findAll { t -> t && include.any { t ==~ it } })
+    logs = unrel.
             collect { '* ' + it.replaceAll(/^[lL]og:\s+/,'').replaceAll(/(#(\d+))/, "[Issue \$1]($baseUrl/issues/\$2)") }.
             join('\n')
-    return logs ? logs + '\n' : ''
+    logs = logs ? logs + '\n' : ''
+    if (full && changelog) {
+        def text = """## ${curVersion}
+
+$logs
+[Changes]($baseUrl/compare/${diff}v${curVersion})
+
+"""
+        return changelog.text.replaceAll(
+                ~/(?s)^(## unreleased(.*))?(## ${prevVersion}.*)$/,
+                Matcher.quoteReplacement(text) + '$3'
+        )
+    }
+    return logs
 }
 
 scmVersion {
@@ -46,21 +86,16 @@ scmVersion {
                            pattern    : { v, c -> /\(v$v\)/ },
                            replacement: { v, c -> "(v$v)" }]
         pre { context ->
-            def ghurl = "https://github.com/rundeck/rundeck-cli"
-            def changelog = file('CHANGELOG.md')
+            def changelog = changelogFile
             def changes = file('docs/changes.md')
             def changest = file('docs/_changes.md')
-            def diff = "v${context.previousVersion}..."
-            def logs = genChangelog("v${context.previousVersion}", ghurl)
-            def text = """## ${context.currentVersion}
-
-$logs
-[Changes]($ghurl/compare/${diff}v${context.currentVersion})
-
-"""
-            def newtext = changelog.text.replaceAll(
-                    ~/(?m)^(## ${context.previousVersion}.*)$/,
-                    Matcher.quoteReplacement(text) + '$1'
+            def newtext = genChangelog(
+                    "v${context.previousVersion}",
+                    githubUrl,
+                    context.currentVersion,
+                    context.previousVersion,
+                    changelog,
+                    true
             )
             changelog.text = newtext
             changes.text = changest.text + newtext
@@ -91,7 +126,15 @@ task previousVersion << {
     println "Previous version: ${axionVersion.previousVersion}"
 }
 task changeLog << {
-    println genChangelog(axionVersion.position.latestTag, "https://github.com/rundeck/rundeck-cli")
+    def version = axionVersion
+    println genChangelog(
+            version.position.latestTag,
+            githubUrl,
+            version.version,
+            version.previousVersion,
+            changelogFile,
+            project.hasProperty("changelogFull")
+    )
 }
 
 /**
