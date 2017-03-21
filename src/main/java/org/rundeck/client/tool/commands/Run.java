@@ -135,7 +135,7 @@ public class Run extends AppCommand {
         String started = runat != null ? "scheduled" : "started";
         out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
 
-        if (runat != null) {
+        if (runat != null && options.isFollow()) {
             Date now = new Date();
             long diff = runat.getTime() - now.getTime();
             out.info(String.format("Waiting until scheduled execution starts...(in %dms)", diff));
