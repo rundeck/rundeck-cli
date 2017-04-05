@@ -293,16 +293,15 @@ public class Jobs extends AppCommand {
     }
 
     @Command(description = "Enable schedule for a job")
-    public boolean enableSchedule(EnableSchedOpts options, CommandOutput output) throws IOException, InputError {
+    public boolean reschedule(EnableSchedOpts options, CommandOutput output) throws IOException, InputError {
         return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, output, "Enabled Schedule for Job %s");
-
     }
 
     @CommandLineInterface(application = "disableSchedule") interface DisableSchedOpts extends ToggleOpts {
     }
 
     @Command(description = "Disable schedule for a job")
-    public boolean disableSchedule(DisableSchedOpts options, CommandOutput output) throws IOException, InputError {
+    public boolean unschedule(DisableSchedOpts options, CommandOutput output) throws IOException, InputError {
         return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Schedule for Job %s");
     }
 
