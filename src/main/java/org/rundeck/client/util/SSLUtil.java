@@ -1,28 +1,36 @@
 package org.rundeck.client.util;
 
 import okhttp3.OkHttpClient;
+import okhttp3.internal.tls.OkHostnameVerifier;
 import org.rundeck.client.Rundeck;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import javax.net.ssl.*;
 import java.security.GeneralSecurityException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * @author greg
  * @since 4/5/17
  */
 public class SSLUtil {
+    /**
+     * Add insecure trust manager and hostname verifier
+     *
+     * @param callFactory OkHttp builder
+     * @param logging     logging level
+     */
     public static void addInsecureSsl(final OkHttpClient.Builder callFactory, int logging) {
         addInsecureSSLTrustManager(callFactory, logging);
         addInsecureSSLHostnameVerifier(callFactory, logging);
     }
 
-    private static void addInsecureSSLTrustManager(final OkHttpClient.Builder callFactory, final int logging) {
+    public static void addInsecureSSLTrustManager(final OkHttpClient.Builder callFactory, final int logging) {
         X509TrustManager trustManager;
         SSLSocketFactory sslSocketFactory;
         try {
@@ -36,13 +44,54 @@ public class SSLUtil {
         callFactory.sslSocketFactory(sslSocketFactory, trustManager);
     }
 
-    private static void addInsecureSSLHostnameVerifier(final OkHttpClient.Builder callFactory, final int logging) {
+    /**
+     * Trust all hostnames
+     *
+     * @param callFactory OkHttp builder
+     * @param logging     logging level
+     */
+    public static void addInsecureSSLHostnameVerifier(final OkHttpClient.Builder callFactory, final int logging) {
+        HostnameVerifier defaultVerifier = OkHostnameVerifier.INSTANCE;
         callFactory.hostnameVerifier((hostname, session) -> {
+            if (defaultVerifier.verify(hostname, session)) {
+                return true;
+            }
             if (logging >= Rundeck.INSECURE_SSL_LOGGING) {
-                System.err.println("INSECURE_SSL:hostnameVerifier: trust host: " + hostname);
+                System.err.printf("INSECURE_SSL:hostnameVerifier: trust host: %s%n", hostname);
             }
             return true;
         });
+    }
+
+    /**
+     * Add a hostname verifier which falls back to
+     * an alternate list of hostnames if the original hostname
+     * does not match the certificate
+     *
+     * @param callFactory OkHttp builder
+     * @param logging     logging level
+     */
+    public static void addAlternateSSLHostnameVerifier(
+            final OkHttpClient.Builder callFactory,
+            final int logging,
+            final List<String> alternateHostnames
+    )
+    {
+        HostnameVerifier defaultVerifier = OkHostnameVerifier.INSTANCE;
+        callFactory.hostnameVerifier((hostname, session) -> {
+            boolean verify = defaultVerifier.verify(hostname, session);
+            if (verify) {
+                return true;
+            }
+            Optional<String> tested = alternateHostnames.stream()
+                                                        .filter(h -> defaultVerifier.verify(h, session))
+                                                        .findAny();
+            if (tested.isPresent() && logging >= Rundeck.INSECURE_SSL_LOGGING) {
+                System.err.printf("INSECURE_SSL:hostnameVerifier: trust host: %s: as %s%n", hostname, tested.get());
+            }
+            return tested.isPresent();
+        });
+
     }
 
     private static X509TrustManager createInsecureSslTrustManager(int logging)

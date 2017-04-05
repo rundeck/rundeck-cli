@@ -33,7 +33,7 @@ public class Rundeck {
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
     public static final String ENV_INSECURE_SSL = "RD_INSECURE_SSL";
     public static final String ENV_INSECURE_SSL_HOSTNAME = "RD_INSECURE_SSL_HOSTNAME";
-    public static final String ENV_BYPASS_SSL_HOSTNAME = "RD_BYPASS_SSL_HOSTNAME";
+    public static final String ENV_ALT_SSL_HOSTNAME = "RD_ALT_SSL_HOSTNAME";
     public static final int INSECURE_SSL_LOGGING = 2;
 
     public static class Builder {
@@ -58,6 +58,8 @@ public class Rundeck {
             timeout(config.getLong(ENV_HTTP_TIMEOUT, null));
             bypassUrl(config.getString(ENV_BYPASS_URL, null));
             insecureSSL(config.getBool(ENV_INSECURE_SSL, false));
+            insecureSSLHostname(config.getBool(ENV_INSECURE_SSL_HOSTNAME, false));
+            alternateSSLHostname(config.getString(ENV_ALT_SSL_HOSTNAME, null));
             return this;
         }
 
@@ -69,6 +71,12 @@ public class Rundeck {
             return accept(Rundeck::configInsecureSSL, bool);
         }
 
+        public Builder insecureSSLHostname(final boolean bool) {
+            return accept(Rundeck::configInsecureSSLHostname, bool);
+        }
+
+        public Builder alternateSSLHostname(final String hostnames) {
+            return accept(Rundeck::configAlternateSSLHostname, hostnames);
         }
 
         public Builder retryConnect(final boolean bool) {
@@ -224,6 +232,42 @@ public class Rundeck {
     {
         if (insecureSsl) {
             SSLUtil.addInsecureSsl(builder.builder, builder.httpLogging);
+        }
+        return builder;
+    }
+
+    private static Builder configInsecureSSLHostname(
+            final Builder builder,
+            final boolean insecureSsl
+    )
+    {
+        if (insecureSsl) {
+            SSLUtil.addInsecureSSLHostnameVerifier(builder.builder, builder.httpLogging);
+        }
+        return builder;
+    }
+
+    private static Builder configAlternateSSLHostname(
+            final Builder builder,
+            final String value
+    )
+    {
+        if (null != value) {
+            List<String> collect = new ArrayList<>();
+            collect.addAll(
+                    Arrays.stream(value.split(", *"))
+                          .map(String::trim)
+                          .filter(s -> !"".equals(s))
+                          .map(String::toUpperCase)
+                          .collect(Collectors.toList())
+            );
+
+            List<String> names = Collections.unmodifiableList(collect);
+            SSLUtil.addAlternateSSLHostnameVerifier(
+                    builder.builder,
+                    builder.httpLogging,
+                    names
+            );
         }
         return builder;
     }
