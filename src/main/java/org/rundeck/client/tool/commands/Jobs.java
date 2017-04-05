@@ -7,6 +7,7 @@ import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
+import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -249,10 +251,82 @@ public class Jobs extends AppCommand {
         String getId();
     }
 
+    interface ToggleOpts extends JobIdentOptions {
+
+        @Option(shortName = "j",
+                longName = "job",
+                description = "Job job (group and name). Select a Job specified by Job name and group. eg: " +
+                              "'group/name'. Requires specifying the Project name.")
+        String getJob();
+
+        boolean isJob();
+
+        @Option(shortName = "i", longName = "id", description = "Select the Job with this IDENTIFIER")
+        String getId();
+
+        boolean isId();
+    }
+
     @Command(description = "Get info about a Job by ID (API v18)")
     public void info(InfoOpts options, CommandOutput output) throws IOException, InputError {
         ScheduledJobItem body = apiCall(api -> api.getJobInfo(options.getId()));
         outputJobList(options, output, Collections.singletonList(body));
+    }
+
+    @CommandLineInterface(application = "enable") interface EnableOpts extends ToggleOpts {
+    }
+
+    @Command(description = "Enable execution for a job")
+    public boolean enable(EnableOpts options, CommandOutput output) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobExecutionEnable, options, output, "Enabled Job %s");
+    }
+
+    @CommandLineInterface(application = "disable") interface DisableOpts extends ToggleOpts {
+    }
+
+    @Command(description = "Disable execution for a job")
+    public boolean disable(DisableOpts options, CommandOutput output) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Job %s");
+    }
+
+    @CommandLineInterface(application = "enableSchedule") interface EnableSchedOpts extends ToggleOpts {
+    }
+
+    @Command(description = "Enable schedule for a job")
+    public boolean reschedule(EnableSchedOpts options, CommandOutput output) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, output, "Enabled Schedule for Job %s");
+    }
+
+    @CommandLineInterface(application = "disableSchedule") interface DisableSchedOpts extends ToggleOpts {
+    }
+
+    @Command(description = "Disable schedule for a job")
+    public boolean unschedule(DisableSchedOpts options, CommandOutput output) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Schedule for Job %s");
+    }
+
+    private boolean simpleJobApiCall(
+            BiFunction<RundeckApi, String, Call<Simple>> func,
+            final ToggleOpts options,
+            final CommandOutput output,
+            final String success
+    )
+            throws InputError, IOException
+    {
+        String jobId = Run.getJobIdFromOpts(
+                options,
+                output,
+                getClient(),
+                () -> projectOrEnv(options)
+        );
+        if (null == jobId) {
+            return false;
+        }
+        Simple simple = apiCall(api -> func.apply(api, jobId));
+        if (simple.isSuccess()) {
+            output.info(String.format(success, jobId));
+        }
+        return simple.isSuccess();
     }
 
     /**

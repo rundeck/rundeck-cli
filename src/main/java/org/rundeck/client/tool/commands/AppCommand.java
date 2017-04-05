@@ -33,11 +33,23 @@ public abstract class AppCommand implements RdApp {
         return getClient().checkError(func.apply(getClient().getService()));
     }
 
+    public static <T> T apiCall(
+            final Client<RundeckApi> client,
+            Function<RundeckApi, Call<T>> func
+    ) throws InputError, IOException
+    {
+        return client.checkError(func.apply(client.getService()));
+    }
+
     public String projectOrEnv(final ProjectNameOptions options) throws InputError {
         if (null != options.getProject()) {
             return options.getProject();
         }
         return getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
+    }
+
+    interface GetInput<T> {
+        T get() throws InputError;
     }
 
 }

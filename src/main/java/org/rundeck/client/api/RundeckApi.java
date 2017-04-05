@@ -46,6 +46,49 @@ public interface RundeckApi {
             @Path("jobid") String jobid
     );
 
+    /**
+     * enable execution for a job
+     * @param jobid
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @POST("job/{jobid}/execution/enable")
+    Call<Simple> jobExecutionEnable(
+            @Path("jobid") String jobid
+    );
+    /**
+     * disable schedule for a job
+     * @param jobid
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @POST("job/{jobid}/execution/disable")
+    Call<Simple> jobExecutionDisable(
+            @Path("jobid") String jobid
+    );
+
+    /**
+     * enable schedule for a job
+     * @param jobid
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @POST("job/{jobid}/schedule/enable")
+    Call<Simple> jobScheduleEnable(
+            @Path("jobid") String jobid
+    );
+
+    /**
+     * disable schedule for a job
+     * @param jobid
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @POST("job/{jobid}/schedule/disable")
+    Call<Simple> jobScheduleDisable(
+            @Path("jobid") String jobid
+    );
+
 
     @GET("project/{project}/jobs/export")
     Call<ResponseBody> exportJobs(

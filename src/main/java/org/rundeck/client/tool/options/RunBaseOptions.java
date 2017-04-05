@@ -12,25 +12,13 @@ import java.util.List;
  * Created by greg on 5/21/16.
  */
 @CommandLineInterface(application = "run")
-public interface RunBaseOptions extends FollowOptions,OptionalProjectOptions, NodeFilterOptions {
+public interface RunBaseOptions extends JobIdentOptions, FollowOptions, OptionalProjectOptions, NodeFilterOptions {
     @Option(shortName = "l",
             longName = "logevel",
             description = "Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.",
             defaultValue = {"info"},
             pattern = "(verbose|info|warning|error)")
     String getLoglevel();
-
-    @Option(shortName = "j",
-            longName = "job",
-            description = "Job job (group and name). Run a Job specified by Job name and group. eg: 'group/name'.")
-    String getJob();
-
-    boolean isJob();
-
-    @Option(shortName = "i", longName = "id", description = "Run the Job with this IDENTIFIER")
-    String getId();
-
-    boolean isId();
 
 
     @Option(shortName = "u", longName = "user", description = "A username to run the job as, (runAs access required).")
