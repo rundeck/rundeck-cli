@@ -17,7 +17,13 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.client(baseUrl, user, pass, debuglevel, httpTimeout, retryConnect)
+        def result = Rundeck.builder().
+                baseUrl(baseUrl).
+                passwordAuth(user, pass).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
 
         then:
         result != null
@@ -37,7 +43,13 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.client(baseUrl, token, debuglevel, httpTimeout, retryConnect)
+        def result = Rundeck.builder().
+                baseUrl(baseUrl).
+                tokenAuth(token).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
 
         then:
         result != null
@@ -58,7 +70,13 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.client(baseUrl, user, pass, debuglevel, httpTimeout, retryConnect)
+        def result = Rundeck.builder().
+                baseUrl(baseUrl).
+                passwordAuth(user, pass).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
 
         then:
         IllegalArgumentException e = thrown()
@@ -79,7 +97,13 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.client(baseUrl, user, pass, debuglevel, httpTimeout, retryConnect)
+        def result = Rundeck.builder().
+                baseUrl(baseUrl).
+                passwordAuth(user, pass).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
 
         then:
         IllegalArgumentException e = thrown()
@@ -100,7 +124,13 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.client(baseUrl, user, pass, debuglevel, httpTimeout, retryConnect)
+        def result = Rundeck.builder().
+                baseUrl(baseUrl).
+                passwordAuth(user, pass).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
 
         then:
         IllegalArgumentException e = thrown()
@@ -121,7 +151,13 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.client(baseUrl, token, debuglevel, httpTimeout, retryConnect)
+        def result = Rundeck.builder().
+                baseUrl(baseUrl).
+                tokenAuth(token).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
 
         then:
         IllegalArgumentException e = thrown()
@@ -141,7 +177,13 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.client(baseUrl, token, debuglevel, httpTimeout, retryConnect)
+        def result = Rundeck.builder().
+                baseUrl(baseUrl).
+                tokenAuth(token).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
 
         then:
         IllegalArgumentException e = thrown()
