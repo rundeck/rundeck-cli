@@ -109,3 +109,19 @@ To disable *all* SSL certificate checks, and hostname verifications:
 
 When enabled, a value of `RD_DEBUG=2` will also report SSL certificate
 information.
+
+## Insecure SSL Hostname Verification
+
+To retain SSL certificate verification, but allow *any* hostname to be
+allowed for the certificate:
+
+    RD_INSECURE_SSL_HOSTNAME=true
+
+## Alternate SSL Hostname Verification
+
+Similar to [Bypass an external URL](#bypass-an-external-url), this
+allows you to retain SSL certificate verification, but set an
+alternate hostname to accept from the remote server certificate, if
+it does not match the hostname you are using in your request:
+
+    RD_ALT_SSL_HOSTNAME=hostname
