@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
  * Created by greg on 5/20/16.
  */
 @Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
-                       "@path\". Note: For literal '@' in option value that starts with @, use @@.")
+                       "@path\" or \"-opt@ path\".")
 public class Run extends AppCommand {
 
     public static final int SEC_MS = 1000;
@@ -61,22 +61,28 @@ public class Run extends AppCommand {
             Map<String, File> fileinputs = new HashMap<>();
             String key = null;
             if (null != commandString) {
-                for (String s : commandString) {
-                    if (key == null && s.startsWith("-")) {
-                        key = s.substring(1);
-                    } else if (key != null) {
-                        if (s.charAt(0) == '@') {
-                            //file input
-                            if (s.length() > 1 && s.charAt(1) != '@') {
-                                File file = new File(s.substring(1));
-                                fileinputs.put(key, file);
-                            } else {
-                                //replace escaped @ signs
-                                s = s.replaceAll(Pattern.quote("@@"), Matcher.quoteReplacement("@"));
-                            }
+                boolean isfile = false;
+                for (String part : commandString) {
+                    if (key == null && part.startsWith("-")) {
+                        key = part.substring(1);
+                        if (key.endsWith("@")) {
+                            key = key.substring(0, key.length() - 1);
+                            isfile = true;
                         }
-                        jobopts.put(key, s);
+                    } else if (key != null) {
+                        String filepath = null;
+                        if (part.charAt(0) == '@' && !isfile) {
+                            //file input
+                            filepath = part.substring(1);
+                            isfile = true;
+                        }
+                        if (isfile) {
+                            File file = new File(filepath != null ? filepath : part);
+                            fileinputs.put(key, file);
+                        }
+                        jobopts.put(key, part);
                         key = null;
+                        isfile = false;
                     }
                 }
             }
