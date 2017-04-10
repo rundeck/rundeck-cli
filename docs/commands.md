@@ -135,16 +135,26 @@ List all nodes for a project.  You can use the -F/--filter to specify a node fil
 
 List and manage projects.
 
-	Available commands:
+    Available commands:
 
-        acls      - Manage Project ACLs
-        configure - Manage Project configuration
-        create    - Create a project
-        delete    - Delete a project
-        info      - Get info about a project
-        list      - List all projects
-        readme    - Manage Project readme
-        scm       - Manage Project SCM
+       acls      - Manage Project ACLs
+       archives  - Project Archives import and export
+       configure - Manage Project configuration
+       create    - Create a project
+       delete    - Delete a project
+       info      - Get info about a project
+       list      - List all projects
+       readme    - Manage Project readme
+       scm       - Manage Project SCM
+
+### projects archives
+
+Project Archives import and export
+
+    Available commands:
+
+       export - Export a project archive
+       import - Import a project archive
 
 ### projects scm
 
