@@ -95,10 +95,14 @@ List and manage Jobs.
 
 	Available commands:
 
-	   info  - Get info about a Job by ID (API v18)
-	   list  - List jobs found in a project, or download Job definitions (-f)
-	   load  - Load Job definitions from a file in XML or YAML format
-	   purge - Delete jobs matching the query parameters
+       disable    - Disable execution for a job
+       enable     - Enable execution for a job
+       info       - Get info about a Job by ID (API v18)
+       list       - List jobs found in a project, or download Job definitions (-f)
+       load       - Load Job definitions from a file in XML or YAML format
+       purge      - Delete jobs matching the query parameters
+       reschedule - Enable schedule for a job
+       unschedule - Disable schedule for a job
 
 ## keys
 
@@ -131,16 +135,26 @@ List all nodes for a project.  You can use the -F/--filter to specify a node fil
 
 List and manage projects.
 
-	Available commands:
+    Available commands:
 
-        acls      - Manage Project ACLs
-        configure - Manage Project configuration
-        create    - Create a project
-        delete    - Delete a project
-        info      - Get info about a project
-        list      - List all projects
-        readme    - Manage Project readme
-        scm       - Manage Project SCM
+       acls      - Manage Project ACLs
+       archives  - Project Archives import and export
+       configure - Manage Project configuration
+       create    - Create a project
+       delete    - Delete a project
+       info      - Get info about a project
+       list      - List all projects
+       readme    - Manage Project readme
+       scm       - Manage Project SCM
+
+### projects archives
+
+Project Archives import and export
+
+    Available commands:
+
+       export - Export a project archive
+       import - Import a project archive
 
 ### projects scm
 

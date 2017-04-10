@@ -195,32 +195,25 @@ public class Main {
         if (!auth.isConfigured() && config.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
             auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
-
-        int debuglevel = config.getInt(ENV_DEBUG, 0);
-        Long httpTimeout = config.getLong(ENV_HTTP_TIMEOUT, null);
-        Boolean retryConnect = config.getBool(ENV_CONNECT_RETRY, true);
+        Rundeck.Builder builder = Rundeck.builder()
+                                         .baseUrl(baseUrl)
+                                         .config(config);
 
         if (auth.isTokenAuth()) {
-            return Rundeck.client(baseUrl, auth.getToken(), debuglevel, httpTimeout, retryConnect);
+            builder.tokenAuth(auth.getToken());
+        } else {
+            if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
+                throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
+                                                   ENV_USER + " or " + ENV_TOKEN);
+            }
+            if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
+                throw new IllegalArgumentException("Password must be entered, or use environment variable " +
+                                                   ENV_PASSWORD);
+            }
+            builder.passwordAuth(auth.getUsername(), auth.getPassword());
         }
+        return builder.build();
 
-        if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
-            throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
-                                               ENV_USER + " or " + ENV_TOKEN);
-        }
-        if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
-            throw new IllegalArgumentException("Password must be entered, or use environment variable " +
-                                               ENV_PASSWORD);
-        }
-
-        return Rundeck.client(
-                baseUrl,
-                auth.getUsername(),
-                auth.getPassword(),
-                debuglevel,
-                httpTimeout,
-                retryConnect
-        );
     }
 
     static interface Auth {

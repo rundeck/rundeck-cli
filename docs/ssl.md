@@ -12,7 +12,7 @@ To use a self-signed or custom server certificate for `rd`, you will need to do 
 
 (**Note**: if you want to skip the rigamarole, and simply accept *all*
 SSL certificates without verification,
-see [Configuration - Insecure SSL](({{site.url}}{{site.baseurl}}/configuration/#insecure-ssl))
+see [Configuration - Insecure SSL]({{site.url}}{{site.baseurl}}/configuration/#insecure-ssl)
 
 ## 1. Import the certificate
 

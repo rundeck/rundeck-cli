@@ -9,10 +9,7 @@ import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.projects.ACLs;
-import org.rundeck.client.tool.commands.projects.Configure;
-import org.rundeck.client.tool.commands.projects.Readme;
-import org.rundeck.client.tool.commands.projects.SCM;
+import org.rundeck.client.tool.commands.projects.*;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 
@@ -40,7 +37,8 @@ public class Projects extends AppCommand implements HasSubCommands {
                 new ACLs(this),
                 new SCM(this),
                 new Readme(this),
-                new Configure(this)
+                new Configure(this),
+                new Archives(this)
         );
     }
 
@@ -52,7 +50,7 @@ public class Projects extends AppCommand implements HasSubCommands {
 
     }
 
-    @Command(isDefault = true, description = "List all projects.")
+    @Command(description = "List all projects.")
     public void list(ProjectListOpts opts, CommandOutput output) throws IOException, InputError {
         List<ProjectItem> body = apiCall(RundeckApi::listProjects);
         if (!opts.isOutputFormat()) {
@@ -69,7 +67,7 @@ public class Projects extends AppCommand implements HasSubCommands {
 
     }
 
-    @Command(isDefault = true,
+    @Command(
              description = "Get info about a project. Use -v/--verbose to output all available config data, or use " +
                            "-%/--outformat for selective data.")
     public void info(ProjectInfoOpts opts, CommandOutput output) throws IOException, InputError {

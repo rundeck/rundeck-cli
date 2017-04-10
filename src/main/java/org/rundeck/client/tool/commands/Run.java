@@ -3,13 +3,16 @@ package org.rundeck.client.tool.commands;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
+import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.JobRun;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.jobs.Files;
+import org.rundeck.client.tool.options.JobIdentOptions;
 import org.rundeck.client.tool.options.RunBaseOptions;
+import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Quoting;
 import retrofit2.Call;
@@ -18,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -41,43 +45,9 @@ public class Run extends AppCommand {
 
     @Command(isDefault = true, isSolo = true)
     public boolean run(RunBaseOptions options, CommandOutput out) throws IOException, InputError {
-        String jobId;
-        if (options.isJob()) {
-            if (!options.isProject()) {
-                throw new InputError("-p project is required with -j");
-            }
-            String job = options.getJob();
-            String[] parts = Jobs.splitJobNameParts(job);
-            String project = projectOrEnv(options);
-            List<JobItem> jobItems = apiCall(api -> api.listJobs(
-                    project,
-                    null,
-                    null,
-                    parts[1],
-                    parts[0]
-            ));
-            if (jobItems.size() != 1) {
-                out.error(String.format("Could not find a unique job with name: %s%n", job));
-                if (jobItems.size() > 0) {
-
-                    out.error(String.format("Found %d matching jobs:%n", jobItems.size()));
-                    for (JobItem jobItem : jobItems) {
-                        out.error(String.format("* %s%n", jobItem.toBasicString()));
-
-                    }
-                } else {
-                    out.error("Found 0 matching jobs.");
-                }
-                return false;
-            }
-            JobItem jobItem = jobItems.get(0);
-            out.info(String.format("Found matching job: %s%n", jobItem.toBasicString()));
-            jobId = jobItem.getId();
-        } else if (options.isId()) {
-            jobId = options.getId();
-        } else {
-            throw new InputError("-j job or -i id is required");
-
+        String jobId = getJobIdFromOpts(options, out, getClient(), () -> projectOrEnv(options));
+        if (null == jobId) {
+            return false;
         }
         Call<Execution> executionListCall;
         Date runat = null;
@@ -192,6 +162,64 @@ public class Run extends AppCommand {
             out.info("Started.");
         }
         return Executions.maybeFollow(getClient(), options, execution.getId(), out);
+    }
+
+    /**
+     * If job ID is supplied, use that, otherwise query for matching project/jobname and return found ID, or null if not
+     * found
+     *
+     * @param options ident options
+     * @param out     output
+     * @param client  client
+     * @param project project name, or null
+     *
+     * @return
+     *
+     * @throws InputError
+     * @throws IOException
+     */
+    public static String getJobIdFromOpts(
+            final JobIdentOptions options,
+            final CommandOutput out,
+            final Client<RundeckApi> client,
+            final GetInput<String> project
+    )
+            throws InputError, IOException
+    {
+        if (options.isId()) {
+            return options.getId();
+        }
+        if (!options.isJob()) {
+            throw new InputError("-j job or -i id is required");
+        }
+        String proj = project.get();
+        String job = options.getJob();
+        String[] parts = Jobs.splitJobNameParts(job);
+        List<JobItem> jobItems = apiCall(client, api -> api.listJobs(
+                proj,
+                null,
+                null,
+                parts[1],
+                parts[0]
+        ));
+        if (jobItems.size() != 1) {
+            out.error(String.format("Could not find a unique job with name: %s%n", job));
+            if (jobItems.size() > 0) {
+
+                out.error(String.format("Found %d matching jobs:%n", jobItems.size()));
+                for (JobItem jobItem : jobItems) {
+                    out.error(String.format("* %s%n", jobItem.toBasicString()));
+
+                }
+            } else {
+                out.error("Found 0 matching jobs.");
+            }
+            return null;
+        } else {
+            JobItem jobItem = jobItems.get(0);
+            out.info(String.format("Found matching job: %s%n", jobItem.toBasicString()));
+            return jobItem.getId();
+        }
     }
 
     private Date parseDelayTime(final String delayString) throws InputError {

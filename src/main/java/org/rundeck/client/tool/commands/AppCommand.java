@@ -38,7 +38,7 @@ public abstract class AppCommand implements RdApp {
             final Client<RundeckApi> client,
             final Function<RundeckApi, Call<T>> func
     )
-            throws IOException
+            throws InputError, IOException
     {
         return client.checkError(func.apply(client.getService()));
     }
@@ -48,6 +48,10 @@ public abstract class AppCommand implements RdApp {
             return options.getProject();
         }
         return getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
+    }
+
+    interface GetInput<T> {
+        T get() throws InputError;
     }
 
 }
