@@ -23,6 +23,8 @@ public class Client<T> {
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse(APPLICATION_JSON);
     public static final String APPLICATION_XML = "application/xml";
     public static final MediaType MEDIA_TYPE_XML = MediaType.parse(APPLICATION_XML);
+    public static final String APPLICATION_ZIP = "application/zip";
+    public static final MediaType MEDIA_TYPE_ZIP = MediaType.parse(APPLICATION_ZIP);
     public static final String APPLICATION_PGP_KEYS = "application/pgp-keys";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     public static final String APPLICATION_X_RUNDECK_PASSWORD = "application/x-rundeck-data-password";

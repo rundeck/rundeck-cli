@@ -191,6 +191,99 @@ public interface RundeckApi {
     Call<Void> deleteProject(@Path("project") String project);
 
 
+    /**
+     * Export project archive (<=v18)
+     * @param project project
+     * @param ids option execution IDs, or null for all contents
+     * @return archive response
+     */
+    @Headers("Accept: application/zip")
+    @GET("project/{project}/export")
+    Call<ResponseBody> exportProject(
+            @Path("project") String project,
+            @Query("executionIds") List<String> ids
+    );
+
+    /**
+     *
+     * Export project archive (>=v19)
+     * @param project
+     * @param all
+     * @param jobs
+     * @param execs
+     * @param configs
+     * @param readmes
+     * @param acls
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/export/async")
+    Call<ProjectExportStatus> exportProjectAsync(
+            @Path("project") String project,
+            @Query("exportAll") boolean all,
+            @Query("exportJobs") boolean jobs,
+            @Query("exportExecutions") boolean execs,
+            @Query("exportConfigs") boolean configs,
+            @Query("exportReadmes") boolean readmes,
+            @Query("exportAcls") boolean acls
+    );
+    /**
+     *
+     * Export project archive (>=v19)
+     * @param project
+     * @param ids option execution IDs, or null for all contents
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/export/async")
+    Call<ProjectExportStatus> exportProjectAsync(
+            @Path("project") String project,
+            @Query("executionIds") List<String> ids
+    );
+
+    /**
+     * Async project export status
+     * @param project
+     * @param token
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/export/status/{token}")
+    Call<ProjectExportStatus> exportProjectStatus(
+            @Path("project") String project,
+            @Path("token") String token
+    );
+
+    /**
+     * Async project export download
+     * @param project
+     * @param token
+     * @return
+     */
+    @Headers("Accept: application/zip")
+    @GET("project/{project}/export/download/{token}")
+    Call<ResponseBody> exportProjectDownload(
+            @Path("project") String project,
+            @Path("token") String token
+    );
+
+    /**
+     * Export project archive (<=v18)
+     * @param project project
+     * @param ids option execution IDs, or null for all contents
+     * @return archive response
+     */
+    @Headers("Accept: application/json")
+    @PUT("project/{project}/import")
+    Call<ProjectImportStatus> importProjectArchive(
+            @Path("project") String project,
+            @Query("jobUuidOption") String jobUuidOption,
+            @Query("importExecutions") Boolean importExecutions,
+            @Query("importConfig") Boolean importConfig,
+            @Query("importACL") Boolean importACL,
+            @Body RequestBody body
+    );
+
     @Headers("Accept: application/json")
     @GET("project/{project}/executions/running")
     Call<ExecutionList> runningExecutions(
