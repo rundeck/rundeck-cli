@@ -40,9 +40,9 @@ import static org.rundeck.client.tool.Main.ENV_DEBUG;
 import static org.rundeck.client.tool.Main.ENV_HTTP_TIMEOUT;
 
 /**
- * Created by greg on 3/28/16.
+ * Build a {@link Client} for {@link RundeckApi} using {@link #builder()}.
  */
-public class Rundeck {
+public class RundeckClient {
     public static final String USER_AGENT = Version.NAME + "/" + Version.VERSION;
     public static final int API_VERS = 19;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
@@ -52,15 +52,18 @@ public class Rundeck {
     public static final String ENV_ALT_SSL_HOSTNAME = "RD_ALT_SSL_HOSTNAME";
     public static final int INSECURE_SSL_LOGGING = 2;
 
+    private RundeckClient() {
+    }
+
     public static class Builder {
-        OkHttpClient.Builder builder;
+        OkHttpClient.Builder okhttp;
         String baseUrl;
         String appBaseUrl;
         int httpLogging;
         HttpUrl parseUrl;
 
-        public Builder() {
-            this.builder = new OkHttpClient.Builder();
+        Builder() {
+            this.okhttp = new OkHttpClient.Builder();
         }
 
         <T> Builder accept(BuildWith<Builder, T> bw, T i) {
@@ -80,27 +83,27 @@ public class Rundeck {
         }
 
         public Builder bypassUrl(final String string) {
-            return accept(Rundeck::configBypassUrl, string);
+            return accept(RundeckClient::configBypassUrl, string);
         }
 
         public Builder insecureSSL(final boolean bool) {
-            return accept(Rundeck::configInsecureSSL, bool);
+            return accept(RundeckClient::configInsecureSSL, bool);
         }
 
         public Builder insecureSSLHostname(final boolean bool) {
-            return accept(Rundeck::configInsecureSSLHostname, bool);
+            return accept(RundeckClient::configInsecureSSLHostname, bool);
         }
 
         public Builder alternateSSLHostname(final String hostnames) {
-            return accept(Rundeck::configAlternateSSLHostname, hostnames);
+            return accept(RundeckClient::configAlternateSSLHostname, hostnames);
         }
 
         public Builder retryConnect(final boolean bool) {
-            return accept(Rundeck::acceptRetry, bool);
+            return accept(RundeckClient::acceptRetry, bool);
         }
 
         public Builder timeout(final Long timeout) {
-            return accept(Rundeck::acceptTimeout, timeout);
+            return accept(RundeckClient::acceptTimeout, timeout);
         }
 
         public Builder baseUrl(final String baseUrl) {
@@ -112,134 +115,182 @@ public class Rundeck {
         }
 
         public Builder tokenAuth(final String authToken) {
-            buildTokenAuth(builder, baseUrl, authToken);
+            buildTokenAuth(okhttp, baseUrl, authToken);
             return this;
         }
 
         public Builder passwordAuth(final String username, final String password) {
-            buildFormAuth(baseUrl, username, password, builder);
+            buildFormAuth(baseUrl, username, password, okhttp);
             return this;
         }
 
         public Client<RundeckApi> build() {
-            return buildRundeckClient(builder, baseUrl, API_VERS);
+            return buildRundeckClient(okhttp, baseUrl, API_VERS);
         }
 
         public Builder logging(final int p) {
             httpLogging = p;
-            return accept(Rundeck::configLogging, p);
+            return accept(RundeckClient::configLogging, p);
+        }
+
+        private static void buildTokenAuth(
+                final OkHttpClient.Builder builder,
+                final String baseUrl,
+                final String authToken
+        )
+        {
+            HttpUrl parse = HttpUrl.parse(baseUrl);
+            validateBaseUrl(baseUrl, parse);
+            validateNotempty(authToken, "Token cannot be blank or null");
+            builder.addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
+        }
+
+        private static void buildFormAuth(
+                final String baseUrl,
+                final String username,
+                final String password, final OkHttpClient.Builder builder
+        )
+        {
+            HttpUrl parse = HttpUrl.parse(baseUrl);
+            validateBaseUrl(baseUrl, parse);
+            validateNotempty(username, "User cannot be blank or null");
+            validateNotempty(password, "Password cannot be blank or null");
+
+            String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
+
+            CookieManager cookieManager = new CookieManager();
+            cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
+            builder.cookieJar(new JavaNetCookieJar(cookieManager));
+
+
+            String postUrl = parse
+                    .newBuilder()
+                    .addPathSegment(
+                            System.getProperty(
+                                    "rundeck.client.j_security_check",
+                                    "j_security_check"
+                            ))
+                    .build()
+                    .toString();
+
+            builder.addInterceptor(new FormAuthInterceptor(
+                    username,
+                    password,
+                    appBaseUrl,
+                    postUrl,
+                    System.getProperty(
+                            "rundeck.client.j_username",
+                            "j_username"
+                    ),
+                    System.getProperty(
+                            "rundeck.client.j_password",
+                            "j_password"
+                    ),
+                    System.getProperty(
+                            "rundeck.client.user.error",
+                            "/user/error"
+                    )
+
+            ));
+
+        }
+
+        private static Client<RundeckApi> buildRundeckClient(
+                final OkHttpClient.Builder builder,
+                final String baseUrl,
+                final int apiVers
+        )
+        {
+            String apiBaseUrl = buildApiUrlForVersion(baseUrl, apiVers);
+            int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
+
+            builder.addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
+
+
+            Retrofit build = new Retrofit.Builder()
+                    .baseUrl(apiBaseUrl)
+                    .client(builder.build())
+                    .addConverterFactory(new QualifiedTypeConverterFactory(
+                            JacksonConverterFactory.create(),
+                            SimpleXmlConverterFactory.create(),
+                            true
+                    ))
+                    .build();
+
+            return new Client<>(build.create(RundeckApi.class), build, usedApiVers);
+        }
+
+        private static void validateNotempty(final String authToken, final String s) {
+            if ("".equals(authToken) || null == authToken) {
+                throw new IllegalArgumentException(s);
+            }
+        }
+
+        private static void validateBaseUrl(final String baseUrl, final HttpUrl parse) {
+            if (null == parse) {
+                throw new IllegalArgumentException("Not a valid base URL: " + baseUrl);
+            }
+        }
+
+        /**
+         * @param baseUrl input url
+         *
+         * @return the base part of the API url without the /api/VERS part
+         */
+        private static String buildBaseAppUrlForVersion(String baseUrl) {
+            Matcher matcher = API_VERS_PATTERN.matcher(baseUrl);
+            if (matcher.matches()) {
+                return normalizeUrlPath(matcher.group(1));
+            }
+            return normalizeUrlPath(baseUrl);
+        }
+
+        /**
+         * @param baseUrl input url
+         * @param apiVers api VERSION to append if /api/VERS is not present
+         *
+         * @return URL for API by appending /api/VERS if it is not present
+         */
+        private static String buildApiUrlForVersion(String baseUrl, final int apiVers) {
+            if (!baseUrl.matches("^.*/api/\\d+/?$")) {
+                return normalizeUrlPath(baseUrl) + "api/" + (apiVers) + "/";
+            }
+            return normalizeUrlPath(baseUrl);
+        }
+
+        /**
+         * @param baseUrl input url
+         * @param apiVers api VERSION to append if /api/VERS is not present
+         *
+         * @return URL for API by appending /api/VERS if it is not present
+         */
+        private static int apiVersionForUrl(String baseUrl, final int apiVers) {
+            Matcher matcher = API_VERS_PATTERN.matcher(baseUrl);
+            if (matcher.matches()) {
+                return Integer.parseInt(matcher.group(3));
+            }
+            return apiVers;
         }
     }
 
-    static interface BuildWith<T, X> {
+    interface BuildWith<T, X> {
         void accept(T builder, X val);
     }
 
+    /**
+     * @return new Builder
+     */
     public static Builder builder() {
         return new Builder();
     }
 
 
-    private static OkHttpClient.Builder buildTokenAuth(
-            final OkHttpClient.Builder builder,
-            final String baseUrl,
-            final String authToken
-    )
-    {
-        HttpUrl parse = HttpUrl.parse(baseUrl);
-        validateBaseUrl(baseUrl, parse);
-        validateNotempty(authToken, "Token cannot be blank or null");
-        builder.addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
-        return builder;
-    }
-
-    private static void validateNotempty(final String authToken, final String s) {
-        if ("".equals(authToken) || null == authToken) {
-            throw new IllegalArgumentException(s);
-        }
-    }
-
-    private static void validateBaseUrl(final String baseUrl, final HttpUrl parse) {
-        if (null == parse) {
-            throw new IllegalArgumentException("Not a valid base URL: " + baseUrl);
-        }
-    }
-
-    private static void buildFormAuth(
-            final String baseUrl,
-            final String username,
-            final String password, final OkHttpClient.Builder builder
-    )
-    {
-        HttpUrl parse = HttpUrl.parse(baseUrl);
-        validateBaseUrl(baseUrl, parse);
-        validateNotempty(username, "User cannot be blank or null");
-        validateNotempty(password, "Password cannot be blank or null");
-
-        String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
-
-        CookieManager cookieManager = new CookieManager();
-        cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
-        builder.cookieJar(new JavaNetCookieJar(cookieManager));
 
 
-        String postUrl = parse
-                .newBuilder()
-                .addPathSegment(
-                        System.getProperty(
-                                "rundeck.client.j_security_check",
-                                "j_security_check"
-                        ))
-                .build()
-                .toString();
-
-        builder.addInterceptor(new FormAuthInterceptor(
-                username,
-                password,
-                appBaseUrl,
-                postUrl,
-                System.getProperty(
-                        "rundeck.client.j_username",
-                        "j_username"
-                ),
-                System.getProperty(
-                        "rundeck.client.j_password",
-                        "j_password"
-                ),
-                System.getProperty(
-                        "rundeck.client.user.error",
-                        "/user/error"
-                )
-
-        ));
-
-    }
 
 
-    private static Client<RundeckApi> buildRundeckClient(
-            final OkHttpClient.Builder builder,
-            final String baseUrl,
-            final int apiVers
-    )
-    {
-        String apiBaseUrl = buildApiUrlForVersion(baseUrl, apiVers);
-        int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
-
-        builder.addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
 
 
-        Retrofit build = new Retrofit.Builder()
-                .baseUrl(apiBaseUrl)
-                .client(builder.build())
-                .addConverterFactory(new QualifiedTypeConverterFactory(
-                        JacksonConverterFactory.create(),
-                        SimpleXmlConverterFactory.create(),
-                        true
-                ))
-                .build();
-
-        return new Client<>(build.create(RundeckApi.class), build, usedApiVers);
-    }
 
     private static Builder configInsecureSSL(
             final Builder builder,
@@ -247,7 +298,7 @@ public class Rundeck {
     )
     {
         if (insecureSsl) {
-            SSLUtil.addInsecureSsl(builder.builder, builder.httpLogging);
+            SSLUtil.addInsecureSsl(builder.okhttp, builder.httpLogging);
         }
         return builder;
     }
@@ -258,7 +309,7 @@ public class Rundeck {
     )
     {
         if (insecureSsl) {
-            SSLUtil.addInsecureSSLHostnameVerifier(builder.builder, builder.httpLogging);
+            SSLUtil.addInsecureSSLHostnameVerifier(builder.okhttp, builder.httpLogging);
         }
         return builder;
     }
@@ -280,7 +331,7 @@ public class Rundeck {
 
             List<String> names = Collections.unmodifiableList(collect);
             SSLUtil.addAlternateSSLHostnameVerifier(
-                    builder.builder,
+                    builder.okhttp,
                     builder.httpLogging,
                     names
             );
@@ -295,7 +346,7 @@ public class Rundeck {
     {
         if (null != bypassUrl) {
             //fix redirects to external Rundeck URL by rewriting as to the baseurl
-            builder.builder.addNetworkInterceptor(new RedirectBypassInterceptor(
+            builder.okhttp.addNetworkInterceptor(new RedirectBypassInterceptor(
                     builder.appBaseUrl,
                     normalizeUrlPath(bypassUrl)
             ));
@@ -304,14 +355,14 @@ public class Rundeck {
 
     private static Builder acceptRetry(final Builder builder, final Boolean retryConnect) {
         if (null != retryConnect) {
-            builder.builder.retryOnConnectionFailure(retryConnect);
+            builder.okhttp.retryOnConnectionFailure(retryConnect);
         }
         return builder;
     }
 
     private static Builder acceptTimeout(final Builder builder, final Long timeout) {
         if (null != timeout) {
-            builder.builder
+            builder.okhttp
                     .readTimeout(timeout, TimeUnit.SECONDS)
                     .connectTimeout(timeout, TimeUnit.SECONDS)
                     .writeTimeout(timeout, TimeUnit.SECONDS)
@@ -326,37 +377,11 @@ public class Rundeck {
 
             logging.setLevel(HttpLoggingInterceptor.Level.values()[httpLogging %
                                                                    HttpLoggingInterceptor.Level.values().length]);
-            builder.builder.addNetworkInterceptor(logging);
+            builder.okhttp.addNetworkInterceptor(logging);
         }
         return builder;
     }
 
-    /**
-     * @param baseUrl input url
-     * @param apiVers api VERSION to append if /api/VERS is not present
-     *
-     * @return URL for API by appending /api/VERS if it is not present
-     */
-    private static String buildApiUrlForVersion(String baseUrl, final int apiVers) {
-        if (!baseUrl.matches("^.*/api/\\d+/?$")) {
-            return normalizeUrlPath(baseUrl) + "api/" + (apiVers) + "/";
-        }
-        return normalizeUrlPath(baseUrl);
-    }
-
-    /**
-     * @param baseUrl input url
-     * @param apiVers api VERSION to append if /api/VERS is not present
-     *
-     * @return URL for API by appending /api/VERS if it is not present
-     */
-    private static int apiVersionForUrl(String baseUrl, final int apiVers) {
-        Matcher matcher = API_VERS_PATTERN.matcher(baseUrl);
-        if (matcher.matches()) {
-            return Integer.parseInt(matcher.group(3));
-        }
-        return apiVers;
-    }
 
     private static String normalizeUrlPath(String baseUrl) {
         if (!baseUrl.matches(".*/$")) {
@@ -365,16 +390,4 @@ public class Rundeck {
         return baseUrl;
     }
 
-    /**
-     * @param baseUrl input url
-     *
-     * @return the base part of the API url without the /api/VERS part
-     */
-    private static String buildBaseAppUrlForVersion(String baseUrl) {
-        Matcher matcher = API_VERS_PATTERN.matcher(baseUrl);
-        if (matcher.matches()) {
-            return normalizeUrlPath(matcher.group(1));
-        }
-        return normalizeUrlPath(baseUrl);
-    }
 }

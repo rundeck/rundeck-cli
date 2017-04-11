@@ -20,7 +20,7 @@ import com.simplifyops.toolbelt.*;
 import com.simplifyops.toolbelt.format.json.jackson.JsonFormatter;
 import com.simplifyops.toolbelt.format.yaml.snakeyaml.YamlFormatter;
 import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
-import org.rundeck.client.Rundeck;
+import org.rundeck.client.RundeckClient;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
@@ -36,7 +36,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
-import static org.rundeck.client.Rundeck.ENV_INSECURE_SSL;
+import static org.rundeck.client.RundeckClient.ENV_INSECURE_SSL;
 
 
 /**
@@ -211,9 +211,9 @@ public class Main {
         if (!auth.isConfigured() && config.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
             auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
-        Rundeck.Builder builder = Rundeck.builder()
-                                         .baseUrl(baseUrl)
-                                         .config(config);
+        RundeckClient.Builder builder = RundeckClient.builder()
+                                                     .baseUrl(baseUrl)
+                                                     .config(config);
 
         if (auth.isTokenAuth()) {
             builder.tokenAuth(auth.getToken());
