@@ -193,33 +193,30 @@ public class ACLs extends AppCommand {
             throws IOException
     {
 
-        if (!response.isSuccessful()) {
-
-            if (response.code() == 400) {
-                ACLPolicyValidation error = client.readError(
-                        response,
-                        ACLPolicyValidation.class,
-                        Client.MEDIA_TYPE_JSON
-                );
-                if (null != error) {
-                    Optional<Map<String, Object>> validationData = Optional.ofNullable(error.toMap());
-                    validationData.ifPresent(map -> {
-                        output.error("ACL Policy Validation failed for the file: ");
-                        output.output(filename + "\n");
-                        output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW));
-                    });
-                    if (!validationData.isPresent() && "true".equals(error.error)) {
-                        output.error("Invalid Request:");
-                        //other error
-                        client.reportApiError(error);
-                    }
+        if (!response.isSuccessful() && response.code() == 400) {
+            ACLPolicyValidation error = client.readError(
+                    response,
+                    ACLPolicyValidation.class,
+                    Client.MEDIA_TYPE_JSON
+            );
+            if (null != error) {
+                Optional<Map<String, Object>> validationData = Optional.ofNullable(error.toMap());
+                validationData.ifPresent(map -> {
+                    output.error("ACL Policy Validation failed for the file: ");
+                    output.output(filename + "\n");
+                    output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW));
+                });
+                if (!validationData.isPresent() && "true".equals(error.error)) {
+                    output.error("Invalid Request:");
+                    //other error
+                    client.reportApiError(error);
                 }
-                throw new RequestFailed(String.format(
-                        "ACLPolicy Validation failed: (error: %d %s)",
-                        response.code(),
-                        response.message()
-                ), response.code(), response.message());
             }
+            throw new RequestFailed(String.format(
+                    "ACLPolicy Validation failed: (error: %d %s)",
+                    response.code(),
+                    response.message()
+            ), response.code(), response.message());
         }
     }
 
