@@ -189,7 +189,7 @@ public class Files extends AppCommand {
             final String optionName
     ) throws InputError, IOException
     {
-        if (!validInputFile(input)) {
+        if (invalidInputFile(input)) {
             throw new IOException("Can't read file: " + input);
         }
         RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
@@ -209,7 +209,7 @@ public class Files extends AppCommand {
      *
      * @return true if the file can be read
      */
-    public static boolean validInputFile(final File input) {
-        return input.exists() && input.canRead() && input.isFile();
+    public static boolean invalidInputFile(final File input) {
+        return !input.exists() || !input.canRead() || !input.isFile();
     }
 }

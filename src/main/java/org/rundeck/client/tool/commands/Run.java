@@ -119,7 +119,7 @@ public class Run extends AppCommand {
             } else if (fileinputs.size() > 0) {
                 for (String optionName : fileinputs.keySet()) {
                     File file = fileinputs.get(optionName);
-                    if (!Files.validInputFile(file)) {
+                    if (Files.invalidInputFile(file)) {
                         throw new InputError("File Option -" + optionName + ": File cannot be read: " + file);
                     }
                 }

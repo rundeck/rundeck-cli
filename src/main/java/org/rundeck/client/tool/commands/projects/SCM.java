@@ -123,7 +123,7 @@ public class SCM extends AppCommand {
                                                         ).execute();
 
         //check for 400 error with validation information
-        if (!checkValidationError(output, getClient(), response,
+        if (hasValidationError(output, getClient(), response,
                                   "Setup config Validation for file: " + options.getFile().getAbsolutePath()
         )) {
             return false;
@@ -296,7 +296,7 @@ public class SCM extends AppCommand {
         ).execute();
 
         //check for 400 error with validation information
-        if (!checkValidationError(output, getClient(), response,
+        if (hasValidationError(output, getClient(), response,
                                   "Action " + options.getAction()
         )) {
             return false;
@@ -342,15 +342,13 @@ public class SCM extends AppCommand {
      * @param client
      * @param response
      * @param name
-     * @throws IOException
      */
-    private static boolean checkValidationError(
+    private static boolean hasValidationError(
             CommandOutput output,
             final Client<RundeckApi> client,
             final Response<ScmActionResult> response,
             final String name
     )
-            throws IOException
     {
         if (!response.isSuccessful()) {
             if (response.code() == 400) {
@@ -384,7 +382,7 @@ public class SCM extends AppCommand {
 
             }
         }
-        return response.isSuccessful();
+        return !response.isSuccessful();
     }
 
 
