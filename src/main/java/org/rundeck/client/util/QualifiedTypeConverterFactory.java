@@ -25,13 +25,15 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
 /**
- * Created by greg on 5/20/16.
+ * Retrofit converter factory that can convert xml or json bodies, depending on annotation of the
+ * API service method using {@link Xml} or {@link Json}, and has a default format.
  */
 public class QualifiedTypeConverterFactory extends Converter.Factory {
     private final Converter.Factory jsonFactory;
     private final Converter.Factory xmlFactory;
     private final Converter.Factory defaultFactory;
 
+    @SuppressWarnings("SameParameterValue")
     public QualifiedTypeConverterFactory(
             Converter.Factory jsonFactory,
             Converter.Factory xmlFactory, final boolean defaultJson

@@ -24,16 +24,16 @@ import com.simplifyops.toolbelt.InputError;
  */
 public interface ConfigSource {
 
-    public int getInt(final String key, final int defval);
+    int getInt(final String key, final int defval);
 
-    public Long getLong(final String key, final Long defval);
+    Long getLong(final String key, final Long defval);
 
-    public boolean getBool(final String key, final boolean defval);
+    boolean getBool(final String key, final boolean defval);
 
-    public String getString(final String key, final String defval);
+    String getString(final String key, final String defval);
 
-    public String get(final String key);
+    String get(final String key);
 
-    public String require(final String key, final String description) throws InputError;
+    String require(final String key, final String description) throws InputError;
 
 }

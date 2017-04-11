@@ -17,7 +17,7 @@
 package org.rundeck.client.api.model;
 
 /**
- * Created by greg on 7/19/16.
+ * Detail about an error
  */
 public interface ErrorDetail {
     String getErrorCode();
@@ -26,7 +26,7 @@ public interface ErrorDetail {
 
     int getApiVersion();
 
-    public default String toCodeString() {
+    default String toCodeString() {
         if (null != getErrorCode()) {
             return String.format(
                     "[code: %s; APIv%d]",

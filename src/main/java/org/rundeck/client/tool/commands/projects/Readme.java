@@ -33,9 +33,8 @@ import java.io.IOException;
 
 
 /**
- * Created by greg on 9/15/16.
+ * projects readme subcommands
  */
-
 @Command(description = "Manage Project readme.md/motd.md")
 public class Readme extends AppCommand {
     public Readme(final RdApp client) {
@@ -43,9 +42,6 @@ public class Readme extends AppCommand {
     }
 
     public interface GetOptions extends ProjectNameOptions {
-        /**
-         * @return
-         */
         @Option(shortName = "m",
                 longName = "motd",
                 description = "Choose the 'motd.md' file. If unset, choose 'readme.md'.")
@@ -66,17 +62,11 @@ public class Readme extends AppCommand {
 
 
     public interface SetOptions extends GetOptions {
-        /**
-         * @return
-         */
         @Option(shortName = "f", longName = "file", description = "Path to a file to read for readme/motd contents.")
         File getFile();
 
         boolean isFile();
 
-        /**
-         * @return
-         */
         @Option(shortName = "t", longName = "text", description = "Text to use for readme/motd contents.")
         String getText();
 

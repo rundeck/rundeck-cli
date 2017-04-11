@@ -25,13 +25,13 @@ import java.io.IOException;
  */
 public class FormAuthInterceptor implements Interceptor {
     private boolean authorized;
-    private String username;
-    private String password;
-    private String baseUrl;
-    private String j_security_url;
-    private String usernameField;
-    private String passwordField;
-    private String loginErrorURLPath;
+    private final String username;
+    private final String password;
+    private final String baseUrl;
+    private final String j_security_url;
+    private final String usernameField;
+    private final String passwordField;
+    private final String loginErrorURLPath;
 
     public FormAuthInterceptor(
             final String username,
@@ -66,11 +66,6 @@ public class FormAuthInterceptor implements Interceptor {
     /**
      * Retrieve base url, then subsequently post the authorization credentials
      *
-     * @param chain
-     *
-     * @return
-     *
-     * @throws IOException
      */
     private Response authenticate(final Chain chain) throws IOException {
         Response execute = chain.proceed(baseUrlRequest());

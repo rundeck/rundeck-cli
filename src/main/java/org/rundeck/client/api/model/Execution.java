@@ -24,9 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by greg on 5/20/16.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Execution {
     private String id;

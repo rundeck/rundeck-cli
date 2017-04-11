@@ -20,9 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
-/**
- * Created by greg on 7/19/16.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class BulkExecutionDeleteResponse {
     private int failedCount;

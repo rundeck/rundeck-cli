@@ -28,7 +28,6 @@ import org.rundeck.client.api.model.ProjectConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.OptionUtil;
-import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.UnparsedConfigOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -36,7 +35,6 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 
@@ -111,7 +109,7 @@ public class Configure extends AppCommand {
     @Command(description = "Overwrite all configuration properties for a project. Any config keys not included will " +
                            "be " +
                            "removed.")
-    public boolean set(ConfigureSetOpts opts, CommandOutput output) throws IOException, InputError {
+    public void set(ConfigureSetOpts opts, CommandOutput output) throws IOException, InputError {
 
         Map<String, String> config = loadConfig(opts);
         ProjectConfig projectConfig = apiCall(api -> api.setProjectConfiguration(
@@ -119,7 +117,6 @@ public class Configure extends AppCommand {
                 new ProjectConfig(config)
         ));
 
-        return true;
     }
 
     private Map<String, String> loadConfig(final ConfigInputOptions opts) throws InputError, IOException {
@@ -150,6 +147,7 @@ public class Configure extends AppCommand {
                 case json:
                     ObjectMapper objectMapper = new ObjectMapper();
                     Map map = objectMapper.readValue(input, Map.class);
+                    //noinspection unchecked
                     inputConfig.putAll(map);
                     break;
                 case yaml:
@@ -157,6 +155,7 @@ public class Configure extends AppCommand {
                     try (FileInputStream fis = new FileInputStream(input)) {
                         Object load = yaml.load(fis);
                         if (load instanceof Map) {
+                            //noinspection unchecked
                             inputConfig.putAll((Map) load);
                         } else {
                             throw new InputError("Yaml.load: data is not a Map");
@@ -187,7 +186,7 @@ public class Configure extends AppCommand {
     @Command(description = "Modify configuration properties for a project. Only the specified keys will be updated. " +
                            "Can provide input via a file (json, properties or yaml), or commandline. If both are " +
                            "provided, the commandline values will override the loaded file values.")
-    public boolean update(ConfigureUpdateOpts opts, CommandOutput output) throws IOException, InputError {
+    public void update(ConfigureUpdateOpts opts, CommandOutput output) throws IOException, InputError {
         Map<String, String> config = loadConfig(opts);
         output.info(String.format("Updating %d configuration properties...", config.size()));
         for (String s : config.keySet()) {
@@ -195,7 +194,6 @@ public class Configure extends AppCommand {
             ProjectConfig result = apiCall(api -> api.setProjectConfigurationKey(opts.getProject(), s, body));
             output.info("Updated value: " + result.getConfig());
         }
-        return true;
     }
 
     @CommandLineInterface(application = "delete", order = OptionOrder.DEFINITION) interface ConfigureDeleteOpts extends
@@ -210,7 +208,7 @@ public class Configure extends AppCommand {
     }
 
     @Command(description = "Remove configuration properties for a project. All")
-    public boolean delete(ConfigureDeleteOpts opts, CommandOutput output) throws IOException, InputError {
+    public void delete(ConfigureDeleteOpts opts, CommandOutput output) throws IOException, InputError {
         List<String> removeKeys = opts.config();
 
         if (removeKeys.size() < 1) {
@@ -222,6 +220,5 @@ public class Configure extends AppCommand {
             output.info("Removed key: " + s);
 
         }
-        return true;
     }
 }

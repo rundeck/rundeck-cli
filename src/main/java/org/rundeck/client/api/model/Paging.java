@@ -19,9 +19,8 @@ package org.rundeck.client.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Created by greg on 5/20/16.
+ * Paging data
  */
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Paging {
     private int count;
@@ -66,6 +65,7 @@ public class Paging {
         return String.format("Paged results %d - %d (of %d by %d).", offset, count + offset, total, max);
     }
 
+    @SuppressWarnings("SameParameterValue")
     public String moreResults(final String offsetArg) {
         if (hasMoreResults()) {
             int nextOffset = getOffset() + getMax();

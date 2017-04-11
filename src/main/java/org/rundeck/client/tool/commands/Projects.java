@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 5/19/16.
+ * projects subcommands
  */
 @Command(description = "List and manage projects.")
 public class Projects extends AppCommand implements HasSubCommands {
@@ -142,7 +142,7 @@ public class Projects extends AppCommand implements HasSubCommands {
     }
 
     @Command(description = "Create a project.")
-    public boolean create(Create options, CommandOutput output) throws IOException, InputError {
+    public void create(Create options, CommandOutput output) throws IOException, InputError {
         Map<String, String> config = OptionUtil.parseKeyValueMap(options.config());
         ProjectItem project = new ProjectItem();
         project.setName(projectOrEnv(options));
@@ -150,7 +150,6 @@ public class Projects extends AppCommand implements HasSubCommands {
 
         ProjectItem body = apiCall(api -> api.createProject(project));
         output.info(String.format("Created project: \n\t%s%n", body.toBasicString()));
-        return true;
     }
 
 }

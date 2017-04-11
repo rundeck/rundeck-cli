@@ -20,9 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
-/**
- * Created by greg on 5/20/16.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict=false)
 public class JobLoadItem extends JobItem {

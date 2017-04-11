@@ -26,11 +26,11 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.system.ACLs;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Created by greg on 6/13/16.
+ * system subcommands
  */
 @Command(description = "View system information", value = "system")
 public class RDSystem extends AppCommand implements HasSubCommands {
@@ -40,7 +40,7 @@ public class RDSystem extends AppCommand implements HasSubCommands {
 
     @Override
     public List<Object> getSubCommands() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 new ACLs(this)
         );
     }

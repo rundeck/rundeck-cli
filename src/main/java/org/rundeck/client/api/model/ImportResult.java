@@ -21,9 +21,6 @@ import org.simpleframework.xml.Root;
 
 import java.util.List;
 
-/**
- * Created by greg on 5/20/16.
- */
 @Root(strict=false)
 public class ImportResult {
     @ElementList()

@@ -16,9 +16,6 @@
 
 package org.rundeck.client.api.model;
 
-/**
- * Created by greg on 9/15/16.
- */
 public class ProjectReadme {
 
     private String contents;

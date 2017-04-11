@@ -17,11 +17,11 @@
 package org.rundeck.client.api;
 
 /**
- * Created by greg on 5/20/16.
+ * Http request failure
  */
 public class RequestFailed extends RuntimeException {
-    int statusCode;
-    String status;
+    final int statusCode;
+    final String status;
 
     public RequestFailed(final int statusCode, final String status) {
         this.statusCode = statusCode;

@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 7/21/16.
+ * scm subcommands
  */
 
 @Command(description = "Manage Project SCM")
@@ -123,7 +123,7 @@ public class SCM extends AppCommand {
                                                         ).execute();
 
         //check for 400 error with validation information
-        if (!checkValidationError(output, getClient(), response,
+        if (hasValidationError(output, getClient(), response,
                                   "Setup config Validation for file: " + options.getFile().getAbsolutePath()
         )) {
             return false;
@@ -296,7 +296,7 @@ public class SCM extends AppCommand {
         ).execute();
 
         //check for 400 error with validation information
-        if (!checkValidationError(output, getClient(), response,
+        if (hasValidationError(output, getClient(), response,
                                   "Action " + options.getAction()
         )) {
             return false;
@@ -338,19 +338,14 @@ public class SCM extends AppCommand {
     /**
      * Check for validation info from resposne
      *
-     * @param output
-     * @param client
-     * @param response
-     * @param name
-     * @throws IOException
+     * @param name action name for error messages
      */
-    private static boolean checkValidationError(
+    private static boolean hasValidationError(
             CommandOutput output,
             final Client<RundeckApi> client,
             final Response<ScmActionResult> response,
             final String name
     )
-            throws IOException
     {
         if (!response.isSuccessful()) {
             if (response.code() == 400) {
@@ -363,19 +358,18 @@ public class SCM extends AppCommand {
                     );
                     if (null != error) {
                         //
-                        output.error(name + " failed");
+                        output.error(String.format("%s failed", name));
                         if (null != error.message) {
                             output.warning(error.message);
                         }
                         Optional<? extends Map<?, ?>> errorData = Optional.ofNullable(error.toMap());
-                        errorData.ifPresent(map -> {
-                            output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW));
-                        });
+                        errorData.ifPresent(map -> output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW)));
                     }
                 } catch (IOException e) {
                     //unable to parse body as expected
                     throw new RequestFailed(String.format(
-                            name + " failed: (error: %d %s)",
+                            "%s failed: (error: %d %s)",
+                            name,
                             response.code(),
                             response.message()
 
@@ -384,7 +378,7 @@ public class SCM extends AppCommand {
 
             }
         }
-        return response.isSuccessful();
+        return !response.isSuccessful();
     }
 
 

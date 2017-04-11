@@ -9,8 +9,6 @@ extensible, and nicer implementation.
 
 This project is now at 1.0.x status.
 
-See [todos.md](https://github.com/rundeck/rundeck-cli/blob/master/todo.md)
-
 # Documentation 
 
 [https://rundeck.github.io/rundeck-cli/](https://rundeck.github.io/rundeck-cli/)

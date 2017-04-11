@@ -25,8 +25,8 @@ import java.io.IOException;
  * Change redirect behavior, if Location begins with the bypass url, replace that part with the app URL.
  */
 public class RedirectBypassInterceptor implements Interceptor {
-    private String appBaseUrl;
-    private String bypassUrl;
+    private final String appBaseUrl;
+    private final String bypassUrl;
 
     public RedirectBypassInterceptor(final String appBaseUrl, final String bypassUrl) {
         this.appBaseUrl = appBaseUrl;
@@ -51,11 +51,6 @@ public class RedirectBypassInterceptor implements Interceptor {
     /**
      * Replace the prefix of the originurl that starts with the bypassurl string with the appbaseurl string
      *
-     * @param origUrl
-     * @param bypassUrl
-     * @param appBaseUrl
-     *
-     * @return
      */
     public static String remapUrl(final String origUrl, final String bypassUrl, final String appBaseUrl) {
         if (origUrl.startsWith(bypassUrl)) {

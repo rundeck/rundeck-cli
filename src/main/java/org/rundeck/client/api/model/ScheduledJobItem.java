@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Created by greg on 7/8/16.
- */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ScheduledJobItem extends JobItem {

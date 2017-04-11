@@ -23,10 +23,6 @@ import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Path;
 import org.simpleframework.xml.Root;
 
-/**
- * Created by greg on 5/22/16.
- */
-
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict = false)
 @Xml

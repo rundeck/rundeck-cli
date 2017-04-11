@@ -23,7 +23,7 @@ import com.simplifyops.toolbelt.InputError;
  * @since 1/11/17
  */
 public class ExtConfigSource implements ConfigSource {
-    ConfigSource configSource;
+    final ConfigSource configSource;
 
     public ExtConfigSource(final ConfigSource configSource) {
         this.configSource = configSource;

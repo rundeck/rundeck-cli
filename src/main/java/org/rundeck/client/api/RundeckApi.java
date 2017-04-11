@@ -30,8 +30,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Created by greg on 3/28/16.
+ * Interface for Rundeck API using retrofit annotations
  */
+@SuppressWarnings("JavaDoc")
 public interface RundeckApi {
 
     @Headers("Accept: application/json")

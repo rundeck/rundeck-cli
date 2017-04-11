@@ -26,7 +26,7 @@ import org.rundeck.client.util.Client;
  * @since 1/11/17
  */
 public interface RdApp {
-    public Client<RundeckApi> getClient() throws InputError;
+    Client<RundeckApi> getClient() throws InputError;
 
-    public AppConfig getAppConfig();
+    AppConfig getAppConfig();
 }

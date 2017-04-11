@@ -17,7 +17,6 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.rundeck.client.util.Env;
 import org.rundeck.client.util.Format;
 
 import java.text.ParseException;
@@ -25,21 +24,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Created by greg on 5/20/16.
- */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DateInfo {
     public static final String ISO = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    public String date;
+    public final String date;
     public long unixtime;
 
     public DateInfo(final String date) {
         this.date = date;
-    }
-
-    public DateInfo() {
     }
 
     public Date toDate() throws ParseException {
@@ -47,8 +40,7 @@ public class DateInfo {
     }
 
     /**
-     * Format using the default or configured date format
-     * @return
+     * @return Format using the default or configured date format
      */
     public String format(String format) {
         try {

@@ -22,7 +22,7 @@ import spock.lang.Specification
  * @author greg
  * @since 11/22/16
  */
-class RundeckSpec extends Specification {
+class RundeckClientSpec extends Specification {
     def "create user and password valid"() {
         given:
         def user = 'user1'
@@ -33,7 +33,7 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.builder().
+        def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 passwordAuth(user, pass).
                 logging(debuglevel).
@@ -59,7 +59,7 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.builder().
+        def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 tokenAuth(token).
                 logging(debuglevel).
@@ -86,7 +86,7 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.builder().
+        def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 passwordAuth(user, pass).
                 logging(debuglevel).
@@ -113,7 +113,7 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.builder().
+        def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 passwordAuth(user, pass).
                 logging(debuglevel).
@@ -140,7 +140,7 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.builder().
+        def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 passwordAuth(user, pass).
                 logging(debuglevel).
@@ -167,7 +167,7 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.builder().
+        def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 tokenAuth(token).
                 logging(debuglevel).
@@ -193,7 +193,7 @@ class RundeckSpec extends Specification {
         boolean retryConnect = true
         when:
 
-        def result = Rundeck.builder().
+        def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 tokenAuth(token).
                 logging(debuglevel).

@@ -38,9 +38,8 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 5/20/16.
+ * executions subcommands
  */
-
 @Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends AppCommand {
 
@@ -62,7 +61,7 @@ public class Executions extends AppCommand {
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
 
-        out.output(String.format("Kill [%s] result: %s", options.getId(), abort.status));
+        out.output(String.format("Kill [%s] result: %s", options.getId(), abort != null ? abort.status : null));
 
         if (null != execution) {
             out.output(String.format("Execution [%s] status: %s", options.getId(), execution.getStatus()));
@@ -128,17 +127,14 @@ public class Executions extends AppCommand {
     /**
      * Follow output, wait 2s between refreshing data from server, halts when interrupted
      *
-     * @param client
-     * @param output
-     * @param progress
-     * @param quiet
-     * @param id
-     * @param max
-     * @param out
+     * @param progress show progress
+     * @param quiet quell log output
+     * @param id id
+     * @param max max lines
+     * @param out output
      *
-     * @return
+     * @return true if successful
      *
-     * @throws IOException
      */
     public static boolean followOutput(
             final Client<RundeckApi> client,
@@ -155,24 +151,22 @@ public class Executions extends AppCommand {
                 Thread.sleep(2000);
                 return true;
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 return false;
             }
         });
     }
 
     /**
-     * @param client
-     * @param output
-     * @param progress
-     * @param quiet
-     * @param id
-     * @param max
-     * @param out
+     * Follow output until execution completes and output is fully read, or interrupted
+     * @param progress show progress
+     * @param quiet quell log output
+     * @param id  execution id
+     * @param max max lines to retrieve with each request
      * @param waitFunc function for waiting, return false to halt
      *
-     * @return
+     * @return true if execution is successful
      *
-     * @throws IOException
      */
     public static boolean followOutput(
             final Client<RundeckApi> client,
@@ -429,17 +423,15 @@ public class Executions extends AppCommand {
 
 
         String project = projectOrEnv(options);
-        ExecutionList executionList = apiCall(api -> {
-            return api
-                    .listExecutions(
-                            project,
-                            query,
-                            options.getJobIdList(),
-                            options.getExcludeJobIdList(),
-                            options.getJobList(),
-                            options.getExcludeJobList()
-                    );
-        });
+        ExecutionList executionList = apiCall(api -> api
+                .listExecutions(
+                        project,
+                        query,
+                        options.getJobIdList(),
+                        options.getExcludeJobIdList(),
+                        options.getJobList(),
+                        options.getExcludeJobList()
+                ));
 
         Paging page = executionList.getPaging();
         if (!options.isOutputFormat()) {
@@ -487,7 +479,7 @@ public class Executions extends AppCommand {
                            "executions, or specify executions with the `idlist` option.")
     public boolean deletebulk(BulkDeleteCmd options, CommandOutput out) throws IOException, InputError {
 
-        List<String> execIds = null;
+        List<String> execIds;
         if (options.isIdlist()) {
             execIds = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {

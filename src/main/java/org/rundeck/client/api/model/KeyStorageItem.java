@@ -22,9 +22,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by greg on 6/6/16.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class KeyStorageItem implements Comparable<KeyStorageItem>{
@@ -114,14 +111,14 @@ public class KeyStorageItem implements Comparable<KeyStorageItem>{
         return KeyFileType.other;
     }
 
-    public static enum KeyFileType {
+    public enum KeyFileType {
         password,
         privateKey,
         publicKey,
         other
     }
 
-    public static enum KeyItemType {
+    public enum KeyItemType {
         directory,
         file
     }

@@ -17,8 +17,6 @@
 package org.rundeck.client.tool.options;
 
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.util.ConfigSource;
-import org.rundeck.client.util.Env;
 
 import java.util.HashMap;
 import java.util.List;
@@ -34,11 +32,6 @@ public class OptionUtil {
     /**
      * Parse a list of "--key=value" into a map
      *
-     * @param input
-     *
-     * @return
-     *
-     * @throws InputError
      */
     public static Map<String, String> parseKeyValueMap(final List<String> input) throws InputError {
         return parseKeyValueMap(input, "--", "=");
@@ -47,14 +40,11 @@ public class OptionUtil {
     /**
      * Parse a list of "{prefix}key${delim}value" into a map, using specified delimiter and prefix
      *
-     * @param input
-     * @param keyPrefix
-     * @param delim
+     * @param keyPrefix prefix
+     * @param delim delimiter
      *
-     * @return
-     *
-     * @throws InputError
      */
+    @SuppressWarnings("SameParameterValue")
     public static Map<String, String> parseKeyValueMap(
             final List<String> input,
             final String keyPrefix,

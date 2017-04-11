@@ -20,7 +20,7 @@ import com.simplifyops.toolbelt.*;
 import com.simplifyops.toolbelt.format.json.jackson.JsonFormatter;
 import com.simplifyops.toolbelt.format.yaml.snakeyaml.YamlFormatter;
 import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
-import org.rundeck.client.Rundeck;
+import org.rundeck.client.RundeckClient;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
@@ -32,11 +32,10 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
-import static org.rundeck.client.Rundeck.ENV_INSECURE_SSL;
+import static org.rundeck.client.RundeckClient.ENV_INSECURE_SSL;
 
 
 /**
@@ -53,63 +52,76 @@ public class Main {
     public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
     public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
 
-    public static void main(String[] args) throws IOException, CommandRunFailure {
-        tool("rd", new Rd(new Env())).runMain(args, true);
+    public static void main(String[] args) throws CommandRunFailure {
+        tool(new Rd(new Env())).runMain(args, true);
     }
 
 
     private static void setupFormat(final ToolBelt belt, AppConfig config) {
-        if ("yaml".equalsIgnoreCase(config.get("RD_FORMAT"))) {
-            DumperOptions dumperOptions = new DumperOptions();
-            dumperOptions.setDefaultFlowStyle(
-                    "BLOCK".equalsIgnoreCase(config.getString("RD_YAML_FLOW", "BLOCK")) ?
-                    DumperOptions.FlowStyle.BLOCK :
-                    DumperOptions.FlowStyle.FLOW
-            );
-            dumperOptions.setPrettyFlow(config.getBool("RD_YAML_PRETTY", true));
-            Representer representer = new Representer();
-            representer.addClassTag(JobItem.class, Tag.MAP);
-            representer.addClassTag(ScheduledJobItem.class, Tag.MAP);
-            representer.addClassTag(DateInfo.class, Tag.MAP);
-            representer.addClassTag(Execution.class, Tag.MAP);
-            belt.formatter(new YamlFormatter(representer, dumperOptions));
-            belt.channels().infoEnabled(false);
-            belt.channels().warningEnabled(false);
-            belt.channels().errorEnabled(false);
-        } else if ("json".equalsIgnoreCase(config.get("RD_FORMAT"))) {
-            belt.formatter(new JsonFormatter());
-            belt.channels().infoEnabled(false);
-            belt.channels().warningEnabled(false);
-            belt.channels().errorEnabled(false);
+        final String format = config.get("RD_FORMAT");
+        if ("yaml".equalsIgnoreCase(format)) {
+            configYamlFormat(belt, config);
+        } else if ("json".equalsIgnoreCase(format)) {
+            configJsonFormat(belt);
         } else {
-            NiceFormatter formatter = new NiceFormatter(null) {
-                @Override
-                public String format(final Object o) {
-                    if (o instanceof Formatable) {
-                        Formatable o1 = (Formatable) o;
-                        Map<?, ?> map = o1.asMap();
-                        if (null != map) {
-                            return super.format(map);
-                        }
-                        List<?> objects = o1.asList();
-                        if (null != objects) {
-                            return super.format(objects);
-                        }
-                    }
-                    return super.format(o);
-                }
-            };
-            formatter.setCollectionIndicator("");
-            belt.formatter(formatter);
-            belt.channels().info(new FormattedOutput(
-                    belt.defaultOutput(),
-                    new PrefixFormatter("# ", belt.defaultBaseFormatter())
-            ));
+            configNiceFormat(belt);
         }
     }
 
-    public static Tool tool(final String name, final Rd rd) {
-        ToolBelt belt = ToolBelt.belt(name)
+    private static void configNiceFormat(final ToolBelt belt) {
+        NiceFormatter formatter = new NiceFormatter(null) {
+            @Override
+            public String format(final Object o) {
+                if (o instanceof Formatable) {
+                    Formatable o1 = (Formatable) o;
+                    Map<?, ?> map = o1.asMap();
+                    if (null != map) {
+                        return super.format(map);
+                    }
+                    List<?> objects = o1.asList();
+                    if (null != objects) {
+                        return super.format(objects);
+                    }
+                }
+                return super.format(o);
+            }
+        };
+        formatter.setCollectionIndicator("");
+        belt.formatter(formatter);
+        belt.channels().info(new FormattedOutput(
+                belt.defaultOutput(),
+                new PrefixFormatter("# ", belt.defaultBaseFormatter())
+        ));
+    }
+
+    private static void configJsonFormat(final ToolBelt belt) {
+        belt.formatter(new JsonFormatter());
+        belt.channels().infoEnabled(false);
+        belt.channels().warningEnabled(false);
+        belt.channels().errorEnabled(false);
+    }
+
+    private static void configYamlFormat(final ToolBelt belt, final AppConfig config) {
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setDefaultFlowStyle(
+                "BLOCK".equalsIgnoreCase(config.getString("RD_YAML_FLOW", "BLOCK")) ?
+                DumperOptions.FlowStyle.BLOCK :
+                DumperOptions.FlowStyle.FLOW
+        );
+        dumperOptions.setPrettyFlow(config.getBool("RD_YAML_PRETTY", true));
+        Representer representer = new Representer();
+        representer.addClassTag(JobItem.class, Tag.MAP);
+        representer.addClassTag(ScheduledJobItem.class, Tag.MAP);
+        representer.addClassTag(DateInfo.class, Tag.MAP);
+        representer.addClassTag(Execution.class, Tag.MAP);
+        belt.formatter(new YamlFormatter(representer, dumperOptions));
+        belt.channels().infoEnabled(false);
+        belt.channels().warningEnabled(false);
+        belt.channels().errorEnabled(false);
+    }
+
+    public static Tool tool(final Rd rd) {
+        ToolBelt belt = ToolBelt.belt("rd")
                                 .defaultHelpCommands()
                                 .ansiColorOutput(rd.isAnsiEnabled())
                                 .add(
@@ -211,9 +223,9 @@ public class Main {
         if (!auth.isConfigured() && config.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
             auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
-        Rundeck.Builder builder = Rundeck.builder()
-                                         .baseUrl(baseUrl)
-                                         .config(config);
+        RundeckClient.Builder builder = RundeckClient.builder()
+                                                     .baseUrl(baseUrl)
+                                                     .config(config);
 
         if (auth.isTokenAuth()) {
             builder.tokenAuth(auth.getToken());
@@ -232,7 +244,7 @@ public class Main {
 
     }
 
-    static interface Auth {
+    interface Auth {
         default boolean isConfigured() {
             return null != getToken() || (
                     null != getUsername() && null != getPassword()
@@ -271,7 +283,7 @@ public class Main {
 
 
     static class ConfigAuth implements Auth {
-        ConfigSource config;
+        final ConfigSource config;
 
         public ConfigAuth(final ConfigSource config) {
             this.config = config;
@@ -297,7 +309,7 @@ public class Main {
         String username;
         String pass;
         String token;
-        String header;
+        final String header;
         boolean echoHeader;
 
         public ConsoleAuth(final String header) {
@@ -336,7 +348,7 @@ public class Main {
     }
 
     static class ChainAuth implements Auth {
-        Collection<Auth> chain;
+        final Collection<Auth> chain;
 
         public ChainAuth(final Collection<Auth> chain) {
             this.chain = chain;
@@ -370,7 +382,7 @@ public class Main {
 
 
     static class MemoAuth implements Auth {
-        Auth auth;
+        final Auth auth;
 
         public MemoAuth(final Auth auth) {
             this.auth = auth;

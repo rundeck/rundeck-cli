@@ -43,10 +43,10 @@ public class Client<T> {
     public static final MediaType MEDIA_TYPE_ZIP = MediaType.parse(APPLICATION_ZIP);
     public static final String APPLICATION_PGP_KEYS = "application/pgp-keys";
     public static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
-    public static final String APPLICATION_X_RUNDECK_PASSWORD = "application/x-rundeck-data-password";
+    public static final String APPLICATION_X_RUNDECK_PWORD_MIME_TYPE = "application/x-rundeck-data-password";
     public static final MediaType MEDIA_TYPE_GPG_KEYS = MediaType.parse(APPLICATION_PGP_KEYS);
     public static final MediaType MEDIA_TYPE_OCTET_STREAM = MediaType.parse(APPLICATION_OCTET_STREAM);
-    public static final MediaType MEDIA_TYPE_X_RUNDECK_PASSWORD = MediaType.parse(APPLICATION_X_RUNDECK_PASSWORD);
+    public static final MediaType MEDIA_TYPE_X_RUNDECK_PASSWORD = MediaType.parse(APPLICATION_X_RUNDECK_PWORD_MIME_TYPE);
     public static final String APPLICATION_YAML = "application/yaml";
     public static final MediaType MEDIA_TYPE_YAML = MediaType.parse(APPLICATION_YAML);
     public static final MediaType MEDIA_TYPE_TEXT_YAML = MediaType.parse("text/yaml");
@@ -54,7 +54,7 @@ public class Client<T> {
     public static final String API_ERROR_API_VERSION_UNSUPPORTED = "api.error.api-version.unsupported";
     private T service;
     private Retrofit retrofit;
-    private int apiVersion;
+    private final int apiVersion;
 
     public Client(final T service, final Retrofit retrofit, final int apiVersion) {
         this.service = service;
@@ -83,14 +83,14 @@ public class Client<T> {
      * throw an exception with relevant error detail
      *
      * @param execute call
-     * @param <T>     expected result type
+     * @param <R>     expected result type
      *
      * @return result
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
-    public <T> T checkError(final Call<T> execute) throws IOException {
-        Response<T> response = execute.execute();
+    public <R> R checkError(final Call<R> execute) throws IOException {
+        Response<R> response = execute.execute();
         return checkError(response);
     }
 
@@ -99,13 +99,13 @@ public class Client<T> {
      * throw an exception with relevant error detail
      *
      * @param response call response
-     * @param <T>      expected type
+     * @param <R>      expected type
      *
      * @return result
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
-    public <T> T checkError(final Response<T> response) throws IOException {
+    public <R> R checkError(final Response<R> response) throws IOException {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
             reportApiError(error);
@@ -197,6 +197,7 @@ public class Client<T> {
      *
      * @throws IOException if media type matched, but parsing was unsuccessful
      */
+    @SuppressWarnings("SameParameterValue")
     public <X> X readError(Response<?> execute, Class<X> errorType, MediaType... mediaTypes) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();

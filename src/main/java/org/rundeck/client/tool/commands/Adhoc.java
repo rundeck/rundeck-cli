@@ -39,7 +39,7 @@ import java.util.Collections;
 
 
 /**
- * Created by greg on 5/20/16.
+ * adhoc subcommands
  */
 
 @Command(description = "Run adhoc command or script on matching nodes.")
@@ -58,7 +58,7 @@ public class Adhoc extends AppCommand {
 
     @Command(isSolo = true, isDefault = true)
     public boolean adhoc(AdhocOptions options, CommandOutput output) throws IOException, InputError {
-        Call<AdhocResponse> adhocResponseCall = null;
+        Call<AdhocResponse> adhocResponseCall;
 
         String project = projectOrEnv(options);
         if (options.isScriptFile() || options.isStdin()) {

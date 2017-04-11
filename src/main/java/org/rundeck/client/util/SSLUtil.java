@@ -18,7 +18,7 @@ package org.rundeck.client.util;
 
 import okhttp3.OkHttpClient;
 import okhttp3.internal.tls.OkHostnameVerifier;
-import org.rundeck.client.Rundeck;
+import org.rundeck.client.RundeckClient;
 
 import javax.net.ssl.*;
 import java.security.GeneralSecurityException;
@@ -27,8 +27,6 @@ import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Predicate;
 
 /**
  * @author greg
@@ -72,7 +70,7 @@ public class SSLUtil {
             if (defaultVerifier.verify(hostname, session)) {
                 return true;
             }
-            if (logging >= Rundeck.INSECURE_SSL_LOGGING) {
+            if (logging >= RundeckClient.INSECURE_SSL_LOGGING) {
                 System.err.printf("INSECURE_SSL:hostnameVerifier: trust host: %s%n", hostname);
             }
             return true;
@@ -102,7 +100,7 @@ public class SSLUtil {
             Optional<String> tested = alternateHostnames.stream()
                                                         .filter(h -> defaultVerifier.verify(h, session))
                                                         .findAny();
-            if (tested.isPresent() && logging >= Rundeck.INSECURE_SSL_LOGGING) {
+            if (tested.isPresent() && logging >= RundeckClient.INSECURE_SSL_LOGGING) {
                 System.err.printf("INSECURE_SSL:hostnameVerifier: trust host: %s: as %s%n", hostname, tested.get());
             }
             return tested.isPresent();
@@ -111,13 +109,11 @@ public class SSLUtil {
     }
 
     private static X509TrustManager createInsecureSslTrustManager(int logging)
-            throws GeneralSecurityException
     {
         return new X509TrustManager() {
             @Override
             public X509Certificate[] getAcceptedIssuers() {
-                X509Certificate[] cArrr = new X509Certificate[0];
-                return cArrr;
+                return new X509Certificate[0];
             }
 
             @Override
@@ -126,7 +122,7 @@ public class SSLUtil {
                     final String authType
             ) throws CertificateException
             {
-                if (logging >= Rundeck.INSECURE_SSL_LOGGING) {
+                if (logging >= RundeckClient.INSECURE_SSL_LOGGING) {
                     System.err.printf("INSECURE_SSL:TrustManager:checkServerTrusted: %s: chain: %s%n", authType,
                                       Arrays.toString(chain)
                     );

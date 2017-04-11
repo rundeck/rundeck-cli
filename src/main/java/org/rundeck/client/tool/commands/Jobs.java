@@ -48,7 +48,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 3/28/16.
+ * jobs subcommands
  */
 @Command(description = "List and manage Jobs.")
 public class Jobs extends AppCommand implements HasSubCommands {
@@ -63,7 +63,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     @Override
     public List<Object> getSubCommands() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 new Files(this)
         );
     }

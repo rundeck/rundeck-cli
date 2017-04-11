@@ -79,7 +79,7 @@ public class Files extends AppCommand {
         boolean isFileState();
     }
 
-    static enum FileState {
+    enum FileState {
         temp,
         expired,
         deleted,
@@ -172,24 +172,15 @@ public class Files extends AppCommand {
     /**
      * Upload a file for a job option input and return the result
      *
-     * @param client
-     * @param input
-     * @param jobId
-     * @param optionName
-     *
-     * @return
-     *
-     * @throws InputError
-     * @throws IOException
      */
     public static JobFileUploadResult uploadFileForJob(
             final Client<RundeckApi> client,
             final File input,
             final String jobId,
             final String optionName
-    ) throws InputError, IOException
+    ) throws IOException
     {
-        if (!validInputFile(input)) {
+        if (invalidInputFile(input)) {
             throw new IOException("Can't read file: " + input);
         }
         RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
@@ -205,11 +196,10 @@ public class Files extends AppCommand {
     }
 
     /**
-     * @param input
      *
-     * @return true if the file can be read
+     * @return true if the file is invalid
      */
-    public static boolean validInputFile(final File input) {
-        return input.exists() && input.canRead() && input.isFile();
+    public static boolean invalidInputFile(final File input) {
+        return !input.exists() || !input.canRead() || !input.isFile();
     }
 }

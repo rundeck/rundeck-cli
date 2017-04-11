@@ -18,13 +18,9 @@ package org.rundeck.client.util;
 
 import com.simplifyops.toolbelt.ANSIColorOutput;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Created by greg on 7/19/16.
- */
 public class Colorz {
     /**
      * Return a map with key/values replaced with colorized versions, if specified

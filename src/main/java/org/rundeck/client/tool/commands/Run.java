@@ -37,13 +37,12 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 /**
- * Created by greg on 5/20/16.
+ * run subcommand
  */
 @Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
                        "@path\" or \"-opt@ path\".")
@@ -120,7 +119,7 @@ public class Run extends AppCommand {
             } else if (fileinputs.size() > 0) {
                 for (String optionName : fileinputs.keySet()) {
                     File file = fileinputs.get(optionName);
-                    if (!Files.validInputFile(file)) {
+                    if (Files.invalidInputFile(file)) {
                         throw new InputError("File Option -" + optionName + ": File cannot be read: " + file);
                     }
                 }
@@ -195,10 +194,8 @@ public class Run extends AppCommand {
      * @param client  client
      * @param project project name, or null
      *
-     * @return
+     * @return job ID or null
      *
-     * @throws InputError
-     * @throws IOException
      */
     public static String getJobIdFromOpts(
             final JobIdentOptions options,
@@ -244,7 +241,7 @@ public class Run extends AppCommand {
         }
     }
 
-    private Date parseDelayTime(final String delayString) throws InputError {
+    private Date parseDelayTime(final String delayString) {
         long delayms = System.currentTimeMillis();
         Pattern p = Pattern.compile("(?<digits>\\d+)(?<unit>[smhdwMY])\\s*");
         Matcher matcher = p.matcher(delayString);
@@ -254,7 +251,7 @@ public class Run extends AppCommand {
             String digit = matcher.group("digits");
             String unit = matcher.group("unit");
             long count = Integer.parseInt(digit);
-            long unitms = 0;
+            long unitms;
             //simple addition for time units
             switch (unit) {
                 case "s":

@@ -151,7 +151,7 @@ public class Archives extends AppCommand {
 
     }
 
-    static enum Flags {
+    enum Flags {
         all,
         jobs,
         executions,
@@ -237,7 +237,7 @@ public class Archives extends AppCommand {
             File outputfile,
             CommandOutput out,
             BooleanSupplier waitFunc
-    ) throws IOException, InputError
+    ) throws IOException
     {
         boolean done = false;
         int perc = status.getPercentage();
@@ -248,10 +248,8 @@ public class Archives extends AppCommand {
                 perc = status1.getPercentage();
             }
             done = status1.getReady();
-            if (!done) {
-                if (!waitFunc.getAsBoolean()) {
+            if (!done && !waitFunc.getAsBoolean()) {
                     break;
-                }
             }
         }
         if (done) {
@@ -269,19 +267,18 @@ public class Archives extends AppCommand {
     private static void receiveArchiveFile(
             final CommandOutput output, final ResponseBody responseBody, final File file
     )
-            throws InputError, IOException
+            throws IOException
     {
-        ResponseBody body = responseBody;
-        if (!Client.hasAnyMediaType(body, Client.MEDIA_TYPE_ZIP)) {
-            throw new IllegalStateException("Unexpected response format: " + body.contentType());
+        if (!Client.hasAnyMediaType(responseBody, Client.MEDIA_TYPE_ZIP)) {
+            throw new IllegalStateException("Unexpected response format: " + responseBody.contentType());
         }
-        InputStream inputStream = body.byteStream();
+        InputStream inputStream = responseBody.byteStream();
         try (FileOutputStream out = new FileOutputStream(file)) {
             long total = Util.copyStream(inputStream, out);
             output.info(String.format(
                     "Wrote %d bytes of %s to file %s%n",
                     total,
-                    body.contentType(),
+                    responseBody.contentType(),
                     file
             ));
         }
