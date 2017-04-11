@@ -76,9 +76,8 @@ public class Tokens extends AppCommand {
     }
 
     @Command(description = "Delete a token")
-    public boolean delete(DeleteOptions options, CommandOutput output) throws IOException, InputError {
+    public void delete(DeleteOptions options, CommandOutput output) throws IOException, InputError {
         Void aVoid = apiCall(api -> api.deleteToken(options.getToken()));
         output.info("Token deleted.");
-        return true;
     }
 }

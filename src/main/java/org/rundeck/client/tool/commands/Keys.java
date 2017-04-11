@@ -233,7 +233,7 @@ public class Keys extends AppCommand {
     }
 
     @Command(description = "Create a new key entry.")
-    public boolean create(Upload options, CommandOutput output) throws IOException, InputError {
+    public void create(Upload options, CommandOutput output) throws IOException, InputError {
 
         Path path = argPath(options);
         String path1 = path.keysPath();
@@ -245,7 +245,6 @@ public class Keys extends AppCommand {
 
         KeyStorageItem keyStorageItem = apiCall(api -> api.createKeyStorage(path1, requestBody));
         output.info(String.format("Created: %s", keyStorageItem.toBasicString()));
-        return true;
     }
 
     private RequestBody prepareKeyUpload(final Upload options) throws IOException, InputError {
@@ -307,7 +306,7 @@ public class Keys extends AppCommand {
     }
 
     @Command(description = "Update an existing key entry")
-    public boolean update(Update options, CommandOutput output) throws IOException, InputError {
+    public void update(Update options, CommandOutput output) throws IOException, InputError {
         Path path = argPath(options);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
@@ -316,7 +315,6 @@ public class Keys extends AppCommand {
         RequestBody requestBody = prepareKeyUpload(options);
         KeyStorageItem keyStorageItem = apiCall(api -> api.updateKeyStorage(path.keysPath(), requestBody));
         output.info(String.format("Updated: %s", keyStorageItem.toBasicString()));
-        return true;
     }
 
     private MediaType getUploadContentType(final KeyStorageItem.KeyFileType type) {
