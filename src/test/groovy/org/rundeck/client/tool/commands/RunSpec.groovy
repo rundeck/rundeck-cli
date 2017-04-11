@@ -3,7 +3,9 @@ package org.rundeck.client.tool.commands
 import com.simplifyops.toolbelt.CommandOutput
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.Execution
+import org.rundeck.client.api.model.JobFileUploadResult
 import org.rundeck.client.api.model.JobItem
+import org.rundeck.client.api.model.JobRun
 import org.rundeck.client.tool.AppConfig
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.options.RunBaseOptions
@@ -86,5 +88,51 @@ class RunSpec extends Specification {
         isproj | _
         true   | _
         false  | _
+    }
+
+    def "run argstring supports -opt @path and -opt@ path"() {
+        given:
+        def api = Mock(RundeckApi)
+        def testfile1 = File.createTempFile("upload1", "test")
+        def testfile2 = File.createTempFile("upload2", "test")
+
+
+        def opts = Mock(RunBaseOptions) {
+            isId() >> true
+            getId() >> 'jobid1'
+            getCommandString() >> [
+                    "-opt1",
+                    "val1",
+                    "-opt2",
+                    "@$testfile1.absolutePath",
+                    "-opt3@",
+                    testfile2.absolutePath
+            ].collect { it.toString() }
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, 19)
+        def appConfig = Mock(AppConfig)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> appConfig
+        }
+        Run run = new Run(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        def result = run.run(opts, out)
+
+        then:
+        1 * api.uploadJobOptionFile('jobid1', 'opt2', testfile1.name, _) >> Calls.response(
+                new JobFileUploadResult(total: 1, options: ['opt2': 'fakefileid1'])
+        )
+        1 * api.uploadJobOptionFile('jobid1', 'opt3', testfile2.name, _) >> Calls.response(
+                new JobFileUploadResult(total: 1, options: ['opt3': 'fakefileid2'])
+        )
+        1 * api.runJob('jobid1', { JobRun runarg ->
+            runarg.options == ['opt1': 'val1', 'opt2': 'fakefileid1', 'opt3': 'fakefileid2']
+        }
+        ) >> Calls.response(new Execution(id: 123, description: ''))
+        0 * api._(*_)
+        result
     }
 }

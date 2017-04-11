@@ -197,7 +197,13 @@ public class Executions extends AppCommand {
 
         if (!quiet && !progress) {
             for (ExecLog entry : entries) {
-                out.output(entry.log);
+                if ("WARN".equals(entry.level)) {
+                    out.warning(entry.log);
+                } else if ("ERROR".equals(entry.level)) {
+                    out.error(entry.log);
+                } else {
+                    out.output(entry.log);
+                }
             }
         } else if (progress && entries.size() > 0) {
             out.output(".");
@@ -421,22 +427,11 @@ public class Executions extends AppCommand {
 
         Paging page = executionList.getPaging();
         if (!options.isOutputFormat()) {
-            out.info(String.format(
-                    "Found executions: %d of %d%n",
-                    page.getCount(),
-                    page.getTotal()
-            ));
+            out.info(page);
         }
         outputExecutionList(options, out, executionList.getExecutions(), getAppConfig());
         if (!options.isOutputFormat()) {
-            if (page.getTotal() >
-                (page.getOffset() + page.getCount())) {
-
-                int nextOffset = page.getOffset() + page.getMax();
-                out.info(String.format("(more results available, append: -o %d)", nextOffset));
-            } else {
-                out.info(String.format("End of results."));
-            }
+            out.info(page.moreResults("-o"));
         }
         return executionList;
     }

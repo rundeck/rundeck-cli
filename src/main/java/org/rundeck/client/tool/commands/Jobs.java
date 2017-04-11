@@ -4,12 +4,14 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
+import com.simplifyops.toolbelt.HasSubCommands;
 import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.commands.jobs.Files;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
@@ -33,13 +35,21 @@ import java.util.stream.Collectors;
  * Created by greg on 3/28/16.
  */
 @Command(description = "List and manage Jobs.")
-public class Jobs extends AppCommand {
+public class Jobs extends AppCommand implements HasSubCommands {
 
     public static final String UUID_REMOVE = "remove";
     public static final String UUID_PRESERVE = "preserve";
 
     public Jobs(final RdApp client) {
         super(client);
+    }
+
+
+    @Override
+    public List<Object> getSubCommands() {
+        return Arrays.asList(
+                new Files(this)
+        );
     }
 
     @CommandLineInterface(application = "purge") interface Purge extends JobPurgeOptions, ListOpts {

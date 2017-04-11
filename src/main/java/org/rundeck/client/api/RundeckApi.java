@@ -47,8 +47,79 @@ public interface RundeckApi {
     );
 
     /**
+     * Get uploaded file info
+     *
+     * @param fileid
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("jobs/file/{fileid}")
+    Call<JobFileItem> getJobFileInfo(
+            @Path("fileid") String fileid
+    );
+
+    /**
+     * List uploaded files for a job
+     *
+     * @param jobid     job id
+     * @param fileState file state
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("job/{jobid}/input/files")
+    Call<JobFileItemList> listJobFiles(
+            @Path("jobid") String jobid,
+            @Query("fileState") String fileState,
+            @Query("offset") int offset,
+            @Query("max") int max
+    );
+
+    /**
+     * List uploaded files for a job in state 'temp'
+     *
+     * @param jobid job id
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("job/{jobid}/input/files")
+    Call<JobFileItemList> listJobFiles(
+            @Path("jobid") String jobid,
+            @Query("offset") int offset,
+            @Query("max") int max
+    );
+
+    /**
+     * List uploaded files for an execution
+     *
+     * @param execid execution id
+     *
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("execution/{execid}/input/files")
+    Call<JobFileItemList> listExecutionFiles(
+            @Path("execid") String execid,
+            @Query("offset") int offset,
+            @Query("max") int max
+    );
+
+    @Headers("Accept: application/json")
+    @POST("job/{jobid}/input/file")
+    Call<JobFileUploadResult> uploadJobOptionFile(
+            @Path("jobid") String jobid,
+            @Query("optionName") String optionName,
+            @Query("fileName") String fileName,
+            @Body RequestBody body
+    );
+
+    /**
      * enable execution for a job
+     *
      * @param jobid
+     *
      * @return
      */
     @Headers("Accept: application/json")
@@ -56,9 +127,12 @@ public interface RundeckApi {
     Call<Simple> jobExecutionEnable(
             @Path("jobid") String jobid
     );
+
     /**
      * disable schedule for a job
+     *
      * @param jobid
+     *
      * @return
      */
     @Headers("Accept: application/json")
@@ -69,7 +143,9 @@ public interface RundeckApi {
 
     /**
      * enable schedule for a job
+     *
      * @param jobid
+     *
      * @return
      */
     @Headers("Accept: application/json")
@@ -80,7 +156,9 @@ public interface RundeckApi {
 
     /**
      * disable schedule for a job
+     *
      * @param jobid
+     *
      * @return
      */
     @Headers("Accept: application/json")
@@ -193,8 +271,10 @@ public interface RundeckApi {
 
     /**
      * Export project archive (<=v18)
+     *
      * @param project project
-     * @param ids option execution IDs, or null for all contents
+     * @param ids     option execution IDs, or null for all contents
+     *
      * @return archive response
      */
     @Headers("Accept: application/zip")
@@ -205,8 +285,8 @@ public interface RundeckApi {
     );
 
     /**
-     *
      * Export project archive (>=v19)
+     *
      * @param project
      * @param all
      * @param jobs
@@ -214,6 +294,7 @@ public interface RundeckApi {
      * @param configs
      * @param readmes
      * @param acls
+     *
      * @return
      */
     @Headers("Accept: application/json")
@@ -227,11 +308,13 @@ public interface RundeckApi {
             @Query("exportReadmes") boolean readmes,
             @Query("exportAcls") boolean acls
     );
+
     /**
-     *
      * Export project archive (>=v19)
+     *
      * @param project
-     * @param ids option execution IDs, or null for all contents
+     * @param ids     option execution IDs, or null for all contents
+     *
      * @return
      */
     @Headers("Accept: application/json")
@@ -243,8 +326,10 @@ public interface RundeckApi {
 
     /**
      * Async project export status
+     *
      * @param project
      * @param token
+     *
      * @return
      */
     @Headers("Accept: application/json")
@@ -256,8 +341,10 @@ public interface RundeckApi {
 
     /**
      * Async project export download
+     *
      * @param project
      * @param token
+     *
      * @return
      */
     @Headers("Accept: application/zip")
@@ -269,8 +356,9 @@ public interface RundeckApi {
 
     /**
      * Export project archive (<=v18)
+     *
      * @param project project
-     * @param ids option execution IDs, or null for all contents
+     *
      * @return archive response
      */
     @Headers("Accept: application/json")

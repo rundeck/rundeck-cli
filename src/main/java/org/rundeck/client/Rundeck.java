@@ -28,7 +28,7 @@ import static org.rundeck.client.tool.Main.ENV_HTTP_TIMEOUT;
  */
 public class Rundeck {
     public static final String USER_AGENT = Version.NAME + "/" + Version.VERSION;
-    public static final int API_VERS = 18;
+    public static final int API_VERS = 19;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
     public static final String ENV_INSECURE_SSL = "RD_INSECURE_SSL";

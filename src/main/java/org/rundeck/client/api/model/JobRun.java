@@ -68,4 +68,16 @@ public class JobRun {
     public void setOptions(Map<String, String> options) {
         this.options = options;
     }
+
+    @Override
+    public String toString() {
+        return "org.rundeck.client.api.model.JobRun{" +
+               "asUser='" + asUser + '\'' +
+               ", argString='" + argString + '\'' +
+               ", loglevel='" + loglevel + '\'' +
+               ", filter='" + filter + '\'' +
+               ", runAtTime=" + runAtTime +
+               ", options=" + options +
+               '}';
+    }
 }
