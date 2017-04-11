@@ -26,7 +26,7 @@ public interface ErrorDetail {
 
     int getApiVersion();
 
-    public default String toCodeString() {
+    default String toCodeString() {
         if (null != getErrorCode()) {
             return String.format(
                     "[code: %s; APIv%d]",

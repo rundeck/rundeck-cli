@@ -79,7 +79,7 @@ public class Files extends AppCommand {
         boolean isFileState();
     }
 
-    static enum FileState {
+    enum FileState {
         temp,
         expired,
         deleted,

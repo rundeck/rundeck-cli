@@ -111,14 +111,14 @@ public class KeyStorageItem implements Comparable<KeyStorageItem>{
         return KeyFileType.other;
     }
 
-    public static enum KeyFileType {
+    public enum KeyFileType {
         password,
         privateKey,
         publicKey,
         other
     }
 
-    public static enum KeyItemType {
+    public enum KeyItemType {
         directory,
         file
     }

@@ -232,7 +232,7 @@ public class Main {
 
     }
 
-    static interface Auth {
+    interface Auth {
         default boolean isConfigured() {
             return null != getToken() || (
                     null != getUsername() && null != getPassword()

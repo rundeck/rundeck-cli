@@ -151,7 +151,7 @@ public class Archives extends AppCommand {
 
     }
 
-    static enum Flags {
+    enum Flags {
         all,
         jobs,
         executions,
