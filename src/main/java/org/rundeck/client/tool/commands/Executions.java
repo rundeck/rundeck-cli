@@ -428,17 +428,15 @@ public class Executions extends AppCommand {
 
 
         String project = projectOrEnv(options);
-        ExecutionList executionList = apiCall(api -> {
-            return api
-                    .listExecutions(
-                            project,
-                            query,
-                            options.getJobIdList(),
-                            options.getExcludeJobIdList(),
-                            options.getJobList(),
-                            options.getExcludeJobList()
-                    );
-        });
+        ExecutionList executionList = apiCall(api -> api
+                .listExecutions(
+                        project,
+                        query,
+                        options.getJobIdList(),
+                        options.getExcludeJobIdList(),
+                        options.getJobList(),
+                        options.getExcludeJobList()
+                ));
 
         Paging page = executionList.getPaging();
         if (!options.isOutputFormat()) {

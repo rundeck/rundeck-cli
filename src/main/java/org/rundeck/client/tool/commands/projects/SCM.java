@@ -366,9 +366,7 @@ public class SCM extends AppCommand {
                             output.warning(error.message);
                         }
                         Optional<? extends Map<?, ?>> errorData = Optional.ofNullable(error.toMap());
-                        errorData.ifPresent(map -> {
-                            output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW));
-                        });
+                        errorData.ifPresent(map -> output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW)));
                     }
                 } catch (IOException e) {
                     //unable to parse body as expected
