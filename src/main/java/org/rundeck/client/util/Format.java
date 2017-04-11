@@ -27,6 +27,9 @@ import java.util.regex.Pattern;
  * Formatting utilities
  */
 public class Format {
+    private Format() {
+    }
+
     public static String format(String format, Map<?, ?> data, final String start, final String end) {
         Pattern pat = Pattern.compile(Pattern.quote(start) + "([\\w.]+)" + Pattern.quote(end));
         Matcher matcher = pat.matcher(format);
