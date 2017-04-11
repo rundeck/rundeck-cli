@@ -32,7 +32,6 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -53,7 +52,7 @@ public class Main {
     public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
     public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
 
-    public static void main(String[] args) throws IOException, CommandRunFailure {
+    public static void main(String[] args) throws CommandRunFailure {
         tool(new Rd(new Env())).runMain(args, true);
     }
 
