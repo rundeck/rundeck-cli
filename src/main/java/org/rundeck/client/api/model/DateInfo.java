@@ -28,14 +28,11 @@ import java.util.Locale;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DateInfo {
     public static final String ISO = "yyyy-MM-dd'T'HH:mm:ss'Z'";
-    public String date;
+    public final String date;
     public long unixtime;
 
     public DateInfo(final String date) {
         this.date = date;
-    }
-
-    public DateInfo() {
     }
 
     public Date toDate() throws ParseException {

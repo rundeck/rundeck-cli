@@ -66,11 +66,8 @@ public class JobFileUploadResult implements Formatable {
      * @return the result file ID for the given option if available, or null
      */
     public String getFileIdForOption(String option) {
-        if (getTotal() > 0) {
-            if (null != getOptions() &&
-                null != getOptions().get(option)) {
-                return getOptions().get(option);
-            }
+        if (getTotal() > 0 && null != getOptions() && null != getOptions().get(option)) {
+            return getOptions().get(option);
         }
         return null;
     }

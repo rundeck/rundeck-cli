@@ -358,7 +358,7 @@ public class SCM extends AppCommand {
                     );
                     if (null != error) {
                         //
-                        output.error(name + " failed");
+                        output.error(String.format("%s failed", name));
                         if (null != error.message) {
                             output.warning(error.message);
                         }
