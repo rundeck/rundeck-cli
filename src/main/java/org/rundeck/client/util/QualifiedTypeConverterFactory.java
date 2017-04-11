@@ -33,6 +33,7 @@ public class QualifiedTypeConverterFactory extends Converter.Factory {
     private final Converter.Factory xmlFactory;
     private final Converter.Factory defaultFactory;
 
+    @SuppressWarnings("SameParameterValue")
     public QualifiedTypeConverterFactory(
             Converter.Factory jsonFactory,
             Converter.Factory xmlFactory, final boolean defaultJson

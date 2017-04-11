@@ -197,6 +197,7 @@ public class Client<T> {
      *
      * @throws IOException if media type matched, but parsing was unsuccessful
      */
+    @SuppressWarnings("SameParameterValue")
     public <X> X readError(Response<?> execute, Class<X> errorType, MediaType... mediaTypes) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();

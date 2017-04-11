@@ -28,7 +28,11 @@ public class Util {
         return copyStream(inputStream, out, 10240);
     }
 
-    public static long copyStream(final InputStream inputStream, final OutputStream out, final int bufferSize)
+    public static long copyStream(
+            final InputStream inputStream,
+            final OutputStream out,
+            @SuppressWarnings("SameParameterValue") final int bufferSize
+    )
             throws IOException
     {
         long total = 0;

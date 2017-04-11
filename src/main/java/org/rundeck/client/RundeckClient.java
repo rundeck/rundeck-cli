@@ -55,6 +55,7 @@ public class RundeckClient {
     private RundeckClient() {
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static class Builder {
         OkHttpClient.Builder okhttp;
         String baseUrl;

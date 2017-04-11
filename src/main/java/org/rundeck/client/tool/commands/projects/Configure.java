@@ -148,6 +148,7 @@ public class Configure extends AppCommand {
                 case json:
                     ObjectMapper objectMapper = new ObjectMapper();
                     Map map = objectMapper.readValue(input, Map.class);
+                    //noinspection unchecked
                     inputConfig.putAll(map);
                     break;
                 case yaml:
@@ -155,6 +156,7 @@ public class Configure extends AppCommand {
                     try (FileInputStream fis = new FileInputStream(input)) {
                         Object load = yaml.load(fis);
                         if (load instanceof Map) {
+                            //noinspection unchecked
                             inputConfig.putAll((Map) load);
                         } else {
                             throw new InputError("Yaml.load: data is not a Map");

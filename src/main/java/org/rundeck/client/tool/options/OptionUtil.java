@@ -53,6 +53,7 @@ public class OptionUtil {
      *
      * @throws InputError
      */
+    @SuppressWarnings("SameParameterValue")
     public static Map<String, String> parseKeyValueMap(
             final List<String> input,
             final String keyPrefix,

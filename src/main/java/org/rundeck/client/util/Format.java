@@ -75,6 +75,7 @@ public class Format {
         return (Map<?, ?> map) -> format(format, map, start, end);
     }
 
+    @SuppressWarnings("SameParameterValue")
     public static <X> Function<X, String> formatter(
             String format,
             Function<X, Map<?, ?>> convert,
