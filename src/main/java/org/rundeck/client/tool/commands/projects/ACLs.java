@@ -159,7 +159,6 @@ public class ACLs extends AppCommand {
      *
      * @return result policy
      *
-     * @throws IOException
      */
     public static ACLPolicy performACLModify(
             final ACLFileOptions options,

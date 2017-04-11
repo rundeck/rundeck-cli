@@ -66,11 +66,6 @@ public class FormAuthInterceptor implements Interceptor {
     /**
      * Retrieve base url, then subsequently post the authorization credentials
      *
-     * @param chain
-     *
-     * @return
-     *
-     * @throws IOException
      */
     private Response authenticate(final Chain chain) throws IOException {
         Response execute = chain.proceed(baseUrlRequest());

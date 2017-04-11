@@ -32,6 +32,7 @@ import java.util.Map;
 /**
  * Interface for Rundeck API using retrofit annotations
  */
+@SuppressWarnings("JavaDoc")
 public interface RundeckApi {
 
     @Headers("Accept: application/json")

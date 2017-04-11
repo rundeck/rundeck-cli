@@ -338,10 +338,7 @@ public class SCM extends AppCommand {
     /**
      * Check for validation info from resposne
      *
-     * @param output
-     * @param client
-     * @param response
-     * @param name
+     * @param name action name for error messages
      */
     private static boolean hasValidationError(
             CommandOutput output,

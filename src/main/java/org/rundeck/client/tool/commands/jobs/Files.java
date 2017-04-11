@@ -172,15 +172,6 @@ public class Files extends AppCommand {
     /**
      * Upload a file for a job option input and return the result
      *
-     * @param client
-     * @param input
-     * @param jobId
-     * @param optionName
-     *
-     * @return
-     *
-     * @throws InputError
-     * @throws IOException
      */
     public static JobFileUploadResult uploadFileForJob(
             final Client<RundeckApi> client,
@@ -205,9 +196,8 @@ public class Files extends AppCommand {
     }
 
     /**
-     * @param input
      *
-     * @return true if the file can be read
+     * @return true if the file is invalid
      */
     public static boolean invalidInputFile(final File input) {
         return !input.exists() || !input.canRead() || !input.isFile();

@@ -51,11 +51,6 @@ public class RedirectBypassInterceptor implements Interceptor {
     /**
      * Replace the prefix of the originurl that starts with the bypassurl string with the appbaseurl string
      *
-     * @param origUrl
-     * @param bypassUrl
-     * @param appBaseUrl
-     *
-     * @return
      */
     public static String remapUrl(final String origUrl, final String bypassUrl, final String appBaseUrl) {
         if (origUrl.startsWith(bypassUrl)) {

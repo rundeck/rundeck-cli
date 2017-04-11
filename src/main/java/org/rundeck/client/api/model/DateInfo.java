@@ -43,8 +43,7 @@ public class DateInfo {
     }
 
     /**
-     * Format using the default or configured date format
-     * @return
+     * @return Format using the default or configured date format
      */
     public String format(String format) {
         try {

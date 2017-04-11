@@ -194,10 +194,8 @@ public class Run extends AppCommand {
      * @param client  client
      * @param project project name, or null
      *
-     * @return
+     * @return job ID or null
      *
-     * @throws InputError
-     * @throws IOException
      */
     public static String getJobIdFromOpts(
             final JobIdentOptions options,

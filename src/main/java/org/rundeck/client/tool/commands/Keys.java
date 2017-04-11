@@ -131,9 +131,6 @@ public class Keys extends AppCommand {
     /**
      * Remove keys/ prefix if present
      *
-     * @param path
-     *
-     * @return
      */
     private String keysPath(final String path) {
         if (path.startsWith("keys/")) {
