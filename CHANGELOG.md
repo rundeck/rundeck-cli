@@ -1,3 +1,7 @@
+## unreleased
+
+* #79 Add `job run` support for file upload, using `-opt@ file` or `-opt @file` syntax
+
 ## 1.0.8
 
 * Check the follow flag on run with delay. Fixes [Issue #76](https://github.com/rundeck/rundeck-cli/issues/76)
