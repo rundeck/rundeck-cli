@@ -22,9 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by greg on 7/19/16.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ACLPolicyValidation extends ErrorResponse {
     public boolean valid;

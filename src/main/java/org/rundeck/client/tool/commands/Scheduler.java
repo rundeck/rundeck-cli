@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by greg on 7/8/16.
+ * scheduler subcommands
  */
 @Command(description = "View scheduler information")
 public class Scheduler extends AppCommand {

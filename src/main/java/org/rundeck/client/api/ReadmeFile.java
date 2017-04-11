@@ -17,7 +17,7 @@
 package org.rundeck.client.api;
 
 /**
- * Created by greg on 9/15/16.
+ * type of readme file
  */
 public enum ReadmeFile {
     README("readme.md"),

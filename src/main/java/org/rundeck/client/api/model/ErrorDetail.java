@@ -17,7 +17,7 @@
 package org.rundeck.client.api.model;
 
 /**
- * Created by greg on 7/19/16.
+ * Detail about an error
  */
 public interface ErrorDetail {
     String getErrorCode();

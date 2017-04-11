@@ -24,7 +24,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by greg on 11/17/16.
+ * Formatting utilities
  */
 public class Format {
     public static String format(String format, Map<?, ?> data, final String start, final String end) {

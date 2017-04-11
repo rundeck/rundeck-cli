@@ -39,7 +39,7 @@ import java.util.Collections;
 
 
 /**
- * Created by greg on 5/20/16.
+ * adhoc subcommands
  */
 
 @Command(description = "Run adhoc command or script on matching nodes.")

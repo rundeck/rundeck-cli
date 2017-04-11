@@ -43,7 +43,7 @@ import java.util.regex.Pattern;
 
 
 /**
- * Created by greg on 5/20/16.
+ * run subcommand
  */
 @Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
                        "@path\" or \"-opt@ path\".")

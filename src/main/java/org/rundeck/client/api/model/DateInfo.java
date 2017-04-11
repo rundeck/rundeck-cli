@@ -25,9 +25,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Created by greg on 5/20/16.
- */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DateInfo {

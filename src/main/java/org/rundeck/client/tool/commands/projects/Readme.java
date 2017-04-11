@@ -33,9 +33,8 @@ import java.io.IOException;
 
 
 /**
- * Created by greg on 9/15/16.
+ * projects readme subcommands
  */
-
 @Command(description = "Manage Project readme.md/motd.md")
 public class Readme extends AppCommand {
     public Readme(final RdApp client) {

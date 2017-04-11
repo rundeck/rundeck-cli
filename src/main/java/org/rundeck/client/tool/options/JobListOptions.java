@@ -20,9 +20,6 @@ import com.lexicalscope.jewel.cli.Option;
 
 import java.io.File;
 
-/**
- * Created by greg on 3/30/16.
- */
 public interface JobListOptions extends JobBaseOptions{
 
 

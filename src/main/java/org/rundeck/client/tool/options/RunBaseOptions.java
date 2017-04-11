@@ -24,9 +24,6 @@ import org.rundeck.client.api.model.DateInfo;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by greg on 5/21/16.
- */
 @CommandLineInterface(application = "run")
 public interface RunBaseOptions extends JobIdentOptions, FollowOptions, OptionalProjectOptions, NodeFilterOptions {
     @Option(shortName = "l",

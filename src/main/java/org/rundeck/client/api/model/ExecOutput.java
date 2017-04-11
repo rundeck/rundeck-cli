@@ -20,9 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
 
-/**
- * Created by greg on 5/20/16.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExecOutput {
     public String id;

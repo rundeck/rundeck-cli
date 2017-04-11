@@ -23,9 +23,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-/**
- * Created by greg on 5/20/16.
- */
 public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions, NodeFilterOptions {
 
 

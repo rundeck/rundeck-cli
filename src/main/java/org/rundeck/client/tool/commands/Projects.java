@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 5/19/16.
+ * projects subcommands
  */
 @Command(description = "List and manage projects.")
 public class Projects extends AppCommand implements HasSubCommands {

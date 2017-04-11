@@ -27,9 +27,6 @@ import retrofit2.Call;
 import java.io.IOException;
 import java.util.function.Function;
 
-/**
- * Created by greg on 5/23/16.
- */
 public abstract class AppCommand implements RdApp {
     private final RdApp rdApp;
 

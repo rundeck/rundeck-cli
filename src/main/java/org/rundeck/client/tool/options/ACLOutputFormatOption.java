@@ -18,9 +18,6 @@ package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
 
-/**
- * Created by greg on 11/18/16.
- */
 public interface ACLOutputFormatOption {
 
     @Option(shortName = "%",

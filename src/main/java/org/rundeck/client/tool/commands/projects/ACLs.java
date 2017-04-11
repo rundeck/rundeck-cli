@@ -47,7 +47,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 6/6/16.
+ * projects acls subcommands
  */
 @Command(description = "Manage Project ACLs")
 public class ACLs extends AppCommand {

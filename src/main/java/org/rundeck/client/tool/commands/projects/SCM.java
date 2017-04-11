@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 7/21/16.
+ * scm subcommands
  */
 
 @Command(description = "Manage Project SCM")

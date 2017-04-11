@@ -18,9 +18,6 @@ package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
 
-/**
- * Created by greg on 5/21/16.
- */
 public interface FollowOptions extends RunOptions{
 
     @Option(shortName = "q", longName = "quiet", description = "Echo no output, just wait until the execution completes.")

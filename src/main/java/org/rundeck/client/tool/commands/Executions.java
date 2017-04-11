@@ -38,9 +38,8 @@ import java.util.stream.Collectors;
 
 
 /**
- * Created by greg on 5/20/16.
+ * executions subcommands
  */
-
 @Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends AppCommand {
 

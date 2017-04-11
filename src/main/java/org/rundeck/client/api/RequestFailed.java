@@ -17,7 +17,7 @@
 package org.rundeck.client.api;
 
 /**
- * Created by greg on 5/20/16.
+ * Http request failure
  */
 public class RequestFailed extends RuntimeException {
     int statusCode;

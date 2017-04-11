@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by greg on 8/9/16.
+ * tokens subcommands
  */
 @Command(description = "Create, and manage tokens")
 public class Tokens extends AppCommand {

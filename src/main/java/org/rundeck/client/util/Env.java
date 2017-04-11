@@ -19,7 +19,7 @@ package org.rundeck.client.util;
 import com.simplifyops.toolbelt.InputError;
 
 /**
- * Created by greg on 11/17/16.
+ * Configuration values from System.getenv
  */
 public class Env implements ConfigSource {
 

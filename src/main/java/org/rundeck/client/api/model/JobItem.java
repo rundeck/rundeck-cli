@@ -28,9 +28,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by greg on 3/28/16.
- */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict = false)
 public class JobItem {

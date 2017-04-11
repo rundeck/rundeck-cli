@@ -21,7 +21,7 @@ import java.lang.annotation.Retention;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Created by greg on 5/20/16.
+ * Indicates that an okhttp request body should be serialized with XML, used by {@link QualifiedTypeConverterFactory}
  */
 
 @Retention(RUNTIME)
