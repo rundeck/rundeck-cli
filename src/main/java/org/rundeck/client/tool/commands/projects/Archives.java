@@ -237,7 +237,7 @@ public class Archives extends AppCommand {
             File outputfile,
             CommandOutput out,
             BooleanSupplier waitFunc
-    ) throws IOException, InputError
+    ) throws IOException
     {
         boolean done = false;
         int perc = status.getPercentage();
@@ -248,10 +248,8 @@ public class Archives extends AppCommand {
                 perc = status1.getPercentage();
             }
             done = status1.getReady();
-            if (!done) {
-                if (!waitFunc.getAsBoolean()) {
+            if (!done && !waitFunc.getAsBoolean()) {
                     break;
-                }
             }
         }
         if (done) {
@@ -269,7 +267,7 @@ public class Archives extends AppCommand {
     private static void receiveArchiveFile(
             final CommandOutput output, final ResponseBody responseBody, final File file
     )
-            throws InputError, IOException
+            throws IOException
     {
         if (!Client.hasAnyMediaType(responseBody, Client.MEDIA_TYPE_ZIP)) {
             throw new IllegalStateException("Unexpected response format: " + responseBody.contentType());

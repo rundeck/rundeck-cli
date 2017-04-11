@@ -63,7 +63,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     @Override
     public List<Object> getSubCommands() {
-        return Arrays.asList(
+        return Collections.singletonList(
                 new Files(this)
         );
     }

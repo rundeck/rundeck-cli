@@ -187,7 +187,7 @@ public class Files extends AppCommand {
             final File input,
             final String jobId,
             final String optionName
-    ) throws InputError, IOException
+    ) throws IOException
     {
         if (invalidInputFile(input)) {
             throw new IOException("Can't read file: " + input);

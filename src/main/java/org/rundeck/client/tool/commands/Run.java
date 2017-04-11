@@ -243,7 +243,7 @@ public class Run extends AppCommand {
         }
     }
 
-    private Date parseDelayTime(final String delayString) throws InputError {
+    private Date parseDelayTime(final String delayString) {
         long delayms = System.currentTimeMillis();
         Pattern p = Pattern.compile("(?<digits>\\d+)(?<unit>[smhdwMY])\\s*");
         Matcher matcher = p.matcher(delayString);

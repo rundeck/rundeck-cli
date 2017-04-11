@@ -83,14 +83,14 @@ public class Client<T> {
      * throw an exception with relevant error detail
      *
      * @param execute call
-     * @param <T>     expected result type
+     * @param <R>     expected result type
      *
      * @return result
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
-    public <T> T checkError(final Call<T> execute) throws IOException {
-        Response<T> response = execute.execute();
+    public <R> R checkError(final Call<R> execute) throws IOException {
+        Response<R> response = execute.execute();
         return checkError(response);
     }
 
@@ -99,13 +99,13 @@ public class Client<T> {
      * throw an exception with relevant error detail
      *
      * @param response call response
-     * @param <T>      expected type
+     * @param <R>      expected type
      *
      * @return result
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
-    public <T> T checkError(final Response<T> response) throws IOException {
+    public <R> R checkError(final Response<R> response) throws IOException {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
             reportApiError(error);

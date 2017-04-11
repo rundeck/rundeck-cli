@@ -51,7 +51,7 @@ public abstract class AppCommand implements RdApp {
             final Client<RundeckApi> client,
             final Function<RundeckApi, Call<T>> func
     )
-            throws InputError, IOException
+            throws IOException
     {
         return client.checkError(func.apply(client.getService()));
     }

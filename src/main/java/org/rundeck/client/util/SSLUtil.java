@@ -109,7 +109,6 @@ public class SSLUtil {
     }
 
     private static X509TrustManager createInsecureSslTrustManager(int logging)
-            throws GeneralSecurityException
     {
         return new X509TrustManager() {
             @Override
