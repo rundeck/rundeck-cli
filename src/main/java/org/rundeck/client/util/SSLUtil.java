@@ -114,8 +114,7 @@ public class SSLUtil {
         return new X509TrustManager() {
             @Override
             public X509Certificate[] getAcceptedIssuers() {
-                X509Certificate[] cArrr = new X509Certificate[0];
-                return cArrr;
+                return new X509Certificate[0];
             }
 
             @Override

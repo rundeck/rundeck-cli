@@ -54,7 +54,7 @@ public class Main {
     public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
 
     public static void main(String[] args) throws IOException, CommandRunFailure {
-        tool("rd", new Rd(new Env())).runMain(args, true);
+        tool(new Rd(new Env())).runMain(args, true);
     }
 
 
@@ -108,8 +108,8 @@ public class Main {
         }
     }
 
-    public static Tool tool(final String name, final Rd rd) {
-        ToolBelt belt = ToolBelt.belt(name)
+    public static Tool tool(final Rd rd) {
+        ToolBelt belt = ToolBelt.belt("rd")
                                 .defaultHelpCommands()
                                 .ansiColorOutput(rd.isAnsiEnabled())
                                 .add(

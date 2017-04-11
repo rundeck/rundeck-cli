@@ -253,7 +253,7 @@ public class Run extends AppCommand {
             String digit = matcher.group("digits");
             String unit = matcher.group("unit");
             long count = Integer.parseInt(digit);
-            long unitms = 0;
+            long unitms;
             //simple addition for time units
             switch (unit) {
                 case "s":

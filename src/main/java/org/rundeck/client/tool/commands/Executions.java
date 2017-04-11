@@ -61,7 +61,7 @@ public class Executions extends AppCommand {
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
 
-        out.output(String.format("Kill [%s] result: %s", options.getId(), abort.status));
+        out.output(String.format("Kill [%s] result: %s", options.getId(), abort != null ? abort.status : null));
 
         if (null != execution) {
             out.output(String.format("Execution [%s] status: %s", options.getId(), execution.getStatus()));
@@ -486,7 +486,7 @@ public class Executions extends AppCommand {
                            "executions, or specify executions with the `idlist` option.")
     public boolean deletebulk(BulkDeleteCmd options, CommandOutput out) throws IOException, InputError {
 
-        List<String> execIds = null;
+        List<String> execIds;
         if (options.isIdlist()) {
             execIds = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {

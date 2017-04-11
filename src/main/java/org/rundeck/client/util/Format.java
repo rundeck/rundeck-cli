@@ -54,9 +54,9 @@ public class Format {
         }
         String key = found[0];
 
-        Object value = data.containsKey(key) ? data.get(key) : null;
+        Object value = data.getOrDefault(key, null);
         if (null == value) {
-            return value;
+            return null;
         }
         if (found.length > 1) {
             String[] rest = new String[found.length - 1];

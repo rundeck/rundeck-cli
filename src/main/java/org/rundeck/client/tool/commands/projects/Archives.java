@@ -271,17 +271,16 @@ public class Archives extends AppCommand {
     )
             throws InputError, IOException
     {
-        ResponseBody body = responseBody;
-        if (!Client.hasAnyMediaType(body, Client.MEDIA_TYPE_ZIP)) {
-            throw new IllegalStateException("Unexpected response format: " + body.contentType());
+        if (!Client.hasAnyMediaType(responseBody, Client.MEDIA_TYPE_ZIP)) {
+            throw new IllegalStateException("Unexpected response format: " + responseBody.contentType());
         }
-        InputStream inputStream = body.byteStream();
+        InputStream inputStream = responseBody.byteStream();
         try (FileOutputStream out = new FileOutputStream(file)) {
             long total = Util.copyStream(inputStream, out);
             output.info(String.format(
                     "Wrote %d bytes of %s to file %s%n",
                     total,
-                    body.contentType(),
+                    responseBody.contentType(),
                     file
             ));
         }

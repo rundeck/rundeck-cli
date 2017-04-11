@@ -373,7 +373,8 @@ public class SCM extends AppCommand {
                 } catch (IOException e) {
                     //unable to parse body as expected
                     throw new RequestFailed(String.format(
-                            name + " failed: (error: %d %s)",
+                            "%s failed: (error: %d %s)",
+                            name,
                             response.code(),
                             response.message()
 
