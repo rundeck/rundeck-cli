@@ -17,8 +17,6 @@
 package org.rundeck.client.tool.options;
 
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.util.ConfigSource;
-import org.rundeck.client.util.Env;
 
 import java.util.HashMap;
 import java.util.List;

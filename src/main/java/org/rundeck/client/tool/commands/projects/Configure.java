@@ -28,7 +28,6 @@ import org.rundeck.client.api.model.ProjectConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.OptionUtil;
-import org.rundeck.client.tool.options.ProjectCreateOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.UnparsedConfigOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -36,7 +35,6 @@ import org.yaml.snakeyaml.constructor.SafeConstructor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 

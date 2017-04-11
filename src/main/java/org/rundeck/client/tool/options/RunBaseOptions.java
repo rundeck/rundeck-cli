@@ -21,7 +21,6 @@ import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.Unparsed;
 import org.rundeck.client.api.model.DateInfo;
 
-import java.util.Date;
 import java.util.List;
 
 @CommandLineInterface(application = "run")

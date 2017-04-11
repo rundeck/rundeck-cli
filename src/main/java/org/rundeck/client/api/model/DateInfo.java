@@ -17,7 +17,6 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.rundeck.client.util.Env;
 import org.rundeck.client.util.Format;
 
 import java.text.ParseException;

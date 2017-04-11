@@ -16,8 +16,6 @@
 
 package org.rundeck.client.api.model;
 
-import org.simpleframework.xml.Element;
-
 import java.util.HashMap;
 import java.util.Map;
 

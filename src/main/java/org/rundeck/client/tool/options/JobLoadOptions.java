@@ -18,8 +18,6 @@ package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
 
-import java.io.File;
-
 public interface JobLoadOptions extends JobBaseOptions {
 
     @Option(shortName = "d",
