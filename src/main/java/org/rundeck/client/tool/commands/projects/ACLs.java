@@ -121,10 +121,8 @@ public class ACLs extends AppCommand {
         String project = projectOrEnv(options);
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> {
-                    return client.getService()
-                                 .updateAclPolicy(project, options.getName(), body);
-                },
+                (RequestBody body) -> client.getService()
+                                            .updateAclPolicy(project, options.getName(), body),
                 client,
                 output
         );
@@ -144,10 +142,8 @@ public class ACLs extends AppCommand {
         String project = projectOrEnv(options);
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> {
-                    return client.getService()
-                                 .createAclPolicy(project, options.getName(), body);
-                },
+                (RequestBody body) -> client.getService()
+                                        .createAclPolicy(project, options.getName(), body),
                 client, output
         );
         outputPolicyResult(output, aclPolicy);
