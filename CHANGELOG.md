@@ -1,6 +1,15 @@
-## unreleased
+## 1.0.9
 
-* #79 Add `job run` support for file upload, using `-opt@ file` or `-opt @file` syntax
+* [Issue #79](https://github.com/rundeck/rundeck-cli/issues/79) Add `job run` support for file upload, using `-opt@ file` or `-opt @file` syntax
+* Fix [Issue #73](https://github.com/rundeck/rundeck-cli/issues/73) Add `rd projects archives export/import`
+* Fix [Issue #80](https://github.com/rundeck/rundeck-cli/issues/80) Add RD_INSECURE_SSL_HOSTNAME and RD_ALT_SSL_HOSTNAME
+* Fix [Issue #83](https://github.com/rundeck/rundeck-cli/issues/83) verify `rd run` uses RD_PROJECT
+* Fix [Issue #81](https://github.com/rundeck/rundeck-cli/issues/81) Add job schedule/exec enable/disable
+* Fix link to insecure ssl config page
+* APIv19: `rd run` file upload via -opt @file
+* APIv19: new `rd jobs files` command
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.8...v1.0.9)
 
 ## 1.0.8
 
