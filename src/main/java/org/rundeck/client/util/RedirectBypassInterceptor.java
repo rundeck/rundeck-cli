@@ -25,8 +25,8 @@ import java.io.IOException;
  * Change redirect behavior, if Location begins with the bypass url, replace that part with the app URL.
  */
 public class RedirectBypassInterceptor implements Interceptor {
-    private String appBaseUrl;
-    private String bypassUrl;
+    private final String appBaseUrl;
+    private final String bypassUrl;
 
     public RedirectBypassInterceptor(final String appBaseUrl, final String bypassUrl) {
         this.appBaseUrl = appBaseUrl;

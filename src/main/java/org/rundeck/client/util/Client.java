@@ -54,7 +54,7 @@ public class Client<T> {
     public static final String API_ERROR_API_VERSION_UNSUPPORTED = "api.error.api-version.unsupported";
     private T service;
     private Retrofit retrofit;
-    private int apiVersion;
+    private final int apiVersion;
 
     public Client(final T service, final Retrofit retrofit, final int apiVersion) {
         this.service = service;

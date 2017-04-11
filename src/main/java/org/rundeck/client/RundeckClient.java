@@ -57,7 +57,7 @@ public class RundeckClient {
 
     @SuppressWarnings("UnusedReturnValue")
     public static class Builder {
-        OkHttpClient.Builder okhttp;
+        final OkHttpClient.Builder okhttp;
         String baseUrl;
         String appBaseUrl;
         int httpLogging;

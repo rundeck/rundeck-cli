@@ -271,7 +271,7 @@ public class Main {
 
 
     static class ConfigAuth implements Auth {
-        ConfigSource config;
+        final ConfigSource config;
 
         public ConfigAuth(final ConfigSource config) {
             this.config = config;
@@ -297,7 +297,7 @@ public class Main {
         String username;
         String pass;
         String token;
-        String header;
+        final String header;
         boolean echoHeader;
 
         public ConsoleAuth(final String header) {
@@ -336,7 +336,7 @@ public class Main {
     }
 
     static class ChainAuth implements Auth {
-        Collection<Auth> chain;
+        final Collection<Auth> chain;
 
         public ChainAuth(final Collection<Auth> chain) {
             this.chain = chain;
@@ -370,7 +370,7 @@ public class Main {
 
 
     static class MemoAuth implements Auth {
-        Auth auth;
+        final Auth auth;
 
         public MemoAuth(final Auth auth) {
             this.auth = auth;

@@ -25,8 +25,8 @@ import java.io.IOException;
  * Send a header value
  */
 public class StaticHeaderInterceptor implements Interceptor {
-    String name;
-    String value;
+    final String name;
+    final String value;
 
     public StaticHeaderInterceptor(final String name, final String value) {
         this.name = name;

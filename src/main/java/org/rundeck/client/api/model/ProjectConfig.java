@@ -32,7 +32,7 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProjectConfig {
-    private Map<String, String> config;
+    private final Map<String, String> config;
 
     @JsonCreator
     public ProjectConfig(final Map<String, String> config) {

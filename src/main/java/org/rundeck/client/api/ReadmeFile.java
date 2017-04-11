@@ -23,7 +23,7 @@ public enum ReadmeFile {
     README("readme.md"),
     MOTD("motd.md");
 
-    String name;
+    final String name;
 
     ReadmeFile(String name) {
         this.name = name;

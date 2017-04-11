@@ -48,7 +48,7 @@ public class Keys extends AppCommand {
     }
 
     public static class Path {
-        String path;
+        final String path;
 
         public Path(final String path) {
             this.path = path;
