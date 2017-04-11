@@ -59,53 +59,66 @@ public class Main {
 
 
     private static void setupFormat(final ToolBelt belt, AppConfig config) {
-        if ("yaml".equalsIgnoreCase(config.get("RD_FORMAT"))) {
-            DumperOptions dumperOptions = new DumperOptions();
-            dumperOptions.setDefaultFlowStyle(
-                    "BLOCK".equalsIgnoreCase(config.getString("RD_YAML_FLOW", "BLOCK")) ?
-                    DumperOptions.FlowStyle.BLOCK :
-                    DumperOptions.FlowStyle.FLOW
-            );
-            dumperOptions.setPrettyFlow(config.getBool("RD_YAML_PRETTY", true));
-            Representer representer = new Representer();
-            representer.addClassTag(JobItem.class, Tag.MAP);
-            representer.addClassTag(ScheduledJobItem.class, Tag.MAP);
-            representer.addClassTag(DateInfo.class, Tag.MAP);
-            representer.addClassTag(Execution.class, Tag.MAP);
-            belt.formatter(new YamlFormatter(representer, dumperOptions));
-            belt.channels().infoEnabled(false);
-            belt.channels().warningEnabled(false);
-            belt.channels().errorEnabled(false);
-        } else if ("json".equalsIgnoreCase(config.get("RD_FORMAT"))) {
-            belt.formatter(new JsonFormatter());
-            belt.channels().infoEnabled(false);
-            belt.channels().warningEnabled(false);
-            belt.channels().errorEnabled(false);
+        final String format = config.get("RD_FORMAT");
+        if ("yaml".equalsIgnoreCase(format)) {
+            configYamlFormat(belt, config);
+        } else if ("json".equalsIgnoreCase(format)) {
+            configJsonFormat(belt);
         } else {
-            NiceFormatter formatter = new NiceFormatter(null) {
-                @Override
-                public String format(final Object o) {
-                    if (o instanceof Formatable) {
-                        Formatable o1 = (Formatable) o;
-                        Map<?, ?> map = o1.asMap();
-                        if (null != map) {
-                            return super.format(map);
-                        }
-                        List<?> objects = o1.asList();
-                        if (null != objects) {
-                            return super.format(objects);
-                        }
-                    }
-                    return super.format(o);
-                }
-            };
-            formatter.setCollectionIndicator("");
-            belt.formatter(formatter);
-            belt.channels().info(new FormattedOutput(
-                    belt.defaultOutput(),
-                    new PrefixFormatter("# ", belt.defaultBaseFormatter())
-            ));
+            configNiceFormat(belt);
         }
+    }
+
+    private static void configNiceFormat(final ToolBelt belt) {
+        NiceFormatter formatter = new NiceFormatter(null) {
+            @Override
+            public String format(final Object o) {
+                if (o instanceof Formatable) {
+                    Formatable o1 = (Formatable) o;
+                    Map<?, ?> map = o1.asMap();
+                    if (null != map) {
+                        return super.format(map);
+                    }
+                    List<?> objects = o1.asList();
+                    if (null != objects) {
+                        return super.format(objects);
+                    }
+                }
+                return super.format(o);
+            }
+        };
+        formatter.setCollectionIndicator("");
+        belt.formatter(formatter);
+        belt.channels().info(new FormattedOutput(
+                belt.defaultOutput(),
+                new PrefixFormatter("# ", belt.defaultBaseFormatter())
+        ));
+    }
+
+    private static void configJsonFormat(final ToolBelt belt) {
+        belt.formatter(new JsonFormatter());
+        belt.channels().infoEnabled(false);
+        belt.channels().warningEnabled(false);
+        belt.channels().errorEnabled(false);
+    }
+
+    private static void configYamlFormat(final ToolBelt belt, final AppConfig config) {
+        DumperOptions dumperOptions = new DumperOptions();
+        dumperOptions.setDefaultFlowStyle(
+                "BLOCK".equalsIgnoreCase(config.getString("RD_YAML_FLOW", "BLOCK")) ?
+                DumperOptions.FlowStyle.BLOCK :
+                DumperOptions.FlowStyle.FLOW
+        );
+        dumperOptions.setPrettyFlow(config.getBool("RD_YAML_PRETTY", true));
+        Representer representer = new Representer();
+        representer.addClassTag(JobItem.class, Tag.MAP);
+        representer.addClassTag(ScheduledJobItem.class, Tag.MAP);
+        representer.addClassTag(DateInfo.class, Tag.MAP);
+        representer.addClassTag(Execution.class, Tag.MAP);
+        belt.formatter(new YamlFormatter(representer, dumperOptions));
+        belt.channels().infoEnabled(false);
+        belt.channels().warningEnabled(false);
+        belt.channels().errorEnabled(false);
     }
 
     public static Tool tool(final Rd rd) {
