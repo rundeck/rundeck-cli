@@ -4,6 +4,12 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.10
+
+* Fix [Issue #89](https://github.com/rundeck/rundeck-cli/issues/89) run command is broken
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.9...v1.0.10)
+
 ## 1.0.9
 
 * [Issue #79](https://github.com/rundeck/rundeck-cli/issues/79) Add `job run` support for file upload, using `-opt@ file` or `-opt @file` syntax
