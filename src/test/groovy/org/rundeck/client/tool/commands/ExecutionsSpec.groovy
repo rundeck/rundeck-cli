@@ -17,10 +17,17 @@
 package org.rundeck.client.tool.commands
 
 import com.simplifyops.toolbelt.CommandOutput
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ExecOutput
+import org.rundeck.client.api.model.Execution
+import org.rundeck.client.tool.AppConfig
+import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
+import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.mock.Calls
 import spock.lang.Specification
 
@@ -82,6 +89,63 @@ class ExecutionsSpec extends Specification {
         'scheduled' | false             | false         | 'failed'    | false
         'scheduled' | true              | false         | 'failed'    | false
         'scheduled' | false             | true          | 'failed'    | false
+
+    }
+
+    def "parse execution"() {
+        given:
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setBody('''{
+  "id": 5418,
+  "href": "http://ecto1.local:4440/api/19/execution/5418",
+  "permalink": "http://ecto1.local:4440/project/adubs/execution/show/5418",
+  "status": "succeeded",
+  "project": "adubs",
+  "user": "admin",
+  "date-started": {
+    "unixtime": 1492043359634,
+    "date": "2017-04-13T00:29:19Z"
+  },
+  "date-ended": {
+    "unixtime": 1492043360117,
+    "date": "2017-04-13T00:29:20Z"
+  },
+  "job": {
+    "id": "58d4de5d-5aac-438b-9b0f-252b46c9d117",
+    "averageDuration": 926,
+    "name": "asdf",
+    "group": "",
+    "project": "adubs",
+    "description": "fff",
+    "href": "http://ecto1.local:4440/api/19/job/58d4de5d-5aac-438b-9b0f-252b46c9d117",
+    "permalink": "http://ecto1.local:4440/project/adubs/job/show/58d4de5d-5aac-438b-9b0f-252b46c9d117"
+  },
+  "description": "echo blah blah",
+  "argstring": null,
+  "serverUUID": "3425B691-7319-4EEE-8425-F053C628B4BA",
+  "successfulNodes": [
+    "ecto1.local"
+  ]
+}'''
+        ).addHeader('content-type', 'application/json')
+        );
+        server.start()
+
+        def retrofit = new Retrofit.Builder().baseUrl(server.url('/api/19/')).
+                addConverterFactory(JacksonConverterFactory.create()).
+                build()
+        def api = retrofit.create(RundeckApi)
+
+        when:
+        def body = api.getExecution('123').execute().body()
+
+        then:
+        RecordedRequest request1 = server.takeRequest()
+        request1.path == '/api/19/execution/123'
+
+        body.dateStarted != null
+        body.dateStarted.date == '2017-04-13T00:29:19Z'
+        server.shutdown()
 
     }
 }
