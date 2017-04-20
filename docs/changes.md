@@ -4,6 +4,12 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.11
+
+* Fix [Issue #37](https://github.com/rundeck/rundeck-cli/issues/37) add `-%/--outformat` to `rd run/adhoc/executions follow`
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.10...v1.0.11)
+
 ## 1.0.10
 
 * Fix [Issue #89](https://github.com/rundeck/rundeck-cli/issues/89) run command is broken
