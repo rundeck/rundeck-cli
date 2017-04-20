@@ -33,6 +33,7 @@ import retrofit2.Call;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -103,8 +104,18 @@ public class Executions extends AppCommand {
         );
 
 
-        return followOutput(getClient(), output, options.isProgress(), options.isQuiet(), options.getId(), max, out);
+        return followOutput(
+                getClient(),
+                output,
+                options.isProgress(),
+                options.isQuiet(),
+                options.getId(),
+                max,
+                out,
+                options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null
+        );
     }
+
 
     public static Call<ExecOutput> startFollowOutput(
             final Client<RundeckApi> client,
@@ -133,6 +144,7 @@ public class Executions extends AppCommand {
      * @param max max lines
      * @param out output
      *
+     * @param formatter
      * @return true if successful
      *
      */
@@ -143,10 +155,26 @@ public class Executions extends AppCommand {
             final boolean quiet,
             final String id,
             long max,
-            CommandOutput out
+            CommandOutput out,
+            final Function<ExecLog, String> formatter
     ) throws IOException
     {
-        return followOutput(client, output, progress, quiet, id, max, out, () -> {
+        return followOutput(client, output, id, max, entries -> {
+            if (progress && !entries.isEmpty()) {
+                out.output(".");
+            } else if (!quiet) {
+                for (ExecLog entry : entries) {
+                    String outval = formatter != null ? formatter.apply(entry) : entry.log;
+                    if ("WARN".equals(entry.level)) {
+                        out.warning(outval);
+                    } else if ("ERROR".equals(entry.level)) {
+                        out.error(outval);
+                    } else {
+                        out.output(outval);
+                    }
+                }
+            }
+        }, () -> {
             try {
                 Thread.sleep(2000);
                 return true;
@@ -159,10 +187,9 @@ public class Executions extends AppCommand {
 
     /**
      * Follow output until execution completes and output is fully read, or interrupted
-     * @param progress show progress
-     * @param quiet quell log output
      * @param id  execution id
      * @param max max lines to retrieve with each request
+     * @param receiver receive log events
      * @param waitFunc function for waiting, return false to halt
      *
      * @return true if execution is successful
@@ -171,11 +198,9 @@ public class Executions extends AppCommand {
     public static boolean followOutput(
             final Client<RundeckApi> client,
             final Call<ExecOutput> output,
-            final boolean progress,
-            final boolean quiet,
             final String id,
             long max,
-            CommandOutput out,
+            Consumer<List<ExecLog>> receiver,
             BooleanSupplier waitFunc
     ) throws IOException
     {
@@ -184,7 +209,7 @@ public class Executions extends AppCommand {
         Call<ExecOutput> callOutput = output;
         while (!done) {
             ExecOutput execOutput = client.checkError(callOutput);
-            printLogOutput(execOutput.entries, progress, quiet, out);
+            receiver.accept(execOutput.entries);
             status = execOutput.execState;
             done = execOutput.execCompleted && execOutput.completed;
             if (!done) {
@@ -196,30 +221,6 @@ public class Executions extends AppCommand {
         }
         return "succeeded".equals(status);
     }
-
-    private static void printLogOutput(
-            final List<ExecLog> entries,
-            final boolean progress,
-            final boolean quiet,
-            CommandOutput out
-    )
-    {
-
-        if (!quiet && !progress) {
-            for (ExecLog entry : entries) {
-                if ("WARN".equals(entry.level)) {
-                    out.warning(entry.log);
-                } else if ("ERROR".equals(entry.level)) {
-                    out.error(entry.log);
-                } else {
-                    out.output(entry.log);
-                }
-            }
-        } else if (progress && entries.size() > 0) {
-            out.output(".");
-        }
-    }
-
 
     @CommandLineInterface(application = "info") interface Info extends ExecutionIdOption, ExecutionResultOptions {
 
@@ -543,7 +544,8 @@ public class Executions extends AppCommand {
                 options.isQuiet(),
                 id,
                 500,
-                output
+                output,
+                options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null
         );
     }
 }

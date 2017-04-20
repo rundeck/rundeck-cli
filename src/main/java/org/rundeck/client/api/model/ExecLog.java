@@ -18,6 +18,9 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.HashMap;
+import java.util.Map;
+
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExecLog {
@@ -28,4 +31,14 @@ public class ExecLog {
     public String command;
     public String node;
 
+    public Map<String, String> toMap() {
+        HashMap<String, String> map = new HashMap<>();
+        map.put("time", time);
+        map.put("level", level);
+        map.put("log", log);
+        map.put("user", user);
+        map.put("command", command);
+        map.put("node", node);
+        return map;
+    }
 }
