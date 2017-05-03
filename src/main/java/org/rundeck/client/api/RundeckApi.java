@@ -899,6 +899,30 @@ public interface RundeckApi {
     );
 
     /**
+     * <a href="http://rundeck.org/docs/api/index.html#create-a-token">Create a Token</a>
+     *
+     * @return created token
+     * @since v19
+     */
+    @Headers("Accept: application/json")
+    @POST("tokens")
+    Call<ApiToken> createToken(
+            @Body CreateToken create
+    );
+
+    /**
+     * <a href="http://rundeck.org/docs/api/index.html#list-tokens">List Tokens</a>
+     *
+     * @return list of tokens for a user
+     *
+     */
+    @Headers("Accept: application/json")
+    @GET("token/{id}")
+    Call<ApiToken> getToken(
+            @Path("id") String id
+    );
+
+    /**
      * <a href="http://rundeck.org/docs/api/index.html#delete-a-token">Delete a Token</a>
      *
      * @param id token

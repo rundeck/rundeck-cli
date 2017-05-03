@@ -1,3 +1,9 @@
+## unreleased
+
+* Add API v19 support to `rd tokens`
+* `rd tokens create` can specify roles, duration
+* Add `rd tokens reveal` to reveal token given ID (v19+)
+
 ## 1.0.11
 
 * Fix [Issue #37](https://github.com/rundeck/rundeck-cli/issues/37) add `-%/--outformat` to `rd run/adhoc/executions follow`

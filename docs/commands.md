@@ -243,8 +243,9 @@ Print system information and stats.
 Create, and manage tokens
 
 
-	Available commands:
+    Available commands:
 
-	   create - Create a token for a user
-	   delete - Delete a token
-	   list   - List tokens for a user
+       create - Create a token for a user
+       delete - Delete a token
+       list   - List tokens for a user
+       reveal - Reveal token value for an ID (API v19+)
