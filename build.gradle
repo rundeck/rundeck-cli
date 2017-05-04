@@ -184,6 +184,8 @@ ext.toolbeltGroup =  "com${toolbeltVersion.contains('SNAPSHOT')?'':'.github'}.si
 
 dependencies {
 
+    compileOnly "org.projectlombok:lombok:1.16.16"
+
     compile 'com.squareup.retrofit2:retrofit:2.1.0'
     compile 'com.squareup.retrofit2:converter-jackson:2.1.0'
     compile 'com.squareup.retrofit2:converter-simplexml:2.1.0'

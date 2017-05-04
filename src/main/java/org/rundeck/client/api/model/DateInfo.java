@@ -32,8 +32,14 @@ public class DateInfo {
     public String date;
     public long unixtime;
 
+    @JsonCreator
     public DateInfo(final String date) {
+
         this.date = date;
+        try {
+            unixtime = toDate().getTime();
+        } catch (ParseException e) {
+        }
     }
 
     public DateInfo() {
