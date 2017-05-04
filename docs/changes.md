@@ -4,6 +4,13 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.13
+
+* add `--charset` option for `rd keys create` password file contents
+* read password file contents correctly fixes [Issue #97](https://github.com/rundeck/rundeck-cli/issues/97)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.12...v1.0.13)
+
 ## 1.0.12
 
 * Add API v19 support to `rd tokens`
