@@ -112,7 +112,8 @@ public class Executions extends AppCommand {
                 options.getId(),
                 max,
                 out,
-                options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null
+                options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null,
+                waitUnlessInterrupt(2000)
         );
     }
 
@@ -145,6 +146,7 @@ public class Executions extends AppCommand {
      * @param out output
      *
      * @param formatter
+     * @param waitFunc
      * @return true if successful
      *
      */
@@ -156,7 +158,8 @@ public class Executions extends AppCommand {
             final String id,
             long max,
             CommandOutput out,
-            final Function<ExecLog, String> formatter
+            final Function<ExecLog, String> formatter,
+            final BooleanSupplier waitFunc
     ) throws IOException
     {
         return followOutput(client, output, id, max, entries -> {
@@ -174,15 +177,7 @@ public class Executions extends AppCommand {
                     }
                 }
             }
-        }, () -> {
-            try {
-                Thread.sleep(2000);
-                return true;
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return false;
-            }
-        });
+        }, waitFunc);
     }
 
     /**
@@ -545,7 +540,25 @@ public class Executions extends AppCommand {
                 id,
                 500,
                 output,
-                options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null
+                options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null,
+                waitUnlessInterrupt(2000)
         );
+    }
+
+    /**
+     * @param millis wait time
+     *
+     * @return wait function which returns false if interrupted, true otherwise
+     */
+    private static BooleanSupplier waitUnlessInterrupt(final int millis) {
+        return () -> {
+            try {
+                Thread.sleep(millis);
+                return true;
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                return false;
+            }
+        };
     }
 }
