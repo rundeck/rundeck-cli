@@ -22,9 +22,6 @@ import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ExecOutput
-import org.rundeck.client.api.model.Execution
-import org.rundeck.client.tool.AppConfig
-import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -67,9 +64,17 @@ class ExecutionsSpec extends Specification {
 
         when:
 
-        boolean result = Executions.followOutput(client, output, progress, quiet, id, max, Mock(CommandOutput)) {
-            -> true
-        }
+        boolean result = Executions.followOutput(
+                client,
+                output,
+                progress,
+                quiet,
+                id,
+                max,
+                Mock(CommandOutput),
+                { -> true },
+                { -> true }
+        )
 
         then:
         1 * api.getOutput(id, 123, 01L, max) >> Calls.response(execOutputFinal)
