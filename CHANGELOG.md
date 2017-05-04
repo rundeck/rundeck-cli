@@ -1,8 +1,11 @@
-## unreleased
+## 1.0.12
 
 * Add API v19 support to `rd tokens`
 * `rd tokens create` can specify roles, duration
 * Add `rd tokens reveal` to reveal token given ID (v19+)
+* Handle buggy create token response fix [Issue #95](https://github.com/rundeck/rundeck-cli/issues/95)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.11...v1.0.12)
 
 ## 1.0.11
 
