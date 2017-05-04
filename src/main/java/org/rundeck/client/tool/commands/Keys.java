@@ -34,6 +34,7 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.stream.Collectors;
 
 /**
@@ -244,7 +245,7 @@ public class Keys extends AppCommand {
         output.info(String.format("Created: %s", keyStorageItem.toBasicString()));
     }
 
-    private RequestBody prepareKeyUpload(final Upload options) throws IOException, InputError {
+    static RequestBody prepareKeyUpload(final Upload options) throws IOException, InputError {
         MediaType contentType = getUploadContentType(options.getType());
         if (null == contentType) {
             throw new InputError(String.format("Type is not supported: %s", options.getType()));
@@ -280,7 +281,7 @@ public class Keys extends AppCommand {
                 ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap(chars));
                 requestBody = RequestBody.create(
                         contentType,
-                        byteBuffer.array()
+                        Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())
                 );
             } else {
                 requestBody = RequestBody.create(
@@ -293,7 +294,7 @@ public class Keys extends AppCommand {
             ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap(chars));
             requestBody = RequestBody.create(
                     contentType,
-                    byteBuffer.array()
+                    Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())
             );
         }
         return requestBody;
@@ -314,7 +315,7 @@ public class Keys extends AppCommand {
         output.info(String.format("Updated: %s", keyStorageItem.toBasicString()));
     }
 
-    private MediaType getUploadContentType(final KeyStorageItem.KeyFileType type) {
+    static private MediaType getUploadContentType(final KeyStorageItem.KeyFileType type) {
         return type == KeyStorageItem.KeyFileType.privateKey ? Client.MEDIA_TYPE_OCTET_STREAM :
                type == KeyStorageItem.KeyFileType.publicKey ? Client.MEDIA_TYPE_GPG_KEYS :
                type == KeyStorageItem.KeyFileType.password ? Client.MEDIA_TYPE_X_RUNDECK_PASSWORD : null;
