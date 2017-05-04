@@ -223,6 +223,14 @@ public class Keys extends AppCommand {
         boolean isFile();
 
         @Option(
+                longName = "charset",
+                description = "Encoding charset of the File, e.g. 'UTF-8'. If not specified, the JVM default will be " +
+                              "used.")
+        String getCharset();
+
+        boolean isCharset();
+
+        @Option(
                 shortName = "P",
                 longName = "prompt",
                 description = "(password type only) prompt on console for the password value, if -f is not specified."
@@ -267,18 +275,34 @@ public class Keys extends AppCommand {
             }
             if (options.getType() == KeyStorageItem.KeyFileType.password) {
                 //read the first line of the file only, and leave off line breaks
-                char[] chars = null;
-                try (BufferedReader read = new BufferedReader(new InputStreamReader(new FileInputStream(input)))) {
-                    String s = read.readLine();
-                    if (null != s) {
-                        chars = s.toCharArray();
+                CharBuffer buffer = CharBuffer.allocate((int) input.length());
+                buffer.mark();
+                try (
+                        InputStreamReader read = new InputStreamReader(
+                                new FileInputStream(input),
+                                options.isCharset() ? Charset.forName(options.getCharset()) : Charset.defaultCharset()
+                        )
+                ) {
+                    int len = read.read(buffer);
+                    while (len > 0) {
+                        len = read.read(buffer);
                     }
                 }
-                if (chars == null || chars.length == 0) {
-                    throw new IllegalStateException("Could not read first line of file: " + input);
+                buffer.reset();
+                //locate first newline char
+                int limit = 0;
+                for (; limit < buffer.length(); limit++) {
+                    char c = buffer.charAt(limit);
+                    if (c == '\r' || c == '\n') {
+                        break;
+                    }
+                }
+                buffer.limit(limit);
+                if (buffer.length() == 0) {
+                    throw new IllegalStateException("No content found in file: " + input);
                 }
 
-                ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap(chars));
+                ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(buffer);
                 requestBody = RequestBody.create(
                         contentType,
                         Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())

@@ -50,6 +50,34 @@ class KeysSpec extends Specification {
         'asdf😀\r\n' | 'asdf😀'
     }
 
+    @Unroll
+    def "parse key upload file with charset"() {
+        given:
+        File testfile = File.createTempFile('KeysSpec', '.test')
+        testfile.setText(input, charset)
+
+        def opts = Mock(Keys.Upload) {
+            getPath() >> new Keys.Path('keys/test1')
+            getType() >> KeyStorageItem.KeyFileType.password
+            getFile() >> testfile
+            isFile() >> true
+            getCharset() >> charset
+            isCharset() >> true
+        }
+        when:
+        def body = Keys.prepareKeyUpload(opts)
+
+
+        then:
+        Buffer buffer = new Buffer()
+        body.writeTo(buffer)
+        buffer.readByteArray() == expectstr.bytes
+
+        where:
+        input        | expectstr | charset
+        'asdf😀\r\n' | 'asdf😀'  | 'UTF-8'
+        'asdf😀\r\n' | 'asdf😀'  | 'UTF-16'
+    }
 
     @Unroll
     def "parse key upload invalid"() {
