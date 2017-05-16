@@ -35,7 +35,9 @@ public class ScmImportItem {
         HashMap<String, Object> map = new HashMap<>();
         map.put("itemId", itemId);
         map.put("tracked", tracked);
-        map.put("job", job.toMap());
+        if(null!=job) {
+            map.put("job", job.toMap());
+        }
         return map;
     }
 }
