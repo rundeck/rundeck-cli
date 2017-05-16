@@ -1,3 +1,9 @@
+## 1.0.14
+
+* Fix [Issue #99](https://github.com/rundeck/rundeck-cli/issues/99): npe when scm import inputs tracked item job is null
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.13...v1.0.14)
+
 ## 1.0.13
 
 * add `--charset` option for `rd keys create` password file contents
