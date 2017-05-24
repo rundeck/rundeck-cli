@@ -1,6 +1,7 @@
 package org.rundeck.client.util
 
 import okhttp3.*
+import org.rundeck.client.api.LoginFailed
 import spock.lang.Specification
 
 /**
@@ -241,8 +242,8 @@ class FormAuthInterceptorSpec extends Specification {
         1 * chain.proceed({ req -> req.url().toString() == securityurl }) >> loginErrorResponse
         _ * chain.request() >> firstrequest
         0 * chain._(*_)
-        IllegalStateException e = thrown()
-        e.message =~ /Password Authentication failed, expected a successful response./
+        LoginFailed e = thrown()
+        e.message =~ /Password Authentication failed for: $user/
 
         where:
         starturl                    | _

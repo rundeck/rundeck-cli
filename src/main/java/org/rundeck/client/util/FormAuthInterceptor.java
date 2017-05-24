@@ -20,6 +20,8 @@ import okhttp3.FormBody;
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.rundeck.client.api.AuthorizationFailed;
+import org.rundeck.client.api.LoginFailed;
 
 import java.io.IOException;
 
@@ -78,8 +80,11 @@ public class FormAuthInterceptor implements Interceptor {
         //now post username/password
         Response execute1 = chain.proceed(postAuthRequest());
         execute1.body().close();
-        if (!execute1.isSuccessful() || execute1.request().url().toString().contains(loginErrorURLPath)) {
+        if (!execute1.isSuccessful()) {
             throw new IllegalStateException("Password Authentication failed, expected a successful response.");
+        }
+        if (execute1.request().url().toString().contains(loginErrorURLPath)) {
+            throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
         }
         authorized = true;
     }
