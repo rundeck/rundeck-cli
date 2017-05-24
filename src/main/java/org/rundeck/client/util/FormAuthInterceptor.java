@@ -16,7 +16,10 @@
 
 package org.rundeck.client.util;
 
-import okhttp3.*;
+import okhttp3.FormBody;
+import okhttp3.Interceptor;
+import okhttp3.Request;
+import okhttp3.Response;
 
 import java.io.IOException;
 
@@ -49,25 +52,23 @@ public class FormAuthInterceptor implements Interceptor {
         this.j_security_url = securityUrl;
         this.usernameField = usernameField;
         this.passwordField = passwordField;
-        loginErrorURLPath = loginErrorPath;
+        this.loginErrorURLPath = loginErrorPath;
     }
 
     @Override
     public Response intercept(final Chain chain) throws IOException {
-        Response origResponse = chain.proceed(chain.request());
-        if (origResponse.isSuccessful() || authorized) {
-            return origResponse;
+        if (!authorized) {
+            authenticate(chain);
         }
-        origResponse.body().close();
-        //not authorized, not a successful result, attempt to authenticate
-        return authenticate(chain);
+
+        return chain.proceed(chain.request());
     }
 
     /**
      * Retrieve base url, then subsequently post the authorization credentials
      *
      */
-    private Response authenticate(final Chain chain) throws IOException {
+    private void authenticate(final Chain chain) throws IOException {
         Response execute = chain.proceed(baseUrlRequest());
         execute.body().close();
         if (!execute.isSuccessful()) {
@@ -81,10 +82,6 @@ public class FormAuthInterceptor implements Interceptor {
             throw new IllegalStateException("Password Authentication failed, expected a successful response.");
         }
         authorized = true;
-
-
-        //now retry original request
-        return chain.proceed(chain.request());
     }
 
     private Request postAuthRequest() {
