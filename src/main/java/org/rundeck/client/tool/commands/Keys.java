@@ -44,27 +44,30 @@ import java.util.stream.Collectors;
                        "\nSpecify the path using -p/--path, or as the last argument to the command.")
 
 public class Keys extends AppCommand {
+
+    public static final String P_PATH_IS_REQUIRED = "-p/--path is required";
+
     public Keys(final RdApp client) {
         super(client);
     }
 
     public static class Path {
-        final String path;
+        final String pathString;
 
-        public Path(final String path) {
-            this.path = path;
+        public Path(final String pathString) {
+            this.pathString = pathString;
         }
 
         public String keysPath() {
-            if (path.startsWith("keys/")) {
-                return path.substring(5);
+            if (pathString.startsWith("keys/")) {
+                return pathString.substring(5);
             }
-            return path;
+            return pathString;
         }
 
         @Override
         public String toString() {
-            return path;
+            return pathString;
         }
     }
 
@@ -119,7 +122,7 @@ public class Keys extends AppCommand {
 
         output.output(String.format("Path: %s", keyStorageItem.getPath()));
         output.output(String.format("Type: %s", keyStorageItem.getType()));
-//        output.output(keyStorageItem.toBasicString());
+
         if (keyStorageItem.getType() == KeyStorageItem.KeyItemType.directory) {
             output.output(String.format("Directory: %d entries", keyStorageItem.getResources().size()));
         } else {
@@ -154,7 +157,7 @@ public class Keys extends AppCommand {
         Path path = argPath(options);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new InputError("-p/--path is required");
+            throw new InputError(P_PATH_IS_REQUIRED);
         }
         KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(path.keysPath()));
 
@@ -187,7 +190,7 @@ public class Keys extends AppCommand {
                 ));
             }
         } else {
-            long total = Util.copyStream(inputStream, System.out);
+            Util.copyStream(inputStream, System.out);
         }
         return true;
     }
@@ -201,7 +204,7 @@ public class Keys extends AppCommand {
         Path path = argPath(opts);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new InputError("-p/--path is required");
+            throw new InputError(P_PATH_IS_REQUIRED);
         }
         apiCall(api -> api.deleteKeyStorage(path.keysPath()));
         output.info(String.format("Deleted: %s", path));
@@ -244,7 +247,7 @@ public class Keys extends AppCommand {
         Path path = argPath(options);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new InputError("-p/--path is required");
+            throw new InputError(P_PATH_IS_REQUIRED);
         }
         RequestBody requestBody = prepareKeyUpload(options);
 
@@ -332,17 +335,24 @@ public class Keys extends AppCommand {
         Path path = argPath(options);
         String path1 = path.keysPath();
         if (path1.length() < 1) {
-            throw new InputError("-p/--path is required");
+            throw new InputError(P_PATH_IS_REQUIRED);
         }
         RequestBody requestBody = prepareKeyUpload(options);
         KeyStorageItem keyStorageItem = apiCall(api -> api.updateKeyStorage(path.keysPath(), requestBody));
         output.info(String.format("Updated: %s", keyStorageItem.toBasicString()));
     }
 
-    static private MediaType getUploadContentType(final KeyStorageItem.KeyFileType type) {
-        return type == KeyStorageItem.KeyFileType.privateKey ? Client.MEDIA_TYPE_OCTET_STREAM :
-               type == KeyStorageItem.KeyFileType.publicKey ? Client.MEDIA_TYPE_GPG_KEYS :
-               type == KeyStorageItem.KeyFileType.password ? Client.MEDIA_TYPE_X_RUNDECK_PASSWORD : null;
+    private static MediaType getUploadContentType(final KeyStorageItem.KeyFileType type) {
+        switch (type) {
+            case privateKey:
+                return Client.MEDIA_TYPE_OCTET_STREAM;
+            case publicKey:
+                return Client.MEDIA_TYPE_GPG_KEYS;
+            case password:
+                return Client.MEDIA_TYPE_X_RUNDECK_PASSWORD;
+            default:
+                return null;
+        }
     }
 
 }
