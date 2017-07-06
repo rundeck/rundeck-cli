@@ -1,6 +1,7 @@
 package org.rundeck.client.tool.commands
 
 import com.simplifyops.toolbelt.CommandOutput
+import com.simplifyops.toolbelt.InputError
 import okhttp3.RequestBody
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -106,6 +107,53 @@ class KeysSpec extends Specification {
     }
 
     @Unroll
+    def "create password require file or prompt"() {
+        given:
+
+        def opts = Mock(Keys.Upload) {
+            getPath() >> new Keys.Path('keys/test1')
+            getType() >> type
+            isFile() >> false
+            isPrompt() >> false
+        }
+        when:
+        def body = Keys.prepareKeyUpload(opts)
+
+        then:
+        InputError e = thrown()
+        e.message == 'File (-f/--file) or -P/--prompt is required for type: password'
+
+        where:
+        type                                | file | prompt
+        KeyStorageItem.KeyFileType.password | null | false
+    }
+
+    @Unroll
+    def "create #type require file"() {
+        given:
+
+        def opts = Mock(Keys.Upload) {
+            getPath() >> new Keys.Path('keys/test1')
+            getType() >> type
+            isFile() >> false
+            isPrompt() >> prompt
+        }
+        when:
+        def body = Keys.prepareKeyUpload(opts)
+
+        then:
+        InputError e = thrown()
+        e.message =~ /File \(-f\/--file\) is required for type:/
+
+        where:
+        type                                  | prompt
+        KeyStorageItem.KeyFileType.privateKey | false
+        KeyStorageItem.KeyFileType.privateKey | true
+        KeyStorageItem.KeyFileType.publicKey  | false
+        KeyStorageItem.KeyFileType.publicKey  | true
+    }
+
+    @Unroll
     def "create password from file"() {
         given:
         File testfile = File.createTempFile('KeysSpec', '.test')
@@ -161,7 +209,7 @@ class KeysSpec extends Specification {
             isFile() >> true
         }
 
-        MockWebServer server = new MockWebServer();
+        MockWebServer server = new MockWebServer()
         server.enqueue(
                 new MockResponse().
                         setBody('''{
@@ -174,7 +222,7 @@ class KeysSpec extends Specification {
                 }'''
                         ).
                         addHeader('content-type', 'application/json')
-        );
+        )
         server.start()
 
         def retrofit = new Retrofit.Builder().baseUrl(server.url('/api/18/')).

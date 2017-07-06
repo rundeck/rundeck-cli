@@ -260,11 +260,11 @@ public class Keys extends AppCommand {
         }
         RequestBody requestBody;
         if (options.getType() != KeyStorageItem.KeyFileType.password && !options.isFile()) {
-            throw new InputError(String.format("File (-f) is required for type: %s", options.getType()));
+            throw new InputError(String.format("File (-f/--file) is required for type: %s", options.getType()));
         }
         if (options.getType() == KeyStorageItem.KeyFileType.password && !options.isFile() && !options.isPrompt()) {
             throw new InputError(String.format(
-                    "File (-f) or -p is required for type: %s",
+                    "File (-f/--file) or -P/--prompt is required for type: %s",
                     options.getType()
             ));
         }
