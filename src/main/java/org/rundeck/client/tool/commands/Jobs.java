@@ -165,7 +165,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         printLoadResult(importResult.getSkipped(), "Skipped", output, options.isVerbose());
         printLoadResult(failed, "Failed", output, options.isVerbose());
 
-        return failed == null || failed.size() == 0;
+        return failed == null || failed.isEmpty();
     }
 
     private static void printLoadResult(
@@ -174,8 +174,8 @@ public class Jobs extends AppCommand implements HasSubCommands {
             CommandOutput output, final boolean isVerbose
     )
     {
-        if (null != list && list.size() > 0) {
-            output.info(String.format("%d Jobs " + title + ":%n", list.size()));
+        if (null != list && list.isEmpty()) {
+            output.info(String.format("%d Jobs %s:%n", list.size(), title));
             if (isVerbose) {
                 output.output(list);
             } else {
@@ -222,7 +222,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
             }
             InputStream inputStream = body.byteStream();
             if ("-".equals(options.getFile().getName())) {
-                long total = Util.copyStream(inputStream, System.out);
+                Util.copyStream(inputStream, System.out);
             } else {
                 try (FileOutputStream out = new FileOutputStream(options.getFile())) {
                     long total = Util.copyStream(inputStream, out);
@@ -367,7 +367,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         if (!job.contains("/")) {
             return new String[]{null, job};
         }
-        int i = job.lastIndexOf("/");
+        int i = job.lastIndexOf('/');
         String group = job.substring(0, i);
         String name = job.substring(i + 1);
         if ("".equals(group.trim())) {
