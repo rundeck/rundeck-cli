@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  * @author greg
  * @since 11/22/16
  */
-@Command(description = "List and manage node resources.")
+@Command(description = "List node resources.")
 public class Nodes extends AppCommand {
     public Nodes(final RdApp builder) {
         super(builder);
