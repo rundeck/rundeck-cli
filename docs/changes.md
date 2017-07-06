@@ -4,6 +4,14 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.15
+
+* Fix [Issue #94](https://github.com/rundeck/rundeck-cli/issues/94) nodes command does not yet manage nodes
+* fix [Issue #105](https://github.com/rundeck/rundeck-cli/issues/105) keys create error states incorrect prompt parameter
+* fix [Issue #106](https://github.com/rundeck/rundeck-cli/issues/106) Cannot use the option jobs purge [--jobxact -J value]
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.14...v1.0.15)
+
 ## 1.0.14
 
 * Fix [Issue #99](https://github.com/rundeck/rundeck-cli/issues/99): npe when scm import inputs tracked item job is null
