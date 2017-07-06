@@ -17,6 +17,7 @@
 package org.rundeck.client.tool.commands
 
 import com.simplifyops.toolbelt.CommandOutput
+import com.simplifyops.toolbelt.InputError
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
@@ -28,6 +29,7 @@ import org.rundeck.client.util.Client
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * @author greg
@@ -119,12 +121,16 @@ class JobsSpec extends Specification {
     }
 
 
-    def "job purge with input parameters"() {
+    @Unroll
+    def "job purge with job #job group #group jobexact #jobexact groupexact #groupexact"() {
         given:
         def api = Mock(RundeckApi)
 
         def opts = Mock(Jobs.Purge) {
-            isJob() >> true
+            isJob() >> (job != null)
+            isGroup() >> (group != null)
+            isJobExact() >> (jobexact != null)
+            isGroupExact() >> (groupexact != null)
             isProject() >> true
             getProject() >> 'ProjectName'
             getJobExact() >> jobexact
@@ -152,8 +158,41 @@ class JobsSpec extends Specification {
 
         where:
         job  | group | jobexact | groupexact
+        'a'  | null  | null     | null
         'a'  | 'b/c' | null     | null
+        null | 'b/c' | null     | null
+        null | null  | 'a'      | null
         null | null  | 'a'      | 'b/c'
+        null | null  | null     | 'b/c'
+    }
+
+    def "job purge invalid input"() {
+        given:
+        def api = Mock(RundeckApi)
+
+        def opts = Mock(Jobs.Purge) {
+            isJob() >> false
+            isGroup() >> false
+            isJobExact() >> false
+            isGroupExact() >> false
+            isProject() >> true
+            getProject() >> 'ProjectName'
+            isConfirm() >> true
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, 17)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Jobs jobs = new Jobs(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        jobs.purge(opts, out)
+
+        then:
+        InputError e = thrown()
+        e.message == 'must specify -i, or -j/-g/-J/-G to specify jobs to delete.'
+
     }
 
     def "jobs info outformat"() {
