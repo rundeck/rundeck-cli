@@ -75,7 +75,8 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     @Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
                            "before deleting from the server. " +
-                           "--idlist/-i, or --job/-j or --group/-g Options are required.")
+                           "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+                           "required.")
     public boolean purge(Purge options, CommandOutput output) throws IOException, InputError {
 
         //if id,idlist specified, use directly
@@ -85,8 +86,8 @@ public class Jobs extends AppCommand implements HasSubCommands {
         if (options.isIdlist()) {
             ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
-            if (!options.isJob() && !options.isGroup()) {
-                throw new InputError("must specify -i, or -j/-g to specify jobs to delete.");
+            if (!options.isJob() && !options.isGroup() && !options.isGroupExact() && !options.isJobExact()) {
+                throw new InputError("must specify -i, or -j/-g/-J/-G to specify jobs to delete.");
             }
             String project = projectOrEnv(options);
             List<JobItem> body = apiCall(api -> api.listJobs(
