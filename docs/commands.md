@@ -63,6 +63,7 @@ Query previous executions for a project.
 
 	Usage: query options
 		[--adhoconly -A] : Adhoc executions only
+		[--confirm -y] : Force confirmation of delete request.
 		[--xgroup value] : Group or partial group path to exclude, "-" means top-level jobs only
 		[--xgroupexact value] : Exact group path to exclude, "-" means top-level jobs only
 		[--xnameexact value] : Exclude Exact Job Name Filter, exclude any name that is equal to this value
