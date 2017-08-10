@@ -16,10 +16,7 @@
 
 package org.rundeck.client.util;
 
-import okhttp3.FormBody;
-import okhttp3.Interceptor;
-import okhttp3.Request;
-import okhttp3.Response;
+import okhttp3.*;
 import org.rundeck.client.api.AuthorizationFailed;
 import org.rundeck.client.api.LoginFailed;
 
@@ -68,23 +65,43 @@ public class FormAuthInterceptor implements Interceptor {
 
     /**
      * Retrieve base url, then subsequently post the authorization credentials
-     *
      */
     private void authenticate(final Chain chain) throws IOException {
-        Response execute = chain.proceed(baseUrlRequest());
-        execute.body().close();
-        if (!execute.isSuccessful()) {
-            throw new IllegalStateException(String.format("Expected successful response from: %s", baseUrl));
+        Response baseResponse = chain.proceed(baseUrlRequest());
+        try {
+            if (!baseResponse.isSuccessful()) {
+                throw new IllegalStateException(String.format("Expected successful response from: %s", baseUrl));
+            }
+        } finally {
+            baseResponse.body().close();
         }
 
         //now post username/password
-        Response execute1 = chain.proceed(postAuthRequest());
-        execute1.body().close();
-        if (!execute1.isSuccessful()) {
-            throw new IllegalStateException("Password Authentication failed, expected a successful response.");
-        }
-        if (execute1.request().url().toString().contains(loginErrorURLPath)) {
-            throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
+        Response authResponse = chain.proceed(postAuthRequest());
+        try {
+            if (!authResponse.isSuccessful()) {
+                throw new IllegalStateException("Password Authentication failed, expected a successful response.");
+            }
+            if (authResponse.request().url().toString().contains(loginErrorURLPath)) {
+                //jetty behavior: redirect to login error page
+                throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
+            }
+            if (null == authResponse.priorResponse() && Client.hasAnyMediaType(
+                    authResponse.body(),
+                    MediaType.parse("text/html")
+            )) {
+                String securitycheck = System.getProperty(
+                        "rundeck.client.j_security_check",
+                        "j_security_check"
+                );
+                //tomcat behavior: render error page content without redirect
+                //look for login form indicating login was not successful
+                if (authResponse.body().string().contains("action=\"" + securitycheck + "\"")) {
+                    throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
+                }
+            }
+        } finally {
+            authResponse.body().close();
         }
         authorized = true;
     }

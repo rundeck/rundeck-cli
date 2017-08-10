@@ -249,6 +249,64 @@ class FormAuthInterceptorSpec extends Specification {
         starturl                    | _
         'http://host/path/api/blah' | _
     }
+    def "form auth security response contains login form (tomcat)"() {
+        given:
+
+
+        String user = 'auser'
+        String pass = 'apass'
+        String baseurl = 'http://host/base/path'
+        String securityurl = 'http://host/base/path/j_security_path'
+        String userfield = 'j_username'
+        String passwordfield = 'j_password'
+        String errorpath = '/login/error'
+        def sut = new FormAuthInterceptor(
+                user,
+                pass,
+                baseurl,
+                securityurl,
+                userfield,
+                passwordfield,
+                errorpath
+        )
+
+        def firstrequest = new Request.Builder().url(starturl).build()
+        def chain = Mock(Interceptor.Chain)
+
+        def okresponse = new Response.Builder().with {
+            request firstrequest
+            protocol Protocol.HTTP_1_1
+            code 200
+            body ResponseBody.create(MediaType.parse('text/html'), 'blah')
+            build()
+        }
+
+        def loginErrorResponse = new Response.Builder().with {
+            request new Request.Builder().url(securityurl).build()
+            protocol Protocol.HTTP_1_1
+            code 200
+            body ResponseBody.create(MediaType.parse('text/html'), 'some html <form a="b" action="j_security_check" > blah')
+            build()
+        }
+
+
+
+        when:
+        def response = sut.intercept(chain)
+
+
+        then:
+        1 * chain.proceed({ req -> req.url().toString() == baseurl }) >> okresponse
+        1 * chain.proceed({ req -> req.url().toString() == securityurl }) >> loginErrorResponse
+        _ * chain.request() >> firstrequest
+        0 * chain._(*_)
+        LoginFailed e = thrown()
+        e.message =~ /Password Authentication failed for: $user/
+
+        where:
+        starturl                    | _
+        'http://host/path/api/blah' | _
+    }
 
     def "form auth base url not successful"() {
         given:
