@@ -4,6 +4,12 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.16
+
+* fix [Issue #113](https://github.com/rundeck/rundeck-cli/issues/113) show load jobs output results correctly
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.15...v1.0.16)
+
 ## 1.0.15
 
 * Fix [Issue #94](https://github.com/rundeck/rundeck-cli/issues/94) nodes command does not yet manage nodes
