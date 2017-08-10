@@ -174,7 +174,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
             CommandOutput output, final boolean isVerbose
     )
     {
-        if (null != list && list.isEmpty()) {
+        if (null != list && !list.isEmpty()) {
             output.info(String.format("%d Jobs %s:%n", list.size(), title));
             if (isVerbose) {
                 output.output(list);

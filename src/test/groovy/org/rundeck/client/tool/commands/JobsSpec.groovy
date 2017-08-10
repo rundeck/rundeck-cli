@@ -21,9 +21,7 @@ import com.simplifyops.toolbelt.InputError
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
-import org.rundeck.client.api.model.DeleteJobsResult
-import org.rundeck.client.api.model.JobItem
-import org.rundeck.client.api.model.ScheduledJobItem
+import org.rundeck.client.api.model.*
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
@@ -225,4 +223,40 @@ class JobsSpec extends Specification {
         outFormat   | result
         '%id %href' | '123 monkey'
     }
+
+    def "job load with errors produces output"() {
+        given:
+        def api = Mock(RundeckApi)
+        def opts = Mock(Jobs.Load) {
+            isProject() >> true
+            getProject() >> 'ProjectName'
+            getFormat() >> 'yaml'
+            isFile() >> true
+            getFile() >> tempFile
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, 17)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Jobs jobs = new Jobs(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        jobs.load(opts, out)
+
+        then:
+        1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+                Calls.response(new ImportResult(succeeded: [], skipped: [], failed: [
+                        new JobLoadItem(error: 'Test Error', name: 'Job Name')
+                ]
+                )
+                )
+        0 * api._(*_)
+        1 * out.info('1 Jobs Failed:\n')
+        1 * out.output(['[id:?] Job Name\n\t:Test Error'])
+        0 * out._(*_)
+
+    }
+
+
 }
