@@ -40,7 +40,7 @@ public class JobLoadItem extends JobItem {
         if (null != error) {
             return String.format(
                     "[%s] %s%s\n\t:%s",
-                    getId() != null ? getId() : "?",
+                    getId() != null ? getId() : "id:?",
                     getGroup() != null ? getGroup() + "/" : "",
                     getName(),
                     getError()
