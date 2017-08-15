@@ -24,8 +24,10 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.SystemInfo;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.system.ACLs;
+import org.rundeck.client.tool.commands.system.Mode;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -40,8 +42,9 @@ public class RDSystem extends AppCommand implements HasSubCommands {
 
     @Override
     public List<Object> getSubCommands() {
-        return Collections.singletonList(
-                new ACLs(this)
+        return Arrays.asList(
+                new ACLs(this),
+                new Mode(this)
         );
     }
 
