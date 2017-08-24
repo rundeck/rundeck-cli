@@ -17,6 +17,8 @@
 package org.rundeck.client.util;
 
 import okhttp3.*;
+import org.rundeck.client.api.AuthorizationFailed;
+import org.rundeck.client.api.LoginFailed;
 
 import java.io.IOException;
 
@@ -49,42 +51,59 @@ public class FormAuthInterceptor implements Interceptor {
         this.j_security_url = securityUrl;
         this.usernameField = usernameField;
         this.passwordField = passwordField;
-        loginErrorURLPath = loginErrorPath;
+        this.loginErrorURLPath = loginErrorPath;
     }
 
     @Override
     public Response intercept(final Chain chain) throws IOException {
-        Response origResponse = chain.proceed(chain.request());
-        if (origResponse.isSuccessful() || authorized) {
-            return origResponse;
+        if (!authorized) {
+            authenticate(chain);
         }
-        origResponse.body().close();
-        //not authorized, not a successful result, attempt to authenticate
-        return authenticate(chain);
+
+        return chain.proceed(chain.request());
     }
 
     /**
      * Retrieve base url, then subsequently post the authorization credentials
-     *
      */
-    private Response authenticate(final Chain chain) throws IOException {
-        Response execute = chain.proceed(baseUrlRequest());
-        execute.body().close();
-        if (!execute.isSuccessful()) {
-            throw new IllegalStateException(String.format("Expected successful response from: %s", baseUrl));
+    private void authenticate(final Chain chain) throws IOException {
+        Response baseResponse = chain.proceed(baseUrlRequest());
+        try {
+            if (!baseResponse.isSuccessful()) {
+                throw new IllegalStateException(String.format("Expected successful response from: %s", baseUrl));
+            }
+        } finally {
+            baseResponse.body().close();
         }
 
         //now post username/password
-        Response execute1 = chain.proceed(postAuthRequest());
-        execute1.body().close();
-        if (!execute1.isSuccessful() || execute1.request().url().toString().contains(loginErrorURLPath)) {
-            throw new IllegalStateException("Password Authentication failed, expected a successful response.");
+        Response authResponse = chain.proceed(postAuthRequest());
+        try {
+            if (!authResponse.isSuccessful()) {
+                throw new IllegalStateException("Password Authentication failed, expected a successful response.");
+            }
+            if (authResponse.request().url().toString().contains(loginErrorURLPath)) {
+                //jetty behavior: redirect to login error page
+                throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
+            }
+            if (null == authResponse.priorResponse() && Client.hasAnyMediaType(
+                    authResponse.body(),
+                    MediaType.parse("text/html")
+            )) {
+                String securitycheck = System.getProperty(
+                        "rundeck.client.j_security_check",
+                        "j_security_check"
+                );
+                //tomcat behavior: render error page content without redirect
+                //look for login form indicating login was not successful
+                if (authResponse.body().string().contains("action=\"" + securitycheck + "\"")) {
+                    throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
+                }
+            }
+        } finally {
+            authResponse.body().close();
         }
         authorized = true;
-
-
-        //now retry original request
-        return chain.proceed(chain.request());
     }
 
     private Request postAuthRequest() {
