@@ -40,7 +40,7 @@ public interface RunBaseOptions extends JobIdentOptions, FollowOptions, Optional
 
     @Option(shortName = "@",
             longName = "at",
-            description = "Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ss'Z')")
+            description = "Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ssXX)")
     DateInfo getRunAtDate();
 
     boolean isRunAtDate();

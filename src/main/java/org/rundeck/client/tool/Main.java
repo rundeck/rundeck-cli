@@ -172,7 +172,7 @@ public class Main {
         }
 
         public String getDateFormat() {
-            return getString("RD_DATE_FORMAT", "yyyy-MM-ddHH:mm:ssZ");
+            return getString("RD_DATE_FORMAT", "yyyy-MM-dd'T'HH:mm:ssXX");
         }
 
         @Override
