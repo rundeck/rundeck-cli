@@ -179,7 +179,7 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-ext.toolbeltVersion = "0.1.18"
+ext.toolbeltVersion = "0.1.19"
 ext.toolbeltGroup =  "com${toolbeltVersion.contains('SNAPSHOT')?'':'.github'}.simplifyops.cli-toolbelt"
 
 dependencies {

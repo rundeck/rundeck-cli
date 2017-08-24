@@ -685,6 +685,17 @@ public interface RundeckApi {
     @GET("system/info")
     Call<SystemInfo> systemInfo();
 
+
+    @Headers("Accept: application/json")
+    @POST("system/executions/enable")
+    Call<SystemMode> executionModeEnable();
+
+    @Headers("Accept: application/json")
+    @POST("system/executions/disable")
+    Call<SystemMode> executionModeDisable();
+
+
+
     //scheduler
 
     /**

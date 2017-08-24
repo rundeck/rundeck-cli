@@ -221,6 +221,7 @@ View system information
 
 	   acls - Manage System ACLs
 	   info - Print system information and stats
+	   mode - Manage Execution Mode
 
 ### system acls
 
@@ -238,6 +239,17 @@ Manage System ACLs
 ### system info
 
 Print system information and stats.
+
+### system mode
+
+Manage Execution Mode.
+
+
+	Available commands:
+
+	   active  - Set execution mode Active
+	   info    - Show execution mode
+	   passive - Set execution mode Passive
 
 ## tokens
 
