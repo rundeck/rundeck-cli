@@ -55,6 +55,18 @@ You can set the default colors used by info/output/error/warning output:
     export RD_COLOR_WARN=orange
     export RD_COLOR_ERROR=cyan
 
+## Date Format
+
+You can modify the Date format used when displaying dates:
+
+	export RD_DATE_FORMAT=<format>
+
+Where `<format>` is a Java [Simple Date Format][].
+
+The default format is ISO-8601: `yyyy-MM-dd'T'HH:mm:ssXX`
+
+[Simple Date Format]: https://docs.oracle.com/javase/7/docs/api/java/text/SimpleDateFormat.html
+
 ## Bypass an external URL
 
 If your Rundeck server has a different *external URL* than the one you are accessing,
