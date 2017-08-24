@@ -4,6 +4,15 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.17
+
+* document RD_DATE_FORMAT
+* fix [Issue #117](https://github.com/rundeck/rundeck-cli/issues/117) correctly parse datetime for execution data
+* Fix [Issue #115](https://github.com/rundeck/rundeck-cli/issues/115) add `rd system mode info/active/passive`
+* fix [Issue #102](https://github.com/rundeck/rundeck-cli/issues/102) Username/Password auth: improve auth flow
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.16...v1.0.17)
+
 ## 1.0.16
 
 * fix [Issue #113](https://github.com/rundeck/rundeck-cli/issues/113) show load jobs output results correctly
