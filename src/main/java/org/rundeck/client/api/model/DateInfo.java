@@ -28,7 +28,9 @@ import java.util.Locale;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DateInfo {
-    public static final String ISO = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static final String ISO1 = "yyyy-MM-dd'T'HH:mm:ssXXX";
+    public static final String ISO2 = "yyyy-MM-dd'T'HH:mm:ssXX";
+    public static final String ISO = "yyyy-MM-dd'T'HH:mm:ssX";
     public String date;
     public long unixtime;
 
@@ -45,7 +47,7 @@ public class DateInfo {
     public DateInfo() {
     }
     public Date toDate() throws ParseException {
-        return toDate(ISO);
+        return toDate(ISO1, ISO2, ISO);
     }
 
     /**
@@ -59,8 +61,17 @@ public class DateInfo {
         }
     }
 
-    public Date toDate(final String format) throws ParseException {
-        SimpleDateFormat asdf = new SimpleDateFormat(format, Locale.US);
+    public Date toDate(final String... formats) throws ParseException {
+        for (int i = 0; i < formats.length - 1; i++) {
+            String format = formats[i];
+            try {
+
+                SimpleDateFormat asdf = new SimpleDateFormat(format, Locale.US);
+                return asdf.parse(date);
+            } catch (ParseException ignored) {
+            }
+        }
+        SimpleDateFormat asdf = new SimpleDateFormat(formats[formats.length - 1], Locale.US);
         return asdf.parse(date);
     }
 
