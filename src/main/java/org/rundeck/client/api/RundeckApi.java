@@ -991,4 +991,18 @@ public interface RundeckApi {
             @Path("file") ReadmeFile file
     );
 
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#get-another-user-profile">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("user/info/{user}")
+    Call<User> getUserInfo(@Path("user") String user);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#get-user-profile">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("user/info/")
+    Call<User> getUserInfo();
 }

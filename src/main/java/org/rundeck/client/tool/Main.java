@@ -135,7 +135,9 @@ public class Main {
                                         new Scheduler(rd),
                                         new Tokens(rd),
                                         new Nodes(rd),
+                                        new Users(rd),
                                         new Something()
+
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
