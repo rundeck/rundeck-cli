@@ -40,7 +40,7 @@ public class Users extends AppCommand {
     }
 
     @Command(
-             description = "Get information of the same user or another user by Login name.")
+             description = "Get information of the same user or from another if 'user' is specified.")
     public void info(Info opts, CommandOutput output) throws IOException, InputError {
 
         User user = apiCall(api -> {
@@ -82,7 +82,7 @@ public class Users extends AppCommand {
     }
 
     @Command(
-            description = "Edit information of the same user or another user by Login name.")
+            description = "Edit information of the same user or another if 'user' is specified.")
     public void edit(Edit opts, CommandOutput output) throws IOException, InputError {
         User u = new User();
         if(opts.isEmail()){
