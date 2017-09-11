@@ -52,7 +52,6 @@ public class Users extends AppCommand {
 
         });
 
-        //output.info(String.format("User info [%s] succeeded.", opts.getLogin()));
         output.info("User profile:");
 
         output.output(String.format("Login: [%s]", user.getLogin()));
@@ -67,7 +66,7 @@ public class Users extends AppCommand {
         }
     }
 
-    @CommandLineInterface(application = "info") interface Edit extends LoginNameOption {
+    @CommandLineInterface(application = "edit") interface Edit extends LoginNameOption {
         @Option(shortName = "e", longName = "email", description = "user email")
         String getEmail();
         boolean isEmail();
