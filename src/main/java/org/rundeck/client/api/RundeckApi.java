@@ -1005,4 +1005,19 @@ public interface RundeckApi {
     @Headers("Accept: application/json")
     @GET("user/info/")
     Call<User> getUserInfo();
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#modify-another-user-profile">API</a>
+     */
+    @Headers({"Accept: application/json", "Content-Type: application/json"})
+    @POST("user/info/{user}")
+    Call<User> editUserInfo(@Path("user") String user,@Body User value);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#modify-user-profile">API</a>
+     */
+    @Headers({"Accept: application/json", "Content-Type: application/json"})
+    @POST("user/info/")
+    Call<User> editUserInfo(@Body User value);
+
 }

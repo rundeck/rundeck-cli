@@ -20,24 +20,12 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.HasSubCommands;
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.api.model.User;
 import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.projects.*;
 import org.rundeck.client.tool.options.*;
-import org.rundeck.client.util.Format;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 
 /**
  * user commands
@@ -46,11 +34,6 @@ import java.util.stream.Collectors;
 public class Users extends AppCommand {
     public Users(final RdApp client) {
         super(client);
-    }
-
-
-    interface ProjectResultOptions extends ProjectListFormatOptions, VerboseOption {
-
     }
 
     @CommandLineInterface(application = "info") interface Info extends LoginNameOption {
@@ -83,5 +66,57 @@ public class Users extends AppCommand {
             output.output(String.format("Email: [%s]", user.getEmail()));
         }
     }
+
+    @CommandLineInterface(application = "info") interface Edit extends LoginNameOption {
+        @Option(shortName = "e", longName = "email", description = "user email")
+        String getEmail();
+        boolean isEmail();
+
+        @Option(shortName = "n", longName = "name", description = "user first name")
+        String getFirstName();
+        boolean isFirstName();
+
+        @Option(shortName = "l", longName = "last", description = "user last name")
+        String getLastName();
+        boolean isLastName();
+    }
+
+    @Command(
+            description = "Edit information of the same user or another user by Login name.")
+    public void edit(Edit opts, CommandOutput output) throws IOException, InputError {
+        User u = new User();
+        if(opts.isEmail()){
+            u.setEmail(opts.getEmail());
+        }
+        if(opts.isFirstName()){
+            u.setFirstName(opts.getFirstName());
+        }
+        if(opts.isLastName()){
+            u.setLastName(opts.getLastName());
+        }
+
+        User user = apiCall(api -> {
+            if (opts.isLogin()) {
+                return api.editUserInfo(opts.getLogin(),u);
+            } else {
+                return api.editUserInfo(u);
+            }
+
+        });
+
+        output.info("User profile:");
+
+        output.output(String.format("Login: [%s]", user.getLogin()));
+        if(user.hasFirstName()) {
+            output.output(String.format("First Name: [%s]", user.getFirstName()));
+        }
+        if(user.hasLastName()) {
+            output.output(String.format("Last Name: [%s]", user.getLastName()));
+        }
+        if(user.hasEmail()) {
+            output.output(String.format("Email: [%s]", user.getEmail()));
+        }
+    }
+
 
 }
