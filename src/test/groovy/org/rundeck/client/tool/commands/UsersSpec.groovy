@@ -107,4 +107,47 @@ class UsersSpec extends Specification {
         'admin'             | 'Login: [admin]'  | 0               |1
 
     }
+
+    def "list correct execution"() {
+        given:
+
+        def api = Mock(RundeckApi)
+
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, 20)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Users users = new Users(hasclient)
+        def out = Mock(CommandOutput){
+            output(_) >>{msg->println(msg)}
+        }
+        List<User> arr = new ArrayList<User>()
+        if(userCount>0){
+            (1..userCount).each{
+                arr.push(new User(login: 'login',email: 'test@email.com'))
+            }
+        }
+
+
+        when:
+        users.list(out)
+
+        then:
+        1 * api.listUsers() >>
+                Calls.response(
+                        arr
+                )
+        1 * out.info(userCount+' Users:')
+        userCount * out.output(_)
+
+
+        where:
+        userCount   | _
+        1           | _
+        3           | _
+        0           | _
+
+    }
 }

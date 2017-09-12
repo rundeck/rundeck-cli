@@ -83,4 +83,9 @@ public class User {
     private boolean hasValue(String text){
         return (null != text && text.length()>0);
     }
+
+    public String toBasicString(){
+        return String.format("%s: name [%s], last Name [%s], email [%s]",login,hasFirstName()?firstName:"",
+                hasLastName()?lastName:"",hasEmail()?email:"");
+    }
 }

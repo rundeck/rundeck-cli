@@ -26,6 +26,7 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * user commands
@@ -114,6 +115,21 @@ public class Users extends AppCommand {
         }
         if(user.hasEmail()) {
             output.output(String.format("Email: [%s]", user.getEmail()));
+        }
+    }
+
+    @Command(
+            description = "Get the list of users.")
+    public void list(CommandOutput output) throws IOException, InputError {
+
+        List<User> users = apiCall(api -> {
+            return api.listUsers();
+        });
+
+        output.info(String.format("%d Users:",users.size()));
+
+        for (User user:users) {
+            output.output(user.toBasicString());
         }
     }
 

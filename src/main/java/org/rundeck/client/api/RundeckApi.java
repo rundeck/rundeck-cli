@@ -1020,4 +1020,12 @@ public interface RundeckApi {
     @POST("user/info/")
     Call<User> editUserInfo(@Body User value);
 
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#list-users">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("user/list")
+    Call<List<User>> listUsers();
+
 }
