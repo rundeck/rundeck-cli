@@ -473,6 +473,25 @@ public interface RundeckApi {
             @Query("maxlines") Long maxlines
     );
 
+    /**
+     * Get log output, with optional compacted results
+     * @param id
+     * @param offset
+     * @param lastmod
+     * @param maxlines
+     * @param compacted
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("execution/{id}/output")
+    Call<ExecOutput> getOutput(
+            @Path("id") String id,
+            @Query("offset") Long offset,
+            @Query("lastmod") Long lastmod,
+            @Query("maxlines") Long maxlines,
+            @Query("compacted") Boolean compacted
+    );
+
 
     @Headers("Accept: application/json")
     @POST("project/{project}/run/command")

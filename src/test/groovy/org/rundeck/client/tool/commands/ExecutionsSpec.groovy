@@ -77,7 +77,7 @@ class ExecutionsSpec extends Specification {
         )
 
         then:
-        1 * api.getOutput(id, 123, 01L, max) >> Calls.response(execOutputFinal)
+        1 * api.getOutput(id, 123, 01L, max, true) >> Calls.response(execOutputFinal)
         result == exit
 
         where:
@@ -150,6 +150,57 @@ class ExecutionsSpec extends Specification {
 
         body.dateStarted != null
         body.dateStarted.date == '2017-04-13T00:29:19Z'
+        server.shutdown()
+
+    }
+
+    def "parse compacted log"() {
+        given:
+        MockWebServer server = new MockWebServer();
+        server.enqueue(new MockResponse().setBody('''{
+  "id": 5418,
+  "compacted":true,
+  "compactedAttr":"log",
+  "entries": [
+    {"log":"test1","time":"13:02","level":"INFO","user":"bob","node":"node1","stepctx":"1"},
+    "test2",
+    {"log":"test3","level":"DEBUG","node":"node2", "stepctx": "2"}
+  ],
+  "serverUUID": "3425B691-7319-4EEE-8425-F053C628B4BA"
+}'''
+        ).addHeader('content-type', 'application/json')
+        );
+        server.start()
+
+        def retrofit = new Retrofit.Builder().baseUrl(server.url('/api/19/')).
+                addConverterFactory(JacksonConverterFactory.create()).
+                build()
+        def api = retrofit.create(RundeckApi)
+
+        when:
+        def body = api.getOutput('123', 0, 0, 200, true).execute().body()
+
+        then:
+        RecordedRequest request1 = server.takeRequest()
+        request1.path == '/api/19/execution/123/output?offset=0&lastmod=0&maxlines=200&compacted=true'
+        body.entries != null
+        body.entries.size() == 3
+        body.entries[0].toMap() == [
+                log: 'test1', time: '13:02', level: 'INFO', user: 'bob', node: 'node1', command: null, stepctx: "1"
+        ]
+        body.entries[1].toMap() == [
+                log: 'test2', time: null, level: null, user: null, node: null, command: null, stepctx: null]
+        body.entries[2].toMap() == [
+                log: 'test3', time: null, level: 'DEBUG', user: null, node: 'node2', command: null, stepctx: "2"]
+
+        def decomp = body.decompactEntries()
+        decomp[0].toMap() == [
+                log: 'test1', time: '13:02', level: 'INFO', user: 'bob', node: 'node1', command: null, stepctx: "1"
+        ]
+        decomp[1].toMap() == [log: 'test2', time: '13:02', level: 'INFO', user: 'bob', node: 'node1', command: null, stepctx: "1"]
+        decomp[2].toMap() == [log: 'test3', time: '13:02', level: 'DEBUG', user: 'bob', node: 'node2', command: null, stepctx: "2"]
+
+
         server.shutdown()
 
     }
