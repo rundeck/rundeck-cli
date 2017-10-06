@@ -41,7 +41,11 @@ public class Format {
                 path = found.split("\\.");
             }
             Object result = descend(data, path);
-            matcher.appendReplacement(sb, result != null ? result.toString() : "");
+            String replacement = "";
+            if (result != null) {
+                replacement = Matcher.quoteReplacement(result.toString());
+            }
+            matcher.appendReplacement(sb, replacement);
         }
         matcher.appendTail(sb);
 
