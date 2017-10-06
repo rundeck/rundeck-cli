@@ -29,12 +29,14 @@ class FormatSpec extends Specification {
         then:
         result == expected
         where:
-        start | end | format        | data     | expected
-        '${'  | '}' | '${a} b c'    | [a: 'x'] | 'x b c'
-        '${'  | '}' | 'a ${b} c'    | [a: 'x'] | 'a  c'
-        '${'  | '}' | 'a ${b} c'    | [b: 'x'] | 'a x c'
-        '${'  | '}' | 'a ${b} ${c}' | [b: 'x'] | 'a x '
-        '%'   | ''  | 'a %b %c'     | [b: 'x'] | 'a x '
+        start | end | format        | data       | expected
+        '${'  | '}' | '${a} b c'    | [a: 'x']   | 'x b c'
+        '${'  | '}' | 'a ${b} c'    | [a: 'x']   | 'a  c'
+        '${'  | '}' | 'a ${b} c'    | [b: 'x']   | 'a x c'
+        '${'  | '}' | 'a ${b} ${c}' | [b: 'x']   | 'a x '
+        '%'   | ''  | 'a %b %c'     | [b: 'x']   | 'a x '
+        '%'   | ''  | 'a %b %c'     | [b: '$x']  | 'a $x '
+        '%'   | ''  | 'a %b %c'     | [b: '\\x'] | 'a \\x '
 
     }
 
