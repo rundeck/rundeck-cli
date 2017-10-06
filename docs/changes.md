@@ -4,6 +4,10 @@ title: Changes
 permalink: /changes/
 ---
 
+## Unreleased
+
+* #124 fix error when unexpected chars in job output if formatter is used
+
 ## 1.0.17
 
 * document RD_DATE_FORMAT
