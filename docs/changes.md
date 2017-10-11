@@ -4,9 +4,13 @@ title: Changes
 permalink: /changes/
 ---
 
-## Unreleased
+## 1.0.19
 
-* #124 fix error when unexpected chars in job output if formatter is used
+* (no changes: Reissue to correctly release build artifacts)
+
+## 1.0.18
+
+* [Issue #124](https://github.com/rundeck/rundeck-cli/issues/124) fix error when unexpected chars in job output if formatter is used
 
 ## 1.0.17
 
