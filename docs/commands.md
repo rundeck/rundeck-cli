@@ -21,6 +21,7 @@ Available commands:
 	   scheduler  - View scheduler information
 	   system     - View system information
 	   tokens     - Create, and manage tokens
+	   users      - Manage user information
 
 	Use "rd [command] help" to get help on any command.
 
@@ -262,3 +263,14 @@ Create, and manage tokens
        delete - Delete a token
        list   - List tokens for a user
        reveal - Reveal token value for an ID (API v19+)
+
+## users
+
+Manage user information
+
+
+    Available commands:
+
+       edit - Edit information of the same user or another if 'user' is specified
+       info - Get information of the same user or from another if 'user' is specified
+       list - Get the list of users
