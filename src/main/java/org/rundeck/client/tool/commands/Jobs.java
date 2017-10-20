@@ -31,6 +31,7 @@ import org.rundeck.client.tool.commands.jobs.Files;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
+import org.rundeck.client.util.ServiceClient;
 import org.rundeck.client.util.Util;
 import retrofit2.Call;
 
@@ -64,7 +65,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
     @Override
     public List<Object> getSubCommands() {
         return Collections.singletonList(
-                new Files(this)
+                new Files(getRdApp())
         );
     }
 
@@ -215,8 +216,8 @@ public class Jobs extends AppCommand implements HasSubCommands {
             }
             ResponseBody body = getClient().checkError(responseCall);
             if ((!"yaml".equals(options.getFormat()) ||
-                 !Client.hasAnyMediaType(body, Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
-                !Client.hasAnyMediaType(body, Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
+                 !ServiceClient.hasAnyMediaType(body, Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
+                !ServiceClient.hasAnyMediaType(body, Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
 
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }
@@ -343,7 +344,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         String jobId = Run.getJobIdFromOpts(
                 options,
                 output,
-                getClient(),
+                getRdApp(),
                 () -> projectOrEnv(options)
         );
         if (null == jobId) {

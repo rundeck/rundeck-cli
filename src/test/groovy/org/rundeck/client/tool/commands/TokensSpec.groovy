@@ -126,7 +126,7 @@ class TokensSpec extends Specification {
             isUser() >> true
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -162,7 +162,7 @@ class TokensSpec extends Specification {
             isRoles() >> true
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 19)
+        def client = new Client(api, retrofit, null, null, 19, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }

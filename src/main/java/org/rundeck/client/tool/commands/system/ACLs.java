@@ -30,6 +30,7 @@ import org.rundeck.client.tool.commands.projects.ACLFileOptions;
 import org.rundeck.client.tool.commands.projects.ACLNameOptions;
 import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 
 import java.io.IOException;
 
@@ -72,7 +73,7 @@ public class ACLs extends AppCommand {
             throws IOException, InputError
     {
 
-        Client<RundeckApi> client = getClient();
+        ServiceClient<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
                 (RequestBody body) -> client.getService()
@@ -90,7 +91,7 @@ public class ACLs extends AppCommand {
     @Command(description = "Create a system ACL definition")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
 
-        Client<RundeckApi> client = getClient();
+        ServiceClient<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
                 (RequestBody body) -> client.getService()
@@ -107,7 +108,7 @@ public class ACLs extends AppCommand {
 
     @Command(description = "Delete a system ACL definition")
     public void delete(Delete options, CommandOutput output) throws IOException, InputError {
-        Client<RundeckApi> client = getClient();
+        ServiceClient<RundeckApi> serviceClient = getClient();
         apiCall(api -> api.deleteSystemAclPolicy(options.getName()));
         output.output(String.format("Deleted System ACL Policy: %s", options.getName()));
     }

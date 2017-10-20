@@ -29,11 +29,12 @@ import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.function.Function;
 
 /**
  * Holds Retrofit and a retrofit-constructed service
  */
-public class Client<T> {
+public class Client<T> implements ServiceClient<T> {
 
     public static final String APPLICATION_JSON = "application/json";
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse(APPLICATION_JSON);
@@ -55,27 +56,36 @@ public class Client<T> {
     private T service;
     private Retrofit retrofit;
     private final int apiVersion;
+    private final String appBaseUrl;
+    private final String apiBaseUrl;
+    private final boolean allowVersionDowngrade;
+    private final Logger logger;
 
-    public Client(final T service, final Retrofit retrofit, final int apiVersion) {
-        this.service = service;
-        this.retrofit = retrofit;
-        this.apiVersion = apiVersion;
+    public static interface Logger {
+        void output(String out);
+
+        void warning(String warn);
+
+        void error(String err);
     }
 
-    /**
-     * @param body  body
-     * @param types list of media types
-     *
-     * @return true if body has one of the media types
-     */
-    public static boolean hasAnyMediaType(final ResponseBody body, final MediaType... types) {
-        MediaType mediaType1 = body.contentType();
-        for (MediaType mediaType : types) {
-            if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
-                return true;
-            }
-        }
-        return false;
+    public Client(
+            final T service,
+            final Retrofit retrofit,
+            final String appBaseUrl,
+            final String apiBaseUrl,
+            final int apiVersion,
+            final boolean allowVersionDowngrade,
+            final Logger logger
+    )
+    {
+        this.service = service;
+        this.retrofit = retrofit;
+        this.appBaseUrl = appBaseUrl;
+        this.apiBaseUrl = apiBaseUrl;
+        this.apiVersion = apiVersion;
+        this.allowVersionDowngrade = allowVersionDowngrade;
+        this.logger = logger;
     }
 
     /**
@@ -89,9 +99,74 @@ public class Client<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
+    @Override
     public <R> R checkError(final Call<R> execute) throws IOException {
         Response<R> response = execute.execute();
         return checkError(response);
+    }
+
+    /**
+     * Execute the remote call, and return the expected type if successful. if unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param execute call
+     * @param <R>     expected result type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    @Override
+    public <R> R checkErrorDowngradable(final Call<R> execute) throws IOException, UnsupportedVersionDowngrade {
+        Response<R> response = execute.execute();
+        return checkErrorDowngradable(response);
+    }
+
+    /**
+     * @return the base URL used without API path
+     */
+    @Override
+    public String getAppBaseUrl() {
+        return appBaseUrl;
+    }
+
+    /**
+     * @return the API URL used
+     */
+    @Override
+    public String getApiBaseUrl() {
+        return apiBaseUrl;
+    }
+
+    public static final class UnsupportedVersionDowngrade extends Exception {
+        private final int requestedVersion;
+        private final int latestVersion;
+        private final RequestFailed requestFailed;
+
+        public UnsupportedVersionDowngrade(
+                final String message,
+                final RequestFailed cause,
+                final int requestedVersion,
+                final int latestVersion
+        )
+        {
+            super(message, cause);
+            this.requestFailed = cause;
+            this.requestedVersion = requestedVersion;
+            this.latestVersion = latestVersion;
+        }
+
+        public int getSupportedVersion() {
+            return latestVersion;
+        }
+
+        public int getRequestedVersion() {
+            return requestedVersion;
+        }
+
+        public RequestFailed getRequestFailed() {
+            return requestFailed;
+        }
     }
 
     /**
@@ -105,53 +180,117 @@ public class Client<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
+    @Override
     public <R> R checkError(final Response<R> response) throws IOException {
         if (!response.isSuccessful()) {
-            ErrorDetail error = readError(response);
-            reportApiError(error);
-            if (response.code() == 401 || response.code() == 403) {
-                //authorization
-                throw new AuthorizationFailed(
-                        String.format("Authorization failed: %d %s", response.code(), response.message()),
-                        response.code(),
-                        response.message()
-                );
-            }
-            if (response.code() == 409) {
-                //authorization
-                throw new RequestFailed(String.format(
-                        "Could not create resource: %d %s",
-                        response.code(),
-                        response.message()
-                ), response.code(), response.message());
-            }
-            if (response.code() == 404) {
-                //authorization
-                throw new RequestFailed(String.format(
-                        "Could not find resource:  %d %s",
-                        response.code(),
-                        response.message()
-                ), response.code(), response.message());
-            }
-            throw new RequestFailed(
-                    String.format("Request failed:  %d %s", response.code(), response.message()),
-                    response.code(),
-                    response.message()
-            );
+            return handleError(response, readError(response));
         }
         return response.body();
     }
 
+    /**
+     * return the expected type if successful. if response is unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param response call response
+     * @param <R>      expected type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    @Override
+    public <R> R checkErrorDowngradable(final Response<R> response) throws IOException, UnsupportedVersionDowngrade {
+        if (!response.isSuccessful()) {
+            ErrorDetail error = readError(response);
+            checkUnsupportedVersion(response, error);
+            return handleError(response, error);
+        }
+        return response.body();
+    }
+
+    private <R> R handleError(final Response<R> response, final ErrorDetail error) {
+        reportApiError(error);
+        throw makeErrorThrowable(response, error);
+    }
+
+    private <R> RequestFailed makeErrorThrowable(final Response<R> response, final ErrorDetail error) {
+        if (response.code() == 401 || response.code() == 403) {
+            //authorization
+            return new AuthorizationFailed(
+                    String.format("Authorization failed: %d %s", response.code(), response.message()),
+                    response.code(),
+                    response.message()
+            );
+        }
+        if (response.code() == 409) {
+            //authorization
+            return new RequestFailed(String.format(
+                    "Could not create resource: %d %s",
+                    response.code(),
+                    response.message()
+            ), response.code(), response.message());
+        }
+        if (response.code() == 404) {
+            //authorization
+            return new RequestFailed(String.format(
+                    "Could not find resource: %d %s",
+                    response.code(),
+                    response.message()
+            ), response.code(), response.message());
+        }
+        return new RequestFailed(
+                String.format("Request failed: %d %s", response.code(), response.message()),
+                response.code(),
+                response.message()
+        );
+    }
+
+    public <R> void checkUnsupportedVersion(final Response<R> response, final ErrorDetail error)
+            throws UnsupportedVersionDowngrade
+    {
+        if (null != error &&
+            allowVersionDowngrade &&
+            isUnsupportedVersionError(error) &&
+            isDowngradableError(error)) {
+            throw new UnsupportedVersionDowngrade(
+                    error.getErrorMessage(),
+                    makeErrorThrowable(response, error),
+                    getApiVersion(),
+                    error.getApiVersion()
+            );
+        }
+    }
+
+    @Override
     public void reportApiError(final ErrorDetail error) {
         if (null != error) {
-            System.err.printf("Error: %s%n", error);
-            if (API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
-                System.err.printf("Note: You requested an API endpoint using an unsupported version. \n" +
-                          "You can set a specific version by using a Rundeck " +
-                          "URL in the format:\n" +
-                          "  export RD_URL=[URL]/api/%s\n\n", error.getApiVersion());
+            logger.error(String.format("Error: %s", error));
+            if (isUnsupportedVersionError(error)) {
+                logger.warning(String.format(
+                        "Note: You requested an API endpoint using an unsupported version.\n" +
+                        "You can set a specific version by using a Rundeck URL in the format:\n" +
+                        "  export RD_URL=%sapi/%s",
+                        getAppBaseUrl(),
+                        error.getApiVersion()
+                ));
+                if (isDowngradableError(error)) {
+                    logger.warning(
+                            "You can enable auto-downgrading to a supported version: \n" +
+                            "  export RD_API_DOWNGRADE=true"
+                    );
+                }
             }
         }
+    }
+
+    private boolean isDowngradableError(final ErrorDetail error) {
+        return error.getApiVersion() < getApiVersion();
+    }
+
+    private boolean isUnsupportedVersionError(final ErrorDetail error) {
+        return error.getErrorCode() != null &&
+               error.getErrorCode().startsWith(API_ERROR_API_VERSION_UNSUPPORTED);
     }
 
     /**
@@ -166,13 +305,13 @@ public class Client<T> {
     ErrorDetail readError(Response<?> execute) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();
-        if (hasAnyMediaType(responseBody, MEDIA_TYPE_JSON)) {
+        if (ServiceClient.hasAnyMediaType(responseBody, MEDIA_TYPE_JSON)) {
             Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
                     ErrorResponse.class,
                     new Annotation[0]
             );
             return errorConverter.convert(responseBody);
-        } else if (hasAnyMediaType(responseBody, MEDIA_TYPE_TEXT_XML, MEDIA_TYPE_XML)) {
+        } else if (ServiceClient.hasAnyMediaType(responseBody, MEDIA_TYPE_TEXT_XML, MEDIA_TYPE_XML)) {
             //specify xml annotation to parse as xml
             Annotation[] annotationsByType = ErrorResponse.class.getAnnotationsByType(Xml.class);
             Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
@@ -197,11 +336,12 @@ public class Client<T> {
      *
      * @throws IOException if media type matched, but parsing was unsuccessful
      */
+    @Override
     @SuppressWarnings("SameParameterValue")
     public <X> X readError(Response<?> execute, Class<X> errorType, MediaType... mediaTypes) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();
-        if (hasAnyMediaType(responseBody, mediaTypes)) {
+        if (ServiceClient.hasAnyMediaType(responseBody, mediaTypes)) {
             Converter<ResponseBody, X> errorConverter = getRetrofit().responseBodyConverter(
                     errorType,
                     new Annotation[0]
@@ -212,6 +352,37 @@ public class Client<T> {
         }
     }
 
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
+     * @return result
+     *
+     * @throws IOException if an error occurs
+     */
+    @Override
+    public <U> U apiCall(final Function<T, Call<U>> func) throws IOException {
+        return checkError(func.apply(getService()));
+    }
+
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
+     * @return result
+     *
+     * @throws IOException if an error occurs
+     */
+    @Override
+    public <U> U apiCallDowngradable(final Function<T, Call<U>> func) throws IOException, UnsupportedVersionDowngrade {
+        return checkErrorDowngradable(func.apply(getService()));
+    }
+
+    @Override
     public T getService() {
         return service;
     }
@@ -220,6 +391,7 @@ public class Client<T> {
         this.service = service;
     }
 
+    @Override
     public Retrofit getRetrofit() {
         return retrofit;
     }
@@ -228,6 +400,7 @@ public class Client<T> {
         this.retrofit = retrofit;
     }
 
+    @Override
     public int getApiVersion() {
         return apiVersion;
     }

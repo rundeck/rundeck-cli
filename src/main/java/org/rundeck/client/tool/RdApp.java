@@ -16,17 +16,49 @@
 
 package org.rundeck.client.tool;
 
+import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.tool.AppConfig;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 
 /**
+ * Access to config, output, and service client
  * @author greg
  * @since 1/11/17
  */
 public interface RdApp {
-    Client<RundeckApi> getClient() throws InputError;
+    /**
+     * @return current service client
+     *
+     * @throws InputError on error
+     */
+    ServiceClient<RundeckApi> getClient() throws InputError;
 
+    /**
+     * @param version api version to use
+     *
+     * @return service client for particular api version
+     *
+     * @throws InputError on erro
+     */
+    ServiceClient<RundeckApi> getClient(int version) throws InputError;
+
+    /**
+     * @return app config
+     */
     AppConfig getAppConfig();
+
+    /**
+     * @return output endpoint
+     */
+    public CommandOutput getOutput();
+
+    /**
+     * Issue warning about api version downgrade
+     * @param requested requested api version
+     * @param supported supported api verson
+     */
+    public void versionDowngradeWarning(int requested, int supported);
 }

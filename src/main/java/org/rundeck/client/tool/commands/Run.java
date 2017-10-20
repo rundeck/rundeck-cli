@@ -28,9 +28,9 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.jobs.Files;
 import org.rundeck.client.tool.options.JobIdentOptions;
 import org.rundeck.client.tool.options.RunBaseOptions;
-import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Quoting;
+import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
 import java.io.File;
@@ -60,7 +60,7 @@ public class Run extends AppCommand {
 
     @Command(isDefault = true, isSolo = true)
     public boolean run(RunBaseOptions options, CommandOutput out) throws IOException, InputError {
-        String jobId = getJobIdFromOpts(options, out, getClient(), () -> projectOrEnv(options));
+        String jobId = getJobIdFromOpts(options, out, getRdApp(), () -> projectOrEnv(options));
         if (null == jobId) {
             return false;
         }
@@ -126,7 +126,7 @@ public class Run extends AppCommand {
                 for (String optionName : fileinputs.keySet()) {
                     File file = fileinputs.get(optionName);
                     JobFileUploadResult jobFileUploadResult = Files.uploadFileForJob(
-                            getClient(),
+                            getRdApp(),
                             file,
                             jobId,
                             optionName
@@ -191,7 +191,7 @@ public class Run extends AppCommand {
      *
      * @param options ident options
      * @param out     output
-     * @param client  client
+     * @param rdApp  rdApp
      * @param project project name, or null
      *
      * @return job ID or null
@@ -200,7 +200,7 @@ public class Run extends AppCommand {
     public static String getJobIdFromOpts(
             final JobIdentOptions options,
             final CommandOutput out,
-            final Client<RundeckApi> client,
+            final RdApp rdApp,
             final GetInput<String> project
     )
             throws InputError, IOException
@@ -214,7 +214,7 @@ public class Run extends AppCommand {
         String proj = project.get();
         String job = options.getJob();
         String[] parts = Jobs.splitJobNameParts(job);
-        List<JobItem> jobItems = apiCall(client, api -> api.listJobs(
+        List<JobItem> jobItems = apiCallDowngradable(rdApp, api -> api.listJobs(
                 proj,
                 null,
                 null,

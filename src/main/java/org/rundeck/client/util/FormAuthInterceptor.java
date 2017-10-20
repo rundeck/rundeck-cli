@@ -86,7 +86,7 @@ public class FormAuthInterceptor implements Interceptor {
                 //jetty behavior: redirect to login error page
                 throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
             }
-            if (null == authResponse.priorResponse() && Client.hasAnyMediaType(
+            if (null == authResponse.priorResponse() && ServiceClient.hasAnyMediaType(
                     authResponse.body(),
                     MediaType.parse("text/html")
             )) {

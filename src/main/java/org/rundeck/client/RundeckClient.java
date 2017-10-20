@@ -35,16 +35,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.Main.ENV_CONNECT_RETRY;
-import static org.rundeck.client.tool.Main.ENV_DEBUG;
-import static org.rundeck.client.tool.Main.ENV_HTTP_TIMEOUT;
+import static org.rundeck.client.tool.Main.*;
 
 /**
  * Build a {@link Client} for {@link RundeckApi} using {@link #builder()}.
  */
 public class RundeckClient {
     public static final String USER_AGENT = Version.NAME + "/" + Version.VERSION;
-    public static final int API_VERS = 18;
+    public static final int API_VERS = 21;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
     public static final String ENV_INSECURE_SSL = "RD_INSECURE_SSL";
@@ -55,6 +53,7 @@ public class RundeckClient {
     private RundeckClient() {
     }
 
+
     @SuppressWarnings("UnusedReturnValue")
     public static class Builder {
         final OkHttpClient.Builder okhttp;
@@ -62,6 +61,9 @@ public class RundeckClient {
         String appBaseUrl;
         int httpLogging;
         HttpUrl parseUrl;
+        Integer apiVersion;
+        boolean allowVersionDowngrade;
+        Client.Logger logger;
 
         Builder() {
             this.okhttp = new OkHttpClient.Builder();
@@ -73,13 +75,14 @@ public class RundeckClient {
         }
 
         public Builder config(AppConfig config) {
-            logging(config.getInt(ENV_DEBUG, 0));
+            logging(config.getDebugLevel());
             retryConnect(config.getBool(ENV_CONNECT_RETRY, true));
             timeout(config.getLong(ENV_HTTP_TIMEOUT, null));
             bypassUrl(config.getString(ENV_BYPASS_URL, null));
             insecureSSL(config.getBool(ENV_INSECURE_SSL, false));
             insecureSSLHostname(config.getBool(ENV_INSECURE_SSL_HOSTNAME, false));
             alternateSSLHostname(config.getString(ENV_ALT_SSL_HOSTNAME, null));
+            allowVersionDowngrade(config.getBool(RD_API_DOWNGRADE, false));
             return this;
         }
 
@@ -115,6 +118,16 @@ public class RundeckClient {
             return this;
         }
 
+        public Builder apiVersion(final int version) {
+            this.apiVersion = version;
+            return this;
+        }
+
+        public Builder allowVersionDowngrade(final boolean allow) {
+            this.allowVersionDowngrade = allow;
+            return this;
+        }
+
         public Builder tokenAuth(final String authToken) {
             buildTokenAuth(okhttp, baseUrl, authToken);
             return this;
@@ -126,12 +139,17 @@ public class RundeckClient {
         }
 
         public Client<RundeckApi> build() {
-            return buildRundeckClient(okhttp, baseUrl, API_VERS);
+            return buildRundeckClient();
         }
 
         public Builder logging(final int p) {
             httpLogging = p;
             return accept(RundeckClient::configLogging, p);
+        }
+
+        public Builder logger(Client.Logger logger) {
+            this.logger = logger;
+            return this;
         }
 
         private static void buildTokenAuth(
@@ -196,21 +214,26 @@ public class RundeckClient {
 
         }
 
-        private static Client<RundeckApi> buildRundeckClient(
-                final OkHttpClient.Builder builder,
-                final String baseUrl,
-                final int apiVers
-        )
-        {
-            String apiBaseUrl = buildApiUrlForVersion(baseUrl, apiVers);
-            int usedApiVers = apiVersionForUrl(baseUrl, apiVers);
+        private Client<RundeckApi> buildRundeckClient() {
+            //url without version
+            String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
+            final String apiBaseUrl;
+            if (null != apiVersion) {
+                //construct api url using requested version
+                apiBaseUrl = buildApiUrlForVersion(appBaseUrl, apiVersion);
+            } else {
+                //if url has no version, use default
+                apiBaseUrl = buildApiUrlForVersion(baseUrl, API_VERS);
+            }
+            //detected final version
+            int usedApiVers = apiVersionForUrl(apiBaseUrl, API_VERS);
 
-            builder.addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
+            okhttp.addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
 
 
             Retrofit build = new Retrofit.Builder()
                     .baseUrl(apiBaseUrl)
-                    .client(builder.build())
+                    .client(okhttp.build())
                     .addConverterFactory(new QualifiedTypeConverterFactory(
                             JacksonConverterFactory.create(),
                             SimpleXmlConverterFactory.create(),
@@ -218,7 +241,15 @@ public class RundeckClient {
                     ))
                     .build();
 
-            return new Client<>(build.create(RundeckApi.class), build, usedApiVers);
+            return new Client<>(
+                    build.create(RundeckApi.class),
+                    build,
+                    appBaseUrl,
+                    apiBaseUrl,
+                    usedApiVers,
+                    allowVersionDowngrade,
+                    logger
+            );
         }
 
         private static void validateNotempty(final String authToken, final String s) {
@@ -384,6 +415,13 @@ public class RundeckClient {
     }
 
 
+    /**
+     * Normalize a url by appending a / if not present
+     *
+     * @param baseUrl
+     *
+     * @return
+     */
     private static String normalizeUrlPath(String baseUrl) {
         if (!baseUrl.matches(".*/$")) {
             return baseUrl + "/";

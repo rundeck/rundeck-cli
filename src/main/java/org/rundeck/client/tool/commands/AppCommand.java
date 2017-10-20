@@ -22,19 +22,23 @@ import org.rundeck.client.tool.AppConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
 import java.io.IOException;
 import java.util.function.Function;
 
-public abstract class AppCommand implements RdApp {
+/**
+ * Base type for commands in Rd
+ */
+public abstract class AppCommand  {
     private final RdApp rdApp;
 
     public AppCommand(final RdApp rdApp) {
         this.rdApp = rdApp;
     }
 
-    public Client<RundeckApi> getClient() throws InputError {
+    public ServiceClient<RundeckApi> getClient() throws InputError {
         return rdApp.getClient();
     }
 
@@ -42,20 +46,78 @@ public abstract class AppCommand implements RdApp {
         return rdApp.getAppConfig();
     }
 
+    /**
+     * Perform a downgradable API call
+     *
+     * @param func function
+     * @param <T>  result type
+     *
+     * @return result
+     *
+     * @throws InputError  on error
+     * @throws IOException on error
+     */
     public <T> T apiCall(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
-        Client<RundeckApi> client = getClient();
-        return apiCall(client, func);
+        return apiCallDowngradable(rdApp, func);
     }
 
+    /**
+     * Perform API call with a client
+     *
+     * @param client client
+     * @param func   function
+     * @param <T>    result type
+     *
+     * @return result
+     *
+     * @throws IOException on error
+     */
     public static <T> T apiCall(
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final Function<RundeckApi, Call<T>> func
     )
             throws IOException
     {
-        return client.checkError(func.apply(client.getService()));
+        return client.apiCall(func);
     }
 
+    /**
+     * Perform a downgradable api call
+     *
+     * @param rdApp app
+     * @param func  function
+     * @param <T>   result type
+     *
+     * @return result
+     *
+     * @throws InputError  on error
+     * @throws IOException on error
+     */
+    public static <T> T apiCallDowngradable(
+            final RdApp rdApp,
+            final Function<RundeckApi, Call<T>> func
+    )
+            throws InputError, IOException
+    {
+        try {
+            return rdApp.getClient().apiCallDowngradable(func);
+        } catch (Client.UnsupportedVersionDowngrade downgrade) {
+            //downgrade to supported version and try again
+            rdApp.versionDowngradeWarning(
+                    downgrade.getRequestedVersion(),
+                    downgrade.getSupportedVersion()
+            );
+            return rdApp.getClient(downgrade.getSupportedVersion()).apiCall(func);
+        }
+    }
+
+    /**
+     * @param options project options
+     *
+     * @return project name from options or ENV
+     *
+     * @throws InputError if project is not set via options or ENV
+     */
     public String projectOrEnv(final ProjectNameOptions options) throws InputError {
         if (null != options.getProject()) {
             return options.getProject();
@@ -63,7 +125,20 @@ public abstract class AppCommand implements RdApp {
         return getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
     }
 
+    public RdApp getRdApp() {
+        return rdApp;
+    }
+
+    /**
+     * Supplier with throwable
+     *
+     * @param <T> type
+     */
     interface GetInput<T> {
+        /**
+         * @return supplied input
+         * @throws InputError if input error
+         */
         T get() throws InputError;
     }
 

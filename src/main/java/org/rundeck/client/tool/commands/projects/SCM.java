@@ -33,6 +33,7 @@ import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Colorz;
+import org.rundeck.client.util.ServiceClient;
 import retrofit2.Response;
 
 import java.io.File;
@@ -342,7 +343,7 @@ public class SCM extends AppCommand {
      */
     private static boolean hasValidationError(
             CommandOutput output,
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> serviceClient,
             final Response<ScmActionResult> response,
             final String name
     )
@@ -351,7 +352,7 @@ public class SCM extends AppCommand {
             if (response.code() == 400) {
                 try {
                     //parse body as ScmActionResult
-                    ScmActionResult error = client.readError(
+                    ScmActionResult error = serviceClient.readError(
                             response,
                             ScmActionResult.class,
                             Client.MEDIA_TYPE_JSON
