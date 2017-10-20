@@ -1,3 +1,7 @@
+## unreleased
+
+* Add `rd users [list,info,edit]` (Rundeck 2.10+)
+
 ## 1.0.19
 
 * (no changes: Reissue to correctly release build artifacts)
