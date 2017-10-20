@@ -1010,4 +1010,41 @@ public interface RundeckApi {
             @Path("file") ReadmeFile file
     );
 
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#get-another-user-profile">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("user/info/{user}")
+    Call<User> getUserInfo(@Path("user") String user);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#get-user-profile">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("user/info/")
+    Call<User> getUserInfo();
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#modify-another-user-profile">API</a>
+     */
+    @Headers({"Accept: application/json", "Content-Type: application/json"})
+    @POST("user/info/{user}")
+    Call<User> editUserInfo(@Path("user") String user,@Body User value);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#modify-user-profile">API</a>
+     */
+    @Headers({"Accept: application/json", "Content-Type: application/json"})
+    @POST("user/info/")
+    Call<User> editUserInfo(@Body User value);
+
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#list-users">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("user/list")
+    Call<List<User>> listUsers();
+
 }

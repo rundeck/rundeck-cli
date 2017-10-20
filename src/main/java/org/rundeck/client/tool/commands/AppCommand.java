@@ -129,6 +129,17 @@ public abstract class AppCommand  {
         return rdApp;
     }
 
+    protected void requireApiVersion(final String message, final int min) throws InputError {
+        if (getClient().getApiVersion() < min) {
+            throw new InputError(String.format(
+                    "%s: requires API >= %d (current: %d)",
+                    message,
+                    min,
+                    getClient().getApiVersion()
+            ));
+        }
+    }
+
     /**
      * Supplier with throwable
      *
