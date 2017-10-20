@@ -100,7 +100,8 @@ public class Executions extends AppCommand {
                 max,
                 options.isRestart(),
                 options.getId(),
-                options.getTail()
+                options.getTail(),
+                true
         );
 
 
@@ -123,13 +124,14 @@ public class Executions extends AppCommand {
             final long max,
             final boolean restart,
             final String id,
-            final long tail
+            final long tail,
+            final boolean compacted
     )
     {
 
         Call<ExecOutput> out;
         if (restart) {
-            out = serviceClient.getService().getOutput(id, 0L, 0L, max);
+            out = serviceClient.getService().getOutput(id, 0L, 0L, max, compacted);
         } else {
             out = serviceClient.getService().getOutput(id, tail);
         }
@@ -162,7 +164,7 @@ public class Executions extends AppCommand {
             final BooleanSupplier waitFunc
     ) throws IOException
     {
-        return followOutput(serviceClient, output, id, max, entries -> {
+        return followOutput(serviceClient, output, id, max, true, entries -> {
             if (progress && !entries.isEmpty()) {
                 out.output(".");
             } else if (!quiet) {
@@ -184,6 +186,7 @@ public class Executions extends AppCommand {
      * Follow output until execution completes and output is fully read, or interrupted
      * @param id  execution id
      * @param max max lines to retrieve with each request
+     * @param compacted if true, request compacted data
      * @param receiver receive log events
      * @param waitFunc function for waiting, return false to halt
      *
@@ -195,6 +198,7 @@ public class Executions extends AppCommand {
             final Call<ExecOutput> output,
             final String id,
             long max,
+            final boolean compacted,
             Consumer<List<ExecLog>> receiver,
             BooleanSupplier waitFunc
     ) throws IOException
@@ -204,14 +208,20 @@ public class Executions extends AppCommand {
         Call<ExecOutput> callOutput = output;
         while (!done) {
             ExecOutput execOutput = serviceClient.checkError(callOutput);
-            receiver.accept(execOutput.entries);
+            receiver.accept(execOutput.decompactEntries());
             status = execOutput.execState;
             done = execOutput.execCompleted && execOutput.completed;
             if (!done) {
                 if (!waitFunc.getAsBoolean()){
                     break;
                 }
-                callOutput = serviceClient.getService().getOutput(id, execOutput.offset, execOutput.lastModified, max);
+                callOutput = serviceClient.getService().getOutput(
+                        id,
+                        execOutput.offset,
+                        execOutput.lastModified,
+                        max,
+                        compacted
+                );
             }
         }
         return "succeeded".equals(status);
@@ -530,7 +540,8 @@ public class Executions extends AppCommand {
                 500,
                 true,
                 id,
-                0
+                0,
+                false
         );
         return followOutput(
                 serviceClient,

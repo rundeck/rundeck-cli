@@ -30,7 +30,28 @@ public class ExecLog {
     public String user;
     public String command;
     public String node;
+    public String stepctx;
 
+
+    public ExecLog() {
+
+    }
+
+    public ExecLog(final String log) {
+        this.log = log;
+    }
+
+    public ExecLog decompact(ExecLog prev) {
+        ExecLog clone = new ExecLog();
+        clone.time = null == time && null != prev ? prev.time : time;
+        clone.level = null == level && null != prev ? prev.level : level;
+        clone.log = null == log && null != prev ? prev.log : log;
+        clone.user = null == user && null != prev ? prev.user : user;
+        clone.command = null == command && null != prev ? prev.command : command;
+        clone.node = null == node && null != prev ? prev.node : node;
+        clone.stepctx = null == stepctx && null != prev ? prev.stepctx : stepctx;
+        return clone;
+    }
     public Map<String, String> toMap() {
         HashMap<String, String> map = new HashMap<>();
         map.put("time", time);
@@ -39,6 +60,7 @@ public class ExecLog {
         map.put("user", user);
         map.put("command", command);
         map.put("node", node);
+        map.put("stepctx", stepctx);
         return map;
     }
 }

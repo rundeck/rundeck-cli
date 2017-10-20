@@ -18,6 +18,7 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -37,6 +38,28 @@ public class ExecOutput {
     public float percentLoaded;
     public int totalSize;
     public List<ExecLog> entries;
+    public Boolean compacted;
+    public String compactedAttr;
 
+    private List<ExecLog> decompacted;
+
+    public List<ExecLog> decompactEntries() {
+        if (null == compacted || !compacted) {
+            return entries;
+        }
+        if (null != decompacted) {
+            return decompacted;
+        }
+        ExecLog prev = null;
+        ArrayList<ExecLog> newentries = new ArrayList<>();
+
+        for (ExecLog entry : entries) {
+            ExecLog clone = entry.decompact(prev);
+            newentries.add(clone);
+            prev = clone;
+        }
+        decompacted = newentries;
+        return newentries;
+    }
 
 }
