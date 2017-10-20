@@ -17,6 +17,9 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class User {
     private String login;
@@ -38,6 +41,15 @@ public class User {
 
     public String getLogin() {
         return login;
+    }
+
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("login", getLogin());
+        map.put("firstName", hasFirstName() ? firstName : "");
+        map.put("lastName", hasLastName() ? lastName : "");
+        map.put("email", hasEmail() ? email : "");
+        return map;
     }
 
     public void setLogin(String login) {
