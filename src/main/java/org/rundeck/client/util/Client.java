@@ -203,7 +203,6 @@ public class Client<T> implements ServiceClient<T> {
     public <R> R checkErrorDowngradable(final Response<R> response) throws IOException, UnsupportedVersion {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
-            System.err.println("error: " + error);
             checkUnsupportedVersion(response, error);
             return handleError(response, error);
         }
@@ -213,7 +212,6 @@ public class Client<T> implements ServiceClient<T> {
     private <R> R handleError(final Response<R> response, final ErrorDetail error) {
         reportApiError(error);
         throw makeErrorThrowable(response, error);
-
     }
 
     private <R> RequestFailed makeErrorThrowable(final Response<R> response, final ErrorDetail error) {
