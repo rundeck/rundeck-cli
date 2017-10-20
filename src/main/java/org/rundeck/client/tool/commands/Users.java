@@ -44,6 +44,7 @@ public class Users extends AppCommand {
              description = "Get information of the same user or from another if 'user' is specified.")
     public void info(Info opts, CommandOutput output) throws IOException, InputError {
 
+        requireApiVersion("users info", 21);
         User user = apiCall(api -> {
             if (opts.isLogin()) {
                 return api.getUserInfo(opts.getLogin());
@@ -84,6 +85,7 @@ public class Users extends AppCommand {
     @Command(
             description = "Edit information of the same user or another if 'user' is specified.")
     public void edit(Edit opts, CommandOutput output) throws IOException, InputError {
+        requireApiVersion("users edit", 21);
         User u = new User();
         if(opts.isEmail()){
             u.setEmail(opts.getEmail());
@@ -130,6 +132,7 @@ public class Users extends AppCommand {
 
         for (User user:users) {
             output.output(user.toBasicString());
+        requireApiVersion("users list", 21);
         }
     }
 
