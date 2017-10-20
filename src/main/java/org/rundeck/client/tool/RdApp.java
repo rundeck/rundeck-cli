@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool;
 
+import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.tool.AppConfig;
@@ -28,5 +29,11 @@ import org.rundeck.client.util.Client;
 public interface RdApp {
     Client<RundeckApi> getClient() throws InputError;
 
+    Client<RundeckApi> getClient(int version) throws InputError;
+
     AppConfig getAppConfig();
+
+    public CommandOutput getOutput();
+
+    public void versionDowngradeWarning(int requested, int supported);
 }

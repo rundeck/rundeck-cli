@@ -17,9 +17,6 @@
 package org.rundeck.client.tool.commands.projects
 
 import com.simplifyops.toolbelt.CommandOutput
-import okhttp3.mockwebserver.MockResponse
-import okhttp3.mockwebserver.MockWebServer
-import okhttp3.mockwebserver.RecordedRequest
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ScmActionInputsResult
 import org.rundeck.client.api.model.ScmImportItem
@@ -31,7 +28,6 @@ import org.rundeck.client.tool.AppConfig
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
-import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.mock.Calls
 import spock.lang.Specification
 
@@ -45,7 +41,7 @@ class SCMSpec extends Specification {
         def api = Mock(RundeckApi)
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
 
         def appConfig = Mock(AppConfig)
 
@@ -130,7 +126,7 @@ class SCMSpec extends Specification {
         def api = Mock(RundeckApi)
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
 
         def appConfig = Mock(AppConfig)
 

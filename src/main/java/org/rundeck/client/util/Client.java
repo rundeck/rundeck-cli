@@ -29,6 +29,7 @@ import retrofit2.Retrofit;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.util.function.Function;
 
 /**
  * Holds Retrofit and a retrofit-constructed service
@@ -55,11 +56,36 @@ public class Client<T> {
     private T service;
     private Retrofit retrofit;
     private final int apiVersion;
+    private final String appBaseUrl;
+    private final String apiBaseUrl;
+    private final boolean allowVersionDowngrade;
+    private final Logger logger;
 
-    public Client(final T service, final Retrofit retrofit, final int apiVersion) {
+    public static interface Logger {
+        void output(String out);
+
+        void warning(String warn);
+
+        void error(String err);
+    }
+
+    public Client(
+            final T service,
+            final Retrofit retrofit,
+            final String appBaseUrl,
+            final String apiBaseUrl,
+            final int apiVersion,
+            final boolean allowVersionDowngrade,
+            final Logger logger
+    )
+    {
         this.service = service;
         this.retrofit = retrofit;
+        this.appBaseUrl = appBaseUrl;
+        this.apiBaseUrl = apiBaseUrl;
         this.apiVersion = apiVersion;
+        this.allowVersionDowngrade = allowVersionDowngrade;
+        this.logger = logger;
     }
 
     /**
@@ -95,6 +121,67 @@ public class Client<T> {
     }
 
     /**
+     * Execute the remote call, and return the expected type if successful. if unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param execute call
+     * @param <R>     expected result type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    public <R> R checkErrorDowngradable(final Call<R> execute) throws IOException, UnsupportedVersion {
+        Response<R> response = execute.execute();
+        return checkErrorDowngradable(response);
+    }
+
+    /**
+     * @return the base URL used without API path
+     */
+    public String getAppBaseUrl() {
+        return appBaseUrl;
+    }
+
+    /**
+     * @return the API URL used
+     */
+    public String getApiBaseUrl() {
+        return apiBaseUrl;
+    }
+
+    public static final class UnsupportedVersion extends Exception {
+        private final int requestedVersion;
+        private final int latestVersion;
+        private final RequestFailed requestFailed;
+
+        public UnsupportedVersion(
+                final String message,
+                final RequestFailed cause,
+                final int requestedVersion,
+                final int latestVersion
+        )
+        {
+            super(message, cause);
+            this.requestFailed = getRequestFailed();
+            this.requestedVersion = requestedVersion;
+            this.latestVersion = latestVersion;
+        }
+
+        public int getLatestVersion() {
+            return latestVersion;
+        }
+
+        public int getRequestedVersion() {
+            return requestedVersion;
+        }
+
+        public RequestFailed getRequestFailed() {
+            return requestFailed;
+        }
+    }
+
+    /**
      * return the expected type if successful. if response is unsuccessful
      * throw an exception with relevant error detail
      *
@@ -107,49 +194,95 @@ public class Client<T> {
      */
     public <R> R checkError(final Response<R> response) throws IOException {
         if (!response.isSuccessful()) {
-            ErrorDetail error = readError(response);
-            reportApiError(error);
-            if (response.code() == 401 || response.code() == 403) {
-                //authorization
-                throw new AuthorizationFailed(
-                        String.format("Authorization failed: %d %s", response.code(), response.message()),
-                        response.code(),
-                        response.message()
-                );
-            }
-            if (response.code() == 409) {
-                //authorization
-                throw new RequestFailed(String.format(
-                        "Could not create resource: %d %s",
-                        response.code(),
-                        response.message()
-                ), response.code(), response.message());
-            }
-            if (response.code() == 404) {
-                //authorization
-                throw new RequestFailed(String.format(
-                        "Could not find resource:  %d %s",
-                        response.code(),
-                        response.message()
-                ), response.code(), response.message());
-            }
-            throw new RequestFailed(
-                    String.format("Request failed:  %d %s", response.code(), response.message()),
-                    response.code(),
-                    response.message()
-            );
+            return handleError(response, readError(response));
         }
         return response.body();
     }
 
+    /**
+     * return the expected type if successful. if response is unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param response call response
+     * @param <R>      expected type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    public <R> R checkErrorDowngradable(final Response<R> response) throws IOException, UnsupportedVersion {
+        if (!response.isSuccessful()) {
+            ErrorDetail error = readError(response);
+            checkUnsupportedVersion(response, error);
+            return handleError(response, error);
+        }
+        return response.body();
+    }
+
+    private <R> R handleError(final Response<R> response, final ErrorDetail error) {
+        reportApiError(error);
+        throw makeErrorThrowable(response, error);
+
+    }
+
+    private <R> RequestFailed makeErrorThrowable(final Response<R> response, final ErrorDetail error) {
+        if (response.code() == 401 || response.code() == 403) {
+            //authorization
+            return new AuthorizationFailed(
+                    String.format("Authorization failed: %d %s", response.code(), response.message()),
+                    response.code(),
+                    response.message()
+            );
+        }
+        if (response.code() == 409) {
+            //authorization
+            return new RequestFailed(String.format(
+                    "Could not create resource: %d %s",
+                    response.code(),
+                    response.message()
+            ), response.code(), response.message());
+        }
+        if (response.code() == 404) {
+            //authorization
+            return new RequestFailed(String.format(
+                    "Could not find resource:  %d %s",
+                    response.code(),
+                    response.message()
+            ), response.code(), response.message());
+        }
+        return new RequestFailed(
+                String.format("Request failed:  %d %s", response.code(), response.message()),
+                response.code(),
+                response.message()
+        );
+    }
+
+    public <R> void checkUnsupportedVersion(final Response<R> response, final ErrorDetail error)
+            throws UnsupportedVersion
+    {
+        if (null != error && allowVersionDowngrade && API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
+            throw new UnsupportedVersion(error.getErrorMessage(),
+                                         makeErrorThrowable(response, error),
+                                         getApiVersion(), error.getApiVersion()
+            );
+        }
+    }
+
     public void reportApiError(final ErrorDetail error) {
         if (null != error) {
-            System.err.printf("Error: %s%n", error);
+            logger.error(String.format("Error: %s", error));
             if (API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
-                System.err.printf("Note: You requested an API endpoint using an unsupported version. \n" +
-                          "You can set a specific version by using a Rundeck " +
-                          "URL in the format:\n" +
-                          "  export RD_URL=[URL]/api/%s\n\n", error.getApiVersion());
+                logger.warning(String.format(
+                        "Note: You requested an API endpoint using an unsupported version.\n" +
+                        "You can set a specific version by using a Rundeck URL in the format:\n" +
+                        "  export RD_URL=%sapi/%s",
+                        getAppBaseUrl(),
+                        error.getApiVersion()
+                ));
+                logger.warning(
+                        "You can enable auto-downgrading to a supported version: \n" +
+                        "  export RD_API_DOWNGRADE=true"
+                );
             }
         }
     }
@@ -210,6 +343,34 @@ public class Client<T> {
         } else {
             return null;
         }
+    }
+
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
+     * @return result
+     *
+     * @throws IOException if an error occurs
+     */
+    public <U> U apiCall(final Function<T, Call<U>> func) throws IOException {
+        return checkError(func.apply(getService()));
+    }
+
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
+     * @return result
+     *
+     * @throws IOException if an error occurs
+     */
+    public <U> U apiCallDowngradable(final Function<T, Call<U>> func) throws IOException, UnsupportedVersion {
+        return checkErrorDowngradable(func.apply(getService()));
     }
 
     public T getService() {

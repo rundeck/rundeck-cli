@@ -49,7 +49,7 @@ class ExecutionsSpec extends Specification {
         def api = Mock(RundeckApi)
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
 
         ExecOutput execOutput = new ExecOutput()
         execOutput.execState = initState

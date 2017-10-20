@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool.commands;
 
+import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.tool.AppConfig;
@@ -42,9 +43,36 @@ public abstract class AppCommand implements RdApp {
         return rdApp.getAppConfig();
     }
 
+    @Override
+    public CommandOutput getOutput() {
+        return rdApp.getOutput();
+    }
+
+    @Override
+    public Client<RundeckApi> getClient(final int version) throws InputError {
+        return rdApp.getClient(version);
+    }
+
+    @Override
+    public void versionDowngradeWarning(final int requested, final int supported) {
+        rdApp.versionDowngradeWarning(requested, supported);
+    }
+
     public <T> T apiCall(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
-        Client<RundeckApi> client = getClient();
-        return apiCall(client, func);
+        try {
+            return getClient().apiCallDowngradable(func);
+        } catch (Client.UnsupportedVersion unsupportedVersion) {
+            //degrade to supported version and try again
+            if (unsupportedVersion.getLatestVersion() < unsupportedVersion.getRequestedVersion()) {
+                rdApp.versionDowngradeWarning(
+                        unsupportedVersion.getRequestedVersion(),
+                        unsupportedVersion.getLatestVersion()
+                );
+                return rdApp.getClient(unsupportedVersion.getLatestVersion()).apiCall(func);
+            } else {
+                throw unsupportedVersion.getRequestFailed();
+            }
+        }
     }
 
     public static <T> T apiCall(
@@ -53,7 +81,16 @@ public abstract class AppCommand implements RdApp {
     )
             throws IOException
     {
-        return client.checkError(func.apply(client.getService()));
+        return client.apiCall(func);
+    }
+
+    public static <T> T apiCallDowngradable(
+            final Client<RundeckApi> client,
+            final Function<RundeckApi, Call<T>> func
+    )
+            throws IOException, Client.UnsupportedVersion
+    {
+        return client.apiCallDowngradable(func);
     }
 
     public String projectOrEnv(final ProjectNameOptions options) throws InputError {

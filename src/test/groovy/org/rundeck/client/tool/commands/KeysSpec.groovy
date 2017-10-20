@@ -168,7 +168,7 @@ class KeysSpec extends Specification {
         }
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -230,7 +230,7 @@ class KeysSpec extends Specification {
                 build()
         def api = retrofit.create(RundeckApi)
         def out = Mock(CommandOutput)
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
