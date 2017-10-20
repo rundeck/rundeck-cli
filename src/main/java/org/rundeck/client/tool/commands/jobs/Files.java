@@ -31,6 +31,7 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.PagingResultOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -174,7 +175,7 @@ public class Files extends AppCommand {
      *
      */
     public static JobFileUploadResult uploadFileForJob(
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final File input,
             final String jobId,
             final String optionName

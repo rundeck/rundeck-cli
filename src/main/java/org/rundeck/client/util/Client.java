@@ -34,7 +34,7 @@ import java.util.function.Function;
 /**
  * Holds Retrofit and a retrofit-constructed service
  */
-public class Client<T> {
+public class Client<T> implements ServiceClient<T> {
 
     public static final String APPLICATION_JSON = "application/json";
     public static final MediaType MEDIA_TYPE_JSON = MediaType.parse(APPLICATION_JSON);
@@ -89,22 +89,6 @@ public class Client<T> {
     }
 
     /**
-     * @param body  body
-     * @param types list of media types
-     *
-     * @return true if body has one of the media types
-     */
-    public static boolean hasAnyMediaType(final ResponseBody body, final MediaType... types) {
-        MediaType mediaType1 = body.contentType();
-        for (MediaType mediaType : types) {
-            if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
      * Execute the remote call, and return the expected type if successful. if unsuccessful
      * throw an exception with relevant error detail
      *
@@ -115,6 +99,7 @@ public class Client<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
+    @Override
     public <R> R checkError(final Call<R> execute) throws IOException {
         Response<R> response = execute.execute();
         return checkError(response);
@@ -131,6 +116,7 @@ public class Client<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
+    @Override
     public <R> R checkErrorDowngradable(final Call<R> execute) throws IOException, UnsupportedVersion {
         Response<R> response = execute.execute();
         return checkErrorDowngradable(response);
@@ -139,6 +125,7 @@ public class Client<T> {
     /**
      * @return the base URL used without API path
      */
+    @Override
     public String getAppBaseUrl() {
         return appBaseUrl;
     }
@@ -146,6 +133,7 @@ public class Client<T> {
     /**
      * @return the API URL used
      */
+    @Override
     public String getApiBaseUrl() {
         return apiBaseUrl;
     }
@@ -163,7 +151,7 @@ public class Client<T> {
         )
         {
             super(message, cause);
-            this.requestFailed = getRequestFailed();
+            this.requestFailed = cause;
             this.requestedVersion = requestedVersion;
             this.latestVersion = latestVersion;
         }
@@ -192,6 +180,7 @@ public class Client<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
+    @Override
     public <R> R checkError(final Response<R> response) throws IOException {
         if (!response.isSuccessful()) {
             return handleError(response, readError(response));
@@ -210,9 +199,11 @@ public class Client<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
+    @Override
     public <R> R checkErrorDowngradable(final Response<R> response) throws IOException, UnsupportedVersion {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
+            System.err.println("error: " + error);
             checkUnsupportedVersion(response, error);
             return handleError(response, error);
         }
@@ -245,13 +236,13 @@ public class Client<T> {
         if (response.code() == 404) {
             //authorization
             return new RequestFailed(String.format(
-                    "Could not find resource:  %d %s",
+                    "Could not find resource: %d %s",
                     response.code(),
                     response.message()
             ), response.code(), response.message());
         }
         return new RequestFailed(
-                String.format("Request failed:  %d %s", response.code(), response.message()),
+                String.format("Request failed: %d %s", response.code(), response.message()),
                 response.code(),
                 response.message()
         );
@@ -260,18 +251,21 @@ public class Client<T> {
     public <R> void checkUnsupportedVersion(final Response<R> response, final ErrorDetail error)
             throws UnsupportedVersion
     {
-        if (null != error && allowVersionDowngrade && API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
-            throw new UnsupportedVersion(error.getErrorMessage(),
-                                         makeErrorThrowable(response, error),
-                                         getApiVersion(), error.getApiVersion()
+        if (null != error && allowVersionDowngrade && isUnsupportedVersionError(error)) {
+            throw new UnsupportedVersion(
+                    error.getErrorMessage(),
+                    makeErrorThrowable(response, error),
+                    getApiVersion(),
+                    error.getApiVersion()
             );
         }
     }
 
+    @Override
     public void reportApiError(final ErrorDetail error) {
         if (null != error) {
             logger.error(String.format("Error: %s", error));
-            if (API_ERROR_API_VERSION_UNSUPPORTED.equals(error.getErrorCode())) {
+            if (isUnsupportedVersionError(error)) {
                 logger.warning(String.format(
                         "Note: You requested an API endpoint using an unsupported version.\n" +
                         "You can set a specific version by using a Rundeck URL in the format:\n" +
@@ -287,6 +281,11 @@ public class Client<T> {
         }
     }
 
+    private boolean isUnsupportedVersionError(final ErrorDetail error) {
+        return error.getErrorCode() != null &&
+               error.getErrorCode().contains(API_ERROR_API_VERSION_UNSUPPORTED);
+    }
+
     /**
      * Attempt to parse the response as a json or xml error and return the detail
      *
@@ -299,13 +298,13 @@ public class Client<T> {
     ErrorDetail readError(Response<?> execute) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();
-        if (hasAnyMediaType(responseBody, MEDIA_TYPE_JSON)) {
+        if (ServiceClient.hasAnyMediaType(responseBody, MEDIA_TYPE_JSON)) {
             Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
                     ErrorResponse.class,
                     new Annotation[0]
             );
             return errorConverter.convert(responseBody);
-        } else if (hasAnyMediaType(responseBody, MEDIA_TYPE_TEXT_XML, MEDIA_TYPE_XML)) {
+        } else if (ServiceClient.hasAnyMediaType(responseBody, MEDIA_TYPE_TEXT_XML, MEDIA_TYPE_XML)) {
             //specify xml annotation to parse as xml
             Annotation[] annotationsByType = ErrorResponse.class.getAnnotationsByType(Xml.class);
             Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
@@ -330,11 +329,12 @@ public class Client<T> {
      *
      * @throws IOException if media type matched, but parsing was unsuccessful
      */
+    @Override
     @SuppressWarnings("SameParameterValue")
     public <X> X readError(Response<?> execute, Class<X> errorType, MediaType... mediaTypes) throws IOException {
 
         ResponseBody responseBody = execute.errorBody();
-        if (hasAnyMediaType(responseBody, mediaTypes)) {
+        if (ServiceClient.hasAnyMediaType(responseBody, mediaTypes)) {
             Converter<ResponseBody, X> errorConverter = getRetrofit().responseBodyConverter(
                     errorType,
                     new Annotation[0]
@@ -355,6 +355,7 @@ public class Client<T> {
      *
      * @throws IOException if an error occurs
      */
+    @Override
     public <U> U apiCall(final Function<T, Call<U>> func) throws IOException {
         return checkError(func.apply(getService()));
     }
@@ -369,10 +370,12 @@ public class Client<T> {
      *
      * @throws IOException if an error occurs
      */
+    @Override
     public <U> U apiCallDowngradable(final Function<T, Call<U>> func) throws IOException, UnsupportedVersion {
         return checkErrorDowngradable(func.apply(getService()));
     }
 
+    @Override
     public T getService() {
         return service;
     }
@@ -381,6 +384,7 @@ public class Client<T> {
         this.service = service;
     }
 
+    @Override
     public Retrofit getRetrofit() {
         return retrofit;
     }
@@ -389,6 +393,7 @@ public class Client<T> {
         this.retrofit = retrofit;
     }
 
+    @Override
     public int getApiVersion() {
         return apiVersion;
     }

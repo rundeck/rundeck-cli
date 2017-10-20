@@ -21,15 +21,16 @@ import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.tool.AppConfig;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 
 /**
  * @author greg
  * @since 1/11/17
  */
 public interface RdApp {
-    Client<RundeckApi> getClient() throws InputError;
+    ServiceClient<RundeckApi> getClient() throws InputError;
 
-    Client<RundeckApi> getClient(int version) throws InputError;
+    ServiceClient<RundeckApi> getClient(int version) throws InputError;
 
     AppConfig getAppConfig();
 

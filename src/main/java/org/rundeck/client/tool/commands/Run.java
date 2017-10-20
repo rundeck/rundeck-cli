@@ -31,6 +31,7 @@ import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Quoting;
+import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
 import java.io.File;
@@ -200,7 +201,7 @@ public class Run extends AppCommand {
     public static String getJobIdFromOpts(
             final JobIdentOptions options,
             final CommandOutput out,
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final GetInput<String> project
     )
             throws InputError, IOException

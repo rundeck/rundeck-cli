@@ -13,6 +13,7 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.QuietOption;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
 import java.io.IOException;
@@ -88,7 +89,7 @@ public class Mode extends AppCommand {
             final CommandOutput output,
             final ExecutionMode expected,
             final Function<RundeckApi, Call<SystemMode>> operation,
-            final Client<RundeckApi> client
+            final ServiceClient<RundeckApi> client
     )
             throws InputError, IOException
     {

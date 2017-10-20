@@ -23,6 +23,7 @@ import org.rundeck.client.tool.AppConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ public abstract class AppCommand implements RdApp {
         this.rdApp = rdApp;
     }
 
-    public Client<RundeckApi> getClient() throws InputError {
+    public ServiceClient<RundeckApi> getClient() throws InputError {
         return rdApp.getClient();
     }
 
@@ -49,7 +50,7 @@ public abstract class AppCommand implements RdApp {
     }
 
     @Override
-    public Client<RundeckApi> getClient(final int version) throws InputError {
+    public ServiceClient<RundeckApi> getClient(final int version) throws InputError {
         return rdApp.getClient(version);
     }
 
@@ -76,7 +77,7 @@ public abstract class AppCommand implements RdApp {
     }
 
     public static <T> T apiCall(
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final Function<RundeckApi, Call<T>> func
     )
             throws IOException
@@ -85,7 +86,7 @@ public abstract class AppCommand implements RdApp {
     }
 
     public static <T> T apiCallDowngradable(
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final Function<RundeckApi, Call<T>> func
     )
             throws IOException, Client.UnsupportedVersion

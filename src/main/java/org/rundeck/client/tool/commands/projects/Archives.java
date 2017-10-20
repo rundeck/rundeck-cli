@@ -30,6 +30,7 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
+import org.rundeck.client.util.ServiceClient;
 import org.rundeck.client.util.Util;
 
 import java.io.File;
@@ -231,7 +232,7 @@ public class Archives extends AppCommand {
     }
 
     public static boolean loopStatus(
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final ProjectExportStatus status,
             String project,
             File outputfile,
@@ -269,7 +270,7 @@ public class Archives extends AppCommand {
     )
             throws IOException
     {
-        if (!Client.hasAnyMediaType(responseBody, Client.MEDIA_TYPE_ZIP)) {
+        if (!ServiceClient.hasAnyMediaType(responseBody, Client.MEDIA_TYPE_ZIP)) {
             throw new IllegalStateException("Unexpected response format: " + responseBody.contentType());
         }
         InputStream inputStream = responseBody.byteStream();
