@@ -12,7 +12,6 @@ import org.rundeck.client.api.model.SystemMode;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.QuietOption;
-import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
@@ -72,7 +71,7 @@ public class Mode extends AppCommand {
 
     @Command(description = "Set execution mode Active")
     public boolean active(ModeActive opts, CommandOutput output) throws IOException, InputError {
-        return changeMode(opts, output, ExecutionMode.active, RundeckApi::executionModeEnable, getClient());
+        return changeMode(opts, output, ExecutionMode.active, RundeckApi::executionModeEnable);
     }
 
     @CommandLineInterface(application = "passive") interface ModePassive extends QuietOption {
@@ -81,22 +80,21 @@ public class Mode extends AppCommand {
 
     @Command(description = "Set execution mode Passive")
     public boolean passive(ModePassive opts, CommandOutput output) throws IOException, InputError {
-        return changeMode(opts, output, ExecutionMode.passive, RundeckApi::executionModeDisable, getClient());
+        return changeMode(opts, output, ExecutionMode.passive, RundeckApi::executionModeDisable);
     }
 
-    static boolean changeMode(
+    boolean changeMode(
             final QuietOption opts,
             final CommandOutput output,
             final ExecutionMode expected,
-            final Function<RundeckApi, Call<SystemMode>> operation,
-            final ServiceClient<RundeckApi> client
+            final Function<RundeckApi, Call<SystemMode>> operation
     )
             throws InputError, IOException
     {
         if (!opts.isQuiet()) {
             output.info(String.format("Setting execution mode to %s...", expected));
         }
-        SystemMode mode = apiCall(client, operation);
+        SystemMode mode = apiCall(operation);
         if (!opts.isQuiet()) {
             output.info("Execution Mode is now:");
             output.output(mode.getExecutionMode());

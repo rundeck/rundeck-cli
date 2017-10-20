@@ -65,7 +65,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
     @Override
     public List<Object> getSubCommands() {
         return Collections.singletonList(
-                new Files(this)
+                new Files(getRdApp())
         );
     }
 
@@ -344,7 +344,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         String jobId = Run.getJobIdFromOpts(
                 options,
                 output,
-                getClient(),
+                getRdApp(),
                 () -> projectOrEnv(options)
         );
         if (null == jobId) {

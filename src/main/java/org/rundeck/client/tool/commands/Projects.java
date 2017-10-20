@@ -50,11 +50,11 @@ public class Projects extends AppCommand implements HasSubCommands {
     @Override
     public List<Object> getSubCommands() {
         return Arrays.asList(
-                new ACLs(this),
-                new SCM(this),
-                new Readme(this),
-                new Configure(this),
-                new Archives(this)
+                new ACLs(getRdApp()),
+                new SCM(getRdApp()),
+                new Readme(getRdApp()),
+                new Configure(getRdApp()),
+                new Archives(getRdApp())
         );
     }
 

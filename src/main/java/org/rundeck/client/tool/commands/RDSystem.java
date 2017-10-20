@@ -43,8 +43,8 @@ public class RDSystem extends AppCommand implements HasSubCommands {
     @Override
     public List<Object> getSubCommands() {
         return Arrays.asList(
-                new ACLs(this),
-                new Mode(this)
+                new ACLs(getRdApp()),
+                new Mode(getRdApp())
         );
     }
 

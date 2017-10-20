@@ -55,7 +55,7 @@ public interface ServiceClient<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
-    <R> R checkErrorDowngradable(Call<R> execute) throws IOException, Client.UnsupportedVersion;
+    <R> R checkErrorDowngradable(Call<R> execute) throws IOException, Client.UnsupportedVersionDowngrade;
 
     /**
      * @return the base URL used without API path
@@ -91,7 +91,7 @@ public interface ServiceClient<T> {
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
-    <R> R checkErrorDowngradable(Response<R> response) throws IOException, Client.UnsupportedVersion;
+    <R> R checkErrorDowngradable(Response<R> response) throws IOException, Client.UnsupportedVersionDowngrade;
 
     void reportApiError(ErrorDetail error);
 
@@ -132,7 +132,7 @@ public interface ServiceClient<T> {
      *
      * @throws IOException if an error occurs
      */
-    <U> U apiCallDowngradable(Function<T, Call<U>> func) throws IOException, Client.UnsupportedVersion;
+    <U> U apiCallDowngradable(Function<T, Call<U>> func) throws IOException, Client.UnsupportedVersionDowngrade;
 
     T getService();
 

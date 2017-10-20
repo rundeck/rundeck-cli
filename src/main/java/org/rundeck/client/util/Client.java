@@ -117,7 +117,7 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
     @Override
-    public <R> R checkErrorDowngradable(final Call<R> execute) throws IOException, UnsupportedVersion {
+    public <R> R checkErrorDowngradable(final Call<R> execute) throws IOException, UnsupportedVersionDowngrade {
         Response<R> response = execute.execute();
         return checkErrorDowngradable(response);
     }
@@ -138,12 +138,12 @@ public class Client<T> implements ServiceClient<T> {
         return apiBaseUrl;
     }
 
-    public static final class UnsupportedVersion extends Exception {
+    public static final class UnsupportedVersionDowngrade extends Exception {
         private final int requestedVersion;
         private final int latestVersion;
         private final RequestFailed requestFailed;
 
-        public UnsupportedVersion(
+        public UnsupportedVersionDowngrade(
                 final String message,
                 final RequestFailed cause,
                 final int requestedVersion,
@@ -156,7 +156,7 @@ public class Client<T> implements ServiceClient<T> {
             this.latestVersion = latestVersion;
         }
 
-        public int getLatestVersion() {
+        public int getSupportedVersion() {
             return latestVersion;
         }
 
@@ -200,7 +200,7 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
     @Override
-    public <R> R checkErrorDowngradable(final Response<R> response) throws IOException, UnsupportedVersion {
+    public <R> R checkErrorDowngradable(final Response<R> response) throws IOException, UnsupportedVersionDowngrade {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
             checkUnsupportedVersion(response, error);
@@ -247,10 +247,13 @@ public class Client<T> implements ServiceClient<T> {
     }
 
     public <R> void checkUnsupportedVersion(final Response<R> response, final ErrorDetail error)
-            throws UnsupportedVersion
+            throws UnsupportedVersionDowngrade
     {
-        if (null != error && allowVersionDowngrade && isUnsupportedVersionError(error)) {
-            throw new UnsupportedVersion(
+        if (null != error &&
+            allowVersionDowngrade &&
+            isUnsupportedVersionError(error) &&
+            isDowngradableError(error)) {
+            throw new UnsupportedVersionDowngrade(
                     error.getErrorMessage(),
                     makeErrorThrowable(response, error),
                     getApiVersion(),
@@ -271,17 +274,23 @@ public class Client<T> implements ServiceClient<T> {
                         getAppBaseUrl(),
                         error.getApiVersion()
                 ));
-                logger.warning(
-                        "You can enable auto-downgrading to a supported version: \n" +
-                        "  export RD_API_DOWNGRADE=true"
-                );
+                if (isDowngradableError(error)) {
+                    logger.warning(
+                            "You can enable auto-downgrading to a supported version: \n" +
+                            "  export RD_API_DOWNGRADE=true"
+                    );
+                }
             }
         }
     }
 
+    private boolean isDowngradableError(final ErrorDetail error) {
+        return error.getApiVersion() < getApiVersion();
+    }
+
     private boolean isUnsupportedVersionError(final ErrorDetail error) {
         return error.getErrorCode() != null &&
-               error.getErrorCode().contains(API_ERROR_API_VERSION_UNSUPPORTED);
+               error.getErrorCode().startsWith(API_ERROR_API_VERSION_UNSUPPORTED);
     }
 
     /**
@@ -369,7 +378,7 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if an error occurs
      */
     @Override
-    public <U> U apiCallDowngradable(final Function<T, Call<U>> func) throws IOException, UnsupportedVersion {
+    public <U> U apiCallDowngradable(final Function<T, Call<U>> func) throws IOException, UnsupportedVersionDowngrade {
         return checkErrorDowngradable(func.apply(getService()));
     }
 

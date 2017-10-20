@@ -22,7 +22,6 @@ import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import okhttp3.RequestBody;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.JobFileItem;
 import org.rundeck.client.api.model.JobFileItemList;
 import org.rundeck.client.api.model.JobFileUploadResult;
@@ -31,7 +30,6 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.PagingResultOptions;
 import org.rundeck.client.util.Client;
-import org.rundeck.client.util.ServiceClient;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,7 +149,7 @@ public class Files extends AppCommand {
 
         String fileName = input.getName();
         JobFileUploadResult jobFileUploadResult = uploadFileForJob(
-                getClient(),
+                getRdApp(),
                 input,
                 options.getId(),
                 options.getOption()
@@ -175,18 +173,18 @@ public class Files extends AppCommand {
      *
      */
     public static JobFileUploadResult uploadFileForJob(
-            final ServiceClient<RundeckApi> client,
+            final RdApp rdApp,
             final File input,
             final String jobId,
             final String optionName
-    ) throws IOException
+    ) throws IOException, InputError
     {
         if (invalidInputFile(input)) {
             throw new IOException("Can't read file: " + input);
         }
         RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
-        return apiCall(
-                client,
+        return apiCallDowngradable(
+                rdApp,
                 api -> api.uploadJobOptionFile(
                         jobId,
                         optionName,
