@@ -21,6 +21,7 @@ import com.simplifyops.toolbelt.format.json.jackson.JsonFormatter;
 import com.simplifyops.toolbelt.format.yaml.snakeyaml.YamlFormatter;
 import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
 import org.rundeck.client.RundeckClient;
+import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
@@ -32,6 +33,8 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.*;
 import java.util.function.Function;
 
@@ -47,23 +50,46 @@ public class Main {
     public static final String ENV_PASSWORD = "RD_PASSWORD";
     public static final String ENV_TOKEN = "RD_TOKEN";
     public static final String ENV_URL = "RD_URL";
+    public static final String ENV_API_VERSION = "RD_API_VERSION";
+    /**
+     * If true, allow API version to be automatically degraded when unsupported version is detected
+     */
+    public static final String RD_API_DOWNGRADE = "RD_API_DOWNGRADE";
     public static final String ENV_AUTH_PROMPT = "RD_AUTH_PROMPT";
     public static final String ENV_DEBUG = "RD_DEBUG";
     public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
     public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
+    public static final String ENV_RD_FORMAT = "RD_FORMAT";
 
     public static void main(String[] args) throws CommandRunFailure {
-        tool(new Rd(new Env())).runMain(args, true);
+        Rd rd = new Rd(new Env());
+        Tool tool = tool(rd);
+        boolean success = false;
+        try {
+            success = tool.runMain(args, false);
+        } catch (RequestFailed failure) {
+            rd.getOutput().error(failure.getMessage());
+            if (rd.getDebugLevel() > 0) {
+                StringWriter sb = new StringWriter();
+                failure.printStackTrace(new PrintWriter(sb));
+                rd.getOutput().error(sb.toString());
+            }
+        }
+        if (!success) {
+            System.exit(2);
+        }
     }
 
-
     private static void setupFormat(final ToolBelt belt, AppConfig config) {
-        final String format = config.get("RD_FORMAT");
+        final String format = config.get(ENV_RD_FORMAT);
         if ("yaml".equalsIgnoreCase(format)) {
             configYamlFormat(belt, config);
         } else if ("json".equalsIgnoreCase(format)) {
             configJsonFormat(belt);
         } else {
+            if (null != format) {
+                belt.finalOutput().warning(String.format("# WARNING: Unknown value for %s: %s", ENV_RD_FORMAT, format));
+            }
             configNiceFormat(belt);
         }
     }
@@ -139,6 +165,7 @@ public class Main {
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
+        belt.printStackTrace(rd.getDebugLevel() > 0);
         setupColor(belt, rd);
         setupFormat(belt, rd);
 
@@ -150,11 +177,13 @@ public class Main {
             belt.finalOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
+        rd.setOutput(belt.finalOutput());
         return belt.buckle();
     }
 
     static class Rd extends ExtConfigSource implements RdApp, AppConfig {
         Client<RundeckApi> client;
+        private CommandOutput output;
 
         public Rd(final ConfigSource src) {
             super(src);
@@ -171,6 +200,11 @@ public class Main {
                    );
         }
 
+        @Override
+        public int getDebugLevel() {
+            return getInt(ENV_DEBUG, 0);
+        }
+
         public String getDateFormat() {
             return getString("RD_DATE_FORMAT", "yyyy-MM-dd'T'HH:mm:ssXX");
         }
@@ -184,8 +218,38 @@ public class Main {
         }
 
         @Override
+        public Client<RundeckApi> getClient(final int version) throws InputError {
+            client = Main.createClient(this, version);
+            return client;
+        }
+
+        @Override
         public AppConfig getAppConfig() {
             return this;
+        }
+
+        public void versionDowngradeWarning(int requested, int supported) {
+            getOutput().warning(String.format(
+                    "# WARNING: API Version Downgraded: %d -> %d",
+                    requested,
+                    supported
+            ));
+            getOutput().warning(String.format(
+                    "# WARNING: To avoid this warning, specify the API version via RD_URL: " +
+                    "export RD_URL=%sapi/%s",
+                    client.getAppBaseUrl(),
+                    supported
+            ));
+            getOutput().warning("# WARNING: To disable downgrading: " +
+                                "export RD_API_DOWNGRADE=false");
+        }
+
+        public CommandOutput getOutput() {
+            return output;
+        }
+
+        public void setOutput(CommandOutput output) {
+            this.output = output;
         }
     }
 
@@ -211,7 +275,11 @@ public class Main {
     }
 
 
-    public static Client<RundeckApi> createClient(AppConfig config) throws InputError {
+    public static Client<RundeckApi> createClient(Rd config) throws InputError {
+        return createClient(config, null);
+    }
+
+    public static Client<RundeckApi> createClient(Rd config, Integer requestedVersion) throws InputError {
         Auth auth = new Auth() {
         };
         auth = auth.chain(new ConfigAuth(config));
@@ -226,6 +294,14 @@ public class Main {
         RundeckClient.Builder builder = RundeckClient.builder()
                                                      .baseUrl(baseUrl)
                                                      .config(config);
+        if (null != requestedVersion) {
+            builder.apiVersion(requestedVersion);
+        } else {
+            int anInt = config.getInt(ENV_API_VERSION, -1);
+            if (anInt > 0) {
+                builder.apiVersion(anInt);
+            }
+        }
 
         if (auth.isTokenAuth()) {
             builder.tokenAuth(auth.getToken());
@@ -240,6 +316,7 @@ public class Main {
             }
             builder.passwordAuth(auth.getUsername(), auth.getPassword());
         }
+        builder.logger(new OutputLogger(config.getOutput()));
         return builder.build();
 
     }
@@ -450,6 +527,29 @@ public class Main {
 
             out.output("For your reference, today you will have:");
             out.output(kind);
+        }
+    }
+
+    private static class OutputLogger implements Client.Logger {
+        final CommandOutput output;
+
+        public OutputLogger(final CommandOutput output) {
+            this.output = output;
+        }
+
+        @Override
+        public void output(final String out) {
+            output.output(out);
+        }
+
+        @Override
+        public void warning(final String warn) {
+            output.warning(warn);
+        }
+
+        @Override
+        public void error(final String err) {
+            output.error(err);
         }
     }
 }

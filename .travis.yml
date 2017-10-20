@@ -32,6 +32,7 @@ deploy:
     repo: rundeck/rundeck-cli
     tags: true
   file_glob: true
+  skip_cleanup: true
 after_deploy:
 - ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-rpm bintrayUpload
 - ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-deb -PdebUpload=true bintrayUpload

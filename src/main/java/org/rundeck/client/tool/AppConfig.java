@@ -24,6 +24,7 @@ import org.rundeck.client.util.ConfigSource;
  */
 public interface AppConfig extends ConfigSource {
     boolean isAnsiEnabled();
+    int getDebugLevel();
 
     String getDateFormat();
 }

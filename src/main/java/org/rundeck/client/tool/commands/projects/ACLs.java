@@ -35,6 +35,7 @@ import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Colorz;
 import org.rundeck.client.util.Format;
+import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -117,7 +118,7 @@ public class ACLs extends AppCommand {
 
     @Command(description = "Upload a project ACL definition")
     public void upload(Put options, CommandOutput output) throws IOException, InputError {
-        Client<RundeckApi> client = getClient();
+        ServiceClient<RundeckApi> client = getClient();
         String project = projectOrEnv(options);
         ACLPolicy aclPolicy = performACLModify(
                 options,
@@ -138,7 +139,7 @@ public class ACLs extends AppCommand {
     @Command(description = "Create a project ACL definition")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
 
-        Client<RundeckApi> client = getClient();
+        ServiceClient<RundeckApi> client = getClient();
         String project = projectOrEnv(options);
         ACLPolicy aclPolicy = performACLModify(
                 options,
@@ -163,7 +164,7 @@ public class ACLs extends AppCommand {
     public static ACLPolicy performACLModify(
             final ACLFileOptions options,
             Function<RequestBody, Call<ACLPolicy>> func,
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final CommandOutput output
     )
             throws IOException, InputError
@@ -186,7 +187,7 @@ public class ACLs extends AppCommand {
 
     private static void checkValidationError(
             CommandOutput output,
-            final Client<RundeckApi> client,
+            final ServiceClient<RundeckApi> client,
             final Response<ACLPolicy> response, final String filename
     )
             throws IOException

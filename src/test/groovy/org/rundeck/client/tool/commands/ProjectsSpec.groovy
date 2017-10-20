@@ -19,7 +19,6 @@ package org.rundeck.client.tool.commands
 import com.simplifyops.toolbelt.CommandOutput
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ProjectItem
-import org.rundeck.client.api.model.ScheduledJobItem
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
@@ -42,7 +41,7 @@ class ProjectsSpec extends Specification {
         }
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }

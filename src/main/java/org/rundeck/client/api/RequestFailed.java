@@ -20,8 +20,8 @@ package org.rundeck.client.api;
  * Http request failure
  */
 public class RequestFailed extends RuntimeException {
-    final int statusCode;
-    final String status;
+    private final int statusCode;
+    private final String status;
 
     public RequestFailed(final int statusCode, final String status) {
         this.statusCode = statusCode;
@@ -44,5 +44,13 @@ public class RequestFailed extends RuntimeException {
         super(cause);
         this.statusCode = statusCode;
         this.status = status;
+    }
+
+    public int getStatusCode() {
+        return statusCode;
+    }
+
+    public String getStatus() {
+        return status;
     }
 }

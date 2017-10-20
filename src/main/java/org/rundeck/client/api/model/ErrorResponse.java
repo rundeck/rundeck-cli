@@ -73,7 +73,7 @@ public class ErrorResponse implements ErrorDetail {
     @Override
     public String toString() {
         return String.format(
-                "%s%n%s%n",
+                "%s%n%s",
                 getErrorMessage() != null ? getErrorMessage() : "(no message)",
                 toCodeString()
         );

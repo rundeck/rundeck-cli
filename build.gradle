@@ -179,7 +179,7 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-ext.toolbeltVersion = "0.1.19"
+ext.toolbeltVersion = "0.1.20"
 ext.toolbeltGroup =  "com${toolbeltVersion.contains('SNAPSHOT')?'':'.github'}.simplifyops.cli-toolbelt"
 
 dependencies {
@@ -268,7 +268,7 @@ ospackage {
     summary = "A commandline tool for Rundeck."
     packageDescription = "The rd program provides an all-in-one commandline tool to interact with Rundeck"
     url = 'https://github.com/rundeck/rundeck-cli'
-    vendor = 'SimplifyOps, Inc.'
+    vendor = 'Rundeck, Inc.'
     license = 'APL'
     os = 'LINUX'
     packageGroup = 'System'

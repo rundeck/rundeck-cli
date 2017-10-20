@@ -60,7 +60,7 @@ class JobsSpec extends Specification {
             getGroup() >> group
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 17)
+        def client = new Client(api, retrofit, null, null, 17, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -96,7 +96,7 @@ class JobsSpec extends Specification {
             getFile() >> tempFile
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 17)
+        def client = new Client(api, retrofit, null, null, 17, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -138,7 +138,7 @@ class JobsSpec extends Specification {
             isConfirm() >> true
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 17)
+        def client = new Client(api, retrofit, null, null, 17, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -178,7 +178,7 @@ class JobsSpec extends Specification {
             isConfirm() >> true
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 17)
+        def client = new Client(api, retrofit, null, null, 17, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -204,7 +204,7 @@ class JobsSpec extends Specification {
         }
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 18)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -235,7 +235,7 @@ class JobsSpec extends Specification {
             getFile() >> tempFile
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 17)
+        def client = new Client(api, retrofit, null, null, 17, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
