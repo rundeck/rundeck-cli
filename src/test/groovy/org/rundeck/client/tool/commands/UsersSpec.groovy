@@ -38,7 +38,7 @@ class UsersSpec extends Specification {
         }
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 20)
+        def client = new Client(api, retrofit, null, null, 21, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -79,7 +79,7 @@ class UsersSpec extends Specification {
         }
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 20)
+        def client = new Client(api, retrofit, null, null, 21, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -115,7 +115,7 @@ class UsersSpec extends Specification {
 
 
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, 20)
+        def client = new Client(api, retrofit, null, null, 21, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
@@ -129,10 +129,10 @@ class UsersSpec extends Specification {
                 arr.push(new User(login: 'login',email: 'test@email.com'))
             }
         }
-
+        def opt = Mock(Users.ListOption)
 
         when:
-        users.list(out)
+        users.list(opt, out)
 
         then:
         1 * api.listUsers() >>
