@@ -1,6 +1,12 @@
-## unreleased
+## 1.0.20
 
 * Add `rd users [list,info,edit]` (Rundeck 2.10+)
+* fix tests
+* Fix [Issue #126](https://github.com/rundeck/rundeck-cli/issues/126) Add API version downgrading
+* Updated default API version to 21 (rundeck 2.10)
+* Fix changelog for 1.0.18/1.0.19
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.19...v1.0.20)
 
 ## 1.0.19
 
