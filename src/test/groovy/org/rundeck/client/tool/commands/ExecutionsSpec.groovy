@@ -59,14 +59,11 @@ class ExecutionsSpec extends Specification {
         execOutput.execCompleted = initExecCompleted
         execOutput.completed = initCompleted
 
-
-        def output = Calls.response(execOutput)
-
         when:
 
         boolean result = Executions.followOutput(
                 client,
-                output,
+                execOutput,
                 progress,
                 quiet,
                 id,

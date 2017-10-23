@@ -117,9 +117,45 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
     @Override
+    public <R> Response<R> checkErrorResponse(final Call<R> execute) throws IOException {
+        Response<R> response = execute.execute();
+        return checkErrorResponse(response);
+    }
+
+    /**
+     * Execute the remote call, and return the expected type if successful. if unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param execute call
+     * @param <R>     expected result type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    @Override
     public <R> R checkErrorDowngradable(final Call<R> execute) throws IOException, UnsupportedVersionDowngrade {
         Response<R> response = execute.execute();
         return checkErrorDowngradable(response);
+    }
+
+    /**
+     * Execute the remote call, and return the expected type if successful. if unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param execute call
+     * @param <R>     expected result type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+//    @Override
+    public <R> Response<R> checkErrorResponseDowngradable(final Call<R> execute)
+            throws IOException, UnsupportedVersionDowngrade
+    {
+        Response<R> response = execute.execute();
+        return checkErrorResponseDowngradable(response);
     }
 
     /**
@@ -183,9 +219,28 @@ public class Client<T> implements ServiceClient<T> {
     @Override
     public <R> R checkError(final Response<R> response) throws IOException {
         if (!response.isSuccessful()) {
-            return handleError(response, readError(response));
+            handleError(response, readError(response));
         }
         return response.body();
+    }
+
+    /**
+     * return the expected type if successful. if response is unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param response call response
+     * @param <R>      expected type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    @Override
+    public <R> Response<R> checkErrorResponse(final Response<R> response) throws IOException {
+        if (!response.isSuccessful()) {
+            handleErrorResponse(response, readError(response));
+        }
+        return response;
     }
 
     /**
@@ -204,12 +259,40 @@ public class Client<T> implements ServiceClient<T> {
         if (!response.isSuccessful()) {
             ErrorDetail error = readError(response);
             checkUnsupportedVersion(response, error);
-            return handleError(response, error);
+            handleError(response, error);
         }
         return response.body();
     }
 
-    private <R> R handleError(final Response<R> response, final ErrorDetail error) {
+    /**
+     * return the expected type if successful. if response is unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param response call response
+     * @param <R>      expected type
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+//    @Override
+    public <R> Response<R> checkErrorResponseDowngradable(final Response<R> response)
+            throws IOException, UnsupportedVersionDowngrade
+    {
+        if (!response.isSuccessful()) {
+            ErrorDetail error = readError(response);
+            checkUnsupportedVersion(response, error);
+            handleError(response, error);
+        }
+        return response;
+    }
+
+    private <R> void handleError(final Response<R> response, final ErrorDetail error) {
+        reportApiError(error);
+        throw makeErrorThrowable(response, error);
+    }
+
+    private <R> void handleErrorResponse(final Response<R> response, final ErrorDetail error) {
         reportApiError(error);
         throw makeErrorThrowable(response, error);
     }
@@ -378,8 +461,40 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if an error occurs
      */
     @Override
+    public <U> Response<U> apiResponse(final Function<T, Call<U>> func) throws IOException {
+        return checkErrorResponse(func.apply(getService()));
+    }
+
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
+     * @return result
+     *
+     * @throws IOException if an error occurs
+     */
+    @Override
     public <U> U apiCallDowngradable(final Function<T, Call<U>> func) throws IOException, UnsupportedVersionDowngrade {
         return checkErrorDowngradable(func.apply(getService()));
+    }
+
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
+     * @return result
+     *
+     * @throws IOException if an error occurs
+     */
+    @Override
+    public <U> Response<U> apiResponseDowngradable(final Function<T, Call<U>> func)
+            throws IOException, UnsupportedVersionDowngrade
+    {
+        return checkErrorResponseDowngradable(func.apply(getService()));
     }
 
     @Override

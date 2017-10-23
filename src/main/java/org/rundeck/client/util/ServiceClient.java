@@ -45,6 +45,19 @@ public interface ServiceClient<T> {
     <R> R checkError(Call<R> execute) throws IOException;
 
     /**
+     * Execute the remote call, and return the response if successful. if unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param execute call
+     * @param <R>     expected result type
+     *
+     * @return response with result type
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    <R> Response<R> checkErrorResponse(Call<R> execute) throws IOException;
+
+    /**
      * Execute the remote call, and return the expected type if successful. if unsuccessful
      * throw an exception with relevant error detail
      *
@@ -79,6 +92,19 @@ public interface ServiceClient<T> {
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
     <R> R checkError(Response<R> response) throws IOException;
+
+    /**
+     * return the response if successful. if response is unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param response call response
+     * @param <R>      expected type
+     *
+     * @return response with result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    <R> Response<R> checkErrorResponse(Response<R> response) throws IOException;
 
     /**
      * return the expected type if successful. if response is unsuccessful
@@ -128,11 +154,36 @@ public interface ServiceClient<T> {
      * @param func function using the service
      * @param <U>  result type
      *
+     * @return response with result type
+     *
+     * @throws IOException if an error occurs
+     */
+    <U> Response<U> apiResponse(Function<T, Call<U>> func) throws IOException;
+
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
      * @return result
      *
      * @throws IOException if an error occurs
      */
     <U> U apiCallDowngradable(Function<T, Call<U>> func) throws IOException, Client.UnsupportedVersionDowngrade;
+
+    /**
+     * call a function using the service
+     *
+     * @param func function using the service
+     * @param <U>  result type
+     *
+     * @return response with result type
+     *
+     * @throws IOException if an error occurs
+     */
+    <U> Response<U> apiResponseDowngradable(Function<T, Call<U>> func)
+            throws IOException, Client.UnsupportedVersionDowngrade;
 
     T getService();
 

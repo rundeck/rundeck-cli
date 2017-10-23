@@ -112,16 +112,16 @@ public class SCM extends AppCommand {
                 Client.MEDIA_TYPE_JSON,
                 options.getFile()
         );
+        String project = projectOrEnv(options);
 
-        //dont use client.checkError, we want to handle 400 validation error
-
-        Response<ScmActionResult> response = getClient().getService()
-                                                        .setupScmConfig(
-                                                                projectOrEnv(options),
-                                                                options.getIntegration(),
-                                                                options.getType(),
-                                                                requestBody
-                                                        ).execute();
+        //get response to handle 400 validation error
+        Response<ScmActionResult> response = apiResponse(api -> api
+                .setupScmConfig(
+                        project,
+                        options.getIntegration(),
+                        options.getType(),
+                        requestBody
+                ));
 
         //check for 400 error with validation information
         if (hasValidationError(output, getClient(), response,
@@ -289,12 +289,12 @@ public class SCM extends AppCommand {
 
         ScmActionPerform perform = performFromOptions(options);
         String project = projectOrEnv(options);
-        Response<ScmActionResult> response = getClient().getService().performScmAction(
+        Response<ScmActionResult> response = apiResponse(api -> api.performScmAction(
                 project,
                 options.getIntegration(),
                 options.getAction(),
                 perform
-        ).execute();
+        ));
 
         //check for 400 error with validation information
         if (hasValidationError(output, getClient(), response,
