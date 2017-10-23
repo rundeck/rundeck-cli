@@ -540,7 +540,7 @@ public class Executions extends AppCommand {
                 true,
                 id,
                 0,
-                false
+                true
         );
         return followOutput(
                 rdApp.getClient(),
