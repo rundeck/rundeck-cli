@@ -4,6 +4,13 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.21
+
+* Fix test
+* fix [Issue #128](https://github.com/rundeck/rundeck-cli/issues/128) api calls not auto downgrading
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.20...v1.0.21)
+
 ## 1.0.20
 
 * Add `rd users [list,info,edit]` (Rundeck 2.10+)
