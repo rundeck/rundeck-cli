@@ -72,13 +72,11 @@ public class ACLs extends AppCommand {
     public void upload(Put options, CommandOutput output)
             throws IOException, InputError
     {
-
-        ServiceClient<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> client.getService()
-                                            .updateSystemAclPolicy(options.getName(), body),
-                client, output
+                (RequestBody body, RundeckApi api) -> api.updateSystemAclPolicy(options.getName(), body),
+                getRdApp(),
+                output
         );
         outputPolicyResult(output, aclPolicy);
     }
@@ -90,13 +88,11 @@ public class ACLs extends AppCommand {
 
     @Command(description = "Create a system ACL definition")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
-
-        ServiceClient<RundeckApi> client = getClient();
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> client.getService()
-                                            .createSystemAclPolicy(options.getName(), body),
-                client, output
+                (RequestBody body, RundeckApi api) -> api.createSystemAclPolicy(options.getName(), body),
+                getRdApp(),
+                output
         );
         outputPolicyResult(output, aclPolicy);
     }
@@ -108,7 +104,6 @@ public class ACLs extends AppCommand {
 
     @Command(description = "Delete a system ACL definition")
     public void delete(Delete options, CommandOutput output) throws IOException, InputError {
-        ServiceClient<RundeckApi> serviceClient = getClient();
         apiCall(api -> api.deleteSystemAclPolicy(options.getName()));
         output.output(String.format("Deleted System ACL Policy: %s", options.getName()));
     }

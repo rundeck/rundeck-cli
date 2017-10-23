@@ -43,6 +43,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -118,13 +119,11 @@ public class ACLs extends AppCommand {
 
     @Command(description = "Upload a project ACL definition")
     public void upload(Put options, CommandOutput output) throws IOException, InputError {
-        ServiceClient<RundeckApi> client = getClient();
         String project = projectOrEnv(options);
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> client.getService()
-                                            .updateAclPolicy(project, options.getName(), body),
-                client,
+                (RequestBody body, RundeckApi api) -> api.updateAclPolicy(project, options.getName(), body),
+                getRdApp(),
                 output
         );
         outputPolicyResult(output, aclPolicy);
@@ -138,14 +137,12 @@ public class ACLs extends AppCommand {
 
     @Command(description = "Create a project ACL definition")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
-
-        ServiceClient<RundeckApi> client = getClient();
         String project = projectOrEnv(options);
         ACLPolicy aclPolicy = performACLModify(
                 options,
-                (RequestBody body) -> client.getService()
-                                        .createAclPolicy(project, options.getName(), body),
-                client, output
+                (RequestBody body, RundeckApi api) -> api.createAclPolicy(project, options.getName(), body),
+                getRdApp(),
+                output
         );
         outputPolicyResult(output, aclPolicy);
     }
@@ -155,7 +152,7 @@ public class ACLs extends AppCommand {
      *
      * @param options file options
      * @param func    create the request
-     * @param client  api client
+     * @param rdApp  rdapp
      * @param output  output
      *
      * @return result policy
@@ -163,8 +160,8 @@ public class ACLs extends AppCommand {
      */
     public static ACLPolicy performACLModify(
             final ACLFileOptions options,
-            Function<RequestBody, Call<ACLPolicy>> func,
-            final ServiceClient<RundeckApi> client,
+            BiFunction<RequestBody, RundeckApi, Call<ACLPolicy>> func,
+            final RdApp rdApp,
             final CommandOutput output
     )
             throws IOException, InputError
@@ -179,10 +176,9 @@ public class ACLs extends AppCommand {
                 Client.MEDIA_TYPE_YAML,
                 input
         );
-        Call<ACLPolicy> apply = func.apply(requestBody);
-        Response<ACLPolicy> execute = apply.execute();
-        checkValidationError(output, client, execute, input.getAbsolutePath());
-        return client.checkError(execute);
+        Response<ACLPolicy> execute = apiResponseDowngradable(rdApp, (RundeckApi api) -> func.apply(requestBody, api));
+        checkValidationError(output, rdApp.getClient(), execute, input.getAbsolutePath());
+        return rdApp.getClient().checkError(execute);
     }
 
     private static void checkValidationError(

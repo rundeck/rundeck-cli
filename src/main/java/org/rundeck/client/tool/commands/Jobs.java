@@ -197,24 +197,23 @@ public class Jobs extends AppCommand implements HasSubCommands {
         String project = projectOrEnv(options);
         if (options.isFile()) {
             //write response to file instead of parsing it
-            Call<ResponseBody> responseCall;
+            ResponseBody body;
             if (options.isIdlist()) {
-                responseCall = getClient().getService().exportJobs(
+                body = apiCall(api -> api.exportJobs(
                         project,
                         options.getIdlist(),
                         options.getFormat()
-                );
+                ));
             } else {
-                responseCall = getClient().getService().exportJobs(
+                body = apiCall(api -> api.exportJobs(
                         project,
                         options.getJob(),
                         options.getGroup(),
                         options.getJobExact(),
                         options.getGroupExact(),
                         options.getFormat()
-                );
+                ));
             }
-            ResponseBody body = getClient().checkError(responseCall);
             if ((!"yaml".equals(options.getFormat()) ||
                  !ServiceClient.hasAnyMediaType(body, Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
                 !ServiceClient.hasAnyMediaType(body, Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
@@ -238,19 +237,18 @@ public class Jobs extends AppCommand implements HasSubCommands {
                 }
             }
         } else {
-            Call<List<JobItem>> listCall;
+            List<JobItem> body;
             if (options.isIdlist()) {
-                listCall = getClient().getService().listJobs(project, options.getIdlist());
+                body = apiCall(api -> api.listJobs(project, options.getIdlist()));
             } else {
-                listCall = getClient().getService().listJobs(
+                body = apiCall(api -> api.listJobs(
                         project,
                         options.getJob(),
                         options.getGroup(),
                         options.getJobExact(),
                         options.getGroupExact()
-                );
+                ));
             }
-            List<JobItem> body = getClient().checkError(listCall);
             if (!options.isOutputFormat()) {
                 output.info(String.format("%d Jobs in project %s%n", body.size(), project));
             }

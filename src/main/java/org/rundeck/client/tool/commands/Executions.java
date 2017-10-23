@@ -28,7 +28,6 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.ServiceClient;
-import retrofit2.Call;
 
 import java.io.IOException;
 import java.util.*;
@@ -95,8 +94,8 @@ public class Executions extends AppCommand {
 
         int max = 500;
 
-        Call<ExecOutput> output = startFollowOutput(
-                getClient(),
+        ExecOutput output = startFollowOutput(
+                getRdApp(),
                 max,
                 options.isRestart(),
                 options.getId(),
@@ -119,21 +118,21 @@ public class Executions extends AppCommand {
     }
 
 
-    public static Call<ExecOutput> startFollowOutput(
-            final ServiceClient<RundeckApi> serviceClient,
+    public static ExecOutput startFollowOutput(
+            final RdApp rdApp,
             final long max,
             final boolean restart,
             final String id,
             final long tail,
             final boolean compacted
-    )
+    ) throws IOException, InputError
     {
 
-        Call<ExecOutput> out;
+        ExecOutput out;
         if (restart) {
-            out = serviceClient.getService().getOutput(id, 0L, 0L, max, compacted);
+            out = apiCallDowngradable(rdApp, api -> api.getOutput(id, 0L, 0L, max, compacted));
         } else {
-            out = serviceClient.getService().getOutput(id, tail);
+            out = apiCallDowngradable(rdApp, api -> api.getOutput(id, tail));
         }
         return out;
     }
@@ -154,7 +153,7 @@ public class Executions extends AppCommand {
      */
     public static boolean followOutput(
             final ServiceClient<RundeckApi> serviceClient,
-            final Call<ExecOutput> output,
+            final ExecOutput output,
             final boolean progress,
             final boolean quiet,
             final String id,
@@ -195,7 +194,7 @@ public class Executions extends AppCommand {
      */
     public static boolean followOutput(
             final ServiceClient<RundeckApi> serviceClient,
-            final Call<ExecOutput> output,
+            final ExecOutput output,
             final String id,
             long max,
             final boolean compacted,
@@ -205,9 +204,8 @@ public class Executions extends AppCommand {
     {
         boolean done = false;
         String status = null;
-        Call<ExecOutput> callOutput = output;
+        ExecOutput execOutput = output;
         while (!done) {
-            ExecOutput execOutput = serviceClient.checkError(callOutput);
             receiver.accept(execOutput.decompactEntries());
             status = execOutput.execState;
             done = execOutput.execCompleted && execOutput.completed;
@@ -215,13 +213,14 @@ public class Executions extends AppCommand {
                 if (!waitFunc.getAsBoolean()){
                     break;
                 }
-                callOutput = serviceClient.getService().getOutput(
+                final ExecOutput passOutput = execOutput;
+                execOutput = serviceClient.apiCall(api -> api.getOutput(
                         id,
-                        execOutput.offset,
-                        execOutput.lastModified,
+                        passOutput.offset,
+                        passOutput.lastModified,
                         max,
                         compacted
-                );
+                ));
             }
         }
         return "succeeded".equals(status);
@@ -526,17 +525,17 @@ public class Executions extends AppCommand {
     }
 
     public static boolean maybeFollow(
-            final ServiceClient<RundeckApi> serviceClient,
+            final RdApp rdApp,
             final FollowOptions options,
             final String id,
             CommandOutput output
-    ) throws IOException
+    ) throws IOException, InputError
     {
         if (!options.isFollow()) {
             return true;
         }
-        Call<ExecOutput> execOutputCall = startFollowOutput(
-                serviceClient,
+        ExecOutput execOutputCall = startFollowOutput(
+                rdApp,
                 500,
                 true,
                 id,
@@ -544,7 +543,7 @@ public class Executions extends AppCommand {
                 false
         );
         return followOutput(
-                serviceClient,
+                rdApp.getClient(),
                 execOutputCall,
                 options.isProgress(),
                 options.isQuiet(),

@@ -29,7 +29,6 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
-import retrofit2.Call;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -58,7 +57,7 @@ public class Adhoc extends AppCommand {
 
     @Command(isSolo = true, isDefault = true)
     public boolean adhoc(AdhocOptions options, CommandOutput output) throws IOException, InputError {
-        Call<AdhocResponse> adhocResponseCall;
+        AdhocResponse adhocResponse;
 
         String project = projectOrEnv(options);
         if (options.isScriptFile() || options.isStdin()) {
@@ -90,7 +89,7 @@ public class Adhoc extends AppCommand {
                 filename = "script.sh";
             }
 
-            adhocResponseCall = getClient().getService().runScript(
+            adhocResponse = apiCall(api -> api.runScript(
                     project,
                     MultipartBody.Part.createFormData("scriptFile", filename, scriptFileBody),
                     options.getThreadcount(),
@@ -100,9 +99,9 @@ public class Adhoc extends AppCommand {
                     false,
                     null,
                     options.getFilter()
-            );
+            ));
         } else if (options.isUrl()) {
-            adhocResponseCall = getClient().getService().runUrl(
+            adhocResponse = apiCall(api -> api.runUrl(
                     project,
                     options.getUrl(),
                     options.getThreadcount(),
@@ -112,21 +111,20 @@ public class Adhoc extends AppCommand {
                     false,
                     null,
                     options.getFilter()
-            );
+            ));
         } else if (options.getCommandString() != null && options.getCommandString().size() > 0) {
             //command
-            adhocResponseCall = getClient().getService().runCommand(
+            adhocResponse = apiCall(api -> api.runCommand(
                     project,
                     Quoting.joinStringQuoted(options.getCommandString()),
                     options.getThreadcount(),
                     options.isKeepgoing(),
                     options.getFilter()
-            );
+            ));
         } else {
             throw new InputError("-s, -u, or -- command string, was expected");
         }
 
-        AdhocResponse adhocResponse = getClient().checkError(adhocResponseCall);
 
         Execution execution = apiCall(api -> api.getExecution(adhocResponse.execution.getId()));
         if (options.isFollow()) {
@@ -138,7 +136,7 @@ public class Adhoc extends AppCommand {
             Executions.outputExecutionList(options, output, Collections.singletonList(execution), getAppConfig());
         }
 
-        return Executions.maybeFollow(getClient(), options, adhocResponse.execution.getId(), output);
+        return Executions.maybeFollow(getRdApp(), options, adhocResponse.execution.getId(), output);
     }
 
 }

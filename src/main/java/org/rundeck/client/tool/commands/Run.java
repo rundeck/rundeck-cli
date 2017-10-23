@@ -19,7 +19,6 @@ package org.rundeck.client.tool.commands;
 import com.simplifyops.toolbelt.Command;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
-import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobItem;
@@ -30,8 +29,6 @@ import org.rundeck.client.tool.options.JobIdentOptions;
 import org.rundeck.client.tool.options.RunBaseOptions;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Quoting;
-import org.rundeck.client.util.ServiceClient;
-import retrofit2.Call;
 
 import java.io.File;
 import java.io.IOException;
@@ -64,7 +61,7 @@ public class Run extends AppCommand {
         if (null == jobId) {
             return false;
         }
-        Call<Execution> executionListCall;
+        Execution execution;
         Date runat = null;
         if (getClient().getApiVersion() >= 18) {
             JobRun request = new JobRun();
@@ -154,17 +151,16 @@ public class Run extends AppCommand {
                         Format.date(runat, "yyyy-MM-dd'T'HH:mm:ssXX")
                 ));
             }
-            executionListCall = getClient().getService().runJob(jobId, request);
+            execution = apiCall(api -> api.runJob(jobId, request));
         } else {
-            executionListCall = getClient().getService().runJob(
+            execution = apiCall(api -> api.runJob(
                     jobId,
                     Quoting.joinStringQuoted(options.getCommandString()),
                     options.getLoglevel(),
                     options.getFilter(),
                     options.getUser()
-            );
+            ));
         }
-        Execution execution = getClient().checkError(executionListCall);
         String started = runat != null ? "scheduled" : "started";
         out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
 
@@ -182,7 +178,7 @@ public class Run extends AppCommand {
             }
             out.info("Started.");
         }
-        return Executions.maybeFollow(getClient(), options, execution.getId(), out);
+        return Executions.maybeFollow(getRdApp(), options, execution.getId(), out);
     }
 
     /**

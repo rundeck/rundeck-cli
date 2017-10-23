@@ -24,6 +24,7 @@ import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
+import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -59,6 +60,21 @@ public abstract class AppCommand  {
      */
     public <T> T apiCall(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
         return apiCallDowngradable(rdApp, func);
+    }
+
+    /**
+     * Perform a downgradable API call
+     *
+     * @param func function
+     * @param <T>  result type
+     *
+     * @return result
+     *
+     * @throws InputError  on error
+     * @throws IOException on error
+     */
+    public <T> Response<T> apiResponse(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
+        return apiResponseDowngradable(rdApp, func);
     }
 
     /**
@@ -108,6 +124,35 @@ public abstract class AppCommand  {
                     downgrade.getSupportedVersion()
             );
             return rdApp.getClient(downgrade.getSupportedVersion()).apiCall(func);
+        }
+    }
+    /**
+     * Perform a downgradable api call
+     *
+     * @param rdApp app
+     * @param func  function
+     * @param <T>   result type
+     *
+     * @return result
+     *
+     * @throws InputError  on error
+     * @throws IOException on error
+     */
+    public static <T> Response<T> apiResponseDowngradable(
+            final RdApp rdApp,
+            final Function<RundeckApi, Call<T>> func
+    )
+            throws InputError, IOException
+    {
+        try {
+            return rdApp.getClient().apiResponseDowngradable(func);
+        } catch (Client.UnsupportedVersionDowngrade downgrade) {
+            //downgrade to supported version and try again
+            rdApp.versionDowngradeWarning(
+                    downgrade.getRequestedVersion(),
+                    downgrade.getSupportedVersion()
+            );
+            return rdApp.getClient(downgrade.getSupportedVersion()).apiResponse(func);
         }
     }
 
