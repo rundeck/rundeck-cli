@@ -223,8 +223,8 @@ def scriptsClos = {
             '^# Determine the Java command to use to start the JVM.*',
             '''
 # Source user's config file
-APP_CONFIG=$HOME/.$APP_NAME/$APP_NAME.conf
-test -f $APP_CONFIG && source $APP_CONFIG
+RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
+test -f $RD_CONF && source $RD_CONF
 '''
     )
 
@@ -248,12 +248,12 @@ startShadowScripts scriptsClos
 
 task verifyScripts {
     group = "Verification"
-    description = 'Verify the start scripts (normal and shadow) contain the modifications for the APP_CONFIG'
+    description = 'Verify the start scripts (normal and shadow) contain the modifications for the RD_CONF'
     doFirst {
         [startScripts.outputDir, startShadowScripts.outputDir].each { dir ->
             def f = new File(dir, applicationName)
             assert f.exists()
-            assert f.text ==~ /(?s)^.*APP_CONFIG.*$/
+            assert f.text ==~ /(?s)^.*RD_CONF.*$/
         }
     }
 }
