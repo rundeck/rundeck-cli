@@ -7,7 +7,17 @@ permalink: /configuration/
 
 # Configuration
 
-Export environment variables in your shell, or in a `~/.rd/rd.conf` file (unix only).
+Export environment variables in your shell, or in a `~/.rd/rd.conf`
+file (unix only), or by specifying the file location:
+
+    export RD_CONF=/path/to/rd.conf
+
+If you want the conf file values to let you override them with any vars
+you have exported in your shell, you can define config values like:
+
+    export RD_URL=${RD_URL:-http://server:4440}
+
+Which will default the value unless you have already exported `RD_URL`.
 
 ## Connection Info
 
