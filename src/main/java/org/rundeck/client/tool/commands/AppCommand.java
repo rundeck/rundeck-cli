@@ -24,7 +24,6 @@ import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
-import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.function.Function;
@@ -63,18 +62,18 @@ public abstract class AppCommand  {
     }
 
     /**
-     * Perform a downgradable API call
+     * Perform a downgradable API call without handling errors in response
      *
      * @param func function
      * @param <T>  result type
      *
-     * @return result
+     * @return response
      *
      * @throws InputError  on error
      * @throws IOException on error
      */
-    public <T> Response<T> apiResponse(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
-        return apiResponseDowngradable(rdApp, func);
+    public <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponse(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
+        return apiWithErrorResponseDowngradable(rdApp, func);
     }
 
     /**
@@ -127,32 +126,32 @@ public abstract class AppCommand  {
         }
     }
     /**
-     * Perform a downgradable api call
+     * Perform a downgradable api call, without handling errors
      *
      * @param rdApp app
      * @param func  function
      * @param <T>   result type
      *
-     * @return result
+     * @return response
      *
      * @throws InputError  on error
      * @throws IOException on error
      */
-    public static <T> Response<T> apiResponseDowngradable(
+    public static <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponseDowngradable(
             final RdApp rdApp,
             final Function<RundeckApi, Call<T>> func
     )
             throws InputError, IOException
     {
         try {
-            return rdApp.getClient().apiResponseDowngradable(func);
+            return rdApp.getClient().apiWithErrorResponseDowngradable(func);
         } catch (Client.UnsupportedVersionDowngrade downgrade) {
             //downgrade to supported version and try again
             rdApp.versionDowngradeWarning(
                     downgrade.getRequestedVersion(),
                     downgrade.getSupportedVersion()
             );
-            return rdApp.getClient(downgrade.getSupportedVersion()).apiResponse(func);
+            return rdApp.getClient(downgrade.getSupportedVersion()).apiWithErrorResponse(func);
         }
     }
 

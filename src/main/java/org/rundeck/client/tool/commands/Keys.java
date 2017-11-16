@@ -175,7 +175,7 @@ public class Keys extends AppCommand {
             return false;
         }
         ResponseBody body = apiCall(api -> api.getPublicKey(path.keysPath()));
-        if (!ServiceClient.hasAnyMediaType(body, Client.MEDIA_TYPE_GPG_KEYS)) {
+        if (!ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_GPG_KEYS)) {
             throw new IllegalStateException("Unexpected response format: " + body.contentType());
         }
         InputStream inputStream = body.byteStream();

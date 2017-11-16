@@ -270,7 +270,7 @@ public class Archives extends AppCommand {
     )
             throws IOException
     {
-        if (!ServiceClient.hasAnyMediaType(responseBody, Client.MEDIA_TYPE_ZIP)) {
+        if (!ServiceClient.hasAnyMediaType(responseBody.contentType(), Client.MEDIA_TYPE_ZIP)) {
             throw new IllegalStateException("Unexpected response format: " + responseBody.contentType());
         }
         InputStream inputStream = responseBody.byteStream();
