@@ -1,3 +1,13 @@
+## 1.0.22
+
+* Fix description of --alldeleted flag
+* Fix [Issue #62](https://github.com/rundeck/rundeck-cli/issues/62) add flags to scm perform to include items automatically
+* improve scripting of scm actions with -v flag
+* fix [Issue #132](https://github.com/rundeck/rundeck-cli/issues/132) restore ACL/SCM validation error responses
+* fix [Issue #72](https://github.com/rundeck/rundeck-cli/issues/72) Add RD_CONF to specify conf file
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.21...v1.0.22)
+
 ## 1.0.21
 
 * Fix test
