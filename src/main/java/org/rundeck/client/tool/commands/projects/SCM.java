@@ -285,6 +285,35 @@ public class SCM extends AppCommand {
 
         boolean isItem();
 
+        @Option(shortName = "A",
+                longName = "allitems",
+                description = "Include all items from the result of calling Inputs in export or import action")
+        boolean isAllItems();
+
+        @Option(shortName = "M",
+                longName = "allmodified",
+                description = "Include all modified (not deleted) items from the result of calling Inputs in Export " +
+                              "action (export only)")
+        boolean isAllModifiedItems();
+
+        @Option(shortName = "D",
+                longName = "alldeleted",
+                description = "Include all modified (not deleted) items from the result of calling Inputs in Export " +
+                              "action (export only)")
+        boolean isAllDeletedItems();
+
+        @Option(shortName = "T",
+                longName = "alltracked",
+                description = "Include all tracked (not new) items from the result of calling Inputs in Import action" +
+                              " (import only)")
+        boolean isAllTrackedItems();
+
+        @Option(shortName = "U",
+                longName = "alluntracked",
+                description = "Include all untracked (new) items from the result of calling Inputs in Import action " +
+                              "(import only)")
+        boolean isAllUntrackedItems();
+
         @Option(longName = "job", shortName = "j", description = "Job IDs to include, space separated list")
         List<String> getJob();
 
@@ -303,6 +332,41 @@ public class SCM extends AppCommand {
 
         ScmActionPerform perform = performFromOptions(options);
         String project = projectOrEnv(options);
+        String integration = options.getIntegration();
+        boolean export = "export".equals(integration);
+        if (options.isAllItems() ||
+            export && (options.isAllDeletedItems() || options.isAllModifiedItems()) ||
+            !export && (options.isAllTrackedItems() || options.isAllUntrackedItems())) {
+            //call the Inputs endpoint to list the items for the action
+            ScmActionInputsResult inputs = apiCall(api -> api.getScmActionInputs(
+                    project,
+                    integration,
+                    options.getAction()
+            ));
+            if (export) {
+                List<ScmExportItem> exportItems = inputs.exportItems;
+                if (options.isAllItems() || options.isAllModifiedItems()) {
+                    perform.setItems(exportItems.stream()
+                                                .filter(a -> !a.getDeleted())
+                                                .map(a -> a.itemId)
+                                                .collect(Collectors.toList()));
+                }
+                if (options.isAllItems() || options.isAllDeletedItems()) {
+                    perform.setDeleted(exportItems.stream()
+                                                  .filter(ScmExportItem::getDeleted)
+                                                  .map(a -> a.itemId)
+                                                  .collect(Collectors.toList()));
+                }
+            } else {
+                List<ScmImportItem> importItems = inputs.importItems;
+                perform.setItems(importItems.stream()
+                                            .filter(a -> options.isAllItems() ||
+                                                         options.isAllTrackedItems() && a.tracked ||
+                                                         options.isAllUntrackedItems() && !a.tracked)
+                                            .map(a -> a.itemId)
+                                            .collect(Collectors.toList()));
+            }
+        }
         ServiceClient.WithErrorResponse<ScmActionResult> response = apiWithErrorResponse(api -> api.performScmAction(
                 project,
                 options.getIntegration(),

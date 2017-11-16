@@ -33,7 +33,7 @@ public class ScmExportItem implements Formatable{
     public String originalId;
     public ScmJobItem job;
     public Boolean renamed;
-    public Boolean deleted;
+    private Boolean deleted;
 
     @Override
     public List<?> asList() {
@@ -52,5 +52,13 @@ public class ScmExportItem implements Formatable{
         map.put("renamed", renamed);
         map.put("deleted", deleted);
         return map;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }
