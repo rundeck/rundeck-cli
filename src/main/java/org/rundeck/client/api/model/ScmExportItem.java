@@ -17,8 +17,10 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.simplifyops.toolbelt.Formatable;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,14 +28,19 @@ import java.util.Map;
  * @since 12/13/16
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ScmExportItem {
+public class ScmExportItem implements Formatable{
     public String itemId;
     public String originalId;
     public ScmJobItem job;
     public Boolean renamed;
-    public Boolean deleted;
+    private Boolean deleted;
 
-    public Map toMap() {
+    @Override
+    public List<?> asList() {
+        return null;
+    }
+
+    public Map asMap() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("itemId", itemId);
         if (null != originalId) {
@@ -45,5 +52,13 @@ public class ScmExportItem {
         map.put("renamed", renamed);
         map.put("deleted", deleted);
         return map;
+    }
+
+    public boolean getDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
     }
 }

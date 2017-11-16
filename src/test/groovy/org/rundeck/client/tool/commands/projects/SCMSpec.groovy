@@ -20,7 +20,9 @@ import com.simplifyops.toolbelt.CommandOutput
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ScmActionInputsResult
+import org.rundeck.client.api.model.ScmActionPerform
 import org.rundeck.client.api.model.ScmActionResult
+import org.rundeck.client.api.model.ScmExportItem
 import org.rundeck.client.api.model.ScmImportItem
 import org.rundeck.client.api.model.ScmInputField
 import org.rundeck.client.api.model.ScmJobItem
@@ -30,7 +32,6 @@ import org.rundeck.client.tool.AppConfig
 import org.rundeck.client.tool.Main
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
-import org.rundeck.client.util.ServiceClient
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
@@ -80,6 +81,116 @@ class SCMSpec extends Specification {
         1 * out.error("Action project-commit failed")
         1 * out.warning("Some input values were not valid.")
         1 * out.output([message: 'required'])
+    }
+
+    def "perform import with include flags"() {
+        given:
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
+
+        def appConfig = Mock(AppConfig)
+
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> appConfig
+        }
+        def scm = new SCM(hasclient)
+
+        def opts = Mock(SCM.ActionPerformOptions) {
+            getProject() >> 'aproject'
+            getIntegration() >> 'import'
+            getAction() >> 'import-all'
+            isAllItems() >> all
+            isAllTrackedItems() >> tracked
+            isAllUntrackedItems() >> untracked
+        }
+        def items = [
+                new ScmImportItem(itemId: 'a', tracked: true),
+                new ScmImportItem(itemId: 'b', tracked: false),
+        ]
+        when:
+        def result = scm.perform(opts, out)
+        then:
+
+        1 * api.getScmActionInputs('aproject', 'import', 'import-all') >>
+                Calls.response(
+                        new ScmActionInputsResult(integration: 'import', actionId: 'import-all', importItems: items)
+                )
+
+        1 * api.performScmAction('aproject', 'import', 'import-all', { ScmActionPerform arg ->
+            arg.items == expected
+        }
+        ) >>
+                Calls.response(
+                        new ScmActionResult(success: true)
+                )
+
+        0 * api._(*_)
+        where:
+        all   | tracked | untracked | expected
+        true  | false   | false     | ['a', 'b']
+        false | true    | false     | ['a']
+        false | false   | true      | ['b']
+    }
+
+    def "perform export with include flags"() {
+        given:
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
+
+        def appConfig = Mock(AppConfig)
+
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> appConfig
+        }
+        def scm = new SCM(hasclient)
+
+        def opts = Mock(SCM.ActionPerformOptions) {
+            getProject() >> 'aproject'
+            getIntegration() >> 'export'
+            getAction() >> 'export-all'
+            isAllItems() >> all
+            isAllModifiedItems() >> modified
+            isAllDeletedItems() >> deleted
+        }
+        def items = [
+                new ScmExportItem(itemId: 'a', deleted: false),
+                new ScmExportItem(itemId: 'b', deleted: true),
+        ]
+        when:
+        def result = scm.perform(opts, out)
+        then:
+
+        1 * api.getScmActionInputs('aproject', 'export', 'export-all') >>
+                Calls.response(
+                        new ScmActionInputsResult(integration: 'export', actionId: 'export-all', exportItems: items)
+                )
+
+        1 * api.performScmAction('aproject', 'export', 'export-all', { ScmActionPerform arg ->
+            arg.items == expected && arg.deleted == expectedDeleted
+        }
+        ) >>
+                Calls.response(
+                        new ScmActionResult(success: true)
+                )
+        0 * api._(*_)
+
+        where:
+        all   | modified | deleted | expected | expectedDeleted
+        true  | false    | false   | ['a']    | ['b']
+        false | true     | false   | ['a']    | []
+        false | false    | true    | []       | ['b']
     }
     def "command inputs for import with null job"() {
         given:

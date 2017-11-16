@@ -31,6 +31,7 @@ import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.tool.options.ProjectNameOptions;
+import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Colorz;
 import org.rundeck.client.util.ServiceClient;
@@ -213,7 +214,7 @@ public class SCM extends AppCommand {
     }
 
     @CommandLineInterface(application = "setupinputs")
-    public interface InputsOptions extends BaseScmOptions {
+    public interface InputsOptions extends BaseScmOptions, VerboseOption {
         @Option(longName = "type", shortName = "t", description = "Plugin type")
         String getType();
     }
@@ -229,11 +230,16 @@ public class SCM extends AppCommand {
                 options.getType()
         ));
 
-        output.output(result.fields.stream().map(ScmInputField::toMap).collect(Collectors.toList()));
+        if (options.isVerbose()) {
+            output.output(result);
+            return;
+        }
+
+        output.output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
     }
 
-    @CommandLineInterface(application = "setupinputs")
-    public interface ActionInputsOptions extends BaseScmOptions {
+    @CommandLineInterface(application = "inputs")
+    public interface ActionInputsOptions extends BaseScmOptions, VerboseOption {
         @Option(longName = "action", shortName = "a", description = "Action ID")
         String getAction();
 
@@ -249,14 +255,18 @@ public class SCM extends AppCommand {
                 options.getAction()
         ));
 
+        if (options.isVerbose()) {
+            output.output(result);
+            return;
+        }
         output.output(result.title + ": " + result.description);
         output.output("Fields:");
-        output.output(result.fields.stream().map(ScmInputField::toMap).collect(Collectors.toList()));
+        output.output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
         output.output("Items:");
         if ("export".equals(options.getIntegration())) {
-            output.output(result.exportItems.stream().map(ScmExportItem::toMap).collect(Collectors.toList()));
+            output.output(result.exportItems.stream().map(ScmExportItem::asMap).collect(Collectors.toList()));
         } else {
-            output.output(result.importItems.stream().map(ScmImportItem::toMap).collect(Collectors.toList()));
+            output.output(result.importItems.stream().map(ScmImportItem::asMap).collect(Collectors.toList()));
         }
     }
 
@@ -274,6 +284,35 @@ public class SCM extends AppCommand {
         List<String> getItem();
 
         boolean isItem();
+
+        @Option(shortName = "A",
+                longName = "allitems",
+                description = "Include all items from the result of calling Inputs in export or import action")
+        boolean isAllItems();
+
+        @Option(shortName = "M",
+                longName = "allmodified",
+                description = "Include all modified (not deleted) items from the result of calling Inputs in Export " +
+                              "action (export only)")
+        boolean isAllModifiedItems();
+
+        @Option(shortName = "D",
+                longName = "alldeleted",
+                description = "Include all deleted items from the result of calling Inputs in Export " +
+                              "action (export only)")
+        boolean isAllDeletedItems();
+
+        @Option(shortName = "T",
+                longName = "alltracked",
+                description = "Include all tracked (not new) items from the result of calling Inputs in Import action" +
+                              " (import only)")
+        boolean isAllTrackedItems();
+
+        @Option(shortName = "U",
+                longName = "alluntracked",
+                description = "Include all untracked (new) items from the result of calling Inputs in Import action " +
+                              "(import only)")
+        boolean isAllUntrackedItems();
 
         @Option(longName = "job", shortName = "j", description = "Job IDs to include, space separated list")
         List<String> getJob();
@@ -293,6 +332,41 @@ public class SCM extends AppCommand {
 
         ScmActionPerform perform = performFromOptions(options);
         String project = projectOrEnv(options);
+        String integration = options.getIntegration();
+        boolean export = "export".equals(integration);
+        if (options.isAllItems() ||
+            export && (options.isAllDeletedItems() || options.isAllModifiedItems()) ||
+            !export && (options.isAllTrackedItems() || options.isAllUntrackedItems())) {
+            //call the Inputs endpoint to list the items for the action
+            ScmActionInputsResult inputs = apiCall(api -> api.getScmActionInputs(
+                    project,
+                    integration,
+                    options.getAction()
+            ));
+            if (export) {
+                List<ScmExportItem> exportItems = inputs.exportItems;
+                if (options.isAllItems() || options.isAllModifiedItems()) {
+                    perform.setItems(exportItems.stream()
+                                                .filter(a -> !a.getDeleted())
+                                                .map(a -> a.itemId)
+                                                .collect(Collectors.toList()));
+                }
+                if (options.isAllItems() || options.isAllDeletedItems()) {
+                    perform.setDeleted(exportItems.stream()
+                                                  .filter(ScmExportItem::getDeleted)
+                                                  .map(a -> a.itemId)
+                                                  .collect(Collectors.toList()));
+                }
+            } else {
+                List<ScmImportItem> importItems = inputs.importItems;
+                perform.setItems(importItems.stream()
+                                            .filter(a -> options.isAllItems() ||
+                                                         options.isAllTrackedItems() && a.tracked ||
+                                                         options.isAllUntrackedItems() && !a.tracked)
+                                            .map(a -> a.itemId)
+                                            .collect(Collectors.toList()));
+            }
+        }
         ServiceClient.WithErrorResponse<ScmActionResult> response = apiWithErrorResponse(api -> api.performScmAction(
                 project,
                 options.getIntegration(),
