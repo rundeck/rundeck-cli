@@ -17,17 +17,23 @@
 package org.rundeck.client.tool.commands.projects
 
 import com.simplifyops.toolbelt.CommandOutput
+import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ScmActionInputsResult
+import org.rundeck.client.api.model.ScmActionResult
 import org.rundeck.client.api.model.ScmImportItem
 import org.rundeck.client.api.model.ScmInputField
 import org.rundeck.client.api.model.ScmJobItem
 import org.rundeck.client.api.model.ScmProjectStatusResult
 import org.rundeck.client.api.model.ScmSynchState
 import org.rundeck.client.tool.AppConfig
+import org.rundeck.client.tool.Main
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
+import org.rundeck.client.util.ServiceClient
+import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.mock.Calls
 import spock.lang.Specification
 
@@ -36,6 +42,45 @@ import spock.lang.Specification
  * @since 1/11/17
  */
 class SCMSpec extends Specification {
+    def "perform with validation response"() {
+        given:
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
+
+        def appConfig = Mock(AppConfig)
+
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> appConfig
+        }
+        def scm = new SCM(hasclient)
+
+        def opts = Mock(SCM.ActionPerformOptions) {
+            getProject() >> 'aproject'
+            getIntegration() >> 'export'
+            getAction() >> 'project-commit'
+        }
+        when:
+        def result = scm.perform(opts, out)
+        then:
+
+        1 * api.performScmAction('aproject', 'export', 'project-commit', _) >>
+                Calls.response(
+                        Response.error(400, ResponseBody.create(Client.MEDIA_TYPE_JSON,
+                                                                '''{"message":"Some input values were not valid.",
+"nextAction":null,"success":false, "validationErrors":{"message":"required"}} '''
+                        )
+                        )
+                )
+        1 * out.error("Action project-commit failed")
+        1 * out.warning("Some input values were not valid.")
+        1 * out.output([message: 'required'])
+    }
     def "command inputs for import with null job"() {
         given:
         def api = Mock(RundeckApi)

@@ -215,8 +215,8 @@ public class Jobs extends AppCommand implements HasSubCommands {
                 ));
             }
             if ((!"yaml".equals(options.getFormat()) ||
-                 !ServiceClient.hasAnyMediaType(body, Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
-                !ServiceClient.hasAnyMediaType(body, Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
+                 !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
+                !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
 
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }

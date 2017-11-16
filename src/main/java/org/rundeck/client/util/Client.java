@@ -27,7 +27,7 @@ import retrofit2.Converter;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import java.io.IOException;
+import java.io.*;
 import java.lang.annotation.Annotation;
 import java.util.function.Function;
 
@@ -61,7 +61,7 @@ public class Client<T> implements ServiceClient<T> {
     private final boolean allowVersionDowngrade;
     private final Logger logger;
 
-    public static interface Logger {
+    public interface Logger {
         void output(String out);
 
         void warning(String warn);
@@ -109,15 +109,15 @@ public class Client<T> implements ServiceClient<T> {
      * Execute the remote call, and return the expected type if successful. if unsuccessful
      * throw an exception with relevant error detail
      *
-     * @param execute call
      * @param <R>     expected result type
      *
+     * @param execute call
      * @return result
      *
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
     @Override
-    public <R> Response<R> checkErrorResponse(final Call<R> execute) throws IOException {
+    public <R> WithErrorResponse<R> checkErrorResponse(final Call<R> execute) throws IOException {
         Response<R> response = execute.execute();
         return checkErrorResponse(response);
     }
@@ -151,7 +151,7 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
 //    @Override
-    public <R> Response<R> checkErrorResponseDowngradable(final Call<R> execute)
+    public <R> WithErrorResponse<R> checkErrorResponseDowngradable(final Call<R> execute)
             throws IOException, UnsupportedVersionDowngrade
     {
         Response<R> response = execute.execute();
@@ -223,7 +223,6 @@ public class Client<T> implements ServiceClient<T> {
         }
         return response.body();
     }
-
     /**
      * return the expected type if successful. if response is unsuccessful
      * throw an exception with relevant error detail
@@ -236,11 +235,30 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
     @Override
-    public <R> Response<R> checkErrorResponse(final Response<R> response) throws IOException {
+    public <R> R checkError(final WithErrorResponse<R> response) throws IOException {
+        if (!response.getResponse().isSuccessful()) {
+            handleError(response.getResponse(), readError(response.getErrorBody()));
+        }
+        return response.getResponse().body();
+    }
+
+    /**
+     * return the expected type if successful. if response is unsuccessful
+     * throw an exception with relevant error detail
+     *
+     * @param <R>      expected type
+     * @param response call response
+     *
+     * @return result
+     *
+     * @throws IOException if remote call is unsuccessful or parsing error occurs
+     */
+    @Override
+    public <R> WithErrorResponse<R> checkErrorResponse(final Response<R> response) throws IOException {
         if (!response.isSuccessful()) {
             handleErrorResponse(response, readError(response));
         }
-        return response;
+        return withErrorResponse(response, null);
     }
 
     /**
@@ -276,15 +294,30 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if remote call is unsuccessful or parsing error occurs
      */
 //    @Override
-    public <R> Response<R> checkErrorResponseDowngradable(final Response<R> response)
+    public <R> WithErrorResponse<R> checkErrorResponseDowngradable(final Response<R> response)
             throws IOException, UnsupportedVersionDowngrade
     {
         if (!response.isSuccessful()) {
-            ErrorDetail error = readError(response);
+            RepeatableResponse repeatResponse = repeatResponse(response);
+            ErrorDetail error = readError(repeatResponse);
             checkUnsupportedVersion(response, error);
-            handleError(response, error);
+            return withErrorResponse(response, repeatResponse);
         }
-        return response;
+        return withErrorResponse(response, null);
+    }
+
+    private <R> WithErrorResponse<R> withErrorResponse(final Response<R> response, final RepeatableResponse errorBody) {
+        return new WithErrorResponse<R>() {
+            @Override
+            public Response<R> getResponse() {
+                return response;
+            }
+
+            @Override
+            public RepeatableResponse getErrorBody() throws IOException {
+                return errorBody;
+            }
+        };
     }
 
     private <R> void handleError(final Response<R> response, final ErrorDetail error) {
@@ -386,25 +419,68 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if a parse error occurs
      */
     ErrorDetail readError(Response<?> execute) throws IOException {
+        return readError(repeatResponse(execute));
+    }
 
-        ResponseBody responseBody = execute.errorBody();
-        if (ServiceClient.hasAnyMediaType(responseBody, MEDIA_TYPE_JSON)) {
+    /**
+     * Attempt to parse the response as a json or xml error and return the detail
+     *
+     * @param repeatResponse repeatable response
+     *
+     * @return parsed error detail or null if media types did not match
+     *
+     * @throws IOException if a parse error occurs
+     */
+    ErrorDetail readError(final RepeatableResponse repeatResponse) throws IOException {
+
+        if (ServiceClient.hasAnyMediaType(repeatResponse.contentType(), MEDIA_TYPE_JSON)) {
             Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
                     ErrorResponse.class,
                     new Annotation[0]
             );
-            return errorConverter.convert(responseBody);
-        } else if (ServiceClient.hasAnyMediaType(responseBody, MEDIA_TYPE_TEXT_XML, MEDIA_TYPE_XML)) {
+            return errorConverter.convert(repeatResponse.repeatBody());
+        } else if (ServiceClient.hasAnyMediaType(repeatResponse.contentType(), MEDIA_TYPE_TEXT_XML, MEDIA_TYPE_XML)) {
             //specify xml annotation to parse as xml
             Annotation[] annotationsByType = ErrorResponse.class.getAnnotationsByType(Xml.class);
             Converter<ResponseBody, ErrorResponse> errorConverter = getRetrofit().responseBodyConverter(
                     ErrorResponse.class,
                     annotationsByType
             );
-            return errorConverter.convert(responseBody);
+            return errorConverter.convert(repeatResponse.repeatBody());
         } else {
             return null;
         }
+    }
+
+    /**
+     * implements repeatable response body
+     */
+    static class RepeatResponse implements RepeatableResponse {
+        ResponseBody responseBody;
+        byte[] bufferedBody;
+
+        public RepeatResponse(final ResponseBody responseBody) {
+            this.responseBody = responseBody;
+        }
+
+        @Override
+        public MediaType contentType() {
+            return responseBody.contentType();
+        }
+
+        public ResponseBody repeatBody() throws IOException {
+            if (null != bufferedBody) {
+                return ResponseBody.create(this.responseBody.contentType(), bufferedBody);
+            }
+
+            bufferedBody = responseBody.bytes();
+            return ResponseBody.create(this.responseBody.contentType(), bufferedBody);
+        }
+    }
+
+    private RepeatableResponse repeatResponse(final Response<?> execute) throws IOException {
+        ResponseBody responseBody = execute.errorBody();
+        return new RepeatResponse(responseBody);
     }
 
     /**
@@ -422,9 +498,29 @@ public class Client<T> implements ServiceClient<T> {
     @Override
     @SuppressWarnings("SameParameterValue")
     public <X> X readError(Response<?> execute, Class<X> errorType, MediaType... mediaTypes) throws IOException {
+        return readError(repeatResponse(execute), errorType, mediaTypes);
+    }
 
-        ResponseBody responseBody = execute.errorBody();
-        if (ServiceClient.hasAnyMediaType(responseBody, mediaTypes)) {
+    /**
+     * If the response has one of the expected media types, parse into the error type
+     *
+     * @param response   repeatable response body
+     * @param errorType  class of response
+     * @param mediaTypes expected media types
+     * @param <X>        error type
+     *
+     * @return error type instance, or null if mediate type does not match
+     *
+     * @throws IOException if media type matched, but parsing was unsuccessful
+     */
+    @Override
+    @SuppressWarnings("SameParameterValue")
+    public <X> X readError(RepeatableResponse response, Class<X> errorType, MediaType... mediaTypes)
+            throws IOException
+    {
+
+        ResponseBody responseBody = response.repeatBody();
+        if (ServiceClient.hasAnyMediaType(responseBody.contentType(), mediaTypes)) {
             Converter<ResponseBody, X> errorConverter = getRetrofit().responseBodyConverter(
                     errorType,
                     new Annotation[0]
@@ -461,7 +557,9 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if an error occurs
      */
     @Override
-    public <U> Response<U> apiResponse(final Function<T, Call<U>> func) throws IOException {
+    public <U> ServiceClient.WithErrorResponse<U> apiWithErrorResponse(final Function<T, Call<U>> func)
+            throws IOException
+    {
         return checkErrorResponse(func.apply(getService()));
     }
 
@@ -491,7 +589,7 @@ public class Client<T> implements ServiceClient<T> {
      * @throws IOException if an error occurs
      */
     @Override
-    public <U> Response<U> apiResponseDowngradable(final Function<T, Call<U>> func)
+    public <U> WithErrorResponse<U> apiWithErrorResponseDowngradable(final Function<T, Call<U>> func)
             throws IOException, UnsupportedVersionDowngrade
     {
         return checkErrorResponseDowngradable(func.apply(getService()));

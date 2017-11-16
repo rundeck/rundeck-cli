@@ -17,7 +17,6 @@
 package org.rundeck.client.util;
 
 import okhttp3.*;
-import org.rundeck.client.api.AuthorizationFailed;
 import org.rundeck.client.api.LoginFailed;
 
 import java.io.IOException;
@@ -87,7 +86,7 @@ public class FormAuthInterceptor implements Interceptor {
                 throw new LoginFailed(String.format("Password Authentication failed for: %s", username));
             }
             if (null == authResponse.priorResponse() && ServiceClient.hasAnyMediaType(
-                    authResponse.body(),
+                    authResponse.body().contentType(),
                     MediaType.parse("text/html")
             )) {
                 String securitycheck = System.getProperty(

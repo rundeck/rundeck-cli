@@ -115,7 +115,7 @@ public class SCM extends AppCommand {
         String project = projectOrEnv(options);
 
         //get response to handle 400 validation error
-        Response<ScmActionResult> response = apiResponse(api -> api
+        ServiceClient.WithErrorResponse<ScmActionResult> response = apiWithErrorResponse(api -> api
                 .setupScmConfig(
                         project,
                         options.getIntegration(),
@@ -124,8 +124,12 @@ public class SCM extends AppCommand {
                 ));
 
         //check for 400 error with validation information
-        if (hasValidationError(output, getClient(), response,
-                                  "Setup config Validation for file: " + options.getFile().getAbsolutePath()
+        if (hasValidationError(
+                output,
+                getClient(),
+                response,
+                "Setup config Validation for file: " + options.getFile().getAbsolutePath(),
+                getAppConfig().isAnsiEnabled()
         )) {
             return false;
         }
@@ -289,7 +293,7 @@ public class SCM extends AppCommand {
 
         ScmActionPerform perform = performFromOptions(options);
         String project = projectOrEnv(options);
-        Response<ScmActionResult> response = apiResponse(api -> api.performScmAction(
+        ServiceClient.WithErrorResponse<ScmActionResult> response = apiWithErrorResponse(api -> api.performScmAction(
                 project,
                 options.getIntegration(),
                 options.getAction(),
@@ -297,8 +301,12 @@ public class SCM extends AppCommand {
         ));
 
         //check for 400 error with validation information
-        if (hasValidationError(output, getClient(), response,
-                                  "Action " + options.getAction()
+        if (hasValidationError(
+                output,
+                getClient(),
+                response,
+                "Action " + options.getAction(),
+                getAppConfig().isAnsiEnabled()
         )) {
             return false;
         }
@@ -340,44 +348,51 @@ public class SCM extends AppCommand {
      * Check for validation info from resposne
      *
      * @param name action name for error messages
+     * @param colorize
      */
     private static boolean hasValidationError(
             CommandOutput output,
             final ServiceClient<RundeckApi> serviceClient,
-            final Response<ScmActionResult> response,
-            final String name
+            final ServiceClient.WithErrorResponse<ScmActionResult> errorResponse,
+            final String name, final boolean colorize
     )
     {
-        if (!response.isSuccessful()) {
-            if (response.code() == 400) {
-                try {
-                    //parse body as ScmActionResult
-                    ScmActionResult error = serviceClient.readError(
-                            response,
-                            ScmActionResult.class,
-                            Client.MEDIA_TYPE_JSON
-                    );
-                    if (null != error) {
-                        //
-                        output.error(String.format("%s failed", name));
-                        if (null != error.message) {
-                            output.warning(error.message);
-                        }
-                        Optional<? extends Map<?, ?>> errorData = Optional.ofNullable(error.toMap());
-                        errorData.ifPresent(map -> output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW)));
+        Response<ScmActionResult> response = errorResponse.getResponse();
+        if (errorResponse.isError400()) {
+            try {
+                //parse body as ScmActionResult
+                ScmActionResult error = serviceClient.readError(
+                        errorResponse.getErrorBody(),
+                        ScmActionResult.class,
+                        Client.MEDIA_TYPE_JSON
+                );
+                if (null != error) {
+                    //
+                    output.error(String.format("%s failed", name));
+                    if (null != error.message) {
+                        output.warning(error.message);
                     }
-                } catch (IOException e) {
-                    //unable to parse body as expected
-                    throw new RequestFailed(String.format(
-                            "%s failed: (error: %d %s)",
-                            name,
-                            response.code(),
-                            response.message()
-
-                    ), response.code(), response.message());
+                    Optional<? extends Map<?, ?>> errorData = Optional.ofNullable(error.toMap());
+                    errorData.ifPresent(map -> output.output(
+                            colorize ?
+                            Colorz.colorizeMapRecurse(
+                                    map,
+                                    ANSIColorOutput.Color.YELLOW
+                            ) : map
+                    ));
                 }
+            } catch (IOException e) {
+                //unable to parse body as expected
+                e.printStackTrace();
+                throw new RequestFailed(String.format(
+                        "%s failed: (error: %d %s)",
+                        name,
+                        response.code(),
+                        response.message()
 
+                ), response.code(), response.message());
             }
+
         }
         return !response.isSuccessful();
     }

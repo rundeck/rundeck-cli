@@ -176,22 +176,32 @@ public class ACLs extends AppCommand {
                 Client.MEDIA_TYPE_YAML,
                 input
         );
-        Response<ACLPolicy> execute = apiResponseDowngradable(rdApp, (RundeckApi api) -> func.apply(requestBody, api));
-        checkValidationError(output, rdApp.getClient(), execute, input.getAbsolutePath());
+        ServiceClient.WithErrorResponse<ACLPolicy> execute = apiWithErrorResponseDowngradable(
+                rdApp,
+                api -> func.apply(requestBody, api)
+        );
+        checkValidationError(
+                output,
+                rdApp.getClient(),
+                execute,
+                input.getAbsolutePath(),
+                rdApp.getAppConfig().isAnsiEnabled()
+        );
         return rdApp.getClient().checkError(execute);
     }
 
     private static void checkValidationError(
             CommandOutput output,
             final ServiceClient<RundeckApi> client,
-            final Response<ACLPolicy> response, final String filename
+            final ServiceClient.WithErrorResponse<ACLPolicy> errorResponse,
+            final String filename, final boolean colorize
     )
             throws IOException
     {
-
-        if (!response.isSuccessful() && response.code() == 400) {
+        Response<ACLPolicy> response = errorResponse.getResponse();
+        if (errorResponse.isError400()) {
             ACLPolicyValidation error = client.readError(
-                    response,
+                    errorResponse.getErrorBody(),
                     ACLPolicyValidation.class,
                     Client.MEDIA_TYPE_JSON
             );
@@ -199,8 +209,8 @@ public class ACLs extends AppCommand {
                 Optional<Map<String, Object>> validationData = Optional.ofNullable(error.toMap());
                 validationData.ifPresent(map -> {
                     output.error("ACL Policy Validation failed for the file: ");
-                    output.output(filename + "\n");
-                    output.output(Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW));
+                    output.output(filename);
+                    output.output(colorize ? Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW) : map);
                 });
                 if (!validationData.isPresent() && "true".equals(error.error)) {
                     output.error("Invalid Request:");
