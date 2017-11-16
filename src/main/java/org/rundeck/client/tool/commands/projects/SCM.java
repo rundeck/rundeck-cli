@@ -298,7 +298,7 @@ public class SCM extends AppCommand {
 
         @Option(shortName = "D",
                 longName = "alldeleted",
-                description = "Include all modified (not deleted) items from the result of calling Inputs in Export " +
+                description = "Include all deleted items from the result of calling Inputs in Export " +
                               "action (export only)")
         boolean isAllDeletedItems();
 
