@@ -31,6 +31,7 @@ import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.tool.options.ProjectNameOptions;
+import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Colorz;
 import org.rundeck.client.util.ServiceClient;
@@ -213,7 +214,7 @@ public class SCM extends AppCommand {
     }
 
     @CommandLineInterface(application = "setupinputs")
-    public interface InputsOptions extends BaseScmOptions {
+    public interface InputsOptions extends BaseScmOptions, VerboseOption {
         @Option(longName = "type", shortName = "t", description = "Plugin type")
         String getType();
     }
@@ -229,11 +230,16 @@ public class SCM extends AppCommand {
                 options.getType()
         ));
 
-        output.output(result.fields.stream().map(ScmInputField::toMap).collect(Collectors.toList()));
+        if (options.isVerbose()) {
+            output.output(result);
+            return;
+        }
+
+        output.output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
     }
 
-    @CommandLineInterface(application = "setupinputs")
-    public interface ActionInputsOptions extends BaseScmOptions {
+    @CommandLineInterface(application = "inputs")
+    public interface ActionInputsOptions extends BaseScmOptions, VerboseOption {
         @Option(longName = "action", shortName = "a", description = "Action ID")
         String getAction();
 
@@ -249,14 +255,18 @@ public class SCM extends AppCommand {
                 options.getAction()
         ));
 
+        if (options.isVerbose()) {
+            output.output(result);
+            return;
+        }
         output.output(result.title + ": " + result.description);
         output.output("Fields:");
-        output.output(result.fields.stream().map(ScmInputField::toMap).collect(Collectors.toList()));
+        output.output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
         output.output("Items:");
         if ("export".equals(options.getIntegration())) {
-            output.output(result.exportItems.stream().map(ScmExportItem::toMap).collect(Collectors.toList()));
+            output.output(result.exportItems.stream().map(ScmExportItem::asMap).collect(Collectors.toList()));
         } else {
-            output.output(result.importItems.stream().map(ScmImportItem::toMap).collect(Collectors.toList()));
+            output.output(result.importItems.stream().map(ScmImportItem::asMap).collect(Collectors.toList()));
         }
     }
 

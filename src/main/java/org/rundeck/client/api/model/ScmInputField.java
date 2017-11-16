@@ -16,6 +16,8 @@
 
 package org.rundeck.client.api.model;
 
+import com.simplifyops.toolbelt.Formatable;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +26,7 @@ import java.util.Map;
  * @author greg
  * @since 12/13/16
  */
-public class ScmInputField {
+public class ScmInputField implements Formatable{
     public String defaultValue;
     public String description;
     public String name;
@@ -35,7 +37,7 @@ public class ScmInputField {
     public String type;
     public List<String> values;
 
-    public Map toMap() {
+    public Map<?, ?> asMap() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("name", name);
         map.put("title", title);
@@ -47,4 +49,10 @@ public class ScmInputField {
         map.put("values", values);
         return map;
     }
+
+    @Override
+    public List<?> asList() {
+        return null;
+    }
+
 }
