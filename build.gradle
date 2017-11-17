@@ -179,14 +179,14 @@ dependencies {
 
     compileOnly "org.projectlombok:lombok:1.16.16"
 
-    compile project(":lib")
+    compile project(":rd-api-client")
 
     compile "$toolbeltGroup:toolbelt:$toolbeltVersion"
     compile "$toolbeltGroup:toolbelt-snakeyaml:$toolbeltVersion"
     compile "$toolbeltGroup:toolbelt-json-jackson:$toolbeltVersion"
     compile "$toolbeltGroup:toolbelt-jewelcli:$toolbeltVersion"
 
-    testCompile project(":lib")
+    testCompile project(":rd-api-client")
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile 'com.squareup.retrofit2:retrofit-mock:2.1.0'
     testCompile 'com.squareup.okhttp3:mockwebserver:3.4.1'
