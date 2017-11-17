@@ -17,7 +17,6 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.simplifyops.toolbelt.Formatable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,26 +24,44 @@ import java.util.Map;
 
 /**
  * @author greg
- * @since 12/13/16
+ * @since 3/1/17
  */
-@JsonIgnoreProperties(ignoreUnknown = true)
-public class ScmImportItem implements Formatable {
-    public String itemId;
-    public Boolean tracked;
-    public ScmJobItem job;
 
-    @Override
-    public List<?> asList() {
-        return null;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class JobFileUploadResult {
+    private Integer total;
+    private Map<String, String> options;
+
+    public Integer getTotal() {
+        return total;
     }
 
-    public Map asMap() {
+    public void setTotal(Integer total) {
+        this.total = total;
+    }
+
+    public Map<String, String> getOptions() {
+        return options;
+    }
+
+    public void setOptions(Map<String, String> options) {
+        this.options = options;
+    }
+
+    public Map<?, ?> asMap() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("itemId", itemId);
-        map.put("tracked", tracked);
-        if(null!=job) {
-            map.put("job", job.toMap());
-        }
+        map.put("total", total);
+        map.put("options", options);
         return map;
+    }
+
+    /**
+     * @return the result file ID for the given option if available, or null
+     */
+    public String getFileIdForOption(String option) {
+        if (getTotal() > 0 && null != getOptions() && null != getOptions().get(option)) {
+            return getOptions().get(option);
+        }
+        return null;
     }
 }

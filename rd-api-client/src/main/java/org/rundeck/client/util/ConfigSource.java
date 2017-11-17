@@ -16,8 +16,6 @@
 
 package org.rundeck.client.util;
 
-import com.simplifyops.toolbelt.InputError;
-
 /**
  * @author greg
  * @since 1/11/17
@@ -34,6 +32,16 @@ public interface ConfigSource {
 
     String get(final String key);
 
-    String require(final String key, final String description) throws InputError;
+    String require(final String key, final String description) throws ConfigSourceError;
+
+    class ConfigSourceError extends Exception {
+        public ConfigSourceError(final String message, final Throwable cause) {
+            super(message, cause);
+        }
+
+        public ConfigSourceError(final String message) {
+            super(message);
+        }
+    }
 
 }

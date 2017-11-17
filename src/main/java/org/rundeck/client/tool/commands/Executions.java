@@ -23,7 +23,7 @@ import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.AppConfig;
+import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
@@ -453,7 +453,7 @@ public class Executions extends AppCommand {
             final ExecutionResultOptions options,
             final CommandOutput out,
             final List<Execution> executionList,
-            final AppConfig config
+            final RdClientConfig config
     )
     {
         if (options.isVerbose()) {

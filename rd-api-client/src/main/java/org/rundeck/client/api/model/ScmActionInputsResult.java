@@ -17,7 +17,6 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.simplifyops.toolbelt.Formatable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,37 +27,31 @@ import java.util.Map;
  * @since 12/13/16
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ScmExportItem implements Formatable{
-    public String itemId;
-    public String originalId;
-    public ScmJobItem job;
-    public Boolean renamed;
-    private Boolean deleted;
+public class ScmActionInputsResult  {
+    public String title;
+    public String description;
+    public String integration;
+    public String actionId;
+    public List<ScmInputField> fields;
+    public List<ScmImportItem> importItems;
+    public List<ScmExportItem> exportItems;
 
-    @Override
-    public List<?> asList() {
-        return null;
-    }
-
-    public Map asMap() {
+    public Map<?, ?> asMap() {
         HashMap<String, Object> map = new HashMap<>();
-        map.put("itemId", itemId);
-        if (null != originalId) {
-            map.put("originalId", originalId);
+        map.put("title", title);
+        map.put("description", description);
+        map.put("integration", integration);
+        map.put("actionId", actionId);
+        if (null != fields) {
+            map.put("fields", fields);
         }
-        if (null != job) {
-            map.put("job", job.toMap());
+        if (null != importItems) {
+            map.put("items", importItems);
         }
-        map.put("renamed", renamed);
-        map.put("deleted", deleted);
+        if (null != exportItems) {
+            map.put("items", exportItems);
+        }
+
         return map;
-    }
-
-    public boolean getDeleted() {
-        return deleted;
-    }
-
-    public void setDeleted(boolean deleted) {
-        this.deleted = deleted;
     }
 }

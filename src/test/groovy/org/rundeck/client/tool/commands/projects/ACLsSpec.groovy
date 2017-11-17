@@ -4,7 +4,7 @@ import com.simplifyops.toolbelt.CommandOutput
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RequestFailed
 import org.rundeck.client.api.RundeckApi
-import org.rundeck.client.tool.AppConfig
+import org.rundeck.client.util.RdClientConfig
 import org.rundeck.client.tool.Main
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
@@ -42,7 +42,7 @@ class ACLsSpec extends Specification {
         def out = Mock(CommandOutput)
         def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
 
-        def appConfig = Mock(AppConfig)
+        def appConfig = Mock(RdClientConfig)
 
         def hasclient = Mock(RdApp) {
             getClient() >> client

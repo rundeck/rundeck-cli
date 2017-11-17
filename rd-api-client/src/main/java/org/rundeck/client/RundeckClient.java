@@ -21,7 +21,6 @@ import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.tool.AppConfig;
 import org.rundeck.client.util.*;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
@@ -35,7 +34,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.rundeck.client.tool.Main.*;
 
 /**
  * Build a {@link Client} for {@link RundeckApi} using {@link #builder()}.
@@ -48,6 +46,12 @@ public class RundeckClient {
     public static final String ENV_INSECURE_SSL = "RD_INSECURE_SSL";
     public static final String ENV_INSECURE_SSL_HOSTNAME = "RD_INSECURE_SSL_HOSTNAME";
     public static final String ENV_ALT_SSL_HOSTNAME = "RD_ALT_SSL_HOSTNAME";
+    public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
+    public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
+    /**
+     * If true, allow API version to be automatically degraded when unsupported version is detected
+     */
+    public static final String RD_API_DOWNGRADE = "RD_API_DOWNGRADE";
     public static final int INSECURE_SSL_LOGGING = 2;
 
     private RundeckClient() {
@@ -74,7 +78,7 @@ public class RundeckClient {
             return this;
         }
 
-        public Builder config(AppConfig config) {
+        public Builder config(RdClientConfig config) {
             logging(config.getDebugLevel());
             retryConnect(config.getBool(ENV_CONNECT_RETRY, true));
             timeout(config.getLong(ENV_HTTP_TIMEOUT, null));

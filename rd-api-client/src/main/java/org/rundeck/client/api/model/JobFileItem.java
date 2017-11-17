@@ -17,7 +17,6 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.simplifyops.toolbelt.Formatable;
 import org.simpleframework.xml.Root;
 
 import java.util.HashMap;
@@ -30,7 +29,7 @@ import java.util.Map;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict = false)
-public class JobFileItem implements Formatable {
+public class JobFileItem  {
     private String id;
     private String user;
     private String optionName;
@@ -148,12 +147,6 @@ public class JobFileItem implements Formatable {
         this.execId = execId;
     }
 
-    @Override
-    public List<?> asList() {
-        return null;
-    }
-
-    @Override
     public Map<?, ?> asMap() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("id", id);
