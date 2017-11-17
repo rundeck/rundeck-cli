@@ -14,4 +14,16 @@
  * limitations under the License.
  */
 
-include 'lib', 'cli'
+package org.rundeck.client.util;
+
+
+/**
+ * @author greg
+ * @since 1/11/17
+ */
+public interface RdClientConfig extends ConfigSource {
+    boolean isAnsiEnabled();
+    int getDebugLevel();
+
+    String getDateFormat();
+}

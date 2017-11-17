@@ -51,11 +51,11 @@ class UsersSpec extends Specification {
         then:
         sameUserEndpoint * api.getUserInfo() >>
                 Calls.response(
-                        new User(login: 'login',email: 'test@email.com')
+                        new User(login: 'login', email: 'test@email.com')
                 )
         otherUserEndpoint * api.getUserInfo(username) >>
                 Calls.response(
-                        new User(login: username,email: 'test@email.com')
+                        new User(login: username, email: 'test@email.com')
                 )
         1 * out.output(result)
 
@@ -92,11 +92,11 @@ class UsersSpec extends Specification {
         then:
         sameUserEndpoint * api.editUserInfo(_) >>
                 Calls.response(
-                        new User(login: 'login',email: 'test@email.com')
+                        new User(login: 'login', email: 'test@email.com')
                 )
         otherUserEndpoint * api.editUserInfo(username,_) >>
                 Calls.response(
-                        new User(login: username,email: 'test@email.com')
+                        new User(login: username, email: 'test@email.com')
                 )
         1 * out.output(result)
 
@@ -126,7 +126,7 @@ class UsersSpec extends Specification {
         List<User> arr = new ArrayList<User>()
         if(userCount>0){
             (1..userCount).each{
-                arr.push(new User(login: 'login',email: 'test@email.com'))
+                arr.push(new User(login: 'login', email: 'test@email.com'))
             }
         }
         def opt = Mock(Users.ListOption)

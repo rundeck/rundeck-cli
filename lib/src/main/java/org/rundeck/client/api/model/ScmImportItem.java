@@ -14,17 +14,31 @@
  * limitations under the License.
  */
 
-package org.rundeck.client.tool;
+package org.rundeck.client.api.model;
 
-import org.rundeck.client.util.ConfigSource;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author greg
- * @since 1/11/17
+ * @since 12/13/16
  */
-public interface AppConfig extends ConfigSource {
-    boolean isAnsiEnabled();
-    int getDebugLevel();
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ScmImportItem  {
+    public String itemId;
+    public Boolean tracked;
+    public ScmJobItem job;
 
-    String getDateFormat();
+    public Map asMap() {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("itemId", itemId);
+        map.put("tracked", tracked);
+        if(null!=job) {
+            map.put("job", job.toMap());
+        }
+        return map;
+    }
 }

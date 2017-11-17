@@ -25,10 +25,7 @@ import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
-import org.rundeck.client.util.Client;
-import org.rundeck.client.util.ConfigSource;
-import org.rundeck.client.util.Env;
-import org.rundeck.client.util.ExtConfigSource;
+import org.rundeck.client.util.*;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
@@ -51,14 +48,8 @@ public class Main {
     public static final String ENV_TOKEN = "RD_TOKEN";
     public static final String ENV_URL = "RD_URL";
     public static final String ENV_API_VERSION = "RD_API_VERSION";
-    /**
-     * If true, allow API version to be automatically degraded when unsupported version is detected
-     */
-    public static final String RD_API_DOWNGRADE = "RD_API_DOWNGRADE";
     public static final String ENV_AUTH_PROMPT = "RD_AUTH_PROMPT";
     public static final String ENV_DEBUG = "RD_DEBUG";
-    public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
-    public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
     public static final String ENV_RD_FORMAT = "RD_FORMAT";
 
     public static void main(String[] args) throws CommandRunFailure {
@@ -80,7 +71,7 @@ public class Main {
         }
     }
 
-    private static void setupFormat(final ToolBelt belt, AppConfig config) {
+    private static void setupFormat(final ToolBelt belt, RdClientConfig config) {
         final String format = config.get(ENV_RD_FORMAT);
         if ("yaml".equalsIgnoreCase(format)) {
             configYamlFormat(belt, config);
@@ -127,7 +118,7 @@ public class Main {
         belt.channels().errorEnabled(false);
     }
 
-    private static void configYamlFormat(final ToolBelt belt, final AppConfig config) {
+    private static void configYamlFormat(final ToolBelt belt, final RdClientConfig config) {
         DumperOptions dumperOptions = new DumperOptions();
         dumperOptions.setDefaultFlowStyle(
                 "BLOCK".equalsIgnoreCase(config.getString("RD_YAML_FLOW", "BLOCK")) ?
@@ -183,7 +174,7 @@ public class Main {
         return belt.buckle();
     }
 
-    static class Rd extends ExtConfigSource implements RdApp, AppConfig {
+    static class Rd extends ExtConfigSource implements RdApp, RdClientConfig {
         Client<RundeckApi> client;
         private CommandOutput output;
 
@@ -226,7 +217,7 @@ public class Main {
         }
 
         @Override
-        public AppConfig getAppConfig() {
+        public RdClientConfig getAppConfig() {
             return this;
         }
 
@@ -255,7 +246,7 @@ public class Main {
         }
     }
 
-    private static void setupColor(final ToolBelt belt, AppConfig config) {
+    private static void setupColor(final ToolBelt belt, RdClientConfig config) {
         if (config.isAnsiEnabled()) {
             String info = config.get("RD_COLOR_INFO");
             if (null != info) {

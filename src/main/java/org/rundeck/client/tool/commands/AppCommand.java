@@ -18,7 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.tool.AppConfig;
+import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
@@ -42,7 +42,7 @@ public abstract class AppCommand  {
         return rdApp.getClient();
     }
 
-    public AppConfig getAppConfig() {
+    public RdClientConfig getAppConfig() {
         return rdApp.getAppConfig();
     }
 

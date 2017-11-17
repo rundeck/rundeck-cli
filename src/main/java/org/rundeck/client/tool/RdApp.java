@@ -19,8 +19,7 @@ package org.rundeck.client.tool;
 import com.simplifyops.toolbelt.CommandOutput;
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.tool.AppConfig;
-import org.rundeck.client.util.Client;
+import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.util.ServiceClient;
 
 /**
@@ -48,7 +47,7 @@ public interface RdApp {
     /**
      * @return app config
      */
-    AppConfig getAppConfig();
+    RdClientConfig getAppConfig();
 
     /**
      * @return output endpoint
