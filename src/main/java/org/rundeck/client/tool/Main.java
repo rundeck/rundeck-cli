@@ -205,14 +205,22 @@ public class Main {
         @Override
         public Client<RundeckApi> getClient() throws InputError {
             if (null == client) {
-                client = Main.createClient(this);
+                try {
+                    client = Main.createClient(this);
+                } catch (ConfigSourceError configSourceError) {
+                    throw new InputError(configSourceError.getMessage());
+                }
             }
             return client;
         }
 
         @Override
         public Client<RundeckApi> getClient(final int version) throws InputError {
-            client = Main.createClient(this, version);
+            try {
+                client = Main.createClient(this, version);
+            } catch (ConfigSourceError configSourceError) {
+                throw new InputError(configSourceError.getMessage());
+            }
             return client;
         }
 
@@ -268,11 +276,13 @@ public class Main {
     }
 
 
-    public static Client<RundeckApi> createClient(Rd config) throws InputError {
+    public static Client<RundeckApi> createClient(Rd config) throws InputError, ConfigSource.ConfigSourceError {
         return createClient(config, null);
     }
 
-    public static Client<RundeckApi> createClient(Rd config, Integer requestedVersion) throws InputError {
+    public static Client<RundeckApi> createClient(Rd config, Integer requestedVersion)
+            throws InputError, ConfigSource.ConfigSourceError
+    {
         Auth auth = new Auth() {
         };
         auth = auth.chain(new ConfigAuth(config));

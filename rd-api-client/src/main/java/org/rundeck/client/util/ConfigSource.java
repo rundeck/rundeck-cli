@@ -34,7 +34,7 @@ public interface ConfigSource {
 
     String require(final String key, final String description) throws ConfigSourceError;
 
-    static class ConfigSourceError extends RuntimeException {
+    class ConfigSourceError extends Exception {
         public ConfigSourceError(final String message, final Throwable cause) {
             super(message, cause);
         }

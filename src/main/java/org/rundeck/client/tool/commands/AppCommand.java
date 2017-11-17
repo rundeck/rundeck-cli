@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import com.simplifyops.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.util.ConfigSource;
 import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.ProjectNameOptions;
@@ -166,7 +167,11 @@ public abstract class AppCommand  {
         if (null != options.getProject()) {
             return options.getProject();
         }
-        return getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
+        try {
+            return getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
+        } catch (ConfigSource.ConfigSourceError configSourceError) {
+            throw new InputError(configSourceError.getMessage());
+        }
     }
 
     public RdApp getRdApp() {
