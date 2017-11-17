@@ -30,7 +30,6 @@ plugins {
     id 'groovy'
     id 'com.github.johnrengelman.shadow' version '1.2.3'
     id "nebula.ospackage" version "3.6.1"
-    id 'de.fuerstenau.buildconfig' version '1.1.8'
 }
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
 ext.changelogFile = file("CHANGELOG.md")
