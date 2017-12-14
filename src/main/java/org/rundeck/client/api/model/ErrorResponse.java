@@ -35,7 +35,7 @@ public class ErrorResponse implements ErrorDetail {
     @Attribute
     public int apiversion;
 
-    @Attribute(name = "code")
+    @Attribute(name = "code", required = false)
     @Path("error")
     public String errorCode;
 
