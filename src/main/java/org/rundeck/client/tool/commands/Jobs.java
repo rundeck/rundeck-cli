@@ -315,7 +315,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Job %s");
     }
 
-    @CommandLineInterface(application = "enableSchedule") interface EnableSchedOpts extends ToggleOpts {
+    @CommandLineInterface(application = "reschedule") interface EnableSchedOpts extends ToggleOpts {
     }
 
     @Command(description = "Enable schedule for a job")
@@ -323,7 +323,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, output, "Enabled Schedule for Job %s");
     }
 
-    @CommandLineInterface(application = "disableSchedule") interface DisableSchedOpts extends ToggleOpts {
+    @CommandLineInterface(application = "unschedule") interface DisableSchedOpts extends ToggleOpts {
     }
 
     @Command(description = "Disable schedule for a job")
