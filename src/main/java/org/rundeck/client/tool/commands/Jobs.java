@@ -328,7 +328,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     @Command(description = "Disable schedule for a job")
     public boolean unschedule(DisableSchedOpts options, CommandOutput output) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Schedule for Job %s");
+        return simpleJobApiCall(RundeckApi::jobScheduleDisable, options, output, "Disabled Schedule for Job %s");
     }
 
     private boolean simpleJobApiCall(
