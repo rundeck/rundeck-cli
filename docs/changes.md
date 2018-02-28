@@ -4,6 +4,14 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.23
+
+* Fix usage text for jbos reschedule/unschedule
+* Fix [Issue #147](https://github.com/rundeck/rundeck-cli/issues/147) `jobs unschedule` disables execution
+* Fix [Issue #136](https://github.com/rundeck/rundeck-cli/issues/136) parse error with 500 response for project delete
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.22...v1.0.23)
+
 ## 1.0.22
 
 * Fix description of --alldeleted flag
