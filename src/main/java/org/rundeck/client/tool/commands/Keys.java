@@ -113,6 +113,13 @@ public class Keys extends AppCommand {
         return options.getPath2() != null ? options.getPath2() : options.getPath();
     }
 
+    private String resolvKeyPath(final PathArgs options){
+        if (options.getPath2() != null) {
+            return options.getPath().keysPath() + "/" + options.getPath2().keysPath();
+        }
+        return options.getPath().keysPath();
+    }
+
     @CommandLineInterface(application = "info") interface Info extends PathArgs {
     }
 
@@ -202,12 +209,11 @@ public class Keys extends AppCommand {
 
     @Command(synonyms = {"rm"}, description = "Delete the key at the given path.")
     public void delete(Delete opts, CommandOutput output) throws IOException, InputError {
-        Path path = argPath(opts);
-        String path1 = path.keysPath();
-        if (path1.length() < 1) {
+        String path = resolvKeyPath(opts);
+        if (path.length() < 1) {
             throw new InputError(P_PATH_IS_REQUIRED);
         }
-        apiCall(api -> api.deleteKeyStorage(path.keysPath()));
+        apiCall(api -> api.deleteKeyStorage(path));
         output.info(String.format("Deleted: %s", path));
     }
 
@@ -244,16 +250,14 @@ public class Keys extends AppCommand {
 
     @Command(description = "Create a new key entry.")
     public void create(Upload options, CommandOutput output) throws IOException, InputError {
-
-        Path path = argPath(options);
-        String path1 = path.keysPath();
-        if (path1.length() < 1) {
+        String path = resolvKeyPath(options);
+        if (path.length() < 1) {
             throw new InputError(P_PATH_IS_REQUIRED);
         }
         RequestBody requestBody = prepareKeyUpload(options);
 
 
-        KeyStorageItem keyStorageItem = apiCall(api -> api.createKeyStorage(path1, requestBody));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.createKeyStorage(path, requestBody));
         output.info(String.format("Created: %s", keyStorageItem.toBasicString()));
     }
 
@@ -333,13 +337,12 @@ public class Keys extends AppCommand {
 
     @Command(description = "Update an existing key entry")
     public void update(Update options, CommandOutput output) throws IOException, InputError {
-        Path path = argPath(options);
-        String path1 = path.keysPath();
-        if (path1.length() < 1) {
+        String path = resolvKeyPath(options);
+        if (path.length() < 1) {
             throw new InputError(P_PATH_IS_REQUIRED);
         }
         RequestBody requestBody = prepareKeyUpload(options);
-        KeyStorageItem keyStorageItem = apiCall(api -> api.updateKeyStorage(path.keysPath(), requestBody));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.updateKeyStorage(path, requestBody));
         output.info(String.format("Updated: %s", keyStorageItem.toBasicString()));
     }
 
