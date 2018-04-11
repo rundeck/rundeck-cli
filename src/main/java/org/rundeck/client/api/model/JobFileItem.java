@@ -17,7 +17,7 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.simplifyops.toolbelt.Formatable;
+import org.rundeck.toolbelt.Formatable;
 import org.simpleframework.xml.Root;
 
 import java.util.HashMap;

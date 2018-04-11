@@ -18,10 +18,10 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.HasSubCommands;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.HasSubCommands;
+import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.RdApp;

@@ -179,8 +179,8 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-ext.toolbeltVersion = "0.1.20"
-ext.toolbeltGroup =  "com${toolbeltVersion.contains('SNAPSHOT')?'':'.github'}.simplifyops.cli-toolbelt"
+ext.toolbeltVersion = "0.2.1"
+ext.toolbeltGroup =  "${toolbeltVersion.contains('SNAPSHOT')?'org':'com.github'}.rundeck.cli-toolbelt"
 
 dependencies {
 

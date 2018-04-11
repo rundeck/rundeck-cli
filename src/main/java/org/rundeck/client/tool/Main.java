@@ -16,10 +16,10 @@
 
 package org.rundeck.client.tool;
 
-import com.simplifyops.toolbelt.*;
-import com.simplifyops.toolbelt.format.json.jackson.JsonFormatter;
-import com.simplifyops.toolbelt.format.yaml.snakeyaml.YamlFormatter;
-import com.simplifyops.toolbelt.input.jewelcli.JewelInput;
+import org.rundeck.toolbelt.*;
+import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
+import org.rundeck.toolbelt.format.yaml.snakeyaml.YamlFormatter;
+import org.rundeck.toolbelt.input.jewelcli.JewelInput;
 import org.rundeck.client.RundeckClient;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
