@@ -17,9 +17,9 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.Option;
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.model.ApiToken;
 import org.rundeck.client.api.model.CreateToken;
 import org.rundeck.client.tool.RdApp;

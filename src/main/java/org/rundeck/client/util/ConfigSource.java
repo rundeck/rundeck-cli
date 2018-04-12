@@ -16,7 +16,7 @@
 
 package org.rundeck.client.util;
 
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.InputError;
 
 /**
  * @author greg

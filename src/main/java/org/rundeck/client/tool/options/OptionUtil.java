@@ -16,7 +16,7 @@
 
 package org.rundeck.client.tool.options;
 
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.InputError;
 
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +52,7 @@ public class OptionUtil {
     ) throws InputError
     {
         Map<String, String> config = new HashMap<>();
-        if (input.size() > 0) {
+        if (!input.isEmpty()) {
             for (String s : input) {
                 if (keyPrefix != null && !s.startsWith(keyPrefix)) {
                     throw new InputError(String.format("Expected %skey%svalue, but saw: %s", keyPrefix, delim, s));

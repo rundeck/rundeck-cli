@@ -16,7 +16,7 @@
 
 package org.rundeck.client.tool.commands
 
-import com.simplifyops.toolbelt.CommandOutput
+import org.rundeck.toolbelt.CommandOutput
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobFileUploadResult

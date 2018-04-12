@@ -1,6 +1,6 @@
 package org.rundeck.client.tool.commands
 
-import com.simplifyops.toolbelt.CommandOutput
+import org.rundeck.toolbelt.CommandOutput
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
