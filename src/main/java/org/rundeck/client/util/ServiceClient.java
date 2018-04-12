@@ -235,4 +235,8 @@ public interface ServiceClient<T> {
     Retrofit getRetrofit();
 
     int getApiVersion();
+
+    default boolean minApiVersion(int minimum) {
+        return getApiVersion() >= minimum;
+    }
 }
