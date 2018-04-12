@@ -190,4 +190,58 @@ class TokensSpec extends Specification {
         1 * out.output('123abc')
 
     }
+
+    @Unroll
+    def "create token outputformat"() {
+
+        def api = Mock(RundeckApi)
+
+        def opts = Mock(Tokens.CreateOptions) {
+            getUser() >> "bob"
+            isUser() >> true
+            getRoles() >> ['a', 'b']
+            isRoles() >> true
+            isOutputFormat() >> true
+            getOutputFormat() >> format
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 19, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Tokens tokens = new Tokens(hasclient)
+        def out = Mock(CommandOutput)
+        // https://github.com/rundeck/rundeck/issues/2479
+        def resultToken = new ApiToken(
+                user: 'bob',
+                token: '123abc',
+                id: 'c13de457-c429-4476-9acd-e1c89e3c2928',
+                roles: ['a', 'b'],
+                expired: false,
+                expiration: new DateInfo('2017-03-24T21:18:55Z'),
+                creator: 'user3'
+        )
+        when:
+        def result = tokens.create(opts, out)
+
+        then:
+        1 * api.createToken(
+                {
+                    it instanceof CreateToken && it.roles == ['a', 'b'] && it.user == 'bob' && it.duration == null
+                }
+        ) >> Calls.response(resultToken)
+        0 * api._(*_)
+        1 * out.output(expected)
+
+        where:
+        format        | expected
+        "%token"      | '123abc'
+        "%id"         | 'c13de457-c429-4476-9acd-e1c89e3c2928'
+        "%creator"    | 'user3'
+        "%user"       | 'bob'
+        "%expired"    | 'false'
+        "%expiration" | '2017-03-24T21:18:55Z'
+        "%roles"      | '[a, b]'
+        "%id:%token"  | 'c13de457-c429-4476-9acd-e1c89e3c2928:123abc'
+    }
 }
