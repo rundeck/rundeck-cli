@@ -29,6 +29,7 @@ import org.rundeck.client.tool.commands.projects.*;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 
+import java.io.Console;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -125,7 +126,13 @@ public class Projects extends AppCommand implements HasSubCommands {
         String project = projectOrEnv(options);
         if (!options.isConfirm()) {
             //request confirmation
-            String s = System.console().readLine("Really delete project %s? (y/N) ", project);
+            Console console = System.console();
+            String s = "n";
+            if (null != console) {
+                s = console.readLine("Really delete project %s? (y/N) ", project);
+            } else {
+                output.warning("No console input available, and --confirm/-y was not set.");
+            }
 
             if (!"y".equals(s)) {
                 output.warning(String.format("Not deleting project %s.", project));
