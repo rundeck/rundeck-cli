@@ -18,18 +18,15 @@ package org.rundeck.client.tool.commands.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
 import com.lexicalscope.jewel.cli.OptionOrder;
 import com.lexicalscope.jewel.cli.Unparsed;
+import org.rundeck.client.tool.options.*;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.model.ProjectConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.options.OptionUtil;
-import org.rundeck.client.tool.options.ProjectNameOptions;
-import org.rundeck.client.tool.options.UnparsedConfigOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 
@@ -70,36 +67,14 @@ public class Configure extends AppCommand {
         }
     }
 
-    enum InputFileFormat {
+    public static enum InputFileFormat {
         properties,
         json,
         yaml
     }
 
-    interface ConfigFileOptions {
-        @Option(shortName = "f",
-                longName = "file",
-                description = "Input file for project configuration. Can be a .properties, .json or .yaml file. " +
-                              "Format is determined by file extension or -F/--format")
-        File getFile();
-
-        boolean isFile();
-
-        @Option(shortName = "F",
-                longName = "format",
-                description = "Input file format. Can be [properties, json, yaml] (default: properties, unless " +
-                              "recognized in filename)")
-        InputFileFormat getFileFormat();
-
-        boolean isFileFormat();
-    }
-
-    interface ConfigInputOptions extends ConfigFileOptions, UnparsedConfigOptions {
-
-    }
-
     @CommandLineInterface(application = "set", order = OptionOrder.DEFINITION) interface ConfigureSetOpts extends
-            ConfigInputOptions,
+                                                                                                          ConfigInputOptions,
             ProjectNameOptions
     {
 
@@ -119,7 +94,7 @@ public class Configure extends AppCommand {
 
     }
 
-    private Map<String, String> loadConfig(final ConfigInputOptions opts) throws InputError, IOException {
+    public static Map<String, String> loadConfig(final ConfigInputOptions opts) throws InputError, IOException {
         HashMap<String, String> inputConfig = new HashMap<>();
         if (opts.isFile()) {
             File input = opts.getFile();
@@ -147,6 +122,25 @@ public class Configure extends AppCommand {
                 case json:
                     ObjectMapper objectMapper = new ObjectMapper();
                     Map map = objectMapper.readValue(input, Map.class);
+                    for (Object o : map.keySet()) {
+                        if (!(o instanceof String)) {
+                            throw new InputError(String.format(
+                                    "Expected all keys of the json object to be strings, but saw: %s for: %s",
+                                    o.getClass(),
+                                    o
+                            ));
+                        }
+                        Object value = map.get(o);
+                        if (!(value instanceof String)) {
+                            throw new InputError(String.format(
+                                    "Expected all values of the json object to be strings, but saw: %s for: %s, for "
+                                    + "key: %s",
+                                    value.getClass(),
+                                    value,
+                                    o
+                            ));
+                        }
+                    }
                     //noinspection unchecked
                     inputConfig.putAll(map);
                     break;

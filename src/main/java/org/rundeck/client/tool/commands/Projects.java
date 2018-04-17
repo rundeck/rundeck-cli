@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool.commands;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import org.rundeck.toolbelt.Command;
@@ -30,11 +31,9 @@ import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 
 import java.io.Console;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -144,13 +143,16 @@ public class Projects extends AppCommand implements HasSubCommands {
         return true;
     }
 
-    @CommandLineInterface(application = "create") interface Create extends ProjectCreateOptions {
+    @CommandLineInterface(application = "create")
+    interface Create extends ProjectCreateOptions, ConfigInputOptions {
 
     }
 
     @Command(description = "Create a project.")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
-        Map<String, String> config = OptionUtil.parseKeyValueMap(options.config());
+
+        Map<String, String> config = Configure.loadConfig(options);
+
         ProjectItem project = new ProjectItem();
         project.setName(projectOrEnv(options));
         project.setConfig(config);
