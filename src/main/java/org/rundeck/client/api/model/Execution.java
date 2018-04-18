@@ -94,7 +94,7 @@ public class Execution {
         map.put("href", getHref());
         map.put("status", getStatus());
         map.put("project", getProject());
-        map.put("job", getJob());
+        map.put("job", getJob().toMap());
         map.put("user", getUser());
         map.put("serverUUID", getServerUUID());
         map.put("dateStarted", null != getDateStarted() ? getDateStarted().format(config.getDateFormat()) : null);
