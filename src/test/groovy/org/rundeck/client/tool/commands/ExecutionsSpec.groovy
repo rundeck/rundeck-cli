@@ -18,8 +18,9 @@ package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.ExecutionList
-import org.rundeck.client.api.model.Paging
 import org.rundeck.client.tool.AppConfig
+import org.rundeck.client.api.model.JobItem
+import org.rundeck.client.api.model.Paging
 import org.rundeck.client.tool.RdApp
 import org.rundeck.toolbelt.CommandOutput
 import okhttp3.mockwebserver.MockResponse
@@ -38,6 +39,58 @@ import spock.lang.Specification
  * @since 12/5/16
  */
 class ExecutionsSpec extends Specification {
+    def "output format allows job.* params"() {
+        given:
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 18, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Executions command = new Executions(hasclient)
+        def out = Mock(CommandOutput)
+        def options = Mock(Executions.ListCmd) {
+            getProject() >> 'aproject'
+            getOutputFormat() >> outFormat
+            isOutputFormat() >> true
+        }
+        def jobmap = [
+                id             : 'jobid',
+                name           : 'jobname',
+                group          : 'agroup',
+                project        : 'aproject',
+                description    : 'blah',
+                href           : 'http://href',
+                permalink      : 'http://permalink',
+                averageDuration: 123l
+        ]
+        when:
+        command.list(options, out)
+
+        then:
+        1 * api.runningExecutions('aproject', 0, 20) >> Calls.response(
+                new ExecutionList(
+                        paging: new Paging(count: 1, total: 1, offset: 0, max: 20),
+                        executions: [
+                                new Execution(id: '1', href: 'http://no', description: '', job: new JobItem(jobmap))
+                        ]
+                )
+        )
+        1 * out.output(result)
+
+        where:
+        outFormat              | result
+        '%job.id'              | 'jobid'
+        '%job.name'            | 'jobname'
+        '%job.group'           | 'agroup'
+        '%job.project'         | 'aproject'
+        '%job.description'     | 'blah'
+        '%job.href'            | 'http://href'
+        '%job.permalink'       | 'http://permalink'
+        '%job.averageDuration' | '123'
+
+    }
     def "followOutput repeats until execution is not running"() {
         given:
         def max = 500
