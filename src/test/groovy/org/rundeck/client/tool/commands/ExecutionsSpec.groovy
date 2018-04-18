@@ -18,10 +18,10 @@ package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.ExecutionList
-import org.rundeck.client.tool.AppConfig
 import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.Paging
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.util.RdClientConfig
 import org.rundeck.toolbelt.CommandOutput
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -276,7 +276,7 @@ class ExecutionsSpec extends Specification {
         }
         def hasclient = Mock(RdApp) {
             getClient() >> client
-            getAppConfig() >> Mock(AppConfig)
+            getAppConfig() >> Mock(RdClientConfig)
         }
         def command = new Executions(hasclient)
         def out = Mock(CommandOutput)

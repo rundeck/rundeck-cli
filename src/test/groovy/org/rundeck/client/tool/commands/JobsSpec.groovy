@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool.commands
 
+import org.rundeck.client.api.model.Simple
 import org.rundeck.toolbelt.CommandOutput
 import org.rundeck.toolbelt.InputError
 import okhttp3.MediaType
