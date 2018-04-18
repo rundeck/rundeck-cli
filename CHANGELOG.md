@@ -1,3 +1,11 @@
+## 1.0.24
+
+* Fix [Issue #156](https://github.com/rundeck/rundeck-cli/issues/156) npe if no stdin for project delete without --confirm
+* Fix [Issue #157](https://github.com/rundeck/rundeck-cli/issues/157) project create can use config file
+* support outformat option for tokens create/list/reveal
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.23...v1.0.24)
+
 ## 1.0.23
 
 * Fix usage text for jbos reschedule/unschedule
