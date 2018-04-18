@@ -76,12 +76,9 @@ public class Keys extends AppCommand {
 
         @Option(shortName = "p",
                 longName = "path",
-                description = "Storage path, default: keys/",
-                defaultValue = "keys/")
+                description = "Storage path in the form 'path/to/file', or 'keys/path/to/file'.",
+                defaultToNull = true)
         Path getPath();
-
-        @Unparsed(defaultToNull = true, description = "Storage path", name = "PATH")
-        Path getPath2();
     }
 
     @CommandLineInterface(application = "list") interface ListArg extends PathArgs {
@@ -110,7 +107,7 @@ public class Keys extends AppCommand {
     }
 
     private Path argPath(final PathArgs options) {
-        return options.getPath2() != null ? options.getPath2() : options.getPath();
+        return options.getPath();
     }
 
     @CommandLineInterface(application = "info") interface Info extends PathArgs {
