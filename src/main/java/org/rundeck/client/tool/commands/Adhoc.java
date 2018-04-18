@@ -133,7 +133,10 @@ public class Adhoc extends AppCommand {
             if (!options.isOutputFormat()) {
                 output.info(adhocResponse.message);
             }
-            Executions.outputExecutionList(options, output, Collections.singletonList(execution), getAppConfig());
+            Executions.outputExecutionList(options, output,
+                                           getAppConfig(),
+                                           Collections.singletonList(execution).stream()
+            );
         }
 
         return Executions.maybeFollow(getRdApp(), options, adhocResponse.execution.getId(), output);

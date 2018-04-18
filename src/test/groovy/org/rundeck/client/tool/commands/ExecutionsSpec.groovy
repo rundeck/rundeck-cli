@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.ExecutionList
+import org.rundeck.client.tool.AppConfig
 import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.Paging
 import org.rundeck.client.tool.RdApp
@@ -257,5 +258,62 @@ class ExecutionsSpec extends Specification {
 
         server.shutdown()
 
+    }
+
+    def "executions query noninteractive --autopage behavior"() {
+        given:
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 18, true, null)
+
+        def options = Mock(Executions.QueryCmd) {
+            getProject() >> 'aproject'
+            getMax() >> 1
+            isMax() >> true
+            isNonInteractive() >> true
+            isAutoLoadPages() >> autopage
+        }
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(AppConfig)
+        }
+        def command = new Executions(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        command.query(options, out)
+
+        then:
+        1 * api.listExecutions('aproject', [max: '1', offset: '0'], null, null, null, null) >> Calls.response(
+                new ExecutionList(
+                        paging: new Paging(offset: 0, max: 1, total: 2, count: 1),
+                        executions: [
+                                new Execution(
+                                        id: '1',
+                                        description: ''
+                                )
+                        ]
+
+                )
+        )
+        (page2 ? 1 : 0) * api.listExecutions('aproject', [max: '1', offset: '1'], null, null, null, null) >>
+        Calls.response(
+                new ExecutionList(
+                        paging: new Paging(offset: 1, max: 1, total: 2, count: 1),
+                        executions: [
+                                new Execution(
+                                        id: '2',
+                                        description: ''
+                                )
+                        ]
+
+                )
+        )
+        0 * api._(*_)
+
+        where:
+        autopage | page2
+        true     | true
+        false    | false
     }
 }
