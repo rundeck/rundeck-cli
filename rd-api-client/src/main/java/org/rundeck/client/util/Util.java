@@ -16,9 +16,12 @@
 
 package org.rundeck.client.util;
 
+import java.io.Console;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * stream utils
@@ -44,5 +47,31 @@ public class Util {
             count = inputStream.read(buff);
         }
         return total;
+    }
+
+    /**
+     * Use console to prompt user for input
+     *
+     * @param prompt  prompt string
+     * @param handler input handler, returns parsed value, or empty to prompt again
+     * @param defval  default value to return if no input available or user cancels input
+     * @param <T>     result type
+     * @return result
+     */
+    public static <T> T readPrompt(String prompt, Function<String, Optional<T>> handler, T defval) {
+        Console console = System.console();
+        if (null == console) {
+            return defval;
+        }
+        while (true) {
+            String load = console.readLine(prompt);
+            if (null == load) {
+                return defval;
+            }
+            Optional<T> o = handler.apply(load.trim());
+            if (o.isPresent()) {
+                return o.get();
+            }
+        }
     }
 }

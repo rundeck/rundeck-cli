@@ -16,7 +16,7 @@
 
 package org.rundeck.client.tool.util;
 
-import com.simplifyops.toolbelt.ANSIColorOutput;
+import org.rundeck.toolbelt.ANSIColorOutput;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

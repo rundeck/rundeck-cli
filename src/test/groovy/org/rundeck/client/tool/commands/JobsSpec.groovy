@@ -16,8 +16,8 @@
 
 package org.rundeck.client.tool.commands
 
-import com.simplifyops.toolbelt.CommandOutput
-import com.simplifyops.toolbelt.InputError
+import org.rundeck.toolbelt.CommandOutput
+import org.rundeck.toolbelt.InputError
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
@@ -120,6 +120,60 @@ class JobsSpec extends Specification {
         job  | group | jobexact | groupexact
         'a'  | 'b/c' | null     | null
         null | null  | 'a'      | 'b/c'
+    }
+
+    @Unroll
+    def "jobs #action behavior"() {
+        given:
+        def api = Mock(RundeckApi)
+        def deets = [
+                enable    : [
+                        opt : Jobs.EnableOpts,
+                        call: "jobExecutionEnable"
+                ],
+
+                disable   : [
+                        opt : Jobs.DisableOpts,
+                        call: "jobExecutionDisable"
+                ],
+
+                reschedule: [
+                        opt : Jobs.EnableSchedOpts,
+                        call: "jobScheduleEnable"
+                ],
+
+                unschedule: [
+                        opt : Jobs.DisableSchedOpts,
+                        call: "jobScheduleDisable"
+                ]
+        ]
+        Class optClass = deets[action].opt
+        def apiCall = deets[action].call
+        def opts = Mock(optClass) {
+            isId() >> true
+            getId() >> '123'
+            getProject() >> 'testProj'
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 17, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Jobs jobs = new Jobs(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        jobs."$action"(opts, out)
+
+        then:
+        1 * api."$apiCall"('123') >> Calls.response(new Simple(success: true))
+        0 * api._(*_)
+
+        where:
+        action       | _
+        'enable'     | _
+        'disable'    | _
+        'unschedule' | _
+        'reschedule' | _
     }
 
 

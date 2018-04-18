@@ -16,8 +16,8 @@
 
 package org.rundeck.client.tool;
 
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.util.ServiceClient;

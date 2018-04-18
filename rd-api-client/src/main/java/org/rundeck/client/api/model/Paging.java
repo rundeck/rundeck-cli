@@ -62,19 +62,55 @@ public class Paging {
 
     @Override
     public String toString() {
-        return String.format("Paged results %d - %d (of %d by %d).", offset, count + offset, total, max);
+        return String.format(
+                "Page [%d/%d] results %d - %d (of %d by %d).",
+                pagenum(),
+                maxPagenum(),
+                offset + 1,
+                count + offset,
+                total,
+                max
+        );
     }
 
-    @SuppressWarnings("SameParameterValue")
+
     public String moreResults(final String offsetArg) {
+        return moreResults(offsetArg, null);
+    }
+
+    public String moreResults(final String offsetArg, final String extra) {
         if (hasMoreResults()) {
             int nextOffset = getOffset() + getMax();
-            return String.format("(more results available, append: %s %d)", offsetArg, nextOffset);
+            return String.format(
+                    "(more results available, append: %s %d%s)",
+                    offsetArg,
+                    nextOffset,
+                    null != extra ? extra : ""
+            );
         } else {
             return "End of results.";
         }
     }
 
+    public int pagenum() {
+
+        int oflow = offset % max;
+        return 1 + (offset - oflow) / max + (oflow > 0 ? 1 : 0);
+    }
+
+    public int maxPagenum() {
+
+        int oflow = total % max;
+        return (total - oflow) / max + (oflow > 0 ? 1 : 0);
+
+    }
+
+    public int nextPageOffset() {
+        if (!hasMoreResults()) {
+            return -1;
+        }
+        return offset + count;
+    }
     public boolean hasMoreResults() {
         return getTotal() > (getOffset() + getCount());
     }

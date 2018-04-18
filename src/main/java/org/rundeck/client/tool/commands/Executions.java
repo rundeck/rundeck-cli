@@ -18,9 +18,10 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.client.util.Util;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.util.RdClientConfig;
@@ -35,6 +36,7 @@ import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 
 /**
@@ -235,7 +237,7 @@ public class Executions extends AppCommand {
 
         Execution execution = apiCall(api -> api.getExecution(options.getId()));
 
-        outputExecutionList(options, out, Collections.singletonList(execution), getAppConfig());
+        outputExecutionList(options, out, getAppConfig(), Collections.singletonList(execution).stream());
     }
 
     @CommandLineInterface(application = "list") interface ListCmd
@@ -256,7 +258,7 @@ public class Executions extends AppCommand {
             out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
         }
 
-        outputExecutionList(options, out, executionList.getExecutions(), getAppConfig());
+        outputExecutionList(options, out, getAppConfig(), executionList.getExecutions().stream());
     }
 
 
@@ -375,7 +377,14 @@ public class Executions extends AppCommand {
 
         boolean isExcludeJobExactFilter();
 
+        @Option(longName = "noninteractive",
+                description = "Don't use interactive prompts to load more pages if there are more paged results")
+        boolean isNonInteractive();
 
+        @Option(longName = "autopage",
+                description = "Automatically load more results in non-interactive mode if there are more paged "
+                              + "results.")
+        boolean isAutoLoadPages();
 
     }
 
@@ -383,9 +392,114 @@ public class Executions extends AppCommand {
     public ExecutionList query(QueryCmd options, CommandOutput out) throws IOException, InputError {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
-        Map<String, String> query = new HashMap<>();
-        query.put("offset", Integer.toString(offset));
+
+        Map<String, String> query = createQueryParams(options, max, offset);
+
+        boolean interactive = !options.isNonInteractive();
+        if (getAppConfig().getString("RD_FORMAT", null) != null) {
+            interactive = false;
+        }
+        boolean autopage = interactive || options.isAutoLoadPages();
+
+        String project = projectOrEnv(options);
+
+        ExecutionList result = null;
+        boolean verboseInfo = !options.isOutputFormat() && !autopage || interactive;
+        List<Stream<Execution>> allResults = new ArrayList<>();
+        while (offset >= 0) {
+            query.put("offset", Integer.toString(offset));
+            ExecutionList executionList = apiCall(api -> api
+                    .listExecutions(
+                            project,
+                            query,
+                            options.getJobIdList(),
+                            options.getExcludeJobIdList(),
+                            options.getJobList(),
+                            options.getExcludeJobList()
+                    ));
+            result = executionList;
+            Paging page = executionList.getPaging();
+            if (verboseInfo) {
+                out.info(page);
+            }
+            allResults.add(executionList.getExecutions().stream());
+
+            if (interactive) {
+                outputExecutionList(options, out, getAppConfig(), executionList.getExecutions().stream());
+            }
+            if (verboseInfo && !autopage) {
+                out.info(page.moreResults("-o", page.hasMoreResults() ? ", or --autopage for all" : null));
+            }
+            if (!autopage) {
+                break;
+            }
+            if (!page.hasMoreResults()) {
+                break;
+            }
+            //next page by default
+            offset = page.nextPageOffset();
+            if (interactive) {
+                //prompt for next paging
+                int maxpage = page.maxPagenum();
+                int nextpage = page.pagenum() + 1;
+
+                int i = Util.readPrompt(
+                        String.format("Enter page to load 1-%d [default: %d]: ", maxpage, nextpage),
+                        (input) -> {
+                            if ("".equals(input) || "n".equalsIgnoreCase(input) || "next".equalsIgnoreCase(input)) {
+                                return Optional.of(0);
+                            }
+                            if ("exit".equalsIgnoreCase(input)
+                                || "quit".equalsIgnoreCase(input)
+                                || "q".equalsIgnoreCase(input)) {
+                                return Optional.of(-1);
+                            }
+                            try {
+                                int value = Integer.parseInt(input);
+                                if (value > maxpage) {
+                                    out.warning(String.format("Maximum page number is: %d", maxpage));
+                                    return Optional.empty();
+                                }
+                                if (value < 1) {
+                                    out.warning("Minimum page number is: 1");
+                                    return Optional.empty();
+                                }
+                                return Optional.of(value);
+                            } catch (NumberFormatException e) {
+                                out.error(String.format("Not a valid number: %s", input));
+                                return Optional.empty();
+                            }
+
+                        },
+                        -1
+                );
+
+                if (i > 0) {
+                    offset = page.getMax() * (i - 1);
+                } else if (i == 0) {
+                    offset = page.nextPageOffset();
+                } else {
+                    offset = -1;
+                }
+
+            }
+
+        }
+        if (!interactive) {
+            outputExecutionList(options, out, getAppConfig(), allResults.stream().flatMap(a -> a));
+        }
+        return result;
+    }
+
+    private Map<String, String> createQueryParams(
+            final QueryCmd options,
+            final int max,
+            final int offset
+    ) {
+        final Map<String, String> query = new HashMap<>();
+
         query.put("max", Integer.toString(max));
+        query.put("offset", Integer.toString(offset));
         if (options.isRecentFilter()) {
             query.put("recentFilter", options.getRecentFilter());
         }
@@ -425,40 +539,19 @@ public class Executions extends AppCommand {
         if (options.isExcludeJobExactFilter()) {
             query.put("excludeJobExactFilter", options.getExcludeJobExactFilter());
         }
-
-
-        String project = projectOrEnv(options);
-        ExecutionList executionList = apiCall(api -> api
-                .listExecutions(
-                        project,
-                        query,
-                        options.getJobIdList(),
-                        options.getExcludeJobIdList(),
-                        options.getJobList(),
-                        options.getExcludeJobList()
-                ));
-
-        Paging page = executionList.getPaging();
-        if (!options.isOutputFormat()) {
-            out.info(page);
-        }
-        outputExecutionList(options, out, executionList.getExecutions(), getAppConfig());
-        if (!options.isOutputFormat()) {
-            out.info(page.moreResults("-o"));
-        }
-        return executionList;
+        return query;
     }
 
     public static void outputExecutionList(
             final ExecutionResultOptions options,
             final CommandOutput out,
-            final List<Execution> executionList,
-            final RdClientConfig config
+            final RdClientConfig config,
+            final Stream<Execution> executions
     )
     {
         if (options.isVerbose()) {
 
-            out.output(executionList.stream().map(e -> e.getInfoMap(config)).collect(Collectors.toList()));
+            out.output(executions.map(e -> e.getInfoMap(config)).collect(Collectors.toList()));
             return;
         }
         final Function<Execution, ?> outformat;
@@ -467,7 +560,7 @@ public class Executions extends AppCommand {
         } else {
             outformat = e -> e.toExtendedString(config);
         }
-        executionList.forEach(e -> out.output(outformat.apply(e)));
+        executions.forEach(e -> out.output(outformat.apply(e)));
     }
 
     @CommandLineInterface(application = "deletebulk") interface BulkDeleteCmd extends QueryCmd {

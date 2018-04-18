@@ -17,16 +17,18 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.Option;
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.client.tool.options.TokenFormatOption;
+import org.rundeck.client.util.Format;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.model.ApiToken;
 import org.rundeck.client.api.model.CreateToken;
 import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.options.VerboseOption;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -39,7 +41,7 @@ public class Tokens extends AppCommand {
         super(client);
     }
 
-    public interface CreateOptions extends VerboseOption {
+    public interface CreateOptions extends TokenFormatOption {
         @Option(longName = "user", shortName = "u", description = "user name")
         String getUser();
 
@@ -60,7 +62,7 @@ public class Tokens extends AppCommand {
 
     @Command(description = "Create a token for a user")
     public ApiToken create(CreateOptions options, CommandOutput output) throws IOException, InputError {
-        boolean v19 = getClient().getApiVersion() >= 19;
+        boolean v19 = getClient().minApiVersion(19);
         ApiToken apiToken;
         if (v19) {
             if (!options.isRoles()) {
@@ -71,24 +73,23 @@ public class Tokens extends AppCommand {
                     options.getRoles(),
                     options.getDuration()
             )));
-            output.info("API Token created:");
-            output.output(options.isVerbose() ? apiToken.toMap() : apiToken.getToken());
         } else {
             if (options.isRoles() || options.isDuration()) {
                 throw new InputError("--roles/-r and --duration/-d are not supported for API v18 and earlier");
             }
             apiToken = apiCall(api -> api.createToken(options.getUser()));
-            output.info("API Token created:");
-            if (options.isVerbose()) {
-                output.output(apiToken.toMap());
-            } else {
-                output.output(apiToken.getIdOrToken());
-            }
         }
+        output.info("API Token created:");
+
+        output.output(
+                formatTokenOutput(v19, options, ApiToken::toMap, true)
+                        .apply(apiToken)
+        );
+
         return apiToken;
     }
 
-    public interface ListOptions extends VerboseOption {
+    public interface ListOptions extends TokenFormatOption {
         @Option(longName = "user", shortName = "u", description = "user name")
         String getUser();
 
@@ -102,14 +103,18 @@ public class Tokens extends AppCommand {
         List<ApiToken> tokens = apiCall(api -> api.listTokens(options.getUser()));
         output.info(String.format("API Tokens for %s:", options.getUser()));
 
-        output.output(tokens.stream()
-                            .map(
-                                    formatTokenOutput(
-                                            getClient().getApiVersion() >= 19,
-                                            options.isVerbose()
-                                    )
-                            )
-                            .collect(Collectors.toList()));
+        output.output(
+                tokens.stream()
+                      .map(
+                              formatTokenOutput(
+                                      getClient().minApiVersion(19),
+                                      options,
+                                      ApiToken::toMap,
+                                      false
+                              )
+                      )
+                      .collect(Collectors.toList())
+        );
 
         return tokens;
     }
@@ -117,25 +122,30 @@ public class Tokens extends AppCommand {
     /**
      * Formatter for displaying output tokens
      *
+     * @param toMap function to convert to map
+     * @param reveal
      * @param v19     true if v19 or later
-     * @param verbose true for verbose
-     *
      * @return formatter for token output
      */
     private Function<? super ApiToken, ?> formatTokenOutput(
-            final boolean v19, final boolean verbose
+            final boolean v19,
+            TokenFormatOption options,
+            Function<ApiToken, Map<?, ?>> toMap,
+            final boolean reveal
     )
     {
-        Function<? super ApiToken, ?> v19Output = verbose
-                                                  ? ApiToken::toMap
-                                                  : ApiToken::getId;
-        Function<? super ApiToken, ?> v18Output = verbose
-                                                  ? ApiToken::getIdOrToken
-                                                  : ApiToken::getTruncatedIdOrToken;
-        return v19 ? v19Output : v18Output;
+        if (options.isOutputFormat()) {
+            return Format.formatter(options.getOutputFormat(), toMap, "%", "");
+        } else if (options.isVerbose()) {
+            return toMap;
+        } else if (v19) {
+            return reveal ? ApiToken::getToken : ApiToken::getId;
+        } else {
+            return reveal ? ApiToken::getIdOrToken : ApiToken::getTruncatedIdOrToken;
+        }
     }
 
-    public interface RevealOption extends VerboseOption {
+    public interface RevealOption extends TokenFormatOption {
         @Option(longName = "id", shortName = "id", description = "Token ID")
         String getId();
     }
@@ -144,7 +154,10 @@ public class Tokens extends AppCommand {
     public void reveal(RevealOption options, CommandOutput output) throws IOException, InputError {
         ApiToken token = apiCall(api -> api.getToken(options.getId()));
         output.info(String.format("API Token %s:", options.getId()));
-        output.output(options.isVerbose() ? token.toMap() : token.getToken());
+        output.output(
+                formatTokenOutput(true, options, ApiToken::toMap, true)
+                        .apply(token)
+        );
     }
 
     public interface DeleteOptions {

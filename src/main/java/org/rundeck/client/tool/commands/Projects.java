@@ -16,12 +16,13 @@
 
 package org.rundeck.client.tool.commands;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.HasSubCommands;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.HasSubCommands;
+import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
 import org.rundeck.client.tool.RdApp;
@@ -29,11 +30,10 @@ import org.rundeck.client.tool.commands.projects.*;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 
+import java.io.Console;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -125,7 +125,13 @@ public class Projects extends AppCommand implements HasSubCommands {
         String project = projectOrEnv(options);
         if (!options.isConfirm()) {
             //request confirmation
-            String s = System.console().readLine("Really delete project %s? (y/N) ", project);
+            Console console = System.console();
+            String s = "n";
+            if (null != console) {
+                s = console.readLine("Really delete project %s? (y/N) ", project);
+            } else {
+                output.warning("No console input available, and --confirm/-y was not set.");
+            }
 
             if (!"y".equals(s)) {
                 output.warning(String.format("Not deleting project %s.", project));
@@ -137,13 +143,16 @@ public class Projects extends AppCommand implements HasSubCommands {
         return true;
     }
 
-    @CommandLineInterface(application = "create") interface Create extends ProjectCreateOptions {
+    @CommandLineInterface(application = "create")
+    interface Create extends ProjectCreateOptions, ConfigInputOptions {
 
     }
 
     @Command(description = "Create a project.")
     public void create(Create options, CommandOutput output) throws IOException, InputError {
-        Map<String, String> config = OptionUtil.parseKeyValueMap(options.config());
+
+        Map<String, String> config = Configure.loadConfig(options);
+
         ProjectItem project = new ProjectItem();
         project.setName(projectOrEnv(options));
         project.setConfig(config);

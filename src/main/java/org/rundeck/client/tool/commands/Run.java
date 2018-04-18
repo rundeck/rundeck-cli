@@ -16,9 +16,9 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobItem;

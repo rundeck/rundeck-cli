@@ -4,6 +4,31 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.25
+
+* `rd executions query` now supports `%job.*` format options
+* `rd executions query` now does interactive paging if there are more results, and `--autopage` can be used in non-interactive mode to load all available pages of data
+* Fix [Issue #163](https://github.com/rundeck/rundeck-cli/issues/163) enhance rd executions query paging
+* Fix [Issue #158](https://github.com/rundeck/rundeck-cli/issues/158) rd executions query does not format job info
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.24...v1.0.25)
+
+## 1.0.24
+
+* Fix [Issue #156](https://github.com/rundeck/rundeck-cli/issues/156) npe if no stdin for project delete without --confirm
+* Fix [Issue #157](https://github.com/rundeck/rundeck-cli/issues/157) project create can use config file
+* support outformat option for tokens create/list/reveal
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.23...v1.0.24)
+
+## 1.0.23
+
+* Fix usage text for jbos reschedule/unschedule
+* Fix [Issue #147](https://github.com/rundeck/rundeck-cli/issues/147) `jobs unschedule` disables execution
+* Fix [Issue #136](https://github.com/rundeck/rundeck-cli/issues/136) parse error with 500 response for project delete
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.22...v1.0.23)
+
 ## 1.0.22
 
 * Fix description of --alldeleted flag

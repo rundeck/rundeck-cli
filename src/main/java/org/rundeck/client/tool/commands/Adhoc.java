@@ -17,9 +17,9 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -133,7 +133,10 @@ public class Adhoc extends AppCommand {
             if (!options.isOutputFormat()) {
                 output.info(adhocResponse.message);
             }
-            Executions.outputExecutionList(options, output, Collections.singletonList(execution), getAppConfig());
+            Executions.outputExecutionList(options, output,
+                                           getAppConfig(),
+                                           Collections.singletonList(execution).stream()
+            );
         }
 
         return Executions.maybeFollow(getRdApp(), options, adhocResponse.execution.getId(), output);

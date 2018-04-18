@@ -18,10 +18,10 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import com.simplifyops.toolbelt.Command;
-import com.simplifyops.toolbelt.CommandOutput;
-import com.simplifyops.toolbelt.HasSubCommands;
-import com.simplifyops.toolbelt.InputError;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.HasSubCommands;
+import org.rundeck.toolbelt.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
@@ -315,7 +315,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Job %s");
     }
 
-    @CommandLineInterface(application = "enableSchedule") interface EnableSchedOpts extends ToggleOpts {
+    @CommandLineInterface(application = "reschedule") interface EnableSchedOpts extends ToggleOpts {
     }
 
     @Command(description = "Enable schedule for a job")
@@ -323,12 +323,12 @@ public class Jobs extends AppCommand implements HasSubCommands {
         return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, output, "Enabled Schedule for Job %s");
     }
 
-    @CommandLineInterface(application = "disableSchedule") interface DisableSchedOpts extends ToggleOpts {
+    @CommandLineInterface(application = "unschedule") interface DisableSchedOpts extends ToggleOpts {
     }
 
     @Command(description = "Disable schedule for a job")
     public boolean unschedule(DisableSchedOpts options, CommandOutput output) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Schedule for Job %s");
+        return simpleJobApiCall(RundeckApi::jobScheduleDisable, options, output, "Disabled Schedule for Job %s");
     }
 
     private boolean simpleJobApiCall(

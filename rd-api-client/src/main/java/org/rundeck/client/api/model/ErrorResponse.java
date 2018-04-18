@@ -18,10 +18,9 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.rundeck.client.util.Xml;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Path;
-import org.simpleframework.xml.Root;
+import org.simpleframework.xml.*;
+
+import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict = false)
@@ -35,13 +34,17 @@ public class ErrorResponse implements ErrorDetail {
     @Attribute
     public int apiversion;
 
-    @Attribute(name = "code")
+    @Attribute(name = "code", required = false)
     @Path("error")
     public String errorCode;
 
-    @Element
+    @Element(required = false)
     @Path("error")
     public String message;
+
+    @Path("error")
+    @ElementList(entry = "message", required = false)
+    public List<String> messages;
 
     public String toCodeString() {
         if (null != errorCode) {
@@ -61,7 +64,11 @@ public class ErrorResponse implements ErrorDetail {
 
     @Override
     public String getErrorMessage() {
-        return message != null ? message : error;
+        return message != null ? message :
+               messages != null ? messages.size() == 1
+                                  ? messages.get(0)
+                                  : messages.toString()
+                                : error;
     }
 
     @Override
