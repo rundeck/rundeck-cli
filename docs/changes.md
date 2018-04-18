@@ -4,6 +4,15 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.25
+
+* `rd executions query` now supports `%job.*` format options
+* `rd executions query` now does interactive paging if there are more results, and `--autopage` can be used in non-interactive mode to load all available pages of data
+* Fix [Issue #163](https://github.com/rundeck/rundeck-cli/issues/163) enhance rd executions query paging
+* Fix [Issue #158](https://github.com/rundeck/rundeck-cli/issues/158) rd executions query does not format job info
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.24...v1.0.25)
+
 ## 1.0.24
 
 * Fix [Issue #156](https://github.com/rundeck/rundeck-cli/issues/156) npe if no stdin for project delete without --confirm
