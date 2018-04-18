@@ -16,7 +16,6 @@
 
 package org.rundeck.client.api.model;
 
-import org.rundeck.toolbelt.Formatable;
 
 import java.util.HashMap;
 import java.util.List;
