@@ -571,6 +571,11 @@ public class Executions extends AppCommand {
         String getIdlist();
 
         boolean isIdlist();
+
+        @Option(shortName = "R",
+                longName = "require",
+                description = "Treat 0 query results as failure, otherwise succeed if no executions were returned")
+        boolean require();
     }
 
     @Command(description = "Find and delete executions in a project. Use the query options to find and delete " +
@@ -587,10 +592,14 @@ public class Executions extends AppCommand {
                                    .stream()
                                    .map(Execution::getId)
                                    .collect(Collectors.toList());
-        }
-        if (null == execIds || execIds.size() < 1) {
-            out.warning("No executions found to delete");
-            return false;
+            if (null == execIds || execIds.size() < 1) {
+                if (!options.require()) {
+                    out.info("No executions found to delete");
+                } else {
+                    out.warning("No executions found to delete");
+                }
+                return !options.require();
+            }
         }
 
         if (!options.isConfirm()) {
