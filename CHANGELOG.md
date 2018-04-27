@@ -1,6 +1,13 @@
-## unreleased
+## 1.0.26
 
 * Disabled interactive query paging for `executions deletebulk`
+* Fix [Issue #169](https://github.com/rundeck/rundeck-cli/issues/169) project create does not require config input
+* Disabled interactive query paging for
+* Fix [Issue #167](https://github.com/rundeck/rundeck-cli/issues/167) query/deletebulk -m 0 throws exception
+* Fix [Issue #168](https://github.com/rundeck/rundeck-cli/issues/168) add --require to executions deletebulk
+* Fix [Issue #150](https://github.com/rundeck/rundeck-cli/issues/150) require --path/-p arg to keys subcommands
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.25...v1.0.26)
 
 ## 1.0.25
 
