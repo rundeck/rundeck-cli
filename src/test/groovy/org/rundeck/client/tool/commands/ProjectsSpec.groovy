@@ -31,6 +31,30 @@ import spock.lang.Specification
  */
 class ProjectsSpec extends Specification {
 
+    def "create does not require config"() {
+        given:
+
+        def api = Mock(RundeckApi)
+        def opts = Mock(Projects.Create) {
+            getProject() >> 'testProject'
+        }
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 18, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Projects projects = new Projects(hasclient)
+        def out = Mock(CommandOutput)
+
+        when:
+        projects.create(opts, out)
+
+        then:
+        1 * api.createProject(_) >>
+        Calls.response(new ProjectItem(name: 'testProject', description: '123', config: [:]))
+
+    }
     def "projects list outformat"() {
         given:
 
