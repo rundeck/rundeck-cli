@@ -1,3 +1,7 @@
+## unreleased
+
+* Disabled interactive query paging for `executions deletebulk`
+
 ## 1.0.25
 
 * `rd executions query` now supports `%job.*` format options
