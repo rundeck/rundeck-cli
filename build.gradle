@@ -236,7 +236,7 @@ def scriptsClos = {
             '''
 # Source user's config file
 RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
-test -f $RD_CONF && source $RD_CONF
+test -f $RD_CONF && . $RD_CONF
 '''
     )
     def setE = appendConfigData.curry(
