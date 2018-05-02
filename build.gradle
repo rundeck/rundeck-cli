@@ -218,20 +218,31 @@ shadowDistTar.mustRunAfter distTar
 
 def scriptsClos = {
 
-    def addConfigSource = { regexTest, additionalText, line ->
-        // Looking for the line that starts with either CLASSPATH=
-        // or set CLASSPATH=, defined by the regexTest closure argument.
+    def prependConfigData = { regexTest, additionalText, line ->
+        // Looking for the line that starts with regexTest closure argument,
+        //prepend the additionalText
         line = line.replaceAll(~/${regexTest}/) { original ->
             additionalText + "\n" + original
         }
     }
+    def appendConfigData = { regexTest, additionalText, line ->
+        line = line.replaceAll(~/${regexTest}/) { original ->
+            original + "\n" + additionalText
+        }
+    }
 
-    def addUnixConfigSource = addConfigSource.curry(
+    def addUnixConfigSource = prependConfigData.curry(
             '^# Determine the Java command to use to start the JVM.*',
             '''
 # Source user's config file
 RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
-test -f $RD_CONF && source $RD_CONF
+test -f $RD_CONF && . $RD_CONF
+'''
+    )
+    def setE = appendConfigData.curry(
+            '^#!/usr/bin/env sh',
+            '''
+set -e
 '''
     )
 
@@ -244,6 +255,7 @@ test -f $RD_CONF && source $RD_CONF
                 unixScript
                         .readLines()
                         .collect(addUnixConfigSource)
+                        .collect(setE)
                         .join('\n')
 
         //TODO: modify windows start script to load config
