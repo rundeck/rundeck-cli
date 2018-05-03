@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Rundeck, Inc. (http://rundeck.com)
+ * Copyright 2018 Rundeck, Inc. (http://rundeck.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,10 +32,7 @@ import retrofit2.mock.Calls
 import spock.lang.Specification
 import spock.lang.Unroll
 
-/**
- * @author greg
- * @since 12/13/16
- */
+
 class RetrySpec extends Specification {
     def "run argstring supports -opt @path and -opt@ path"() {
         given:
