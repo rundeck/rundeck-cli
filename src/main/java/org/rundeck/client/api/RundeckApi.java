@@ -1052,7 +1052,7 @@ public interface RundeckApi {
     Call<Execution> retryJob(
             @Path("id") String id,
             @Path("eid") String eid,
-            @Body JobRun jobRun
+            @Body ExecRetry execRetry
 
     );
 }

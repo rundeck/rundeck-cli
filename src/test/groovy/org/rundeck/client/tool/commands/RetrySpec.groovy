@@ -64,7 +64,7 @@ class RetrySpec extends Specification {
         Retry retry = new Retry(hasclient)
         def out = Mock(CommandOutput)
         when:
-        def result = retry.run(opts, out)
+        def result = retry.retry(opts, out)
 
         then:
         1 * api.uploadJobOptionFile('jobid1', 'opt2', testfile1.name, _) >> Calls.response(

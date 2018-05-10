@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool.commands;
 
+import org.rundeck.client.api.model.ExecRetry;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobRun;
@@ -51,7 +52,7 @@ public class Retry extends AppCommand {
     }
 
     @Command(isDefault = true, isSolo = true)
-    public boolean run(RetryBaseOptions options, CommandOutput out) throws IOException, InputError {
+    public boolean retry(RetryBaseOptions options, CommandOutput out) throws IOException, InputError {
         String jobId = Run.getJobIdFromOpts(options, out, getRdApp(), () -> projectOrEnv(options));
         String execId = options.getEid();
         if (null == jobId) {
@@ -59,9 +60,10 @@ public class Retry extends AppCommand {
         }
         Execution execution;
 
-        JobRun request = new JobRun();
+        ExecRetry request = new ExecRetry();
         request.setLoglevel(options.getLoglevel());
         request.setAsUser(options.getUser());
+        request.setFailedNodes(options.getFailedNodes());
         List<String> commandString = options.getCommandString();
         Map<String, String> jobopts = new HashMap<>();
         Map<String, File> fileinputs = new HashMap<>();

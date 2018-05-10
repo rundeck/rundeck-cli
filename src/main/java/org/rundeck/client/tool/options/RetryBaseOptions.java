@@ -23,7 +23,7 @@ import org.rundeck.client.api.model.DateInfo;
 
 import java.util.List;
 
-@CommandLineInterface(application = "run")
+@CommandLineInterface(application = "retry")
 public interface RetryBaseOptions extends JobIdentOptions, FollowOptions, RetryExecutionOption {
     @Option(shortName = "l",
             longName = "logevel",
@@ -37,6 +37,12 @@ public interface RetryBaseOptions extends JobIdentOptions, FollowOptions, RetryE
     String getUser();
 
     boolean isUser();
+
+    @Option(shortName = "F", longName = "failedNodes", description = "Run only on failed nodes (default=true).",
+            defaultValue = {"true"},
+            pattern = "(true|false)")
+    String getFailedNodes();
+
 
     @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath", description = "Job options")
     List<String> getCommandString();
