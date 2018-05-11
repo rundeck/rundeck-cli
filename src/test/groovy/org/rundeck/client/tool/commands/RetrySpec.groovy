@@ -27,6 +27,7 @@ import org.rundeck.client.tool.options.RetryBaseOptions
 import org.rundeck.client.tool.options.RunBaseOptions
 import org.rundeck.client.util.Client
 import org.rundeck.toolbelt.CommandOutput
+import org.rundeck.toolbelt.InputError
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -55,7 +56,7 @@ class RetrySpec extends Specification {
             ].collect { it.toString() }
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 19, true, null)
+        def client = new Client(api, retrofit, null, null, 24, true, null)
         def appConfig = Mock(AppConfig)
         def hasclient = Mock(RdApp) {
             getClient() >> client
@@ -79,5 +80,41 @@ class RetrySpec extends Specification {
         ) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
         result
+    }
+    def "error on api version below 24"() {
+        given:
+        def api = Mock(RundeckApi)
+        def testfile1 = File.createTempFile("upload1", "test")
+        def testfile2 = File.createTempFile("upload2", "test")
+
+
+        def opts = Mock(RetryBaseOptions) {
+            isId() >> true
+            getId() >> 'jobid1'
+            getEid() >> 'eid'
+            getCommandString() >> [
+                    "-opt1",
+                    "val1",
+                    "-opt2",
+                    "@$testfile1.absolutePath",
+                    "-opt3@",
+                    testfile2.absolutePath
+            ].collect { it.toString() }
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 23, true, null)
+        def appConfig = Mock(AppConfig)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> appConfig
+        }
+        Retry retry = new Retry(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        def result = retry.retry(opts, out)
+
+        then:
+        0 * api._(*_)
+        InputError e = thrown()
     }
 }

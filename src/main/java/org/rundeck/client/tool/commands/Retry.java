@@ -53,6 +53,7 @@ public class Retry extends AppCommand {
 
     @Command(isDefault = true, isSolo = true)
     public boolean retry(RetryBaseOptions options, CommandOutput out) throws IOException, InputError {
+        requireApiVersion("retry", 24);
         String jobId = Run.getJobIdFromOpts(options, out, getRdApp(), () -> projectOrEnv(options));
         String execId = options.getEid();
         if (null == jobId) {
