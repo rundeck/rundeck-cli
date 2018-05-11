@@ -162,7 +162,8 @@ public class Main {
                                         new Tokens(rd),
                                         new Nodes(rd),
                                         new Users(rd),
-                                        new Something()
+                                        new Something(),
+                                        new Retry(rd)
 
                                 )
                                 .bannerResource("rd-banner.txt")
