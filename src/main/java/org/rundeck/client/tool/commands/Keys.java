@@ -77,7 +77,7 @@ public class Keys extends AppCommand {
         @Option(shortName = "p",
                 longName = "path",
                 description = "Storage path in the form 'path/to/file', or 'keys/path/to/file'.",
-                defaultToNull = true)
+                defaultValue = "")
         Path getPath();
     }
 

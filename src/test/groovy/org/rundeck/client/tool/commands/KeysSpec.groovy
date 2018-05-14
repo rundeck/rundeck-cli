@@ -259,4 +259,33 @@ class KeysSpec extends Specification {
         'asdf😀\r\n' | 'asdf😀'
 
     }
+
+    @Unroll
+    def "list all"() {
+        given:
+        def api = Mock(RundeckApi)
+        def opts = Mock(Keys.ListArg) {
+            getPath() >> new Keys.Path(input?:"")
+
+        }
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 18, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Keys keys = new Keys(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        keys.list(opts, out)
+
+        then:
+        1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem())
+        0 * api._(*_)
+
+        where:
+        input       | _
+        null        | _
+        'keys/'     | _
+    }
 }
