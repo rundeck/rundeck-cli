@@ -19,6 +19,7 @@ package org.rundeck.client.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -80,6 +81,9 @@ public class KeyStorageItem implements Comparable<KeyStorageItem>{
     }
 
     public List<KeyStorageItem> getResources() {
+        if(resources == null){
+            return new ArrayList<>();
+        }
         return resources;
     }
 
