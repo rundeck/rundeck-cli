@@ -1,7 +1,11 @@
-## unreleased
+## 1.0.27
 
-* fix exception with rd keys list when no keys are present #177
-* fix rd script issue `rd: source: not found` #173
+* fix exception with rd keys list when no keys are present [Issue #177](https://github.com/rundeck/rundeck-cli/issues/177)
+* fix rd script issue `rd: source: not found` [Issue #173](https://github.com/rundeck/rundeck-cli/issues/173)
+* fix [Issue #177](https://github.com/rundeck/rundeck-cli/issues/177)
+* Fix [Issue #173](https://github.com/rundeck/rundeck-cli/issues/173) source with .
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.26...v1.0.27)
 
 ## 1.0.26
 

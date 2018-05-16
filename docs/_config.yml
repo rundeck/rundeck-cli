@@ -22,7 +22,7 @@ url: "https://rundeck.github.io" # the base hostname & protocol for your site, e
 twitter_username: rundeck
 github_username:  rundeck
 github_url: https://github.com/rundeck/rundeck-cli
-app_version: 1.0.26
+app_version: 1.0.27
 # Build settings
 markdown: kramdown
 theme: minima
