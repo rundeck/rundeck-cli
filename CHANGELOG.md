@@ -1,3 +1,8 @@
+## unreleased
+
+* fix exception with rd keys list when no keys are present #177
+* fix rd script issue `rd: source: not found` #173
+
 ## 1.0.26
 
 * Disabled interactive query paging for `executions deletebulk`
