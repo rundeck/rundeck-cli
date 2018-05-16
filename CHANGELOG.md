@@ -1,3 +1,23 @@
+## 1.0.27
+
+* fix exception with rd keys list when no keys are present [Issue #177](https://github.com/rundeck/rundeck-cli/issues/177)
+* fix rd script issue `rd: source: not found` [Issue #173](https://github.com/rundeck/rundeck-cli/issues/173)
+* fix [Issue #177](https://github.com/rundeck/rundeck-cli/issues/177)
+* Fix [Issue #173](https://github.com/rundeck/rundeck-cli/issues/173) source with .
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.26...v1.0.27)
+
+## 1.0.26
+
+* Disabled interactive query paging for `executions deletebulk`
+* Fix [Issue #169](https://github.com/rundeck/rundeck-cli/issues/169) project create does not require config input
+* Disabled interactive query paging for
+* Fix [Issue #167](https://github.com/rundeck/rundeck-cli/issues/167) query/deletebulk -m 0 throws exception
+* Fix [Issue #168](https://github.com/rundeck/rundeck-cli/issues/168) add --require to executions deletebulk
+* Fix [Issue #150](https://github.com/rundeck/rundeck-cli/issues/150) require --path/-p arg to keys subcommands
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.25...v1.0.26)
+
 ## 1.0.25
 
 * `rd executions query` now supports `%job.*` format options

@@ -86,7 +86,7 @@ public class Configure extends AppCommand {
                            "removed.")
     public void set(ConfigureSetOpts opts, CommandOutput output) throws IOException, InputError {
 
-        Map<String, String> config = loadConfig(opts);
+        Map<String, String> config = loadConfig(opts, true);
         ProjectConfig projectConfig = apiCall(api -> api.setProjectConfiguration(
                 opts.getProject(),
                 new ProjectConfig(config)
@@ -94,7 +94,7 @@ public class Configure extends AppCommand {
 
     }
 
-    public static Map<String, String> loadConfig(final ConfigInputOptions opts) throws InputError, IOException {
+    public static Map<String, String> loadConfig(final ConfigInputOptions opts, final boolean requireInput) throws InputError, IOException {
         HashMap<String, String> inputConfig = new HashMap<>();
         if (opts.isFile()) {
             File input = opts.getFile();
@@ -163,7 +163,7 @@ public class Configure extends AppCommand {
             inputConfig.putAll(config);
         }
 
-        if (inputConfig.size() < 1) {
+        if (inputConfig.size() < 1 && requireInput) {
             throw new InputError("no configuration was specified");
         }
         return inputConfig;
@@ -181,7 +181,7 @@ public class Configure extends AppCommand {
                            "Can provide input via a file (json, properties or yaml), or commandline. If both are " +
                            "provided, the commandline values will override the loaded file values.")
     public void update(ConfigureUpdateOpts opts, CommandOutput output) throws IOException, InputError {
-        Map<String, String> config = loadConfig(opts);
+        Map<String, String> config = loadConfig(opts, true);
         output.info(String.format("Updating %d configuration properties...", config.size()));
         for (String s : config.keySet()) {
             ProjectConfig body = new ProjectConfig(Collections.singletonMap("value", config.get(s)));

@@ -39,6 +39,37 @@ import spock.lang.Specification
  * @since 12/5/16
  */
 class ExecutionsSpec extends Specification {
+    def "deletebulk with 0 query results result with require option"() {
+
+        given:
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 18, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(AppConfig)
+        }
+        Executions command = new Executions(hasclient)
+        def out = Mock(CommandOutput)
+        def options = Mock(Executions.BulkDeleteCmd) {
+            getProject() >> 'aproject'
+            require() >> reqd
+        }
+
+        when:
+        def result = command.deletebulk(options, out)
+        then:
+        1 * api.listExecutions('aproject', [max: '20', offset: '0'], null, null, null, null) >> Calls.response(
+                new ExecutionList(paging: new Paging(offset: 0, max: 20, total: 0, count: 0), executions: [])
+        )
+        result == expect
+
+        where:
+        reqd  | expect
+        true  | false
+        false | true
+    }
     def "output format allows job.* params"() {
         given:
         def api = Mock(RundeckApi)

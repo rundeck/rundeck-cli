@@ -28,8 +28,8 @@ buildscript {
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.4.1'
     id 'groovy'
-    id 'com.github.johnrengelman.shadow' version '1.2.3'
-    id "nebula.ospackage" version "3.6.1"
+    id 'com.github.johnrengelman.shadow' version '2.0.3'
+    id "nebula.ospackage" version "4.8.0"
 }
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
 ext.changelogFile = file("CHANGELOG.md")
@@ -137,19 +137,23 @@ def getAxionVersion() {
     )
 }
 
-task previousVersion << {
-    println "Previous version: ${axionVersion.previousVersion}"
+task previousVersion(){
+    doLast {
+        println "Previous version: ${axionVersion.previousVersion}"
+    }
 }
-task changeLog << {
-    def version = axionVersion
-    println genChangelog(
-            version.position.latestTag,
-            githubUrl,
-            version.version,
-            version.previousVersion,
-            changelogFile,
-            project.hasProperty("changelogFull")
-    )
+task changeLog(){
+    doLast {
+        def version = axionVersion
+        println genChangelog(
+                version.position.latestTag,
+                githubUrl,
+                version.version,
+                version.previousVersion,
+                changelogFile,
+                project.hasProperty("changelogFull")
+        )
+    }
 }
 
 
@@ -175,8 +179,8 @@ ext.toolbeltVersion = "0.2.1"
 ext.toolbeltGroup =  "${toolbeltVersion.contains('SNAPSHOT')?'org':'com.github'}.rundeck.cli-toolbelt"
 
 dependencies {
-
     compileOnly "org.projectlombok:lombok:1.16.16"
+    annotationProcessor "org.projectlombok:lombok:1.16.16"
 
     compile project(":rd-api-client")
 
@@ -193,27 +197,41 @@ dependencies {
     testCompile "org.codehaus.groovy:groovy-all:2.3.7"
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 }
+shadowJar {
+   
+}
 
 //force distZip/distTar artifacts to be overwritten by shadow versions
-distShadowZip.mustRunAfter distZip
-distShadowTar.mustRunAfter distTar
+shadowDistZip.mustRunAfter distZip
+shadowDistTar.mustRunAfter distTar
 
 def scriptsClos = {
 
-    def addConfigSource = { regexTest, additionalText, line ->
-        // Looking for the line that starts with either CLASSPATH=
-        // or set CLASSPATH=, defined by the regexTest closure argument.
+    def prependConfigData = { regexTest, additionalText, line ->
+        // Looking for the line that starts with regexTest closure argument,
+        //prepend the additionalText
         line = line.replaceAll(~/${regexTest}/) { original ->
             additionalText + "\n" + original
         }
     }
+    def appendConfigData = { regexTest, additionalText, line ->
+        line = line.replaceAll(~/${regexTest}/) { original ->
+            original + "\n" + additionalText
+        }
+    }
 
-    def addUnixConfigSource = addConfigSource.curry(
+    def addUnixConfigSource = prependConfigData.curry(
             '^# Determine the Java command to use to start the JVM.*',
             '''
 # Source user's config file
 RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
-test -f $RD_CONF && source $RD_CONF
+test -f $RD_CONF && . $RD_CONF
+'''
+    )
+    def setE = appendConfigData.curry(
+            '^#!/usr/bin/env sh',
+            '''
+set -e
 '''
     )
 
@@ -226,6 +244,7 @@ test -f $RD_CONF && source $RD_CONF
                 unixScript
                         .readLines()
                         .collect(addUnixConfigSource)
+                        .collect(setE)
                         .join('\n')
 
         //TODO: modify windows start script to load config
@@ -263,25 +282,25 @@ ospackage {
     packageGroup = 'System'
     user = 'root'
 
-    //packaging includes the distShadowZip contents, exclude *.bat
-    from(zipTree(distShadowZip.outputs.files.singleFile)) {
+    //packaging includes the shadowDistZip contents, exclude *.bat
+    from(zipTree(shadowDistZip.outputs.files.singleFile)) {
         exclude '**/*.bat'
         into distInstallPath
     }
 
-    def archivedir=distShadowZip.archiveName - ".${distShadowZip.extension}"
+    def archivedir=shadowDistZip.archiveName - ".${shadowDistZip.extension}"
 
     //symlink /usr/bin/rd to the rd script
     link("/usr/bin/${applicationName}", "${distInstallPath}/${archivedir}/bin/${applicationName}")
 }
 
 //depend on the shadow artifact
-buildDeb.dependsOn distShadowZip
-buildRpm.dependsOn distShadowZip
+buildDeb.dependsOn shadowDistZip
+buildRpm.dependsOn shadowDistZip
 assemble.dependsOn buildRpm, buildDeb
 
 apply from: 'gradle/bintray.gradle'
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.13'
+    gradleVersion = '4.7'
 }

@@ -378,24 +378,30 @@ public class Executions extends AppCommand {
         boolean isExcludeJobExactFilter();
 
         @Option(longName = "noninteractive",
-                description = "Don't use interactive prompts to load more pages if there are more paged results")
+                description = "Don't use interactive prompts to load more pages if there are more paged results (query command only)")
         boolean isNonInteractive();
 
         @Option(longName = "autopage",
                 description = "Automatically load more results in non-interactive mode if there are more paged "
-                              + "results.")
+                              + "results. (query command only)")
         boolean isAutoLoadPages();
 
     }
 
     @Command(description = "Query previous executions for a project.")
     public ExecutionList query(QueryCmd options, CommandOutput out) throws IOException, InputError {
+        return query(false, options, out);
+    }
+
+
+    public ExecutionList query(boolean disableInteractive, QueryCmd options, CommandOutput out)
+            throws IOException, InputError {
         int offset = options.isOffset() ? options.getOffset() : 0;
         int max = options.isMax() ? options.getMax() : 20;
 
         Map<String, String> query = createQueryParams(options, max, offset);
 
-        boolean interactive = !options.isNonInteractive();
+        boolean interactive = !disableInteractive && !options.isNonInteractive();
         if (getAppConfig().getString("RD_FORMAT", null) != null) {
             interactive = false;
         }
@@ -428,7 +434,11 @@ public class Executions extends AppCommand {
                 outputExecutionList(options, out, getAppConfig(), executionList.getExecutions().stream());
             }
             if (verboseInfo && !autopage) {
-                out.info(page.moreResults("-o", page.hasMoreResults() ? ", or --autopage for all" : null));
+                out.info(page.moreResults("-o",
+                                          page.hasMoreResults() && !disableInteractive
+                                          ? ", or --autopage for all"
+                                          : null
+                ));
             }
             if (!autopage) {
                 break;
@@ -571,6 +581,11 @@ public class Executions extends AppCommand {
         String getIdlist();
 
         boolean isIdlist();
+
+        @Option(shortName = "R",
+                longName = "require",
+                description = "Treat 0 query results as failure, otherwise succeed if no executions were returned")
+        boolean require();
     }
 
     @Command(description = "Find and delete executions in a project. Use the query options to find and delete " +
@@ -581,16 +596,20 @@ public class Executions extends AppCommand {
         if (options.isIdlist()) {
             execIds = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
-            ExecutionList executionList = query(options, out);
+            ExecutionList executionList = query(true, options, out);
 
             execIds = executionList.getExecutions()
                                    .stream()
                                    .map(Execution::getId)
                                    .collect(Collectors.toList());
-        }
-        if (null == execIds || execIds.size() < 1) {
-            out.warning("No executions found to delete");
-            return false;
+            if (null == execIds || execIds.size() < 1) {
+                if (!options.require()) {
+                    out.info("No executions found to delete");
+                } else {
+                    out.warning("No executions found to delete");
+                }
+                return !options.require();
+            }
         }
 
         if (!options.isConfirm()) {

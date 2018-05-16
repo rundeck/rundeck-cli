@@ -63,7 +63,7 @@ public class Paging {
     @Override
     public String toString() {
         return String.format(
-                "Page [%d/%d] results %d - %d (of %d by %d).",
+                "Page [%d/%d] results %d - %d (of %d by %d)",
                 pagenum(),
                 maxPagenum(),
                 offset + 1,
@@ -93,13 +93,18 @@ public class Paging {
     }
 
     public int pagenum() {
+        if (max < 1) {
+            return 1;
+        }
 
         int oflow = offset % max;
         return 1 + (offset - oflow) / max + (oflow > 0 ? 1 : 0);
     }
 
     public int maxPagenum() {
-
+        if (max < 1) {
+            return 1;
+        }
         int oflow = total % max;
         return (total - oflow) / max + (oflow > 0 ? 1 : 0);
 

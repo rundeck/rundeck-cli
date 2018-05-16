@@ -1047,4 +1047,12 @@ public interface RundeckApi {
     @GET("user/list")
     Call<List<User>> listUsers();
 
+    @Headers("Accept: application/json")
+    @POST("job/{id}/retry/{eid}")
+    Call<Execution> retryJob(
+            @Path("id") String id,
+            @Path("eid") String eid,
+            @Body ExecRetry execRetry
+
+    );
 }
