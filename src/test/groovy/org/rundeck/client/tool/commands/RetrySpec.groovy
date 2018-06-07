@@ -21,7 +21,6 @@ import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobFileUploadResult
 import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.JobRun
-import org.rundeck.client.tool.AppConfig
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.options.RetryBaseOptions
 import org.rundeck.client.tool.options.RunBaseOptions
@@ -57,10 +56,8 @@ class RetrySpec extends Specification {
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, null, null, 24, true, null)
-        def appConfig = Mock(AppConfig)
         def hasclient = Mock(RdApp) {
             getClient() >> client
-            getAppConfig() >> appConfig
         }
         Retry retry = new Retry(hasclient)
         def out = Mock(CommandOutput)
@@ -103,10 +100,8 @@ class RetrySpec extends Specification {
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, null, null, 23, true, null)
-        def appConfig = Mock(AppConfig)
         def hasclient = Mock(RdApp) {
             getClient() >> client
-            getAppConfig() >> appConfig
         }
         Retry retry = new Retry(hasclient)
         def out = Mock(CommandOutput)

@@ -48,7 +48,7 @@ class ExecutionsSpec extends Specification {
         def client = new Client(api, retrofit, null, null, 18, true, null)
         def hasclient = Mock(RdApp) {
             getClient() >> client
-            getAppConfig() >> Mock(AppConfig)
+            getAppConfig() >> Mock(RdClientConfig)
         }
         Executions command = new Executions(hasclient)
         def out = Mock(CommandOutput)
