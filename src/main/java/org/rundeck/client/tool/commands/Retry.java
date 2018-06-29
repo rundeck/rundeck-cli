@@ -66,7 +66,7 @@ public class Retry extends AppCommand {
             out.warning("--logevel is [DEPRECATED: To be removed], use --loglevel");
             loglevel = options.getLogevel().toUpperCase();
         } else {
-            loglevel = options.getLoglevel().toUpperCase();
+            loglevel = null != options.getLoglevel() ? options.getLoglevel().toUpperCase() : null;
         }
 
         ExecRetry request = new ExecRetry();
