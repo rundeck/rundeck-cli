@@ -151,4 +151,51 @@ class RunSpec extends Specification {
         0 * api._(*_)
         result
     }
+
+    def "run --raw argstring supports -opt@ path only"() {
+        given:
+        def api = Mock(RundeckApi)
+        def testfile1 = File.createTempFile("upload1", "test")
+        def testfile2 = File.createTempFile("upload2", "test")
+
+
+        def opts = Mock(RunBaseOptions) {
+            isId() >> true
+            getId() >> 'jobid1'
+            isRawOptions()>>true
+            getCommandString() >> [
+                    "-opt1",
+                    "val1",
+                    "-opt2",
+                    "@$testfile1.absolutePath",
+                    "-opt3@",
+                    testfile2.absolutePath
+            ].collect { it.toString() }
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 19, true, null)
+        def appConfig = Mock(AppConfig)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> appConfig
+        }
+        Run run = new Run(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        def result = run.run(opts, out)
+
+        then:
+        0 * api.uploadJobOptionFile('jobid1', 'opt2', testfile1.name, _) >> Calls.response(
+                new JobFileUploadResult(total: 1, options: ['opt2': 'fakefileid1'])
+        )
+        1 * api.uploadJobOptionFile('jobid1', 'opt3', testfile2.name, _) >> Calls.response(
+                new JobFileUploadResult(total: 1, options: ['opt3': 'fakefileid2'])
+        )
+        1 * api.runJob('jobid1', { JobRun runarg ->
+            runarg.options == ['opt1': 'val1', 'opt2': "@$testfile1.absolutePath", 'opt3': 'fakefileid2']
+        }
+        ) >> Calls.response(new Execution(id: 123, description: ''))
+        0 * api._(*_)
+        result
+    }
 }

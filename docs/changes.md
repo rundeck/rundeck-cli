@@ -4,6 +4,12 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.28
+
+* correct rd run loglevel option fixes [Issue #185](https://github.com/rundeck/rundeck-cli/issues/185) fixes [Issue #187](https://github.com/rundeck/rundeck-cli/issues/187)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.27...v1.0.28)
+
 ## 1.0.27
 
 * fix exception with rd keys list when no keys are present [Issue #177](https://github.com/rundeck/rundeck-cli/issues/177)

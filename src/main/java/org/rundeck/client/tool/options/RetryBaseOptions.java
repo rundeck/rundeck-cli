@@ -26,11 +26,16 @@ import java.util.List;
 @CommandLineInterface(application = "retry")
 public interface RetryBaseOptions extends JobIdentOptions, FollowOptions, RetryExecutionOption {
     @Option(shortName = "l",
-            longName = "logevel",
+            longName = "loglevel",
             description = "Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.",
             defaultValue = {"info"},
             pattern = "(verbose|info|warning|error)")
     String getLoglevel();
+
+    @Option(hidden = true, pattern = "(verbose|info|warning|error)")
+    String getLogevel();
+
+    boolean isLogevel();
 
 
     @Option(shortName = "u", longName = "user", description = "A username to run the job as, (runAs access required).")
@@ -43,8 +48,11 @@ public interface RetryBaseOptions extends JobIdentOptions, FollowOptions, RetryE
             pattern = "(true|false)")
     String getFailedNodes();
 
+    @Option(longName = "raw",
+            description = "Treat option values as raw text, so that '-opt @value' is sent literally")
+    boolean isRawOptions();
 
-    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath", description = "Job options")
+    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath -OPTFILE2@ filepath", description = "Job options")
     List<String> getCommandString();
 
 }

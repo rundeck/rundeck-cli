@@ -64,7 +64,7 @@ def genChangelog(prevTag, baseUrl, curVersion, prevVersion, File changelog, full
     proc.consumeProcessOutput(sout, serr)
     proc.waitForOrKill(1000)
     def logs = sout.toString().readLines()
-    def include = [~/.*[fF]ix(e[sd])? #\d+.*/, ~/^[fF]ix(e[sd])?(:|\s).*/, ~/^[lL]og:?.*/]
+    def include = [~/.*[fF]ix(e[sd])? #\d+.*/, ~/^[fF]ix(e[sd])?:.*/, ~/^[lL]og:?.*/]
 
     def unrel = changelog ? unreleasedLog(prevVersion, changelog) ?: [] : []
 
