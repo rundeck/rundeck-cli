@@ -4,6 +4,12 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.0.29
+
+* Fix [Issue #186](https://github.com/rundeck/rundeck-cli/issues/186) rd run --raw allows -opt @value literal
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.28...v1.0.29)
+
 ## 1.0.28
 
 * correct rd run loglevel option fixes [Issue #185](https://github.com/rundeck/rundeck-cli/issues/185) fixes [Issue #187](https://github.com/rundeck/rundeck-cli/issues/187)
