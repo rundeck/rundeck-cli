@@ -194,7 +194,7 @@ Run a Job.
          [--follow -f] : Follow execution output as it runs
          [--id -i value] : Run the Job with this IDENTIFIER
          [--job -j value] : Job job (group and name). Run a Job specified by Job name and group. eg: 'group/name'.
-         [--logevel -l /(verbose|info|warning|error)/] : Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.
+         [--loglevel -l /(verbose|info|warning|error)/] : Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.
          [--progress -r] : Do not echo log text, just an indicator that output is being received.
          [--project -p value] : Project name
          [--quiet -q] : Echo no output, just wait until the execution completes.

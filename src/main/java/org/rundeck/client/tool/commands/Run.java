@@ -63,9 +63,18 @@ public class Run extends AppCommand {
         }
         Execution execution;
         Date runat = null;
+
+        final String loglevel;
+        if (options.isLogevel()) {
+            out.warning("--logevel is [DEPRECATED: To be removed], use --loglevel");
+            loglevel = options.getLogevel().toUpperCase();
+        } else {
+            loglevel = options.getLoglevel().toUpperCase();
+        }
+
         if (getClient().getApiVersion() >= 18) {
             JobRun request = new JobRun();
-            request.setLoglevel(options.getLoglevel());
+            request.setLoglevel(loglevel);
             request.setFilter(options.getFilter());
             request.setAsUser(options.getUser());
             List<String> commandString = options.getCommandString();
@@ -156,7 +165,7 @@ public class Run extends AppCommand {
             execution = apiCall(api -> api.runJob(
                     jobId,
                     Quoting.joinStringQuoted(options.getCommandString()),
-                    options.getLoglevel(),
+                    loglevel,
                     options.getFilter(),
                     options.getUser()
             ));
