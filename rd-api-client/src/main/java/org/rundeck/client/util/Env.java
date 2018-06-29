@@ -16,8 +16,6 @@
 
 package org.rundeck.client.util;
 
-import org.rundeck.toolbelt.InputError;
-
 /**
  * Configuration values from System.getenv
  */
@@ -59,10 +57,10 @@ public class Env implements ConfigSource {
         return getString(key, null);
     }
 
-    public String require(final String name, final String description) throws InputError {
+    public String require(final String name, final String description)  throws ConfigSourceError {
         String value = System.getenv(name);
         if (null == value) {
-            throw new InputError(String.format(
+            throw new ConfigSourceError(String.format(
                     "Environment variable %s is required: %s",
                     name,
                     description

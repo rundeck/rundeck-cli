@@ -28,7 +28,7 @@ import org.rundeck.client.api.model.ScmInputField
 import org.rundeck.client.api.model.ScmJobItem
 import org.rundeck.client.api.model.ScmProjectStatusResult
 import org.rundeck.client.api.model.ScmSynchState
-import org.rundeck.client.tool.AppConfig
+import org.rundeck.client.util.RdClientConfig
 import org.rundeck.client.tool.Main
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
@@ -53,7 +53,7 @@ class SCMSpec extends Specification {
         def out = Mock(CommandOutput)
         def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
 
-        def appConfig = Mock(AppConfig)
+        def appConfig = Mock(RdClientConfig)
 
         def hasclient = Mock(RdApp) {
             getClient() >> client
@@ -93,7 +93,7 @@ class SCMSpec extends Specification {
         def out = Mock(CommandOutput)
         def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
 
-        def appConfig = Mock(AppConfig)
+        def appConfig = Mock(RdClientConfig)
 
         def hasclient = Mock(RdApp) {
             getClient() >> client
@@ -148,7 +148,7 @@ class SCMSpec extends Specification {
         def out = Mock(CommandOutput)
         def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
 
-        def appConfig = Mock(AppConfig)
+        def appConfig = Mock(RdClientConfig)
 
         def hasclient = Mock(RdApp) {
             getClient() >> client
@@ -199,7 +199,7 @@ class SCMSpec extends Specification {
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, null, null, 18, true, null)
 
-        def appConfig = Mock(AppConfig)
+        def appConfig = Mock(RdClientConfig)
 
         def hasclient = Mock(RdApp) {
             getClient() >> client
@@ -284,7 +284,7 @@ class SCMSpec extends Specification {
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, null, null, 18, true, null)
 
-        def appConfig = Mock(AppConfig)
+        def appConfig = Mock(RdClientConfig)
 
         def hasclient = Mock(RdApp) {
             getClient() >> client

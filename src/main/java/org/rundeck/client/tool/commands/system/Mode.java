@@ -12,7 +12,6 @@ import org.rundeck.client.api.model.SystemMode;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.QuietOption;
-import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
 import java.io.IOException;

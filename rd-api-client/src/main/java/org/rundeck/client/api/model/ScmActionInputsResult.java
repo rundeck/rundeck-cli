@@ -16,7 +16,8 @@
 
 package org.rundeck.client.api.model;
 
-import org.rundeck.toolbelt.Formatable;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.util.DataOutput;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,22 +27,32 @@ import java.util.Map;
  * @author greg
  * @since 12/13/16
  */
-public class ScmSetupInputsResult implements Formatable {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class ScmActionInputsResult implements DataOutput {
+    public String title;
+    public String description;
     public String integration;
-    public String type;
+    public String actionId;
     public List<ScmInputField> fields;
+    public List<ScmImportItem> importItems;
+    public List<ScmExportItem> exportItems;
 
-    @Override
-    public List<?> asList() {
-        return null;
-    }
-
-    @Override
     public Map<?, ?> asMap() {
         HashMap<String, Object> map = new HashMap<>();
+        map.put("title", title);
+        map.put("description", description);
         map.put("integration", integration);
-        map.put("type", type);
-        map.put("fields", fields);
+        map.put("actionId", actionId);
+        if (null != fields) {
+            map.put("fields", fields);
+        }
+        if (null != importItems) {
+            map.put("items", importItems);
+        }
+        if (null != exportItems) {
+            map.put("items", exportItems);
+        }
+
         return map;
     }
 }

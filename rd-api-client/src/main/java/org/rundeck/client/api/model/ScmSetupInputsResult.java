@@ -14,17 +14,28 @@
  * limitations under the License.
  */
 
-package org.rundeck.client.tool;
+package org.rundeck.client.api.model;
 
-import org.rundeck.client.util.ConfigSource;
+import org.rundeck.client.util.DataOutput;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author greg
- * @since 1/11/17
+ * @since 12/13/16
  */
-public interface AppConfig extends ConfigSource {
-    boolean isAnsiEnabled();
-    int getDebugLevel();
+public class ScmSetupInputsResult implements DataOutput {
+    public String integration;
+    public String type;
+    public List<ScmInputField> fields;
 
-    String getDateFormat();
+    public Map<?, ?> asMap() {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("integration", integration);
+        map.put("type", type);
+        map.put("fields", fields);
+        return map;
+    }
 }

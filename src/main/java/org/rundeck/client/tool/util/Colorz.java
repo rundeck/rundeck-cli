@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.rundeck.client.util;
+package org.rundeck.client.tool.util;
 
 import org.rundeck.toolbelt.ANSIColorOutput;
 

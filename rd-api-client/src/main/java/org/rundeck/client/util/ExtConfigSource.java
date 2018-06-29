@@ -16,8 +16,6 @@
 
 package org.rundeck.client.util;
 
-import org.rundeck.toolbelt.InputError;
-
 /**
  * @author greg
  * @since 1/11/17
@@ -55,7 +53,7 @@ public class ExtConfigSource implements ConfigSource {
     }
 
     @Override
-    public String require(final String key, final String description) throws InputError {
+    public String require(final String key, final String description)  throws ConfigSourceError {
         return configSource.require(key, description);
     }
 }

@@ -29,8 +29,6 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.projects.ACLFileOptions;
 import org.rundeck.client.tool.commands.projects.ACLNameOptions;
 import org.rundeck.client.tool.options.ACLOutputOptions;
-import org.rundeck.client.util.Client;
-import org.rundeck.client.util.ServiceClient;
 
 import java.io.IOException;
 

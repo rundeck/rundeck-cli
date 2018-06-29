@@ -28,7 +28,6 @@ import org.rundeck.client.tool.commands.system.Mode;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 /**

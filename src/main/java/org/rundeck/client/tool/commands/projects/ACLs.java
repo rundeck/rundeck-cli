@@ -33,7 +33,7 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.ACLOutputOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.util.Client;
-import org.rundeck.client.util.Colorz;
+import org.rundeck.client.tool.util.Colorz;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;

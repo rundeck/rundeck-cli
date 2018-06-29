@@ -16,8 +16,6 @@
 
 package org.rundeck.client.api;
 
-import org.rundeck.client.api.RequestFailed;
-
 public class AuthorizationFailed extends RequestFailed {
     public AuthorizationFailed(final int statusCode, final String status) {
         super(statusCode, status);

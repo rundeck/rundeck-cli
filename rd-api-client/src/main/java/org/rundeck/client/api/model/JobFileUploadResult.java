@@ -17,7 +17,7 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.rundeck.toolbelt.Formatable;
+import org.rundeck.client.util.DataOutput;
 
 import java.util.HashMap;
 import java.util.List;
@@ -29,7 +29,7 @@ import java.util.Map;
  */
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class JobFileUploadResult implements Formatable {
+public class JobFileUploadResult implements DataOutput {
     private Integer total;
     private Map<String, String> options;
 
@@ -49,12 +49,6 @@ public class JobFileUploadResult implements Formatable {
         this.options = options;
     }
 
-    @Override
-    public List<?> asList() {
-        return null;
-    }
-
-    @Override
     public Map<?, ?> asMap() {
         HashMap<String, Object> map = new HashMap<>();
         map.put("total", total);

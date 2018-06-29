@@ -25,11 +25,9 @@ import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
-import org.rundeck.client.util.Client;
-import org.rundeck.client.util.ConfigSource;
-import org.rundeck.client.util.Env;
-import org.rundeck.client.util.ExtConfigSource;
+import org.rundeck.client.util.*;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
@@ -51,14 +49,8 @@ public class Main {
     public static final String ENV_TOKEN = "RD_TOKEN";
     public static final String ENV_URL = "RD_URL";
     public static final String ENV_API_VERSION = "RD_API_VERSION";
-    /**
-     * If true, allow API version to be automatically degraded when unsupported version is detected
-     */
-    public static final String RD_API_DOWNGRADE = "RD_API_DOWNGRADE";
     public static final String ENV_AUTH_PROMPT = "RD_AUTH_PROMPT";
     public static final String ENV_DEBUG = "RD_DEBUG";
-    public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
-    public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
     public static final String ENV_RD_FORMAT = "RD_FORMAT";
 
     public static void main(String[] args) throws CommandRunFailure {
@@ -80,7 +72,7 @@ public class Main {
         }
     }
 
-    private static void setupFormat(final ToolBelt belt, AppConfig config) {
+    private static void setupFormat(final ToolBelt belt, RdClientConfig config) {
         final String format = config.get(ENV_RD_FORMAT);
         if ("yaml".equalsIgnoreCase(format)) {
             configYamlFormat(belt, config);
@@ -98,8 +90,8 @@ public class Main {
         NiceFormatter formatter = new NiceFormatter(null) {
             @Override
             public String format(final Object o) {
-                if (o instanceof Formatable) {
-                    Formatable o1 = (Formatable) o;
+                if (o instanceof DataOutput) {
+                    DataOutput o1 = (DataOutput) o;
                     Map<?, ?> map = o1.asMap();
                     if (null != map) {
                         return super.format(map);
@@ -121,13 +113,13 @@ public class Main {
     }
 
     private static void configJsonFormat(final ToolBelt belt) {
-        belt.formatter(new JsonFormatter());
+        belt.formatter(new JsonFormatter(DataOutputAsFormatable));
         belt.channels().infoEnabled(false);
         belt.channels().warningEnabled(false);
         belt.channels().errorEnabled(false);
     }
 
-    private static void configYamlFormat(final ToolBelt belt, final AppConfig config) {
+    private static void configYamlFormat(final ToolBelt belt, final RdClientConfig config) {
         DumperOptions dumperOptions = new DumperOptions();
         dumperOptions.setDefaultFlowStyle(
                 "BLOCK".equalsIgnoreCase(config.getString("RD_YAML_FLOW", "BLOCK")) ?
@@ -140,11 +132,28 @@ public class Main {
         representer.addClassTag(ScheduledJobItem.class, Tag.MAP);
         representer.addClassTag(DateInfo.class, Tag.MAP);
         representer.addClassTag(Execution.class, Tag.MAP);
-        belt.formatter(new YamlFormatter(representer, dumperOptions));
+        belt.formatter(new YamlFormatter(DataOutputAsFormatable, new Yaml(representer, dumperOptions)));
         belt.channels().infoEnabled(false);
         belt.channels().warningEnabled(false);
         belt.channels().errorEnabled(false);
     }
+
+    private static final Function<Object, Optional<Formatable>> DataOutputAsFormatable = o -> {
+        if (o instanceof DataOutput) {
+            return Optional.of(new Formatable() {
+                @Override
+                public List<?> asList() {
+                    return ((DataOutput) o).asList();
+                }
+
+                @Override
+                public Map<?, ?> asMap() {
+                    return ((DataOutput) o).asMap();
+                }
+            });
+        }
+        return Optional.empty();
+    };
 
     public static Tool tool(final Rd rd) {
         ToolBelt belt = ToolBelt.belt("rd")
@@ -184,7 +193,7 @@ public class Main {
         return belt.buckle();
     }
 
-    static class Rd extends ExtConfigSource implements RdApp, AppConfig {
+    static class Rd extends ExtConfigSource implements RdApp, RdClientConfig {
         Client<RundeckApi> client;
         private CommandOutput output;
 
@@ -215,19 +224,27 @@ public class Main {
         @Override
         public Client<RundeckApi> getClient() throws InputError {
             if (null == client) {
-                client = Main.createClient(this);
+                try {
+                    client = Main.createClient(this);
+                } catch (ConfigSourceError configSourceError) {
+                    throw new InputError(configSourceError.getMessage());
+                }
             }
             return client;
         }
 
         @Override
         public Client<RundeckApi> getClient(final int version) throws InputError {
-            client = Main.createClient(this, version);
+            try {
+                client = Main.createClient(this, version);
+            } catch (ConfigSourceError configSourceError) {
+                throw new InputError(configSourceError.getMessage());
+            }
             return client;
         }
 
         @Override
-        public AppConfig getAppConfig() {
+        public RdClientConfig getAppConfig() {
             return this;
         }
 
@@ -256,7 +273,7 @@ public class Main {
         }
     }
 
-    private static void setupColor(final ToolBelt belt, AppConfig config) {
+    private static void setupColor(final ToolBelt belt, RdClientConfig config) {
         if (config.isAnsiEnabled()) {
             String info = config.get("RD_COLOR_INFO");
             if (null != info) {
@@ -278,11 +295,13 @@ public class Main {
     }
 
 
-    public static Client<RundeckApi> createClient(Rd config) throws InputError {
+    public static Client<RundeckApi> createClient(Rd config) throws InputError, ConfigSource.ConfigSourceError {
         return createClient(config, null);
     }
 
-    public static Client<RundeckApi> createClient(Rd config, Integer requestedVersion) throws InputError {
+    public static Client<RundeckApi> createClient(Rd config, Integer requestedVersion)
+            throws InputError, ConfigSource.ConfigSourceError
+    {
         Auth auth = new Auth() {
         };
         auth = auth.chain(new ConfigAuth(config));

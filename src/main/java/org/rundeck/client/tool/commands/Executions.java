@@ -24,7 +24,7 @@ import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.AppConfig;
+import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
@@ -555,7 +555,7 @@ public class Executions extends AppCommand {
     public static void outputExecutionList(
             final ExecutionResultOptions options,
             final CommandOutput out,
-            final AppConfig config,
+            final RdClientConfig config,
             final Stream<Execution> executions
     )
     {
