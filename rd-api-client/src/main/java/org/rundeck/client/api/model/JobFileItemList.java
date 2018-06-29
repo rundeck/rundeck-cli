@@ -17,15 +17,17 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.util.DataOutput;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author greg
  * @since 3/2/17
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class JobFileItemList {
+public class JobFileItemList implements DataOutput {
     private Paging paging;
     private List<JobFileItem> files;
 
@@ -39,6 +41,11 @@ public class JobFileItemList {
 
     public List<JobFileItem> getFiles() {
         return files;
+    }
+
+    @Override
+    public List<?> asList() {
+        return getFiles().stream().map(JobFileItem::asMap).collect(Collectors.toList());
     }
 
     public void setFiles(List<JobFileItem> files) {

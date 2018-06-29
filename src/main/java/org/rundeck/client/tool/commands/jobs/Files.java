@@ -115,7 +115,7 @@ public class Files extends AppCommand {
             out.info(paging);
         }
 
-        out.output(result.getFiles());
+        out.output(result.asList());
 
 
         if (paging != null && paging.hasMoreResults()) {

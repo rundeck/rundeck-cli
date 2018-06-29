@@ -27,6 +27,7 @@ import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.util.*;
 import org.yaml.snakeyaml.DumperOptions;
+import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
@@ -89,8 +90,8 @@ public class Main {
         NiceFormatter formatter = new NiceFormatter(null) {
             @Override
             public String format(final Object o) {
-                if (o instanceof Formatable) {
-                    Formatable o1 = (Formatable) o;
+                if (o instanceof DataOutput) {
+                    DataOutput o1 = (DataOutput) o;
                     Map<?, ?> map = o1.asMap();
                     if (null != map) {
                         return super.format(map);
@@ -112,7 +113,7 @@ public class Main {
     }
 
     private static void configJsonFormat(final ToolBelt belt) {
-        belt.formatter(new JsonFormatter());
+        belt.formatter(new JsonFormatter(DataOutputAsFormatable));
         belt.channels().infoEnabled(false);
         belt.channels().warningEnabled(false);
         belt.channels().errorEnabled(false);
@@ -131,11 +132,28 @@ public class Main {
         representer.addClassTag(ScheduledJobItem.class, Tag.MAP);
         representer.addClassTag(DateInfo.class, Tag.MAP);
         representer.addClassTag(Execution.class, Tag.MAP);
-        belt.formatter(new YamlFormatter(representer, dumperOptions));
+        belt.formatter(new YamlFormatter(DataOutputAsFormatable, new Yaml(representer, dumperOptions)));
         belt.channels().infoEnabled(false);
         belt.channels().warningEnabled(false);
         belt.channels().errorEnabled(false);
     }
+
+    private static final Function<Object, Optional<Formatable>> DataOutputAsFormatable = o -> {
+        if (o instanceof DataOutput) {
+            return Optional.of(new Formatable() {
+                @Override
+                public List<?> asList() {
+                    return ((DataOutput) o).asList();
+                }
+
+                @Override
+                public Map<?, ?> asMap() {
+                    return ((DataOutput) o).asMap();
+                }
+            });
+        }
+        return Optional.empty();
+    };
 
     public static Tool tool(final Rd rd) {
         ToolBelt belt = ToolBelt.belt("rd")

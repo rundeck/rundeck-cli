@@ -17,6 +17,7 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.util.DataOutput;
 
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ import java.util.Map;
  * @since 12/13/16
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ScmExportItem {
+public class ScmExportItem implements DataOutput {
     public String itemId;
     public String originalId;
     public ScmJobItem job;

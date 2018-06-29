@@ -16,6 +16,8 @@
 
 package org.rundeck.client.api.model;
 
+import org.rundeck.client.util.DataOutput;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +26,7 @@ import java.util.Map;
  * @author greg
  * @since 12/13/16
  */
-public class ScmSetupInputsResult  {
+public class ScmSetupInputsResult implements DataOutput {
     public String integration;
     public String type;
     public List<ScmInputField> fields;
