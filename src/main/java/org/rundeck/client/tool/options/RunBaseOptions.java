@@ -59,7 +59,11 @@ public interface RunBaseOptions extends JobIdentOptions, FollowOptions, Optional
 
     boolean isRunDelay();
 
-    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath", description = "Job options")
+    @Option(longName = "raw",
+            description = "Treat option values as raw text, so that '-opt @value' is sent literally")
+    boolean isRawOptions();
+
+    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath -OPTFILE2@ filepath", description = "Job options")
     List<String> getCommandString();
 
 }

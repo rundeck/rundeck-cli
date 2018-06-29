@@ -48,8 +48,11 @@ public interface RetryBaseOptions extends JobIdentOptions, FollowOptions, RetryE
             pattern = "(true|false)")
     String getFailedNodes();
 
+    @Option(longName = "raw",
+            description = "Treat option values as raw text, so that '-opt @value' is sent literally")
+    boolean isRawOptions();
 
-    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath", description = "Job options")
+    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath -OPTFILE2@ filepath", description = "Job options")
     List<String> getCommandString();
 
 }

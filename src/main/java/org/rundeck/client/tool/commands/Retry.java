@@ -74,6 +74,7 @@ public class Retry extends AppCommand {
         request.setAsUser(options.getUser());
         request.setFailedNodes(options.getFailedNodes());
         List<String> commandString = options.getCommandString();
+        boolean rawOptions = options.isRawOptions();
         Map<String, String> jobopts = new HashMap<>();
         Map<String, File> fileinputs = new HashMap<>();
         String key = null;
@@ -88,7 +89,7 @@ public class Retry extends AppCommand {
                     }
                 } else if (key != null) {
                     String filepath = null;
-                    if (part.charAt(0) == '@' && !isfile) {
+                    if (!rawOptions && part.charAt(0) == '@' && !isfile) {
                         //file input
                         filepath = part.substring(1);
                         isfile = true;
