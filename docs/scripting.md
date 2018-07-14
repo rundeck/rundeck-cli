@@ -19,7 +19,7 @@ Specifying formatted output for Job and Execution lists:
 
 For `rd executions` you can customize the default date format of `yyyy-MM-ddHH:mm:ssZ`:
 
-    DATE_FORMAT="yyyy-MM-dd HH:mm z"
+    RD_DATE_FORMAT="yyyy-MM-dd HH:mm z"
 
 See [Java SimpleDateFormat][1]
 
