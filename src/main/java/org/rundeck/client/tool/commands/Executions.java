@@ -232,7 +232,7 @@ public class Executions extends AppCommand {
 
     }
 
-    @Command(description = "List all running executions for a project.")
+    @Command(description = "Get info about a single execution by ID.")
     public void info(Info options, CommandOutput out) throws IOException, InputError {
 
         Execution execution = apiCall(api -> api.getExecution(options.getId()));

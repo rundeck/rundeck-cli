@@ -53,7 +53,7 @@ List running executions, attach and follow their output, or kill them.
 	   delete     - Delete an execution by ID
 	   deletebulk - Find and delete executions in a project
 	   follow     - Follow the output of an execution
-	   info       - List all running executions for a project
+	   info       - Get info about a single execution by ID
 	   kill       - Attempt to kill an execution by ID
 	   list       - List all running executions for a project
 	   query      - Query previous executions for a project
