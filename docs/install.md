@@ -12,7 +12,7 @@ Download all artifacts from: [github releases](https://github.com/rundeck/rundec
 * [standalone executable jar](#jar-install) `rundeck-cli-x.y-all.jar`
 * [rpm install](#yum-usage) `rundeck-cli-x.y.noarch.rpm`
 * [debian install](#debian-usage) `rundeck-cli-x.y_all.deb`
-* [arch install](#arch-install)
+* [arch install](#arch-linux-install)
 
 Additional Yum/Debian repos hosted by:
 
