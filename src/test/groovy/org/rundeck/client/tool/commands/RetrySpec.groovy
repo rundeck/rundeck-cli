@@ -19,11 +19,9 @@ package org.rundeck.client.tool.commands
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobFileUploadResult
-import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.JobRun
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.options.RetryBaseOptions
-import org.rundeck.client.tool.options.RunBaseOptions
 import org.rundeck.client.util.Client
 import org.rundeck.toolbelt.CommandOutput
 import org.rundeck.toolbelt.InputError
