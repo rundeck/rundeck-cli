@@ -10,8 +10,9 @@ Download all artifacts from: [github releases](https://github.com/rundeck/rundec
 
 * [zip install](#zip-install) `rd-x.y.zip`/`rd-x.y.tar`
 * [standalone executable jar](#jar-install) `rundeck-cli-x.y-all.jar`
-* [rpm install](#yum-install) `rundeck-cli-x.y.noarch.rpm`
-* [debian install](#debian-install) `rundeck-cli-x.y_all.deb`
+* [rpm install](#yum-usage) `rundeck-cli-x.y.noarch.rpm`
+* [debian install](#debian-usage) `rundeck-cli-x.y_all.deb`
+* [arch install](#arch-linux-install)
 
 Additional Yum/Debian repos hosted by:
 
@@ -74,3 +75,14 @@ apt-get -y install apt-transport-https
 apt-get -y update
 apt-get -y install rundeck-cli
 ~~~
+
+### Arch Linux install
+
+Make sure you're familiarized with [the AUR](https://wiki.archlinux.org/index.php/Arch_User_Repository)
+
+~~~{.sh}
+git clone https://aur.archlinux.org/rundeck-cli.git
+cd rundeck-cli
+makepkg -i
+~~~
+
