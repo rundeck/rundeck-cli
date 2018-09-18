@@ -1,3 +1,10 @@
+## 1.1.0
+
+* Fix [Issue #196](https://github.com/rundeck/rundeck-cli/issues/196) rd run -loglevel debug should work
+* fix description of executions info command
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.0.29...v1.1.0)
+
 ## 1.0.29
 
 * Fix [Issue #186](https://github.com/rundeck/rundeck-cli/issues/186) rd run --raw allows -opt @value literal
