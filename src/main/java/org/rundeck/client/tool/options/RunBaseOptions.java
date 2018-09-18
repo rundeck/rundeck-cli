@@ -27,12 +27,12 @@ import java.util.List;
 public interface RunBaseOptions extends JobIdentOptions, FollowOptions, OptionalProjectOptions, NodeFilterOptions {
     @Option(shortName = "l",
             longName = "loglevel",
-            description = "Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.",
+            description = "Run the command using the specified LEVEL. LEVEL can be debug, verbose, info, warning, error.",
             defaultValue = {"info"},
-            pattern = "(verbose|info|warning|error)")
+            pattern = "(debug|verbose|info|warning|error)")
     String getLoglevel();
 
-    @Option(hidden = true, pattern = "(verbose|info|warning|error)")
+    @Option(hidden = true, pattern = "(debug|verbose|info|warning|error)")
     String getLogevel();
 
     boolean isLogevel();
