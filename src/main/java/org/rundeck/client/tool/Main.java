@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool;
 
+import org.rundeck.client.tool.commands.verb.Plugins;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
 import org.rundeck.toolbelt.format.yaml.snakeyaml.YamlFormatter;
@@ -172,7 +173,8 @@ public class Main {
                                         new Nodes(rd),
                                         new Users(rd),
                                         new Something(),
-                                        new Retry(rd)
+                                        new Retry(rd),
+                                        new Plugins(rd)
 
                                 )
                                 .bannerResource("rd-banner.txt")

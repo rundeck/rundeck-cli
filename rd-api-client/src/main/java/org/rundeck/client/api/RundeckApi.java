@@ -20,6 +20,9 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.api.model.verb.Artifact;
+import org.rundeck.client.api.model.verb.ArtifactActionMessage;
+import org.rundeck.client.api.model.verb.RepositoryArtifacts;
 import org.rundeck.client.util.Json;
 import org.rundeck.client.util.Xml;
 import retrofit2.Call;
@@ -1055,4 +1058,32 @@ public interface RundeckApi {
             @Body ExecRetry execRetry
 
     );
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#list-plugins">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("plugins/list")
+    Call<List<RepositoryArtifacts>> listPlugins();
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#upload-plugins">API</a>
+     */
+    @Headers("Accept: application/json")
+    @POST("plugins/upload")
+    Call<ArtifactActionMessage> uploadPlugin(@Body RequestBody pluginBinary);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#install-plugins">API</a>
+     */
+    @Headers("Accept: application/json")
+    @POST("plugins/install/{pluginId}")
+    Call<ArtifactActionMessage> installPlugin(@Path("pluginId") String pluginId);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#uninstall-plugins">API</a>
+     */
+    @Headers("Accept: application/json")
+    @POST("plugins/uninstall/{pluginId}")
+    Call<ArtifactActionMessage> uninstallPlugin(@Path("pluginId") String pluginId);
 }
