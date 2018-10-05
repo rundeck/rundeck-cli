@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rundeck.client.tool.commands.verb;
+package org.rundeck.client.tool.commands.repository;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import okhttp3.RequestBody;
-import org.rundeck.client.api.model.verb.ArtifactActionMessage;
+import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.util.Client;

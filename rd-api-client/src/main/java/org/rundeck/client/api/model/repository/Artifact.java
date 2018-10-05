@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rundeck.client.api.model.verb;
+package org.rundeck.client.api.model.repository;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 

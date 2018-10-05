@@ -13,27 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rundeck.client.api.model.verb;
+package org.rundeck.client.api.model.repository;
 
-import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-public class RepositoryArtifacts {
-    String         repositoryName;
-    List<Artifact> results;
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class Error {
+    String code;
+    String msg;
 
-    public String getRepositoryName() {
-        return repositoryName;
+    public String getCode() {
+        return code;
     }
 
-    public void setRepositoryName(final String repositoryName) {
-        this.repositoryName = repositoryName;
+    public void setCode(final String code) {
+        this.code = code;
     }
 
-    public List<Artifact> getResults() {
-        return results;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setResults(final List<Artifact> results) {
-        this.results = results;
+    public void setMsg(final String msg) {
+        this.msg = msg;
     }
 }

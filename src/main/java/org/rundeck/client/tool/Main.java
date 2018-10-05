@@ -16,7 +16,7 @@
 
 package org.rundeck.client.tool;
 
-import org.rundeck.client.tool.commands.verb.Plugins;
+import org.rundeck.client.tool.commands.repository.Plugins;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
 import org.rundeck.toolbelt.format.yaml.snakeyaml.YamlFormatter;
@@ -53,7 +53,7 @@ public class Main {
     public static final String ENV_AUTH_PROMPT = "RD_AUTH_PROMPT";
     public static final String ENV_DEBUG = "RD_DEBUG";
     public static final String ENV_RD_FORMAT = "RD_FORMAT";
-    public static final String ENV_ENABLE_VERB = "RD_ENABLE_VERB";
+    public static final String ENV_ENABLE_VERB = "RD_ENABLE_PLUGINS";
 
     public static void main(String[] args) throws CommandRunFailure {
         Rd rd = new Rd(new Env());

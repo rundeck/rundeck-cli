@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rundeck.client.tool.commands.verb
+package org.rundeck.client.tool.commands.repository
 
 import org.rundeck.client.api.RundeckApi
-import org.rundeck.client.api.model.verb.ArtifactActionMessage
+import org.rundeck.client.api.model.repository.Artifact
+import org.rundeck.client.api.model.repository.RepositoryArtifacts
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import org.rundeck.toolbelt.CommandOutput
@@ -25,26 +26,34 @@ import retrofit2.mock.Calls
 import spock.lang.Specification
 
 
-class UninstallPluginTest extends Specification {
-    def "Uninstall"() {
+class PluginsTest extends Specification {
+    def "List"() {
         given:
         def api = Mock(RundeckApi)
-        def opts = Mock(UninstallPlugin.UninstallPluginOption) {
-            getPluginId() >> 'bcf8885df1e8'
-        }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 26, false, null)
+        def client = new Client(api, retrofit, null, null, 26, true, null)
         def rdapp = Mock(RdApp) {
             getClient() >> client
         }
-        UninstallPlugin uninstallCmd = new UninstallPlugin(rdapp)
+        Plugins plugins = new Plugins(rdapp)
         def out = Mock(CommandOutput)
 
         when:
-        uninstallCmd.uninstall(opts,out)
+        plugins.list(out)
 
         then:
-        1 * api.uninstallPlugin(_) >> Calls.response(new ArtifactActionMessage(msg:"Plugin Uninstalled"))
-        out.output('Plugin Uninstalled')
+        1 * api.listPlugins() >> Calls.response(listRepoResponse())
+        out.output('1b7dc3be7836 : JNotify (installed)\nbcf8885df1e8 : Scripter (not installed)')
+
     }
+
+    List<RepositoryArtifacts> listRepoResponse() {
+        def list = []
+        RepositoryArtifacts ra = new RepositoryArtifacts()
+        ra.repositoryName = "private"
+        ra.results = [new Artifact(id:"1b7dc3be7836",name: "JNotify",installed: true),
+                      new Artifact(id:"bcf8885df1e8",name: "Scripter",installed: false)]
+        return list
+    }
+
 }

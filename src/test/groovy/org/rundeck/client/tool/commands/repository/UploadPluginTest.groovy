@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.rundeck.client.tool.commands.verb
+package org.rundeck.client.tool.commands.repository
 
 import org.rundeck.client.api.RundeckApi
-import org.rundeck.client.api.model.verb.ArtifactActionMessage
+import org.rundeck.client.api.model.repository.ArtifactActionMessage
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import org.rundeck.toolbelt.CommandOutput
