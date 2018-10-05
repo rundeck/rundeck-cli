@@ -45,15 +45,15 @@ import static org.rundeck.client.RundeckClient.ENV_INSECURE_SSL;
  */
 public class Main {
 
-    public static final String ENV_USER = "RD_USER";
-    public static final String ENV_PASSWORD = "RD_PASSWORD";
-    public static final String ENV_TOKEN = "RD_TOKEN";
-    public static final String ENV_URL = "RD_URL";
-    public static final String ENV_API_VERSION = "RD_API_VERSION";
-    public static final String ENV_AUTH_PROMPT = "RD_AUTH_PROMPT";
-    public static final String ENV_DEBUG = "RD_DEBUG";
-    public static final String ENV_RD_FORMAT = "RD_FORMAT";
-    public static final String ENV_ENABLE_VERB = "RD_ENABLE_PLUGINS";
+    public static final String ENV_USER          = "RD_USER";
+    public static final String ENV_PASSWORD      = "RD_PASSWORD";
+    public static final String ENV_TOKEN         = "RD_TOKEN";
+    public static final String ENV_URL           = "RD_URL";
+    public static final String ENV_API_VERSION   = "RD_API_VERSION";
+    public static final String ENV_AUTH_PROMPT   = "RD_AUTH_PROMPT";
+    public static final String ENV_DEBUG         = "RD_DEBUG";
+    public static final String ENV_RD_FORMAT     = "RD_FORMAT";
+    public static final String RD_ENABLE_PLUGINS = "RD_ENABLE_PLUGINS";
 
     public static void main(String[] args) throws CommandRunFailure {
         Rd rd = new Rd(new Env());
@@ -158,7 +158,7 @@ public class Main {
     };
 
     public static Tool tool(final Rd rd) {
-        boolean verbEnabled = Boolean.parseBoolean(System.getenv(ENV_ENABLE_VERB));
+        boolean pluginsEnabled = Boolean.parseBoolean(System.getenv(RD_ENABLE_PLUGINS));
         ToolBelt belt = ToolBelt.belt("rd")
                                 .defaultHelpCommands()
                                 .ansiColorOutput(rd.isAnsiEnabled())
@@ -180,7 +180,7 @@ public class Main {
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
-        if(verbEnabled) {
+        if(pluginsEnabled) {
             belt.add(new Plugins(rd));
         }
         belt.printStackTrace(rd.getDebugLevel() > 0);
