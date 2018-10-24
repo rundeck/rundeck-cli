@@ -27,6 +27,7 @@ import org.rundeck.client.api.model.scheduler.SchedulerTakeover;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeoverResult;
 import org.rundeck.client.api.model.pro.Reaction;
 import org.rundeck.client.api.model.pro.Subscription;
+import org.rundeck.client.api.model.pro.SubscriptionEventMessage;
 import org.rundeck.client.util.Json;
 import org.rundeck.client.util.Xml;
 import retrofit2.Call;
@@ -1235,6 +1236,17 @@ public interface RundeckApi {
     @Headers("Accept: application/json")
     @GET("project/{project}/events/subscriptions/{id}")
     Call<Subscription> getSubscriptionInfo(
+            @Path("project") String project,
+            @Path("id") String id
+    );
+    /**
+     * Get a event subscriptions by ID
+     *
+     * @param id
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/subscriptions/{id}/messages")
+    Call<List<SubscriptionEventMessage>> getSubscriptionMessages(
             @Path("project") String project,
             @Path("id") String id
     );

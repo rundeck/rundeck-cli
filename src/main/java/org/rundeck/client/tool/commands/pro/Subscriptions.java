@@ -3,6 +3,7 @@ package org.rundeck.client.tool.commands.pro;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import org.rundeck.client.api.model.pro.Subscription;
+import org.rundeck.client.api.model.pro.SubscriptionEventMessage;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.commands.projects.Configure;
@@ -107,6 +108,22 @@ public class Subscriptions
         ));
         output.output(reactionList);
         return reactionList;
+    }
+
+    @Command
+    public List<SubscriptionEventMessage> messages(InfoOpts options, CommandOutput output)
+            throws IOException, InputError
+    {
+        String project = projectOrEnv(options);
+        List<SubscriptionEventMessage> messages = apiCall(api -> api.getSubscriptionMessages(
+                project,
+                options.getId()
+        ));
+        if (!options.isOutputFormat()) {
+            output.info(String.format("%d Messages For Subscription %s%n", messages.size(), options.getId()));
+        }
+        outputList(options, output, messages, SubscriptionEventMessage::asMap, SubscriptionEventMessage::toBasicString);
+        return messages;
     }
 
     interface ModifyOptions
