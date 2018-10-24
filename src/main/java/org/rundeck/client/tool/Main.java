@@ -18,6 +18,7 @@ package org.rundeck.client.tool;
 
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.tool.commands.repository.Plugins;
+import org.rundeck.client.tool.commands.pro.ProCommands;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
 import org.rundeck.toolbelt.format.yaml.snakeyaml.YamlFormatter;
@@ -176,15 +177,15 @@ public class Main {
                                         new Nodes(rd),
                                         new Users(rd),
                                         new Something(),
-                                        new Retry(rd),
-                                        new Reactions(rd),
-                                        new Subscriptions(rd)
-
+                                        new Retry(rd)
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
         if(pluginsEnabled) {
             belt.add(new Plugins(rd));
+        }
+        if (rd.getAppConfig().getBool("RD_PRO", false)) {
+            belt.add(new ProCommands(rd));
         }
         belt.printStackTrace(rd.getDebugLevel() > 0);
         setupColor(belt, rd);

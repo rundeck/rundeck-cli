@@ -1152,7 +1152,7 @@ public interface RundeckApi {
     Call<BulkToggleJobScheduleResponse> bulkDisableJobSchedule(
         @Body IdList ids
     );
-    
+
     /**
      * List reactions for a project
      *

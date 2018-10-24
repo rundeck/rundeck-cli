@@ -1,9 +1,10 @@
-package org.rundeck.client.tool.commands;
+package org.rundeck.client.tool.commands.pro;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import org.rundeck.client.api.model.Subscription;
 import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.commands.projects.Configure;
 import org.rundeck.client.tool.options.BaseOptions;
 import org.rundeck.client.tool.options.ConfigFileOptions;
