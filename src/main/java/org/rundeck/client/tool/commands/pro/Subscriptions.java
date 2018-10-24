@@ -59,26 +59,28 @@ public class Subscriptions
         if (!options.isOutputFormat()) {
             output.info(String.format("%d Subscriptions in project %s%n", result.size(), project));
         }
-        outputList(options, output, result);
+        outputList(options, output, result, Subscription::asMap, Subscription::toBasicString);
         return result;
     }
 
 
-    private void outputList(
+    private <T> void outputList(
             final ResultOptions options,
             final CommandOutput output,
-            final List<Subscription> list
+            final List<T> list,
+            final Function<T, Map<?, ?>> verbose,
+            final Function<T, String> basic
     )
     {
-        final Function<Subscription, ?> outformat;
+        final Function<T, ?> outformat;
         if (options.isVerbose()) {
-            output.output(list.stream().map(Subscription::asMap).collect(Collectors.toList()));
+            output.output(list.stream().map(verbose).collect(Collectors.toList()));
             return;
         }
         if (options.isOutputFormat()) {
-            outformat = Format.formatter(options.getOutputFormat(), Subscription::asMap, "%", "");
+            outformat = Format.formatter(options.getOutputFormat(), verbose, "%", "");
         } else {
-            outformat = Subscription::toBasicString;
+            outformat = basic;
         }
 
         output.output(list.stream().map(outformat).collect(Collectors.toList()));
