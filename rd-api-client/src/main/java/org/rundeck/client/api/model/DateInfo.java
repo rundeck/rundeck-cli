@@ -88,17 +88,31 @@ public class DateInfo
 
     public String toRelative(final Date time) throws ParseException {
         long diff = time.getTime() - toDate().getTime();
-        if (diff < 1000) {
-            return String.format("%dms ago", diff);
-        } else if (diff < 1000 * 60) {
-            return String.format("%ds ago", diff / 1000);
-        } else if (diff < 1000 * 60 * 60) {
-            return String.format("%dm ago", diff / 60000);
-        } else if (diff < 1000 * 60 * 60 * 24) {
-            return String.format("%dm ago", diff / (24 * 60000));
-        } else {
-            return String.format("%dms ago", diff);
+        String diffStr;
+        String ago = "ago";
+        String fmt = "%s %s";
+        if (diff < 0) {
+            ago = "from now";
+            fmt = "(%s %s)";
         }
+        if (diff == 0) {
+            diffStr = "now";
+            ago = "";
+            fmt = "%s";
+        } else if (diff < 1000) {
+            diffStr = String.format("%dms", diff);
+        } else if (diff < 1000 * 60) {
+            diffStr = String.format("%ds", diff / 1000);
+        } else if (diff < 1000 * 60 * 60) {
+            diffStr = String.format("%dm", diff / 60000);
+        } else if (diff < 1000 * 60 * 60 * 24) {
+            diffStr = String.format("%dh", diff / (3600000));
+        } else if (diff < 1000L * 60 * 60 * 24 * 31) {
+            diffStr = String.format("%dd", diff / (24 * 3600000));
+        } else {
+            diffStr = String.format("%dms", diff);
+        }
+        return String.format(fmt, diffStr, ago);
     }
 
     public static DateInfo withDate(Date input) {
