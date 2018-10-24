@@ -25,6 +25,8 @@ import org.rundeck.client.api.model.repository.RepositoryArtifacts;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeover;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeoverResult;
+import org.rundeck.client.api.model.pro.Reaction;
+import org.rundeck.client.api.model.pro.Subscription;
 import org.rundeck.client.util.Json;
 import org.rundeck.client.util.Xml;
 import retrofit2.Call;

@@ -1,9 +1,10 @@
-package org.rundeck.client.api.model;
+package org.rundeck.client.api.model.pro;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import org.rundeck.client.api.model.DateInfo;
 import org.rundeck.client.util.DataOutput;
 
 import java.util.HashMap;
