@@ -35,6 +35,7 @@ public class DateInfo
 {
     public static final String ISO1 = "yyyy-MM-dd'T'HH:mm:ssXXX";
     public static final String ISO2 = "yyyy-MM-dd'T'HH:mm:ssXX";
+    public static final String ISO3 = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX";
     public static final String ISO = "yyyy-MM-dd'T'HH:mm:ssX";
     public String date;
     public long unixtime;
@@ -52,7 +53,7 @@ public class DateInfo
     public DateInfo() {
     }
     public Date toDate() throws ParseException {
-        return toDate(ISO1, ISO2, ISO);
+        return toDate(ISO1, ISO2, ISO3, ISO);
     }
 
     /**
