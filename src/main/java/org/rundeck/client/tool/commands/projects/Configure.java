@@ -94,6 +94,29 @@ public class Configure extends AppCommand {
 
     }
 
+    public static Map<String, Object> loadConfigJson(final ConfigFileOptions opts, final boolean requireInput)
+            throws InputError, IOException
+    {
+        HashMap<String, Object> inputConfig = new HashMap<>();
+        ObjectMapper objectMapper = new ObjectMapper();
+        File input = opts.getFile();
+        Map map = objectMapper.readValue(input, Map.class);
+        for (Object o : map.keySet()) {
+            if (!(o instanceof String)) {
+                throw new InputError(String.format(
+                        "Expected all keys of the json object to be strings, but saw: %s for: %s",
+                        o.getClass(),
+                        o
+                ));
+            }
+        }
+        //noinspection unchecked
+        inputConfig.putAll(map);
+        if (inputConfig.size() < 1 && requireInput) {
+            throw new InputError("no configuration was specified");
+        }
+        return inputConfig;
+    }
     public static Map<String, String> loadConfig(final ConfigInputOptions opts, final boolean requireInput) throws InputError, IOException {
         HashMap<String, String> inputConfig = new HashMap<>();
         if (opts.isFile()) {

@@ -1081,6 +1081,7 @@ public interface RundeckApi {
     );
 
     /**
+<<<<<<< HEAD
      * @see <a href="http://rundeck.org/docs/api/#list-plugins">API</a>
      */
     @Headers("Accept: application/json")
@@ -1150,6 +1151,120 @@ public interface RundeckApi {
     @POST("jobs/schedule/disable")
     Call<BulkToggleJobScheduleResponse> bulkDisableJobSchedule(
         @Body IdList ids
+    );
+    
+    /**
+     * List reactions for a project
+     *
+     * @param project
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/reactions")
+    Call<List<Reaction>> listReactions(
+            @Path("project") String project
+            /*,
+            @Query("offset") int offset,
+            @Query("max") int max*/
+    );
+
+    /**
+     * Get a reaction by ID
+     *
+     * @param id
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/reactions/{id}")
+    Call<Reaction> getReactionInfo(
+            @Path("project") String project,
+            @Path("id") String id
+    );
+
+    /**
+     * Create a reaction
+     */
+    @Headers("Accept: application/json")
+    @POST("project/{project}/events/reactions")
+    Call<Reaction> createReaction(
+            @Path("project") String project,
+            @Body Reaction reaction
+    );
+    /**
+     * Create a reaction
+     */
+    @Headers("Accept: application/json")
+    @PUT("project/{project}/events/reactions/{id}")
+    Call<Reaction> updateReaction(
+            @Path("project") String project,
+            @Path("id") String id,
+            @Body Reaction reaction
+    );
+
+    /**
+     * Delete a reaction
+     */
+    @Headers("Accept: application/json")
+    @DELETE("project/{project}/events/reactions/{id}")
+    Call<Void> deleteReaction(
+            @Path("project") String project,
+            @Path("id") String id
+    );
+
+
+    /**
+     * List event subscriptions for a project
+     *
+     * @param project
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/subscriptions")
+    Call<List<Subscription>> listSubscriptions(
+            @Path("project") String project
+            /*,
+            @Query("offset") int offset,
+            @Query("max") int max*/
+    );
+
+
+    /**
+     * Get a event subscriptions by ID
+     *
+     * @param id
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/subscriptions/{id}")
+    Call<Subscription> getSubscriptionInfo(
+            @Path("project") String project,
+            @Path("id") String id
+    );
+
+    /**
+     * Create a event subscriptions
+     */
+    @Headers("Accept: application/json")
+    @POST("project/{project}/events/subscriptions")
+    Call<Subscription> createSubscription(
+            @Path("project") String project,
+            @Body Subscription subscriptions
+    );
+    /**
+     * Create a event subscriptions
+     */
+    @Headers("Accept: application/json")
+    @PUT("project/{project}/events/subscriptions/{id}")
+    Call<Subscription> updateSubscription(
+            @Path("project") String project,
+            @Path("id") String id,
+            @Body Subscription subscriptions
+    );
+
+    /**
+     * Delete a event subscriptions
+     */
+    @Headers("Accept: application/json")
+    @DELETE("project/{project}/events/subscriptions/{id}")
+    Call<Void> deleteSubscription(
+            @Path("project") String project,
+            @Path("id") String id
     );
 
 

@@ -18,16 +18,21 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.util.DataOutput;
 import org.rundeck.client.util.Format;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class DateInfo {
+public class DateInfo
+        implements DataOutput
+{
     public static final String ISO1 = "yyyy-MM-dd'T'HH:mm:ssXXX";
     public static final String ISO2 = "yyyy-MM-dd'T'HH:mm:ssXX";
     public static final String ISO = "yyyy-MM-dd'T'HH:mm:ssX";
@@ -82,7 +87,17 @@ public class DateInfo {
 
     public String toRelative(final Date time) throws ParseException {
         long diff = time.getTime() - toDate().getTime();
-        return String.format("%dms ago", diff);
+        if (diff < 1000) {
+            return String.format("%dms ago", diff);
+        } else if (diff < 1000 * 60) {
+            return String.format("%ds ago", diff / 1000);
+        } else if (diff < 1000 * 60 * 60) {
+            return String.format("%dm ago", diff / 60000);
+        } else if (diff < 1000 * 60 * 60 * 24) {
+            return String.format("%dm ago", diff / (24 * 60000));
+        } else {
+            return String.format("%dms ago", diff);
+        }
     }
 
     public static DateInfo withDate(Date input) {
@@ -97,5 +112,18 @@ public class DateInfo {
                date +
                ", unixtime=" + unixtime +
                '}';
+    }
+
+    @Override
+    public Map<?, ?> asMap() {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("unixtime", unixtime);
+        map.put("date", date);
+        try {
+            map.put("relative", toRelative());
+        } catch (ParseException ignored) {
+
+        }
+        return map;
     }
 }

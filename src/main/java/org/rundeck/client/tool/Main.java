@@ -176,7 +176,9 @@ public class Main {
                                         new Nodes(rd),
                                         new Users(rd),
                                         new Something(),
-                                        new Retry(rd)
+                                        new Retry(rd),
+                                        new Reactions(rd),
+                                        new Subscriptions(rd)
 
                                 )
                                 .bannerResource("rd-banner.txt")
