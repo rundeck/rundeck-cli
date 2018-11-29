@@ -4,11 +4,14 @@ package org.rundeck.client.tool.commands.pro;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import org.rundeck.client.api.model.pro.Reaction;
+import org.rundeck.client.api.model.pro.ReactionEvent;
+import org.rundeck.client.api.model.pro.ReactionEventList;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.commands.projects.Configure;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
+import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.InputError;
@@ -18,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Command(description = "Manage Reactions")
 public class Reactions
@@ -104,6 +108,73 @@ public class Reactions
         ));
         output.output(reactionList);
         return reactionList;
+    }
+
+    public interface EventsFormatOptions {
+
+        @Option(shortName = "%",
+                longName = "outformat",
+                description = "Output format specifier for event data. You can use \"%key\" where key is one of:"
+                              +
+                              "uuid, project, status, dateCreated*, event*, subscription*, reaction*, source*, result* "
+                              +
+                              ". Some data has extended fields, like event.type E.g. \"%status %event.type %dateCreated.relative\"")
+        String getOutputFormat();
+
+        boolean isOutputFormat();
+    }
+
+    public interface EventsResultOptions
+            extends EventsFormatOptions, VerboseOption
+    {
+
+    }
+
+    @CommandLineInterface(application = "events")
+    interface EventsOpts
+            extends ReactionResultOptions, ReactionId, PagingResultOptions, EventsResultOptions
+    {
+    }
+
+
+    @Command(description = "List the events for the reaction")
+    public ReactionEventList events(EventsOpts options, CommandOutput output) throws IOException, InputError {
+        int offset = options.isOffset() ? options.getOffset() : 0;
+        int max = options.isMax() ? options.getMax() : 20;
+
+        String project = projectOrEnv(options);
+        ReactionEventList eventList = apiCall(api -> api.getReactionEvents(
+                project,
+                options.getId(),
+                offset,
+                max
+        ));
+        if (!options.isOutputFormat()) {
+            output.info(String.format("Reaction has %d Events%n", eventList.getPagination().getCount()));
+        }
+
+        outputEventsList(options, output, getAppConfig(), eventList.getEvents().stream());
+        return eventList;
+    }
+
+    public static void outputEventsList(
+            final EventsResultOptions options,
+            final CommandOutput out,
+            final RdClientConfig config,
+            final Stream<ReactionEvent> executions
+    )
+    {
+        if (options.isVerbose()) {
+            out.output(executions.map(ReactionEvent::asMap).collect(Collectors.toList()));
+            return;
+        }
+        final Function<ReactionEvent, ?> outformat;
+        if (options.isOutputFormat()) {
+            outformat = Format.formatter(options.getOutputFormat(), ReactionEvent::asMap, "%", "");
+        } else {
+            outformat = e -> e.toExtendedString(config);
+        }
+        executions.forEach(e -> out.output(outformat.apply(e)));
     }
 
     interface ToggleOptions {

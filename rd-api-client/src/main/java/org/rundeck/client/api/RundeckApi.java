@@ -20,14 +20,12 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.api.model.pro.*;
 import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.api.model.repository.RepositoryArtifacts;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeover;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeoverResult;
-import org.rundeck.client.api.model.pro.Reaction;
-import org.rundeck.client.api.model.pro.Subscription;
-import org.rundeck.client.api.model.pro.SubscriptionEventMessage;
 import org.rundeck.client.util.Json;
 import org.rundeck.client.util.Xml;
 import retrofit2.Call;
@@ -1180,6 +1178,20 @@ public interface RundeckApi {
     Call<Reaction> getReactionInfo(
             @Path("project") String project,
             @Path("id") String id
+    );
+
+    /**
+     * Get reaction events by ID
+     *
+     * @param id
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/reactions/{id}/events")
+    Call<ReactionEventList> getReactionEvents(
+            @Path("project") String project,
+            @Path("id") String id,
+            @Query("offset") int offset,
+            @Query("max") int max
     );
 
     /**
