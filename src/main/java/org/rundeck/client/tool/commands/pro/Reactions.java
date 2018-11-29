@@ -51,7 +51,7 @@ public class Reactions
     {
     }
 
-    @Command
+    @Command(description = "List reactions for a project. Use -p/--project or RD_PROJECT env var to specify project.")
     public List<Reaction> list(ListOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         List<Reaction> result = apiCall(api -> api.listReactions(
@@ -99,7 +99,7 @@ public class Reactions
     }
 
 
-    @Command
+    @Command(description = "Get Info about a Reaction. Use -i/--id to specify ID.")
     public Reaction info(InfoOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Reaction reactionList = apiCall(api -> api.getReactionInfo(
@@ -231,7 +231,7 @@ public class Reactions
 
     }
 
-    @Command
+    @Command(description = "Create a Reaction. Use -f/--file to specify data file")
     public Reaction create(CreateOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Reaction inputReaction = new Reaction();
@@ -315,7 +315,7 @@ public class Reactions
 
     }
 
-    @Command
+    @Command(description = "Update a Reaction. Specify ID, and use other inputs for modification data.")
     public Reaction update(UpdateOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Reaction inputReaction = new Reaction();
@@ -339,7 +339,7 @@ public class Reactions
 
     }
 
-    @Command
+    @Command(description = "Enable a Reaction.")
     public Reaction enable(EnableOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Reaction inputReaction = new Reaction();
@@ -361,7 +361,7 @@ public class Reactions
 
     }
 
-    @Command
+    @Command(description = "Disable a Reaction.")
     public Reaction disable(DisableOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Reaction inputReaction = new Reaction();
@@ -376,7 +376,7 @@ public class Reactions
         return reaction;
     }
 
-    @Command
+    @Command(description = "Delete a Reaction")
     public void delete(InfoOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Void x = apiCall(api -> api.deleteReaction(
