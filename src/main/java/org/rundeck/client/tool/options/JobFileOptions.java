@@ -20,9 +20,7 @@ import com.lexicalscope.jewel.cli.Option;
 
 import java.io.File;
 
-public interface JobBaseOptions extends ProjectNameOptions {
-
-    /* Moved to JobFileOptions
+public interface JobFileOptions {
 
     @Option(shortName = "f",
             longName = "file",
@@ -38,8 +36,6 @@ public interface JobBaseOptions extends ProjectNameOptions {
             pattern = "^(xml|yaml)$",
             description = "Format for the Job definition file, either xml or yaml")
     String getFormat();
-
-    */
 
 
 }

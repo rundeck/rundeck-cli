@@ -14,22 +14,27 @@
  * limitations under the License.
  */
 
-package org.rundeck.client.tool.options;
+package org.rundeck.client.api.model;
 
-import com.lexicalscope.jewel.cli.Option;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
-public interface JobLoadOptions extends JobBaseOptions, JobFileOptions {
+import java.util.List;
 
-    @Option(shortName = "d",
-            longName = "duplicate",
-            defaultValue = "update",
-            pattern = "^(update|skip|create)$",
-            description = "Behavior when uploading a Job matching a name+group that already exists, either: update, " +
-                          "skip, create")
-    String getDuplicate();
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class IdList {
+    private List<String> ids;
 
-    @Option(shortName = "r", longName = "remove-uuids", description = "Remove UUIDs when uploading")
-    boolean isRemoveUuids();
+    public IdList(final List<String> ids) {
+        this.ids = ids;
+    }
 
+    public List<String> getIds() {
+        return ids;
+    }
 
+    public void setIds(List<String> ids) {
+        this.ids = ids;
+    }
 }

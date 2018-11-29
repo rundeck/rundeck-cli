@@ -26,7 +26,7 @@ import org.rundeck.client.api.model.DeleteJobsResult
 import org.rundeck.client.api.model.ImportResult
 import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.JobLoadItem
-import org.rundeck.client.api.model.ScheduledJobItem
+import org.rundeck.client.api.model.scheduler.ScheduledJobItem
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit

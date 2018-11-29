@@ -22,6 +22,9 @@ import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.api.model.repository.RepositoryArtifacts;
+import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
+import org.rundeck.client.api.model.scheduler.SchedulerTakeover;
+import org.rundeck.client.api.model.scheduler.SchedulerTakeoverResult;
 import org.rundeck.client.util.Json;
 import org.rundeck.client.util.Xml;
 import retrofit2.Call;
@@ -445,6 +448,13 @@ public interface RundeckApi {
             @Body BulkExecutionDelete delete
     );
 
+    /**
+     * Delete all executions for a job.
+     */
+    @Headers("Accept: application/json")
+    @DELETE("job/{id}/executions")
+    Call<BulkExecutionDeleteResponse> deleteAllJobExecutions(@Path("id") String id);
+
     @Headers("Accept: application/json")
     @GET("execution/{id}/abort")
     Call<AbortResult> abortExecution(@Path("id") String id);
@@ -453,6 +463,9 @@ public interface RundeckApi {
     @GET("execution/{id}")
     Call<Execution> getExecution(@Path("id") String id);
 
+    @Headers("Accept: application/json")
+    @GET("execution/{id}/state")
+    Call<ExecutionStateResponse> getExecutionState(@Path("id") String id);
 
     @Headers("Accept: application/json")
     @DELETE("execution/{id}")
@@ -738,6 +751,15 @@ public interface RundeckApi {
     @Headers("Accept: application/json")
     @GET("scheduler/server/{uuid}/jobs")
     Call<List<ScheduledJobItem>> listSchedulerJobs(@Path("uuid") String uuid);
+
+    /**
+     * Tell a Rundeck server in cluster mode to claim all scheduled jobs from another cluster server.
+     *
+     * @see <a href="https://rundeck.org/docs/api/#takeover-schedule-in-cluster-mode">API</a>
+     */
+    @Headers("Accept: application/json")
+    @PUT("scheduler/takeover")
+    Call<SchedulerTakeoverResult> takeoverSchedule(@Body SchedulerTakeover schedulerTakeover);
 
 
     /**
@@ -1085,4 +1107,50 @@ public interface RundeckApi {
     @Headers("Accept: application/json")
     @POST("plugins/uninstall/{pluginId}")
     Call<ArtifactActionMessage> uninstallPlugin(@Path("pluginId") String pluginId);
+
+    /* Bulk toogle job execution. */
+
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#bulk-toggle-job-execution">API</a>
+     */
+    @Json
+    @Headers("Accept: application/json")
+    @POST("jobs/execution/enable")
+    Call<BulkToogleJobExecutionResponse> bulkEnableJobs(
+        @Body IdList ids
+    );
+
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#bulk-toggle-job-execution">API</a>
+     */
+    @Json
+    @Headers("Accept: application/json")
+    @POST("jobs/execution/disable")
+    Call<BulkToogleJobExecutionResponse> bulkDisableJobs(
+        @Body IdList ids
+    );
+
+    /* Bulk toogle job schedule. */
+
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#bulk-toggle-job-schedules">API</a>
+     */
+    @Json
+    @Headers("Accept: application/json")
+    @POST("jobs/schedule/enable")
+    Call<BulkToogleJobScheduleResponse> bulkEnableJobSchedule(
+        @Body IdList ids
+    );
+
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#bulk-toggle-job-schedules">API</a>
+     */
+    @Json
+    @Headers("Accept: application/json")
+    @POST("jobs/schedule/disable")
+    Call<BulkToogleJobScheduleResponse> bulkDisableJobSchedule(
+        @Body IdList ids
+    );
+
+
 }
