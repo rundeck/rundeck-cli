@@ -240,6 +240,24 @@ public class Executions extends AppCommand {
         outputExecutionList(options, out, getAppConfig(), Collections.singletonList(execution).stream());
     }
 
+
+    /*
+    Executions state command
+     */
+    @CommandLineInterface(application = "state") interface State extends ExecutionIdOption {
+    }
+
+    @Command(description = "Get detail about the node and step state of an execution by ID.")
+    public void state(State options, CommandOutput out) throws IOException, InputError {
+        ExecutionStateResponse response = apiCall(api -> api.getExecutionState(options.getId()));
+        out.info(response.execInfoString(getAppConfig()));
+        out.output(response.nodeStatusString());
+    }
+
+
+    /* END state command */
+
+
     @CommandLineInterface(application = "list") interface ListCmd
             extends ExecutionListOptions, ProjectNameOptions, ExecutionResultOptions
     {
@@ -572,6 +590,48 @@ public class Executions extends AppCommand {
         }
         executions.forEach(e -> out.output(outformat.apply(e)));
     }
+
+
+    // Delete All executions for job command.
+    @CommandLineInterface(application = "deleteall") interface DeleteAllExecCmd {
+        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
+        boolean isConfirm();
+
+        @Option(shortName = "i", longName = "id", description = "Job ID")
+        String getId();
+    }
+
+    @Command(description = "Delete all executions for a job.")
+    public boolean deleteall(DeleteAllExecCmd options, CommandOutput out) throws IOException, InputError {
+
+        if (!options.isConfirm()) {
+            //request confirmation
+            String s = System.console().readLine("Really delete all executions for job %s? (y/N) ", options.getId());
+
+            if (!"y".equals(s)) {
+                out.warning("Not deleting executions.");
+                return false;
+            }
+        }
+
+        BulkExecutionDeleteResponse result = apiCall(api -> api.deleteAllJobExecutions(options.getId()));
+        if (!result.isAllsuccessful()) {
+            out.error(String.format("Failed to delete %d executions:", result.getFailedCount()));
+            out.error(result.getFailures()
+                .stream()
+                .map(BulkExecutionDeleteResponse.DeleteFailure::toString)
+                .collect(Collectors.toList()));
+        }else{
+            out.info(String.format("Deleted %d executions.", result.getSuccessCount()));
+        }
+        return result.isAllsuccessful();
+    }
+
+
+
+
+    // End Delete all executions.
+
 
     @CommandLineInterface(application = "deletebulk") interface BulkDeleteCmd extends QueryCmd {
         @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")

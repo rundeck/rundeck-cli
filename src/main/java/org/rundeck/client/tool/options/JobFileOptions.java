@@ -20,7 +20,7 @@ import com.lexicalscope.jewel.cli.Option;
 
 import java.io.File;
 
-public interface JobBaseOptions extends ProjectNameOptions {
+public interface JobFileOptions {
 
     @Option(shortName = "f",
             longName = "file",
