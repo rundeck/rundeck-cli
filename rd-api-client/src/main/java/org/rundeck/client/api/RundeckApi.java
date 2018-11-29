@@ -1108,7 +1108,7 @@ public interface RundeckApi {
     @POST("plugins/uninstall/{pluginId}")
     Call<ArtifactActionMessage> uninstallPlugin(@Path("pluginId") String pluginId);
 
-    /* Bulk toogle job execution. */
+    /* Bulk toggle job execution. */
 
     /**
      * @see <a href="https://rundeck.org/docs/api/#bulk-toggle-job-execution">API</a>
@@ -1116,7 +1116,7 @@ public interface RundeckApi {
     @Json
     @Headers("Accept: application/json")
     @POST("jobs/execution/enable")
-    Call<BulkToogleJobExecutionResponse> bulkEnableJobs(
+    Call<BulkToggleJobExecutionResponse> bulkEnableJobs(
         @Body IdList ids
     );
 
@@ -1126,11 +1126,11 @@ public interface RundeckApi {
     @Json
     @Headers("Accept: application/json")
     @POST("jobs/execution/disable")
-    Call<BulkToogleJobExecutionResponse> bulkDisableJobs(
+    Call<BulkToggleJobExecutionResponse> bulkDisableJobs(
         @Body IdList ids
     );
 
-    /* Bulk toogle job schedule. */
+    /* Bulk toggle job schedule. */
 
     /**
      * @see <a href="https://rundeck.org/docs/api/#bulk-toggle-job-schedules">API</a>
@@ -1138,7 +1138,7 @@ public interface RundeckApi {
     @Json
     @Headers("Accept: application/json")
     @POST("jobs/schedule/enable")
-    Call<BulkToogleJobScheduleResponse> bulkEnableJobSchedule(
+    Call<BulkToggleJobScheduleResponse> bulkEnableJobSchedule(
         @Body IdList ids
     );
 
@@ -1148,7 +1148,7 @@ public interface RundeckApi {
     @Json
     @Headers("Accept: application/json")
     @POST("jobs/schedule/disable")
-    Call<BulkToogleJobScheduleResponse> bulkDisableJobSchedule(
+    Call<BulkToggleJobScheduleResponse> bulkDisableJobSchedule(
         @Body IdList ids
     );
 

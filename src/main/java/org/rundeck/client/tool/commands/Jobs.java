@@ -377,7 +377,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     }
 
-    /* Bulk toogle execution */
+    /* Bulk toggle execution */
 
     private List<String> getJobList(BulkJobActionOptions options) throws InputError, IOException {
 
@@ -437,20 +437,20 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
         final List<String> finalIds = ids;
 
-        BulkToogleJobExecutionResponse response = apiCall(api -> api.bulkEnableJobs(new IdList(finalIds)));
+        BulkToggleJobExecutionResponse response = apiCall(api -> api.bulkEnableJobs(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
             output.info(String.format("%d Jobs were enabled%n", response.getRequestCount()));
             if (options.isVerbose()) {
                 output.output(response.getSucceeded().stream()
-                    .map(BulkToogleJobExecutionResponse.Result::toString)
+                    .map(BulkToggleJobExecutionResponse.Result::toString)
                     .collect(Collectors.toList()));
             }
             return true;
         }
         output.error(String.format("Failed to enable %d Jobs%n", response.getFailed().size()));
         output.output(response.getFailed().stream()
-            .map(BulkToogleJobExecutionResponse.Result::toString)
+            .map(BulkToggleJobExecutionResponse.Result::toString)
             .collect(Collectors.toList()));
         return false;
     }
@@ -484,20 +484,20 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
         final List<String> finalIds = ids;
 
-        BulkToogleJobExecutionResponse response = apiCall(api -> api.bulkDisableJobs(new IdList(finalIds)));
+        BulkToggleJobExecutionResponse response = apiCall(api -> api.bulkDisableJobs(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
             output.info(String.format("%d Jobs were disabled%n", response.getRequestCount()));
             if (options.isVerbose()) {
                 output.output(response.getSucceeded().stream()
-                    .map(BulkToogleJobExecutionResponse.Result::toString)
+                    .map(BulkToggleJobExecutionResponse.Result::toString)
                     .collect(Collectors.toList()));
             }
             return true;
         }
         output.error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
         output.output(response.getFailed().stream()
-            .map(BulkToogleJobExecutionResponse.Result::toString)
+            .map(BulkToggleJobExecutionResponse.Result::toString)
             .collect(Collectors.toList()));
         return false;
     }
@@ -532,20 +532,20 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
         final List<String> finalIds = ids;
 
-        BulkToogleJobScheduleResponse response = apiCall(api -> api.bulkEnableJobSchedule(new IdList(finalIds)));
+        BulkToggleJobScheduleResponse response = apiCall(api -> api.bulkEnableJobSchedule(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
             output.info(String.format("%d Jobs were rescheduled%n", response.getRequestCount()));
             if (options.isVerbose()) {
                 output.output(response.getSucceeded().stream()
-                    .map(BulkToogleJobScheduleResponse.Result::toString)
+                    .map(BulkToggleJobScheduleResponse.Result::toString)
                     .collect(Collectors.toList()));
             }
             return true;
         }
         output.error(String.format("Failed to reschedule %d Jobs%n", response.getFailed().size()));
         output.output(response.getFailed().stream()
-            .map(BulkToogleJobScheduleResponse.Result::toString)
+            .map(BulkToggleJobScheduleResponse.Result::toString)
             .collect(Collectors.toList()));
         return false;
     }
@@ -580,20 +580,20 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
         final List<String> finalIds = ids;
 
-        BulkToogleJobScheduleResponse response = apiCall(api -> api.bulkDisableJobSchedule(new IdList(finalIds)));
+        BulkToggleJobScheduleResponse response = apiCall(api -> api.bulkDisableJobSchedule(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
             output.info(String.format("%d Jobs were unsheduled%n", response.getRequestCount()));
             if (options.isVerbose()) {
                 output.output(response.getSucceeded().stream()
-                    .map(BulkToogleJobScheduleResponse.Result::toString)
+                    .map(BulkToggleJobScheduleResponse.Result::toString)
                     .collect(Collectors.toList()));
             }
             return true;
         }
         output.error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
         output.output(response.getFailed().stream()
-            .map(BulkToogleJobScheduleResponse.Result::toString)
+            .map(BulkToggleJobScheduleResponse.Result::toString)
             .collect(Collectors.toList()));
         return false;
     }

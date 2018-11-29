@@ -18,7 +18,7 @@ package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
 
-public interface JobLoadOptions extends JobBaseOptions, JobFileOptions {
+public interface JobLoadOptions extends JobFileOptions, ProjectNameOptions {
 
     @Option(shortName = "d",
             longName = "duplicate",

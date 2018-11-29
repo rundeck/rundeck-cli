@@ -18,10 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import okhttp3.ResponseBody;
-import org.rundeck.client.api.model.BulkToogleJobScheduleResponse;
 import org.rundeck.client.api.model.scheduler.*;
-import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;

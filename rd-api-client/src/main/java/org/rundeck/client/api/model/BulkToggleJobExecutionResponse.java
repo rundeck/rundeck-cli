@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class BulkToogleJobScheduleResponse {
+public class BulkToggleJobExecutionResponse {
   private int          requestCount;
   private boolean      enabled;
   private boolean      allsuccessful;
@@ -106,7 +106,7 @@ public class BulkToogleJobScheduleResponse {
 
   @Override
   public String toString() {
-    return "BulkToogleJobScheduleResponse{" +
+    return "BulkToggleJobExecutionResponse{" +
         "requestCount=" + requestCount +
         ", enabled=" + enabled +
         ", allsuccessful=" + allsuccessful +
