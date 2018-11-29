@@ -51,7 +51,7 @@ public class Subscriptions
     {
     }
 
-    @Command
+    @Command(description = "List Subscriptions for a Project.")
     public List<Subscription> list(ListOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         List<Subscription> result = apiCall(api -> api.listSubscriptions(
@@ -99,7 +99,7 @@ public class Subscriptions
 
     }
 
-    @Command
+    @Command(description = "Get Info for a Subscription.")
     public Subscription info(InfoOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Subscription reactionList = apiCall(api -> api.getSubscriptionInfo(
@@ -110,7 +110,7 @@ public class Subscriptions
         return reactionList;
     }
 
-    @Command
+    @Command(description = "List Messages for a Subscription.")
     public List<SubscriptionEventMessage> messages(InfoOpts options, CommandOutput output)
             throws IOException, InputError
     {
@@ -143,7 +143,7 @@ public class Subscriptions
     {
     }
 
-    @Command
+    @Command(description = "Create a Subscription.")
     public Subscription create(Subscriptions.CreateOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Subscription inputSubscription = configureSubscription(new Subscription(), options, project);
@@ -185,7 +185,7 @@ public class Subscriptions
     {
     }
 
-    @Command
+    @Command(description = "Update a Subscription")
     public Subscription update(UpdateOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Subscription input = configureSubscription(
@@ -206,7 +206,7 @@ public class Subscriptions
 
     }
 
-    @Command
+    @Command(description = "Enable a Subscription")
     public Subscription enable(EnableOpts options, CommandOutput output) throws IOException, InputError {
         Subscription reaction = updateUsing(
                 projectOrEnv(options),
@@ -225,7 +225,7 @@ public class Subscriptions
 
     }
 
-    @Command
+    @Command(description = "Disable a Subscription")
     public Subscription disable(DisableOpts options, CommandOutput output) throws IOException, InputError {
         Subscription reaction = updateUsing(
                 projectOrEnv(options),
@@ -246,7 +246,7 @@ public class Subscriptions
     }
 
 
-    @Command
+    @Command(description = "Delete a Subscription")
     public void delete(Subscriptions.InfoOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
         Void x = apiCall(api -> api.deleteSubscription(
