@@ -17,6 +17,7 @@
 package org.rundeck.client.api.model.scheduler;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.rundeck.client.api.model.JobItem;
 
 import java.util.HashMap;
@@ -28,10 +29,12 @@ import java.util.Map;
 public class TakeoverJobItem extends JobItem {
     private String previousOwner;
 
+    @JsonProperty("previous-owner")
     public String getPreviousOwner() {
         return previousOwner;
     }
 
+    @JsonProperty("previous-owner")
     public TakeoverJobItem setPreviousOwner(String previousOwner) {
         this.previousOwner = previousOwner;
         return this;
@@ -41,6 +44,6 @@ public class TakeoverJobItem extends JobItem {
     @Override
     public String toString() {
         return super.toBasicString() +
-            "\n  previousOwner='" + previousOwner + '\'';
+            " previousOwner='" + previousOwner + '\'';
     }
 }

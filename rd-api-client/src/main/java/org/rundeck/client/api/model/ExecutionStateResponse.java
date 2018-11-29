@@ -102,7 +102,7 @@ public class ExecutionStateResponse {
             .orElse(nodeEntry.getKey() + ": No Status."))
         .collect(Collectors.joining(
             "\n",
-            "Node Status: \n",
+            "Node Step Status: \n",
             ""
         ));
   }

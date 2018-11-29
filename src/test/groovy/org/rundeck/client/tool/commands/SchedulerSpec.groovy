@@ -112,6 +112,7 @@ class SchedulerSpec extends Specification {
         body.takeoverSchedule.jobs.failed.size() == 2
         body.takeoverSchedule.jobs.successful.get(0).id == "a1aa53ac-73a6-4ead-bbe4-34afbff8e057"
         body.takeoverSchedule.jobs.failed.get(0).id == "11111111-73a6-4ead-1111-34afbff8e057"
+        body.takeoverSchedule.jobs.failed.get(0).previousOwner == "8F3D5976-2232-4529-847B-8E45764608E3"
         server.shutdown()
 
     }
