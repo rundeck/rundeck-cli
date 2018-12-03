@@ -1186,7 +1186,7 @@ public interface RundeckApi {
     Call<ResponseBody> getPing();
 
         /**
-     * @see <a href="https://rundeck.org/docs/api/#metrics-ping">API</a>
+     * @see <a href="https://rundeck.org/docs/api/#metrics-data">API</a>
      */
     @Headers("Accept: application/json")
     @GET("metrics/metrics")
