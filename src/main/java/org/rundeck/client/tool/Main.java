@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool;
 
+import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.tool.commands.repository.Plugins;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;

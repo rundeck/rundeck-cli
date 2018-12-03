@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package org.rundeck.client.api.model;
+package org.rundeck.client.api.model.scheduler;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.api.model.JobItem;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

@@ -1,3 +1,12 @@
+## unreleased
+
+* New commands
+    - get execution state (rd executions state)
+    - delete all job executions (rd executions deleteall)
+    - toggle job execution (rd jobs enablebulk and disablebulk)
+    - toggle job schedule (rd jobs reschedulebulk and unschedulebulk)
+    - server cluster scheduler takeover (rd scheduler takeover)
+
 ## 1.1.0
 
 * Fix [Issue #196](https://github.com/rundeck/rundeck-cli/issues/196) rd run -loglevel debug should work

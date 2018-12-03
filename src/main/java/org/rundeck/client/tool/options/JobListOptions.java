@@ -18,7 +18,7 @@ package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
 
-public interface JobListOptions extends JobBaseOptions{
+public interface JobListOptions extends ProjectNameOptions {
 
 
     @Option(shortName = "j", longName = "job", description = "Job name filter")

@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.HasSubCommands;
@@ -189,7 +190,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     }
 
-    @CommandLineInterface(application = "list") interface ListOpts extends JobListOptions, JobResultOptions {
+    @CommandLineInterface(application = "list") interface ListOpts extends JobListOptions, JobFileOptions, JobResultOptions {
     }
 
     @Command(description = "List jobs found in a project, or download Job definitions (-f).")
@@ -375,4 +376,228 @@ public class Jobs extends AppCommand implements HasSubCommands {
         return new String[]{group, name};
 
     }
+
+    /* Bulk toggle execution */
+
+    private List<String> getJobList(BulkJobActionOptions options) throws InputError, IOException {
+
+        //if id,idlist specified, use directly
+        //otherwise query for the list and assemble the ids
+
+        List<String> ids = new ArrayList<>();
+        if (options.isIdlist()) {
+            ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
+        }
+        else {
+            if (!options.isJob() && !options.isGroup() && !options.isGroupExact() && !options.isJobExact()) {
+                throw new InputError("must specify -i, or -j/-g/-J/-G to specify jobs to enable.");
+            }
+            String project = projectOrEnv(options);
+            List<JobItem> body = apiCall(api -> api.listJobs(
+                project,
+                options.getJob(),
+                options.getGroup(),
+                options.getJobExact(),
+                options.getGroupExact()
+            ));
+            for (JobItem jobItem : body) {
+                ids.add(jobItem.getId());
+            }
+        }
+
+        return ids;
+    }
+
+
+    @CommandLineInterface(application = "enablebulk")
+    interface EnableBulk extends BulkJobActionOptions, VerboseOption {
+    }
+
+    @Command(description = "Enable execution for a set of jobs. " +
+        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+        "required.")
+    public boolean enablebulk(EnableBulk options, CommandOutput output) throws IOException, InputError {
+
+        List<String> ids = getJobList(options);
+
+        if (!options.isConfirm()) {
+            //request confirmation
+            if (null == System.console()) {
+                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
+                output.warning(String.format("Not enabling %d jobs", ids.size()));
+                return false;
+            }
+            String s = System.console().readLine("Really enable %d Jobs? (y/N) ", ids.size());
+
+            if (!"y".equals(s)) {
+                output.warning(String.format("Not enabling %d jobs", ids.size()));
+                return false;
+            }
+        }
+
+        final List<String> finalIds = ids;
+
+        BulkToggleJobExecutionResponse response = apiCall(api -> api.bulkEnableJobs(new IdList(finalIds)));
+
+        if (response.isAllsuccessful()) {
+            output.info(String.format("%d Jobs were enabled%n", response.getRequestCount()));
+            if (options.isVerbose()) {
+                output.output(response.getSucceeded().stream()
+                    .map(BulkToggleJobExecutionResponse.Result::toString)
+                    .collect(Collectors.toList()));
+            }
+            return true;
+        }
+        output.error(String.format("Failed to enable %d Jobs%n", response.getFailed().size()));
+        output.output(response.getFailed().stream()
+            .map(BulkToggleJobExecutionResponse.Result::toString)
+            .collect(Collectors.toList()));
+        return false;
+    }
+
+
+    @CommandLineInterface(application = "disablebulk")
+    interface DisableBulk extends BulkJobActionOptions, VerboseOption {
+    }
+
+    @Command(description = "Disable execution for a set of jobs. " +
+        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+        "required.")
+    public boolean disablebulk(DisableBulk options, CommandOutput output) throws IOException, InputError {
+
+        List<String> ids = getJobList(options);
+
+        if (!options.isConfirm()) {
+            //request confirmation
+            if (null == System.console()) {
+                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
+                output.warning(String.format("Not disabling %d jobs", ids.size()));
+                return false;
+            }
+            String s = System.console().readLine("Really disable %d Jobs? (y/N) ", ids.size());
+
+            if (!"y".equals(s)) {
+                output.warning(String.format("Not disabling %d jobs", ids.size()));
+                return false;
+            }
+        }
+
+        final List<String> finalIds = ids;
+
+        BulkToggleJobExecutionResponse response = apiCall(api -> api.bulkDisableJobs(new IdList(finalIds)));
+
+        if (response.isAllsuccessful()) {
+            output.info(String.format("%d Jobs were disabled%n", response.getRequestCount()));
+            if (options.isVerbose()) {
+                output.output(response.getSucceeded().stream()
+                    .map(BulkToggleJobExecutionResponse.Result::toString)
+                    .collect(Collectors.toList()));
+            }
+            return true;
+        }
+        output.error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
+        output.output(response.getFailed().stream()
+            .map(BulkToggleJobExecutionResponse.Result::toString)
+            .collect(Collectors.toList()));
+        return false;
+    }
+
+
+    @CommandLineInterface(application = "reschedulebulk")
+    interface RescheduleBulk extends BulkJobActionOptions, VerboseOption {
+    }
+
+
+    @Command(description = "Enable schedule for a set of jobs. " +
+        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+        "required.")
+    public boolean reschedulebulk(RescheduleBulk options, CommandOutput output) throws IOException, InputError {
+
+        List<String> ids = getJobList(options);
+
+        if (!options.isConfirm()) {
+            //request confirmation
+            if (null == System.console()) {
+                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
+                output.warning(String.format("Not rescheduling %d jobs", ids.size()));
+                return false;
+            }
+            String s = System.console().readLine("Really reschedule %d Jobs? (y/N) ", ids.size());
+
+            if (!"y".equals(s)) {
+                output.warning(String.format("Not rescheduling %d jobs", ids.size()));
+                return false;
+            }
+        }
+
+        final List<String> finalIds = ids;
+
+        BulkToggleJobScheduleResponse response = apiCall(api -> api.bulkEnableJobSchedule(new IdList(finalIds)));
+
+        if (response.isAllsuccessful()) {
+            output.info(String.format("%d Jobs were rescheduled%n", response.getRequestCount()));
+            if (options.isVerbose()) {
+                output.output(response.getSucceeded().stream()
+                    .map(BulkToggleJobScheduleResponse.Result::toString)
+                    .collect(Collectors.toList()));
+            }
+            return true;
+        }
+        output.error(String.format("Failed to reschedule %d Jobs%n", response.getFailed().size()));
+        output.output(response.getFailed().stream()
+            .map(BulkToggleJobScheduleResponse.Result::toString)
+            .collect(Collectors.toList()));
+        return false;
+    }
+
+
+    @CommandLineInterface(application = "unschedulebulk")
+    interface UnscheduleBulk extends BulkJobActionOptions, VerboseOption {
+    }
+
+
+    @Command(description = "Disable schedule for a set of jobs. " +
+        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+        "required.")
+    public boolean unschedulebulk(UnscheduleBulk options, CommandOutput output) throws IOException, InputError {
+
+        List<String> ids = getJobList(options);
+
+        if (!options.isConfirm()) {
+            //request confirmation
+            if (null == System.console()) {
+                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
+                output.warning(String.format("Not unscheduling %d jobs", ids.size()));
+                return false;
+            }
+            String s = System.console().readLine("Really unschedule %d Jobs? (y/N) ", ids.size());
+
+            if (!"y".equals(s)) {
+                output.warning(String.format("Not unscheduling %d jobs", ids.size()));
+                return false;
+            }
+        }
+
+        final List<String> finalIds = ids;
+
+        BulkToggleJobScheduleResponse response = apiCall(api -> api.bulkDisableJobSchedule(new IdList(finalIds)));
+
+        if (response.isAllsuccessful()) {
+            output.info(String.format("%d Jobs were unsheduled%n", response.getRequestCount()));
+            if (options.isVerbose()) {
+                output.output(response.getSucceeded().stream()
+                    .map(BulkToggleJobScheduleResponse.Result::toString)
+                    .collect(Collectors.toList()));
+            }
+            return true;
+        }
+        output.error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
+        output.output(response.getFailed().stream()
+            .map(BulkToggleJobScheduleResponse.Result::toString)
+            .collect(Collectors.toList()));
+        return false;
+    }
+
+
+
 }
