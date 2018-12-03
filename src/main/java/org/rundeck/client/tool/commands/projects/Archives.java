@@ -72,6 +72,9 @@ public class Archives extends AppCommand {
         @Option(shortName = "a", longName = "include-acl", description = "Include ACLs in import, default: false")
         boolean isIncludeAcl();
 
+        @Option(shortName = "s", longName = "include-scm", description = "Include SCM configuration in import, default: false (api v28 required)")
+        boolean isIncludeScm();
+
         @Option(description = "Return non-zero exit status if any imported item had an error. Default: only job " +
                               "import errors are treated as failures.")
         boolean isStrict();
@@ -94,6 +97,7 @@ public class Archives extends AppCommand {
                 !opts.isNoExecutions(),
                 opts.isIncludeConfig(),
                 opts.isIncludeAcl(),
+                opts.isIncludeScm(),
                 body
         ));
         boolean anyerror = false;
@@ -143,7 +147,7 @@ public class Archives extends AppCommand {
                 longName = "include",
                 shortName = "i",
                 description =
-                        "List of archive contents to include. [all,jobs,executions,configs,readmes,acls]. Default: " +
+                        "List of archive contents to include. [all,jobs,executions,configs,readmes,acls,scm]. Default: " +
                         "all. (API v19 required for other " +
                         "options).")
         Set<Flags> getIncludeFlags();
@@ -158,7 +162,8 @@ public class Archives extends AppCommand {
         executions,
         configs,
         readmes,
-        acls
+        acls,
+        scm
     }
 
     @Command(description = "Export a project archive")
@@ -217,7 +222,8 @@ public class Archives extends AppCommand {
                     includeFlags.contains(Flags.executions),
                     includeFlags.contains(Flags.configs),
                     includeFlags.contains(Flags.readmes),
-                    includeFlags.contains(Flags.acls)
+                    includeFlags.contains(Flags.acls),
+                    includeFlags.contains(Flags.scm)
             ));
         }
 
