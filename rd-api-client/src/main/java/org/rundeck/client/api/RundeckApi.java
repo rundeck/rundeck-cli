@@ -328,7 +328,8 @@ public interface RundeckApi {
             @Query("exportExecutions") boolean execs,
             @Query("exportConfigs") boolean configs,
             @Query("exportReadmes") boolean readmes,
-            @Query("exportAcls") boolean acls
+            @Query("exportAcls") boolean acls,
+            @Query("exportScm") boolean scm
     );
 
     /**
@@ -391,6 +392,7 @@ public interface RundeckApi {
             @Query("importExecutions") Boolean importExecutions,
             @Query("importConfig") Boolean importConfig,
             @Query("importACL") Boolean importACL,
+            @Query("importScm") Boolean importScm,
             @Body RequestBody body
     );
 
