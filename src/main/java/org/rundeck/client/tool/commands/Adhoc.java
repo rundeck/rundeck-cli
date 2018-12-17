@@ -17,9 +17,6 @@
 package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -27,8 +24,12 @@ import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
+import org.rundeck.client.tool.options.ExecutionResultOptions;
 import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
+import org.rundeck.toolbelt.Command;
+import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.toolbelt.InputError;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -50,7 +51,7 @@ public class Adhoc extends AppCommand {
     }
 
     @CommandLineInterface(application = COMMAND) interface AdhocOptions extends AdhocBaseOptions,
-            Executions.ExecutionResultOptions
+        ExecutionResultOptions
     {
 
     }
