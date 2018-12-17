@@ -16,18 +16,20 @@
 
 package org.rundeck.client.tool;
 
+import org.rundeck.client.RundeckClient;
+import org.rundeck.client.api.RequestFailed;
+import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.api.model.DateInfo;
+import org.rundeck.client.api.model.Execution;
+import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
+import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.tool.commands.repository.Plugins;
+import org.rundeck.client.util.*;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
 import org.rundeck.toolbelt.format.yaml.snakeyaml.YamlFormatter;
 import org.rundeck.toolbelt.input.jewelcli.JewelInput;
-import org.rundeck.client.RundeckClient;
-import org.rundeck.client.api.RequestFailed;
-import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.commands.*;
-import org.rundeck.client.util.*;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -176,8 +178,8 @@ public class Main {
                                         new Nodes(rd),
                                         new Users(rd),
                                         new Something(),
-                                        new Retry(rd)
-
+                                        new Retry(rd),
+                                        new Metrics(rd)
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());

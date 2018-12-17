@@ -20,20 +20,14 @@ import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
 import org.rundeck.client.api.RundeckApi
-import org.rundeck.client.api.model.*
 import org.rundeck.client.api.model.scheduler.SchedulerTakeover
-import org.rundeck.client.tool.RdApp
-import org.rundeck.client.util.Client
-import org.rundeck.client.util.RdClientConfig
-import org.rundeck.toolbelt.CommandOutput
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
-import retrofit2.mock.Calls
 import spock.lang.Specification
 
 /**
- * @author greg
- * @since 12/5/16
+ * @author ahormazabal
+ * @since 2018/11/26
  */
 class SchedulerSpec extends Specification {
 
