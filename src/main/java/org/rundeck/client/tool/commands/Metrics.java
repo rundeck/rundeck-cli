@@ -120,7 +120,7 @@ public class Metrics extends AppCommand {
       output.warning("No results found.");
     }
 
-    return !options.failOnUnhealthy() || unhealthyList.size() == 0
+    return !options.failOnUnhealthy() || unhealthyList.size() == 0;
   }
 
   // rd metrics threads
