@@ -79,25 +79,26 @@ public class Metrics extends AppCommand {
         description = "Show only checks with unhealthy status.")
     boolean isUnhealthyOnly();
 
+    @Option(shortName = "f",
+        longName = "fail",
+        description = "Exit with unsuccessful status if unhealthy checks are found.")
+    boolean failOnUnhealthy();
+
   }
 
   @Command(description = "Print health check status information.")
-  public void healthcheck(HealthCheckOptions options, CommandOutput output) throws IOException, InputError {
+  public boolean healthcheck(HealthCheckOptions options, CommandOutput output) throws IOException, InputError {
 
     Map<String, HealthCheckStatus> healthCheckStatus = apiCall(RundeckApi::getHealthCheckMetrics);
-    Map<String, HealthCheckStatus> statusList;
 
-    if (options.isUnhealthyOnly()) {
-      statusList = healthCheckStatus.entrySet().stream()
-          .filter(entry -> !entry.getValue().isHealthy())
-          .collect(Collectors.toMap(
-              Map.Entry::getKey,
-              Map.Entry::getValue));
-    }
-    else {
-      statusList = healthCheckStatus;
-    }
+    // Obtain unhealthy list.
+    Map<String, HealthCheckStatus> unhealthyList = healthCheckStatus.entrySet().stream()
+        .filter(entry -> !entry.getValue().isHealthy())
+        .collect(Collectors.toMap(
+            Map.Entry::getKey,
+            Map.Entry::getValue));
 
+    Map<String, HealthCheckStatus> statusList = options.isUnhealthyOnly() ? unhealthyList : healthCheckStatus;
 
     if (statusList.size() > 0) {
       output.info("Showing current health status for " + statusList.size() + " checks:");
@@ -118,6 +119,8 @@ public class Metrics extends AppCommand {
     else {
       output.warning("No results found.");
     }
+
+    return !options.failOnUnhealthy() || unhealthyList.size() == 0
   }
 
   // rd metrics threads
