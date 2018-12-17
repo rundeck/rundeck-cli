@@ -658,8 +658,13 @@ public class Executions extends AppCommand {
             options.getExcludeJobList()
         ));
 
-        out.info(String.format("# Showing stats for a result of %d executions.", result.get("total")));
-        result.forEach((k, v) -> out.output(String.format("%10s: %-3s", k, v)));
+        if(result.get("total") == null) {
+            out.info("No results.");
+            return;
+        }
+
+        out.info(String.format("Showing stats for a resultset of %s executions.", result.get("total")));
+        result.forEach((k, v) -> out.output(String.format("%-13s: %s", k, v)));
     }
 
 

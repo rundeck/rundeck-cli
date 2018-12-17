@@ -28,7 +28,10 @@ import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,7 +43,7 @@ import java.util.stream.Collectors;
  */
 public class RundeckClient {
     public static final String USER_AGENT = Version.NAME + "/" + Version.VERSION;
-    public static final int API_VERS = 21;
+    public static final int API_VERS = 28;
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
     public static final String ENV_INSECURE_SSL = "RD_INSECURE_SSL";
