@@ -645,26 +645,36 @@ public class Executions extends AppCommand {
     @Command(description = "Query previous executions for a project.")
     public void metrics(MetricsCmd options, CommandOutput out) throws IOException, InputError {
 
-        Map<String, String> query = createQueryParams(options, null, null);
+      Map<String, String> query = createQueryParams(options, null, null);
 
-        String project = projectOrEnv(options);
-
-        Map<String, Object> result = apiCall(api -> api.executionMetrics(
-            project,
+      Map<String, Object> result;
+      if (options.isProject()) {
+        result = apiCall(api -> api.executionMetrics(
+            options.getProject(),
             query,
             options.getJobIdList(),
             options.getExcludeJobIdList(),
             options.getJobList(),
             options.getExcludeJobList()
         ));
+      }
+      else {
+        result = apiCall(api -> api.executionMetrics(
+            query,
+            options.getJobIdList(),
+            options.getExcludeJobIdList(),
+            options.getJobList(),
+            options.getExcludeJobList()
+        ));
+      }
 
-        if(result.get("total") == null) {
-            out.info("No results.");
-            return;
-        }
+      if (result.get("total") == null) {
+        out.info("No results.");
+        return;
+      }
 
-        out.info(String.format("Showing stats for a resultset of %s executions.", result.get("total")));
-        result.forEach((k, v) -> out.output(String.format("%-13s: %s", k, v)));
+      out.info(String.format("Showing stats for a resultset of %s executions.", result.get("total")));
+      result.forEach((k, v) -> out.output(String.format("%-13s %s", k + ":", v)));
     }
 
 

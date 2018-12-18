@@ -1197,7 +1197,7 @@ public interface RundeckApi {
     /* Execution Query Metrics */
 
     /**
-     * Get stats on a Query of executions with all query parameters available
+     * Get stats on a project-wide query of executions, with all query parameters available
      * @param project
      * @param options
      * @param jobIdListFilter
@@ -1210,6 +1210,26 @@ public interface RundeckApi {
     @GET("project/{project}/executions/metrics")
     Call<Map<String, Object>> executionMetrics(
         @Path("project") String project,
+        @QueryMap Map<String, String> options,
+        @Query("jobIdListFilter") List<String> jobIdListFilter,
+        @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
+        @Query("jobListFilter") List<String> jobListFilter,
+        @Query("excludeJobListFilter") List<String> excludeJobListFilters
+    );
+
+   /**
+     * Get stats on a system-wide query of executions, with all query parameters available
+     * @param project
+     * @param options
+     * @param jobIdListFilter
+     * @param xjobIdListFilter
+     * @param jobListFilter
+     * @param excludeJobListFilters
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("executions/metrics")
+    Call<Map<String, Object>> executionMetrics(
         @QueryMap Map<String, String> options,
         @Query("jobIdListFilter") List<String> jobIdListFilter,
         @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
