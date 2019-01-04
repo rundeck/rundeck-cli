@@ -21,6 +21,9 @@ import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.api.model.pro.*;
+import org.rundeck.client.api.model.metrics.EndpointListResult;
+import org.rundeck.client.api.model.metrics.HealthCheckStatus;
+import org.rundeck.client.api.model.metrics.MetricsData;
 import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.api.model.repository.RepositoryArtifacts;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
@@ -329,7 +332,8 @@ public interface RundeckApi {
             @Query("exportExecutions") boolean execs,
             @Query("exportConfigs") boolean configs,
             @Query("exportReadmes") boolean readmes,
-            @Query("exportAcls") boolean acls
+            @Query("exportAcls") boolean acls,
+            @Query("exportScm") boolean scm
     );
 
     /**
@@ -392,6 +396,7 @@ public interface RundeckApi {
             @Query("importExecutions") Boolean importExecutions,
             @Query("importConfig") Boolean importConfig,
             @Query("importACL") Boolean importACL,
+            @Query("importScm") Boolean importScm,
             @Body RequestBody body
     );
 
@@ -1293,5 +1298,41 @@ public interface RundeckApi {
             @Path("id") String id
     );
 
+
+    // Metrics calls
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#list-metrics">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("metrics")
+    Call<EndpointListResult> listMetricsEndpoints();
+
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#metrics-healthcheck">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("metrics/healthcheck")
+    Call<Map<String, HealthCheckStatus>> getHealthCheckMetrics();
+
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#metrics-threads">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("metrics/threads")
+    Call<ResponseBody> getThreadMetrics();
+
+    /**
+     * @see <a href="https://rundeck.org/docs/api/#metrics-ping">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("metrics/ping")
+    Call<ResponseBody> getPing();
+
+        /**
+     * @see <a href="https://rundeck.org/docs/api/#metrics-data">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("metrics/metrics")
+    Call<MetricsData> getMetricsData();
 
 }
