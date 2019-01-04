@@ -1,11 +1,13 @@
-## unreleased
+## 1.1.1
 
 * New commands
-    - get execution state (rd executions state)
-    - delete all job executions (rd executions deleteall)
-    - toggle job execution (rd jobs enablebulk and disablebulk)
-    - toggle job schedule (rd jobs reschedulebulk and unschedulebulk)
-    - server cluster scheduler takeover (rd scheduler takeover)
+*     - get execution state (rd executions state)
+*     - delete all job executions (rd executions deleteall)
+*     - toggle job execution (rd jobs enablebulk and disablebulk)
+*     - toggle job schedule (rd jobs reschedulebulk and unschedulebulk)
+*     - server cluster scheduler takeover (rd scheduler takeover)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.0...v1.1.1)
 
 ## 1.1.0
 
