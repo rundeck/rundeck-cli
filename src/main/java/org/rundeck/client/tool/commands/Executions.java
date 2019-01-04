@@ -16,8 +16,11 @@
 
 package org.rundeck.client.tool.commands;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.tool.RdApp;
@@ -44,6 +47,9 @@ import java.util.stream.Stream;
  */
 @Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends AppCommand {
+
+    private static final ObjectMapper JSON = new ObjectMapper();
+
 
     public Executions(final RdApp client) {
         super(client);
@@ -636,20 +642,53 @@ public class Executions extends AppCommand {
         };
     }
 
-
-
     @CommandLineInterface(application = "metrics")
     interface MetricsCmd extends QueryOptions {
+
+      @Option(
+          longName = "xml",
+          description = "Get the result in raw xml.")
+      boolean isRawXML();
+
+      @Option(
+          longName = "json",
+          description = "Get the result in raw json.")
+      boolean isRawJSON();
+
     }
 
-    @Command(description = "Query previous executions for a project.")
+
+    @Command(description = "Obtain metrics over the result set of an execution query.")
     public void metrics(MetricsCmd options, CommandOutput out) throws IOException, InputError {
+
+      // Check parameters.
+      if(options.isRawJSON() && options.isRawXML()) {
+        throw new InputError("You must specify either --xml or --json.");
+      }
 
       Map<String, String> query = createQueryParams(options, null, null);
 
       Map<String, Object> result;
+
+      // Case project wire.
       if (options.isProject()) {
-        result = apiCall(api -> api.executionMetrics(
+
+        // Raw XML
+        if(options.isRawXML()) {
+          ResponseBody response = apiCall(api -> api.executionMetricsXML(
+              options.getProject(),
+              query,
+              options.getJobIdList(),
+              options.getExcludeJobIdList(),
+              options.getJobList(),
+              options.getExcludeJobList()
+          ));
+          out.output(response.string());
+          return;
+        }
+
+        // Get raw Json.
+        ResponseBody response = apiCall(api -> api.executionMetricsJSON(
             options.getProject(),
             query,
             options.getJobIdList(),
@@ -657,15 +696,48 @@ public class Executions extends AppCommand {
             options.getJobList(),
             options.getExcludeJobList()
         ));
+
+        if(options.isRawJSON()) {
+          out.output(response.string());
+          return;
+        }
+
+        result = JSON.readValue(response.string(), new TypeReference<Map<String, Object>>() {});
+
       }
+
+      // Case system-wide
       else {
-        result = apiCall(api -> api.executionMetrics(
+
+        // Raw XML
+        if(options.isRawXML()) {
+          ResponseBody response = apiCall(api -> api.executionMetricsXML(
+              query,
+              options.getJobIdList(),
+              options.getExcludeJobIdList(),
+              options.getJobList(),
+              options.getExcludeJobList()
+          ));
+          out.output(response.string());
+          return;
+        }
+
+        // Get raw Json.
+        ResponseBody response = apiCall(api -> api.executionMetricsJSON(
             query,
             options.getJobIdList(),
             options.getExcludeJobIdList(),
             options.getJobList(),
             options.getExcludeJobList()
         ));
+
+        if(options.isRawJSON()) {
+          out.output(response.string());
+          return;
+        }
+
+        result = JSON.readValue(response.string(), new TypeReference<Map<String, Object>>() {});
+
       }
 
       if (result.get("total") == null) {
