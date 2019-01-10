@@ -99,19 +99,22 @@ public class Configure extends AppCommand {
     {
         HashMap<String, Object> inputConfig = new HashMap<>();
         ObjectMapper objectMapper = new ObjectMapper();
-        File input = opts.getFile();
-        Map map = objectMapper.readValue(input, Map.class);
-        for (Object o : map.keySet()) {
-            if (!(o instanceof String)) {
-                throw new InputError(String.format(
-                        "Expected all keys of the json object to be strings, but saw: %s for: %s",
-                        o.getClass(),
-                        o
-                ));
+        if (opts.isFile()) {
+            File input = opts.getFile();
+            Map map = objectMapper.readValue(input, Map.class);
+            for (Object o : map.keySet()) {
+                if (!(o instanceof String)) {
+                    throw new InputError(String.format(
+                            "Expected all keys of the json object to be strings, but saw: %s for: %s",
+                            o.getClass(),
+                            o
+                    ));
+                }
             }
+
+            //noinspection unchecked
+            inputConfig.putAll(map);
         }
-        //noinspection unchecked
-        inputConfig.putAll(map);
         if (inputConfig.size() < 1 && requireInput) {
             throw new InputError("no configuration was specified");
         }
