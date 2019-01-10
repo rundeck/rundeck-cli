@@ -27,8 +27,7 @@ public class Reaction
     private DateInfo lastUpdated;
     private boolean enabled;
     private Map selector;
-    private List conditions;
-    private Map handler;
+    private List<HandlerConfig> handlers;
 
     @Override
     public Map<?, ?> asMap() {
@@ -43,8 +42,7 @@ public class Reaction
         map.put("lastUpdated", getLastUpdated().asMap());
         map.put("enabled", isEnabled());
         map.put("selector", getSelector());
-        map.put("conditions", getConditions());
-        map.put("handler", getHandler());
+        map.put("handlers", getHandlers());
         return map;
     }
 
@@ -56,5 +54,24 @@ public class Reaction
                 description != null ? " - " + description : "",
                 enabled ? "" : " (disabled)"
         );
+    }
+
+    @Data
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    public static class HandlerConfig
+            implements DataOutput
+    {
+        private String type;
+        private Map<String, Object> config;
+
+        @Override
+        public Map<?, ?> asMap() {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("type", getType());
+            map.put("config", getConfig());
+            return map;
+        }
     }
 }
