@@ -1,24 +1,35 @@
 package org.rundeck.client.tool.commands.pro;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import okhttp3.ResponseBody;
+import org.rundeck.client.api.RequestFailed;
+import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.pro.Subscription;
 import org.rundeck.client.api.model.pro.SubscriptionEventMessage;
+import org.rundeck.client.api.model.pro.PluginValidationError;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.commands.projects.Configure;
 import org.rundeck.client.tool.options.BaseOptions;
 import org.rundeck.client.tool.options.ConfigFileOptions;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.VerboseOption;
+import org.rundeck.client.tool.util.Colorz;
+import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
+import org.rundeck.client.util.ServiceClient;
+import org.rundeck.toolbelt.ANSIColorOutput;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.InputError;
+import retrofit2.Response;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -110,6 +121,27 @@ public class Subscriptions
         return reactionList;
     }
 
+    @CommandLineInterface(application = "save")
+    interface DownloadOpts
+            extends VerboseOption, BaseOptions, ProjectNameOptions, SubscriptionId
+    {
+
+        @Option(shortName = "f",
+                longName = "file",
+                description = "File path of the file to download for storing the subscription (json format)")
+        File getFile();
+    }
+
+    @Command(description = "Get Info for a Subscription.", synonyms = {"dl"})
+    public void download(DownloadOpts options, CommandOutput output) throws IOException, InputError {
+        String project = projectOrEnv(options);
+        ResponseBody body = apiCall(api -> api.getSubscriptionInfoDownload(
+                project,
+                options.getId()
+        ));
+        Reactions.downloadResponseContent(output, body, options.getFile(), options.isVerbose());
+    }
+
     @Command(description = "List Messages for a Subscription.")
     public List<SubscriptionEventMessage> messages(InfoOpts options, CommandOutput output)
             throws IOException, InputError
@@ -144,39 +176,85 @@ public class Subscriptions
     }
 
     @Command(description = "Create a Subscription.")
-    public Subscription create(Subscriptions.CreateOpts options, CommandOutput output) throws IOException, InputError {
+    public boolean create(CreateOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
-        Subscription inputSubscription = configureSubscription(new Subscription(), options, project);
-        Subscription result = apiCall(api -> api.createSubscription(
+        Subscription inputSubscription = readSubscription(options, project);
+        ServiceClient.WithErrorResponse<Subscription> result = apiWithErrorResponse(api -> api.createSubscription(
                 project,
                 inputSubscription
         ));
-        output.output(result);
-        return result;
+        if (hasResponseValidationErrors(output, result, "Create Subscription")) {
+            return false;
+        }
+        output.output(result.getResponse().body());
+        return true;
     }
 
-    private Subscription configureSubscription(
-            Subscription inputSubscription,
-            final ModifyOptions options,
-            final String project
+    /**
+     * Output any validation errors with optional colorization
+     *
+     * @param output
+     * @param message
+     * @param errors
+     * @param ansiEnabled
+     */
+    public static void outputValidationErrors(
+            final CommandOutput output,
+            final String message,
+            final Map<String, ?> errors,
+            final boolean ansiEnabled
     )
-            throws InputError, IOException
     {
+        if (null != message) {
+            output.warning(message);
+        }
+        Optional<? extends Map<?, ?>> errorData = Optional.ofNullable(errors);
+        errorData.ifPresent(map -> output.output(
+                ansiEnabled ?
+                Colorz.colorizeMapRecurse(
+                        map,
+                        ANSIColorOutput.Color.YELLOW
+                ) : map
+        ));
+    }
 
-        inputSubscription.setProject(project);
-        Map<String, Object> json = Configure.loadConfigJson(options, true);
-        if (options.isType()) {
-            inputSubscription.setType(options.getType());
-        } else if (json.containsKey("type")) {
-            inputSubscription.setType((String) json.get("type"));
-        } else {
-            throw new InputError("Expected -t/--type arg, or json file to have a \"type\" value");
+
+    /**
+     * Load validation data from the error response if it is a 400 response
+     * @param serviceClient
+     * @param errorResponse
+     * @param name
+     * @param clazz validation class
+     * @param <Z> validation class
+     * @param <T> data class
+     */
+    public static <Z, T> Optional<Z> getValidationError(
+            final ServiceClient<RundeckApi> serviceClient,
+            final ServiceClient.WithErrorResponse<T> errorResponse,
+            final String name,
+            Class<Z> clazz
+    )
+    {
+        Response<T> response = errorResponse.getResponse();
+        if (errorResponse.isError400()) {
+            try {
+                //parse body as Subscription
+                Z error = serviceClient.readError(errorResponse.getErrorBody(), clazz, Client.MEDIA_TYPE_JSON);
+                return Optional.ofNullable(error);
+            } catch (IOException e) {
+                //unable to parse body as expected
+                e.printStackTrace();
+                throw new RequestFailed(String.format(
+                        "%s failed: (error: %d %s)",
+                        name,
+                        response.code(),
+                        response.message()
+
+                ), response.code(), response.message());
+            }
+
         }
-        if (!json.containsKey("config")) {
-            throw new InputError("Expected json file to have a \"config\" map");
-        }
-        inputSubscription.setConfig((Map) json.get("config"));
-        return inputSubscription;
+        return Optional.empty();
     }
 
     @CommandLineInterface(application = "update")
@@ -186,17 +264,66 @@ public class Subscriptions
     }
 
     @Command(description = "Update a Subscription")
-    public Subscription update(UpdateOpts options, CommandOutput output) throws IOException, InputError {
+    public boolean update(UpdateOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
-        Subscription input = configureSubscription(
-                new Subscription(),
-                options,
-                project
-        );
-        Subscription result = apiCall(api -> api.updateSubscription(project, options.getId(), input));
+        Subscription input = readSubscription(options, project);
+        ServiceClient.WithErrorResponse<Subscription>
+                response =
+                apiWithErrorResponse(api -> api.updateSubscription(project, options.getId(), input));
+
+        if (hasResponseValidationErrors(output, response, "Update Subscription [" + options.getId() + "]")) {
+            return false;
+        }
         output.info(String.format("Updated Subscription: %s", options.getId()));
-        output.output(result);
-        return result;
+        output.output(response.getResponse().body());
+        return true;
+    }
+
+    /**
+     * Check if the response is a 500 error with validation information
+     *
+     * @param output
+     * @param response
+     * @param name     operation description
+     * @return true if there were validation errors present
+     * @throws InputError
+     */
+    public boolean hasResponseValidationErrors(
+            final CommandOutput output,
+            final ServiceClient.WithErrorResponse<Subscription> response,
+            final String name
+    ) throws InputError
+    {
+        Optional<PluginValidationError>
+                hasValidationError =
+                getValidationError(getClient(), response, name, PluginValidationError.class);
+        hasValidationError.ifPresent(pluginValidationError -> {
+            PluginValidationError validation = hasValidationError.get();
+            output.error("Failed: " + name);
+            outputValidationErrors(
+                    output,
+                    validation.getMessage(),
+                    validation.getErrors(),
+                    getAppConfig().isAnsiEnabled()
+            );
+        });
+        return hasValidationError.isPresent();
+    }
+
+    public Subscription readSubscription(final ModifyOptions options, final String project)
+            throws IOException, InputError
+    {
+        ObjectMapper objectMapper = new ObjectMapper();
+        Subscription input = objectMapper.readValue(options.getFile(), Subscription.class);
+
+        input.setProject(project);
+
+        if (options.isType()) {
+            input.setType(options.getType());
+        } else if (input.getType() == null) {
+            throw new InputError("Expected -t/--type arg, or json file to have a \"type\" value");
+        }
+        return input;
     }
 
     @CommandLineInterface(application = "enable")

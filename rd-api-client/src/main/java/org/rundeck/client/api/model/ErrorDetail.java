@@ -16,6 +16,8 @@
 
 package org.rundeck.client.api.model;
 
+import java.util.Map;
+
 /**
  * Detail about an error
  */
@@ -23,6 +25,8 @@ public interface ErrorDetail {
     String getErrorCode();
 
     String getErrorMessage();
+
+    Map<String,String> getValidation();
 
     int getApiVersion();
 

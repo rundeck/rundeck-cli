@@ -1184,6 +1184,17 @@ public interface RundeckApi {
             @Path("project") String project,
             @Path("id") String id
     );
+    /**
+     * Get a reaction by ID
+     *
+     * @param id
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/reactions/{id}")
+    Call<ResponseBody> getReactionInfoDownload(
+            @Path("project") String project,
+            @Path("id") String id
+    );
 
     /**
      * Get reaction events by ID
@@ -1256,6 +1267,12 @@ public interface RundeckApi {
             @Path("project") String project,
             @Path("id") String id
     );
+    @Headers("Accept: application/json")
+    @GET("project/{project}/events/subscriptions/{id}")
+    Call<ResponseBody> getSubscriptionInfoDownload(
+            @Path("project") String project,
+            @Path("id") String id
+    );
     /**
      * Get a event subscriptions by ID
      *
@@ -1277,6 +1294,14 @@ public interface RundeckApi {
             @Path("project") String project,
             @Body Subscription subscriptions
     );
+
+    @Headers("Accept: application/json")
+    @POST("project/{project}/events/subscriptions")
+    Call<Subscription> createSubscription(
+            @Path("project") String project,
+            @Body RequestBody body
+    );
+
     /**
      * Create a event subscriptions
      */

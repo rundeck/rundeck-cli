@@ -21,6 +21,7 @@ import org.rundeck.client.util.Xml;
 import org.simpleframework.xml.*;
 
 import java.util.List;
+import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict = false)
@@ -45,6 +46,10 @@ public class ErrorResponse implements ErrorDetail {
     @Path("error")
     @ElementList(entry = "message", required = false)
     public List<String> messages;
+
+    @Path("validation")
+    @ElementList(entry = "validation", required = false)
+    private Map<String, String> validation;
 
     public String toCodeString() {
         if (null != errorCode) {
@@ -84,5 +89,14 @@ public class ErrorResponse implements ErrorDetail {
                 getErrorMessage() != null ? getErrorMessage() : "(no message)",
                 toCodeString()
         );
+    }
+
+    @Override
+    public Map<String, String> getValidation() {
+        return validation;
+    }
+
+    public void setValidation(Map<String, String> validation) {
+        this.validation = validation;
     }
 }

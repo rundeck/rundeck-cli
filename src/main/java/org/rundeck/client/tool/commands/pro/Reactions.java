@@ -1,24 +1,28 @@
 package org.rundeck.client.tool.commands.pro;
 
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.pro.Reaction;
 import org.rundeck.client.api.model.pro.ReactionEvent;
 import org.rundeck.client.api.model.pro.ReactionEventList;
+import org.rundeck.client.api.model.pro.ReactionValidationError;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.commands.projects.Configure;
 import org.rundeck.client.tool.options.*;
-import org.rundeck.client.util.Format;
-import org.rundeck.client.util.RdClientConfig;
+import org.rundeck.client.util.*;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.InputError;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -108,6 +112,54 @@ public class Reactions
         ));
         output.output(reactionList);
         return reactionList;
+    }
+
+    @CommandLineInterface(application = "download")
+    interface DownloadOpts
+            extends VerboseOption, BaseOptions, ProjectNameOptions, ReactionId
+    {
+        @Option(shortName = "f",
+                longName = "file",
+                description = "File path of the file to download for storing the reaction (json format)")
+        File getFile();
+    }
+
+    @Command(description = "Download a Reaction defintion. Use -i/--id to specify ID.", synonyms = {"dl"})
+    public void download(DownloadOpts options, CommandOutput output) throws IOException, InputError {
+        String project = projectOrEnv(options);
+        ResponseBody body = apiCall(api -> api.getReactionInfoDownload(
+                project,
+                options.getId()
+        ));
+        downloadResponseContent(output, body, options.getFile(), options.isVerbose());
+    }
+
+    public static void downloadResponseContent(
+            final CommandOutput output,
+            final ResponseBody body,
+            final File file,
+            final boolean verbose
+    ) throws IOException
+    {
+        if (!ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_JSON)) {
+            throw new IllegalStateException("Unexpected response format: " + body.contentType());
+        }
+        InputStream inputStream = body.byteStream();
+        if ("-".equals(file.getName())) {
+            Util.copyStream(inputStream, System.out);
+        } else {
+            try (FileOutputStream out = new FileOutputStream(file)) {
+                long total = Util.copyStream(inputStream, out);
+                if (verbose) {
+                    output.info(String.format(
+                            "Wrote %d bytes of %s to file %s%n",
+                            total,
+                            body.contentType(),
+                            file
+                    ));
+                }
+            }
+        }
     }
 
     public interface EventsFormatOptions {
@@ -208,7 +260,7 @@ public class Reactions
     }
 
     interface ModifyReactionOptions
-            extends ConfigFileOptions, ToggleOptions
+            extends ToggleOptions
     {
 
         @Option(shortName = "n", longName = "name", description = "Reaction name")
@@ -221,6 +273,12 @@ public class Reactions
 
         boolean isDescription();
 
+        @Option(shortName = "f",
+                longName = "file",
+                description = "Input file for Reaction (json format)")
+        File getFile();
+
+
     }
 
     @CommandLineInterface(application = "create")
@@ -232,104 +290,108 @@ public class Reactions
     }
 
     @Command(description = "Create a Reaction. Use -f/--file to specify data file")
-    public Reaction create(CreateOpts options, CommandOutput output) throws IOException, InputError {
+    public boolean create(CreateOpts options, CommandOutput output) throws IOException, InputError {
         String project = projectOrEnv(options);
-        Reaction inputReaction = new Reaction();
-        inputReaction.setEnabled(true);
-        if (options.isFile()) {
-            throw new InputError("-f/--file required for create");
-        }
-        configureReaction(options, inputReaction, true);
+
+        final Reaction inputReaction = readReactionInput(options);
+
         if (null == inputReaction.getName()) {
             throw new InputError("-n/--name arg, or \"name\" entry in json is required for create");
         }
         if (null == inputReaction.getSelector()) {
             throw new InputError("\"selector\" entry in json is required for create");
         }
-        if (null == inputReaction.getConditions()) {
-            throw new InputError("\"conditions\" entry in json is required for create");
-        }
-        if (null == inputReaction.getHandler()) {
-            throw new InputError("\"conditions\" entry in json is required for create");
+        if (null == inputReaction.getHandlers() || inputReaction.getHandlers().size() < 1) {
+            throw new InputError("\"handlers\" entry in json is required for create");
         }
 
-        Reaction reaction = apiCall(api -> api.createReaction(
+        ServiceClient.WithErrorResponse<Reaction> response = apiWithErrorResponse(api -> api.createReaction(
                 project,
                 inputReaction
         ));
+        if (hasValidationErrors(output, response, "Create Reaction")) {
+            return false;
+        }
+        Reaction reaction = response.getResponse().body();
         output.info(String.format("Created Reaction: %s", reaction.getUuid()));
         output.output(reaction);
-        return reaction;
+        return true;
     }
 
-    private void configureReaction(
-            final ModifyReactionOptions options,
-            final Reaction inputReaction,
-            final boolean require
-    )
-            throws InputError, IOException
+    public boolean hasValidationErrors(
+            final CommandOutput output,
+            final ServiceClient.WithErrorResponse<Reaction> response,
+            final String name
+    ) throws InputError
     {
-        if (options.isFile()) {
-            configureJson(inputReaction, Configure.loadConfigJson(options, require));
+        Optional<ReactionValidationError>
+                validationError =
+                Subscriptions.getValidationError(
+                        getClient(),
+                        response,
+                        name,
+                        ReactionValidationError.class
+                );
+        if (validationError.isPresent()) {
+            ReactionValidationError validation = validationError.get();
+            output.error("Failed: " + name);
+            Subscriptions.outputValidationErrors(
+                    output,
+                    validation.getMessage(),
+                    validation.toMap(),
+                    getAppConfig().isAnsiEnabled()
+            );
+            return true;
         }
+        return false;
+    }
+
+    @CommandLineInterface(application = "update")
+    interface UpdateOpts
+            extends ReactionResultOptions, ReactionId, ModifyReactionOptions
+    {
+
+    }
+
+    @Command(description = "Update a Reaction. Specify ID, and use other inputs for modification data.")
+    public boolean update(UpdateOpts options, CommandOutput output) throws IOException, InputError {
+        String project = projectOrEnv(options);
+        final Reaction inputReaction = readReactionInput(options);
+
+        ServiceClient.WithErrorResponse<Reaction> response = apiWithErrorResponse(api -> api.updateReaction(
+                project,
+                options.getId(),
+                inputReaction
+        ));
+
+        if (hasValidationErrors(output, response, "Update Reaction [" + options.getId() + "]")) {
+            return false;
+        }
+
+        Reaction reaction = response.getResponse().body();
+        output.info(String.format("Updated Reaction: %s", reaction.getUuid()));
+        output.output(reaction);
+        return true;
+    }
+
+    public Reaction readReactionInput(final ModifyReactionOptions options) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        final Reaction inputReaction = objectMapper.readValue(options.getFile(), Reaction.class);
 
         if (options.isName()) {
             inputReaction.setName(options.getName());
         }
         if (options.isDescription()) {
             inputReaction.setDescription(options.getDescription());
-        } else if (options.isActivation()) {
+        }
+        if (options.isActivation()) {
             inputReaction.setEnabled(options.getActivation().isActive());
         } else if (options.isEnable()) {
             inputReaction.setEnabled(true);
         } else if (options.isDisable()) {
             inputReaction.setEnabled(false);
         }
-    }
-
-    private void configureJson(final Reaction inputReaction, final Map<String, Object> json) {
-        if (json.containsKey("selector")) {
-            inputReaction.setSelector((Map) json.get("selector"));
-        }
-        if (json.containsKey("conditions")) {
-            inputReaction.setConditions((List) json.get("conditions"));
-        }
-        if (json.containsKey("handler")) {
-            inputReaction.setHandler((Map) json.get("handler"));
-        }
-        if (json.containsKey("name")) {
-            inputReaction.setName((String) json.get("name"));
-        }
-        if (json.containsKey("description")) {
-            inputReaction.setDescription((String) json.get("description"));
-        }
-        if (json.containsKey("enabled")) {
-            inputReaction.setEnabled((boolean) json.get("enabled"));
-        }
-    }
-
-    @CommandLineInterface(application = "update")
-    interface UpdateOpts
-            extends ReactionResultOptions, ConfigFileOptions, ReactionId, ModifyReactionOptions
-    {
-
-    }
-
-    @Command(description = "Update a Reaction. Specify ID, and use other inputs for modification data.")
-    public Reaction update(UpdateOpts options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        Reaction inputReaction = new Reaction();
-
-        configureReaction(options, inputReaction, false);
-
-        Reaction reaction = apiCall(api -> api.updateReaction(
-                project,
-                options.getId(),
-                inputReaction
-        ));
-        output.info(String.format("Updated Reaction: %s", reaction.getUuid()));
-        output.output(reaction);
-        return reaction;
+        return inputReaction;
     }
 
     @CommandLineInterface(application = "enable")
