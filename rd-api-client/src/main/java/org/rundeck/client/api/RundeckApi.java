@@ -20,6 +20,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.api.model.executions.MetricsResponse;
 import org.rundeck.client.api.model.metrics.EndpointListResult;
 import org.rundeck.client.api.model.metrics.HealthCheckStatus;
 import org.rundeck.client.api.model.metrics.MetricsData;
@@ -1208,7 +1209,7 @@ public interface RundeckApi {
      */
     @Headers("Accept: application/json")
     @GET("project/{project}/executions/metrics")
-    Call<ResponseBody> executionMetricsJSON(
+    Call<MetricsResponse> executionMetrics(
         @Path("project") String project,
         @QueryMap Map<String, String> options,
         @Query("jobIdListFilter") List<String> jobIdListFilter,
@@ -1228,7 +1229,7 @@ public interface RundeckApi {
      */
     @Headers("Accept: application/json")
     @GET("executions/metrics")
-    Call<ResponseBody> executionMetricsJSON(
+    Call<MetricsResponse> executionMetrics(
         @QueryMap Map<String, String> options,
         @Query("jobIdListFilter") List<String> jobIdListFilter,
         @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,

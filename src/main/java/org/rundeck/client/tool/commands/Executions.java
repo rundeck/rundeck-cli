@@ -23,6 +23,7 @@ import com.lexicalscope.jewel.cli.Option;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.api.model.executions.MetricsResponse;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
@@ -643,110 +644,106 @@ public class Executions extends AppCommand {
     }
 
     @CommandLineInterface(application = "metrics")
-    interface MetricsCmd extends QueryOptions {
+    interface MetricsCmd
+            extends QueryOptions
+    {
 
-      @Option(
-          longName = "xml",
-          description = "Get the result in raw xml.")
-      boolean isRawXML();
+        @Option(
+                longName = "xml",
+                description = "Get the result in raw xml. Note: cannot be combined with RD_FORMAT env variable.")
+        boolean isRawXML();
 
-      @Option(
-          longName = "json",
-          description = "Get the result in raw json.")
-      boolean isRawJSON();
 
+        @Option(shortName = "%",
+                longName = "outformat",
+                description =
+                        "Output format specifier for execution metrics data. You can use \"%key\" where key is one "
+                        + "of: total,failed-with-retry,failed,succeeded,duration-avg,duration-min,duration-max. E.g. "
+                        + "\"%total %failed %succeeded\"")
+        String getOutputFormat();
+
+        boolean isOutputFormat();
     }
 
 
     @Command(description = "Obtain metrics over the result set of an execution query.")
     public void metrics(MetricsCmd options, CommandOutput out) throws IOException, InputError {
 
-      // Check parameters.
-      if(options.isRawJSON() && options.isRawXML()) {
-        throw new InputError("You must specify either --xml or --json.");
-      }
-
-      Map<String, String> query = createQueryParams(options, null, null);
-
-      Map<String, Object> result;
-
-      // Case project wire.
-      if (options.isProject()) {
-
-        // Raw XML
-        if(options.isRawXML()) {
-          ResponseBody response = apiCall(api -> api.executionMetricsXML(
-              options.getProject(),
-              query,
-              options.getJobIdList(),
-              options.getExcludeJobIdList(),
-              options.getJobList(),
-              options.getExcludeJobList()
-          ));
-          out.output(response.string());
-          return;
+        // Check parameters.
+        if (!"xml".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) && options.isRawXML()) {
+            throw new InputError("You cannot use RD_FORMAT env var with --xml");
         }
 
-        // Get raw Json.
-        ResponseBody response = apiCall(api -> api.executionMetricsJSON(
-            options.getProject(),
-            query,
-            options.getJobIdList(),
-            options.getExcludeJobIdList(),
-            options.getJobList(),
-            options.getExcludeJobList()
-        ));
+        Map<String, String> query = createQueryParams(options, null, null);
 
-        if(options.isRawJSON()) {
-          out.output(response.string());
-          return;
+        MetricsResponse result;
+
+        // Case project wire.
+        if (options.isProject()) {
+
+            // Raw XML
+            if ("XML".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
+                ResponseBody response = apiCall(api -> api.executionMetricsXML(
+                        options.getProject(),
+                        query,
+                        options.getJobIdList(),
+                        options.getExcludeJobIdList(),
+                        options.getJobList(),
+                        options.getExcludeJobList()
+                ));
+                out.output(response.string());
+                return;
+            }
+
+            // Get response.
+            result = apiCall(api -> api.executionMetrics(
+                    options.getProject(),
+                    query,
+                    options.getJobIdList(),
+                    options.getExcludeJobIdList(),
+                    options.getJobList(),
+                    options.getExcludeJobList()
+            ));
+
         }
 
-        result = JSON.readValue(response.string(), new TypeReference<Map<String, Object>>() {});
+        // Case system-wide
+        else {
 
-      }
+            // Raw XML
+            if ("XML".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
+                ResponseBody response = apiCall(api -> api.executionMetricsXML(
+                        query,
+                        options.getJobIdList(),
+                        options.getExcludeJobIdList(),
+                        options.getJobList(),
+                        options.getExcludeJobList()
+                ));
+                out.output(response.string());
+                return;
+            }
 
-      // Case system-wide
-      else {
+            // Get raw Json.
+            result = apiCall(api -> api.executionMetrics(
+                    query,
+                    options.getJobIdList(),
+                    options.getExcludeJobIdList(),
+                    options.getJobList(),
+                    options.getExcludeJobList()
+            ));
 
-        // Raw XML
-        if(options.isRawXML()) {
-          ResponseBody response = apiCall(api -> api.executionMetricsXML(
-              query,
-              options.getJobIdList(),
-              options.getExcludeJobIdList(),
-              options.getJobList(),
-              options.getExcludeJobList()
-          ));
-          out.output(response.string());
-          return;
         }
 
-        // Get raw Json.
-        ResponseBody response = apiCall(api -> api.executionMetricsJSON(
-            query,
-            options.getJobIdList(),
-            options.getExcludeJobIdList(),
-            options.getJobList(),
-            options.getExcludeJobList()
-        ));
-
-        if(options.isRawJSON()) {
-          out.output(response.string());
-          return;
+        if (!options.isOutputFormat()) {
+            if (result.getTotal() == null || result.getTotal() < 1) {
+                out.info("No results.");
+                return;
+            }
+            out.info(String.format("Showing stats for a resultset of %d executions.", result.getTotal()));
+            out.output(result);
+            return;
         }
-
-        result = JSON.readValue(response.string(), new TypeReference<Map<String, Object>>() {});
-
-      }
-
-      if (result.get("total") == null) {
-        out.info("No results.");
-        return;
-      }
-
-      out.info(String.format("Showing stats for a resultset of %s executions.", result.get("total")));
-      result.forEach((k, v) -> out.output(String.format("%-13s %s", k + ":", v)));
+        out.output(Format.format(options.getOutputFormat(), result, "%", ""));
     }
 
 
