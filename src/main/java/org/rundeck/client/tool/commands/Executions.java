@@ -668,9 +668,10 @@ public class Executions extends AppCommand {
 
     @Command(description = "Obtain metrics over the result set of an execution query.")
     public void metrics(MetricsCmd options, CommandOutput out) throws IOException, InputError {
+        requireApiVersion("metrics", 29);
 
         // Check parameters.
-        if (!"xml".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) && options.isRawXML()) {
+        if (!"xml".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", "xml")) && options.isRawXML()) {
             throw new InputError("You cannot use RD_FORMAT env var with --xml");
         }
 
@@ -739,7 +740,7 @@ public class Executions extends AppCommand {
                 out.info("No results.");
                 return;
             }
-            out.info(String.format("Showing stats for a resultset of %d executions.", result.getTotal()));
+            out.info(String.format("Showing stats for %d matching executions.", result.getTotal()));
             out.output(result);
             return;
         }

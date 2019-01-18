@@ -4,45 +4,71 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import org.rundeck.client.util.DataOutput;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-
-@Root(strict = false, name = "result")
 @Data
 public class MetricsResponse
         implements DataOutput
 {
     private Long total;
-    private Long failed;
-    @JsonProperty(value = "failed-with-retry")
-    @Element(name = "failed-with-retry")
-    private Long failedWithRetry;
-    private Long succeeded;
-    @JsonProperty(value = "duration-avg")
-    @Element(name = "duration-avg")
-    private String durationAvg;
-    @JsonProperty(value = "duration-min")
-    @Element(name = "duration-min")
-    private String durationMin;
-    @JsonProperty(value = "duration-max")
-    @Element(name = "duration-max")
-    private String durationMax;
+    private Status status;
+    private Map<String, String> duration;
 
     @Override
     public Map<?, ?> asMap() {
         HashMap<String, Object> data = new HashMap<>();
         data.put("total", total);
-        data.put("failed-with-retry", failedWithRetry);
-        data.put("succeeded", succeeded);
-        data.put("failed", failed);
-        data.put("duration-avg", durationAvg);
-        data.put("duration-min", durationMin);
-        data.put("duration-max", durationMax);
+        data.put("status", status);
+        data.put("duration", duration);
         return data;
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    @Data
+    public static class Status
+            implements DataOutput
+    {
+        private Long succeeded;
+        private Long failed;
+        @JsonProperty("failed-with-retry")
+        private Long failedWithRetry;
+        private Long aborted;
+        private Long running;
+        private Long other;
+        private Long timedout;
+        private Long scheduled;
+
+        @Override
+        public Map<?, ?> asMap() {
+            HashMap<String, Object> data = new HashMap<>();
+            if (null != succeeded) {
+                data.put("succeeded", succeeded);
+            }
+            if (null != failed) {
+                data.put("failed", failed);
+            }
+            if (null != failedWithRetry) {
+                data.put("failed-with-retry", failedWithRetry);
+            }
+            if (null != aborted) {
+                data.put("aborted", aborted);
+            }
+            if (null != running) {
+                data.put("running", running);
+            }
+            if (null != other) {
+                data.put("other", other);
+            }
+            if (null != timedout) {
+                data.put("timedout", timedout);
+            }
+            if (null != scheduled) {
+                data.put("scheduled", scheduled);
+            }
+            return data;
+        }
     }
 }
