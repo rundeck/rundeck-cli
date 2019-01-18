@@ -20,6 +20,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.api.model.executions.MetricsResponse;
 import org.rundeck.client.api.model.metrics.EndpointListResult;
 import org.rundeck.client.api.model.metrics.HealthCheckStatus;
 import org.rundeck.client.api.model.metrics.MetricsData;
@@ -1193,5 +1194,87 @@ public interface RundeckApi {
     @Headers("Accept: application/json")
     @GET("metrics/metrics")
     Call<MetricsData> getMetricsData();
+
+    /* Execution Query Metrics */
+
+    /**
+     * Get stats on a project-wide query of executions, with all query parameters available, in JSON format.
+     * @param project
+     * @param options
+     * @param jobIdListFilter
+     * @param xjobIdListFilter
+     * @param jobListFilter
+     * @param excludeJobListFilters
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("project/{project}/executions/metrics")
+    Call<MetricsResponse> executionMetrics(
+        @Path("project") String project,
+        @QueryMap Map<String, String> options,
+        @Query("jobIdListFilter") List<String> jobIdListFilter,
+        @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
+        @Query("jobListFilter") List<String> jobListFilter,
+        @Query("excludeJobListFilter") List<String> excludeJobListFilters
+    );
+
+   /**
+     * Get stats on a system-wide query of executions, with all query parameters available, in JSON format.
+     * @param options
+     * @param jobIdListFilter
+     * @param xjobIdListFilter
+     * @param jobListFilter
+     * @param excludeJobListFilters
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("executions/metrics")
+    Call<MetricsResponse> executionMetrics(
+        @QueryMap Map<String, String> options,
+        @Query("jobIdListFilter") List<String> jobIdListFilter,
+        @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
+        @Query("jobListFilter") List<String> jobListFilter,
+        @Query("excludeJobListFilter") List<String> excludeJobListFilters
+    );
+
+    /**
+     * Get stats on a project-wide query of executions, with all query parameters available, in XML format.
+     * @param project
+     * @param options
+     * @param jobIdListFilter
+     * @param xjobIdListFilter
+     * @param jobListFilter
+     * @param excludeJobListFilters
+     * @return
+     */
+    @Headers("Accept: application/xml")
+    @GET("project/{project}/executions/metrics")
+    Call<ResponseBody> executionMetricsXML(
+        @Path("project") String project,
+        @QueryMap Map<String, String> options,
+        @Query("jobIdListFilter") List<String> jobIdListFilter,
+        @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
+        @Query("jobListFilter") List<String> jobListFilter,
+        @Query("excludeJobListFilter") List<String> excludeJobListFilters
+    );
+
+   /**
+     * Get stats on a system-wide query of executions, with all query parameters available, in XML format.
+     * @param options
+     * @param jobIdListFilter
+     * @param xjobIdListFilter
+     * @param jobListFilter
+     * @param excludeJobListFilters
+     * @return
+     */
+    @Headers("Accept: application/xml")
+    @GET("executions/metrics")
+    Call<ResponseBody> executionMetricsXML(
+        @QueryMap Map<String, String> options,
+        @Query("jobIdListFilter") List<String> jobIdListFilter,
+        @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
+        @Query("jobListFilter") List<String> jobListFilter,
+        @Query("excludeJobListFilter") List<String> excludeJobListFilters
+    );
 
 }

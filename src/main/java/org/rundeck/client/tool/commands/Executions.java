@@ -16,19 +16,23 @@
 
 package org.rundeck.client.tool.commands;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import okhttp3.ResponseBody;
+import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.api.model.*;
+import org.rundeck.client.api.model.executions.MetricsResponse;
+import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.options.*;
+import org.rundeck.client.util.Format;
+import org.rundeck.client.util.RdClientConfig;
+import org.rundeck.client.util.ServiceClient;
 import org.rundeck.client.util.Util;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.InputError;
-import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.*;
-import org.rundeck.client.util.RdClientConfig;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.options.*;
-import org.rundeck.client.util.Format;
-import org.rundeck.client.util.ServiceClient;
 
 import java.io.IOException;
 import java.util.*;
@@ -44,6 +48,9 @@ import java.util.stream.Stream;
  */
 @Command(description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends AppCommand {
+
+    private static final ObjectMapper JSON = new ObjectMapper();
+
 
     public Executions(final RdApp client) {
         super(client);
@@ -280,128 +287,16 @@ public class Executions extends AppCommand {
     }
 
 
-    public interface ExecutionResultOptions extends ExecutionOutputFormatOption, VerboseOption {
-
-    }
-
-    @CommandLineInterface(application = "query") interface QueryCmd
-            extends ExecutionListOptions, ProjectNameOptions, ExecutionResultOptions
-    {
-        @Option(shortName = "d",
-                longName = "recent",
-                description = "Get executions newer than specified time. e.g. \"3m\" (3 months). \n" +
-                              "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
-        String getRecentFilter();
-
-        boolean isRecentFilter();
-
-        @Option(shortName = "O", longName = "older",
-                description = "Get executions older than specified time. e.g. \"3m\" (3 months). \n" +
-                              "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
-        String getOlderFilter();
-
-        boolean isOlderFilter();
-
-        @Option(shortName = "s", longName = "status",
-                description = "Status filter, one of: running,succeeded,failed,aborted")
-        String getStatusFilter();
-
-        boolean isStatusFilter();
-
-        @Option(shortName = "u", longName = "user",
-                description = "User filter")
-        String getUserFilter();
-
-        boolean isUserFilter();
-
-        @Option(shortName = "A", longName = "adhoconly",
-                description = "Adhoc executions only")
-        boolean isAdhoc();
-
-        @Option(shortName = "J", longName = "jobonly",
-                description = "Job executions only")
-        boolean isJob();
-
-        @Option(shortName = "i", longName = "jobids",
-                description = "Job ID list to include")
-        List<String> getJobIdList();
-
-        boolean isJobIdList();
-
-        @Option(shortName = "j", longName = "jobs",
-                description = "List of Full job group and name to include.")
-        List<String> getJobList();
-
-        boolean isJobList();
-
-        @Option(shortName = "x", longName = "xjobids",
-                description = "Job ID list to exclude")
-        List<String> getExcludeJobIdList();
-
-        boolean isExcludeJobIdList();
-
-        @Option(shortName = "X", longName = "xjobs",
-                description = "List of Full job group and name to exclude.")
-        List<String> getExcludeJobList();
-
-        boolean isExcludeJobList();
-
-
-        @Option(shortName = "g", longName = "group",
-                description = "Group or partial group path to include, \"-\" means top-level jobs only")
-        String getGroupPath();
-
-        boolean isGroupPath();
-
-        @Option(longName = "xgroup",
-                description = "Group or partial group path to exclude, \"-\" means top-level jobs only")
-        String getExcludeGroupPath();
-
-        boolean isExcludeGroupPath();
-
-        @Option(shortName = "G", longName = "groupexact",
-                description = "Exact group path to include, \"-\" means top-level jobs only")
-        String getGroupPathExact();
-
-        boolean isGroupPathExact();
-
-        @Option(longName = "xgroupexact",
-                description = "Exact group path to exclude, \"-\" means top-level jobs only")
-        String getExcludeGroupPathExact();
-
-        boolean isExcludeGroupPathExact();
-
-        @Option(shortName = "n", longName = "name",
-                description = "Job Name Filter, include any name that matches this value")
-        String getJobFilter();
-
-        boolean isJobFilter();
-
-        @Option(longName = "xname",
-                description = "Exclude Job Name Filter, exclude any name that matches this value")
-        String getExcludeJobFilter();
-
-        boolean isExcludeJobFilter();
-
-        @Option(shortName = "N", longName = "nameexact",
-                description = "Exact Job Name Filter, include any name that is equal to this value")
-        String getJobExactFilter();
-
-        boolean isJobExactFilter();
-
-        @Option(longName = "xnameexact",
-                description = "Exclude Exact Job Name Filter, exclude any name that is equal to this value")
-        String getExcludeJobExactFilter();
-
-        boolean isExcludeJobExactFilter();
+    @CommandLineInterface(application = "query")
+    interface QueryCmd extends QueryOptions, ExecutionResultOptions, ExecutionListOptions  {
 
         @Option(longName = "noninteractive",
-                description = "Don't use interactive prompts to load more pages if there are more paged results (query command only)")
+            description = "Don't use interactive prompts to load more pages if there are more paged results (query command only)")
         boolean isNonInteractive();
 
         @Option(longName = "autopage",
-                description = "Automatically load more results in non-interactive mode if there are more paged "
-                              + "results. (query command only)")
+            description = "Automatically load more results in non-interactive mode if there are more paged "
+                + "results. (query command only)")
         boolean isAutoLoadPages();
 
     }
@@ -520,14 +415,18 @@ public class Executions extends AppCommand {
     }
 
     private Map<String, String> createQueryParams(
-            final QueryCmd options,
-            final int max,
-            final int offset
+            final QueryOptions options,
+            final Integer max,
+            final Integer offset
     ) {
         final Map<String, String> query = new HashMap<>();
 
-        query.put("max", Integer.toString(max));
-        query.put("offset", Integer.toString(offset));
+        if(max != null) {
+            query.put("max", Integer.toString(max));
+        }
+        if(offset != null) {
+            query.put("offset", Integer.toString(offset));
+        }
         if (options.isRecentFilter()) {
             query.put("recentFilter", options.getRecentFilter());
         }
@@ -743,4 +642,110 @@ public class Executions extends AppCommand {
             }
         };
     }
+
+    @CommandLineInterface(application = "metrics")
+    interface MetricsCmd
+            extends QueryOptions
+    {
+
+        @Option(
+                longName = "xml",
+                description = "Get the result in raw xml. Note: cannot be combined with RD_FORMAT env variable.")
+        boolean isRawXML();
+
+
+        @Option(shortName = "%",
+                longName = "outformat",
+                description =
+                        "Output format specifier for execution metrics data. You can use \"%key\" where key is one "
+                        + "of: total,failed-with-retry,failed,succeeded,duration-avg,duration-min,duration-max. E.g. "
+                        + "\"%total %failed %succeeded\"")
+        String getOutputFormat();
+
+        boolean isOutputFormat();
+    }
+
+
+    @Command(description = "Obtain metrics over the result set of an execution query.")
+    public void metrics(MetricsCmd options, CommandOutput out) throws IOException, InputError {
+        requireApiVersion("metrics", 29);
+
+        // Check parameters.
+        if (!"xml".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", "xml")) && options.isRawXML()) {
+            throw new InputError("You cannot use RD_FORMAT env var with --xml");
+        }
+
+        Map<String, String> query = createQueryParams(options, null, null);
+
+        MetricsResponse result;
+
+        // Case project wire.
+        if (options.isProject()) {
+
+            // Raw XML
+            if ("XML".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
+                ResponseBody response = apiCall(api -> api.executionMetricsXML(
+                        options.getProject(),
+                        query,
+                        options.getJobIdList(),
+                        options.getExcludeJobIdList(),
+                        options.getJobList(),
+                        options.getExcludeJobList()
+                ));
+                out.output(response.string());
+                return;
+            }
+
+            // Get response.
+            result = apiCall(api -> api.executionMetrics(
+                    options.getProject(),
+                    query,
+                    options.getJobIdList(),
+                    options.getExcludeJobIdList(),
+                    options.getJobList(),
+                    options.getExcludeJobList()
+            ));
+
+        }
+
+        // Case system-wide
+        else {
+
+            // Raw XML
+            if ("XML".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
+                ResponseBody response = apiCall(api -> api.executionMetricsXML(
+                        query,
+                        options.getJobIdList(),
+                        options.getExcludeJobIdList(),
+                        options.getJobList(),
+                        options.getExcludeJobList()
+                ));
+                out.output(response.string());
+                return;
+            }
+
+            // Get raw Json.
+            result = apiCall(api -> api.executionMetrics(
+                    query,
+                    options.getJobIdList(),
+                    options.getExcludeJobIdList(),
+                    options.getJobList(),
+                    options.getExcludeJobList()
+            ));
+
+        }
+
+        if (!options.isOutputFormat()) {
+            if (result.getTotal() == null || result.getTotal() < 1) {
+                out.info("No results.");
+                return;
+            }
+            out.info(String.format("Showing stats for %d matching executions.", result.getTotal()));
+            out.output(result);
+            return;
+        }
+        out.output(Format.format(options.getOutputFormat(), result, "%", ""));
+    }
+
+
 }

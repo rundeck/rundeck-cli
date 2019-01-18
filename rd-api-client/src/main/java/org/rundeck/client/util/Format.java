@@ -30,6 +30,10 @@ public class Format {
     private Format() {
     }
 
+    public static String format(String format, DataOutput data, final String start, final String end) {
+        return format(format, data.asMap(), start, end);
+    }
+
     public static String format(String format, Map<?, ?> data, final String start, final String end) {
         Pattern pat = Pattern.compile(Pattern.quote(start) + "([\\w.]+)" + Pattern.quote(end));
         Matcher matcher = pat.matcher(format);
@@ -77,6 +81,15 @@ public class Format {
 
     public static Function<Map<?, ?>, String> formatter(String format, final String start, final String end) {
         return (Map<?, ?> map) -> format(format, map, start, end);
+    }
+
+    public static <X extends DataOutput> Function<X, String> dataFormatter(
+            String format,
+            final String start,
+            final String end
+    )
+    {
+        return formatter(format, DataOutput::asMap, start, end);
     }
 
     @SuppressWarnings("SameParameterValue")
