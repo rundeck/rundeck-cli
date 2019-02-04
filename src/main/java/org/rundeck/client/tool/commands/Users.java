@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.api.model.RoleList;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.InputError;
@@ -151,6 +152,14 @@ public class Users extends AppCommand {
         }
         output.info(String.format("%d Users:", users.size()));
         users.forEach(e -> output.output(outformat.apply(e)));
+    }
+
+    @Command(description = "Get the list of roles for the current user.")
+    public void roles(CommandOutput output) throws IOException, InputError {
+        requireApiVersion("user roles", 30);
+        RoleList roleList = apiCall(RundeckApi::listRoles);
+        output.info(String.format("%d Roles:", roleList.getRoles().size()));
+        roleList.getRoles().forEach(e -> output.output(e));
     }
 
 
