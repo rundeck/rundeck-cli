@@ -105,6 +105,7 @@ List and manage Jobs.
        purge      - Delete jobs matching the query parameters
        reschedule - Enable schedule for a job
        unschedule - Disable schedule for a job
+       forecast   - Get Schedule Forecast for a Job by ID (API v31)
 
 ## keys
 

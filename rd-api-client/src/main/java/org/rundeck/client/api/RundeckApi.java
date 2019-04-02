@@ -26,6 +26,7 @@ import org.rundeck.client.api.model.metrics.HealthCheckStatus;
 import org.rundeck.client.api.model.metrics.MetricsData;
 import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.api.model.repository.RepositoryArtifacts;
+import org.rundeck.client.api.model.scheduler.ForecastJobItem;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeover;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeoverResult;
@@ -1275,6 +1276,19 @@ public interface RundeckApi {
         @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
         @Query("jobListFilter") List<String> jobListFilter,
         @Query("excludeJobListFilter") List<String> excludeJobListFilters
+    );
+
+    /**
+     * Forecast
+     * @param jobid
+     * @return
+     */
+    @Headers("Accept: application/json")
+    @GET("job/{jobid}/forecast")
+    Call<ForecastJobItem> getJobForecast(
+            @Path("jobid") String jobid,
+            @Query("daysAhead") String daysAhead,
+            @Query("maxFutures") String maxFutures
     );
 
 }
