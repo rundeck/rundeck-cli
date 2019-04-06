@@ -1078,6 +1078,13 @@ public interface RundeckApi {
     @GET("user/list")
     Call<List<User>> listUsers();
 
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#list-roles">API</a>
+     */
+    @Headers("Accept: application/json")
+    @GET("user/roles")
+    Call<RoleList> listRoles();
+
     @Headers("Accept: application/json")
     @POST("job/{id}/retry/{eid}")
     Call<Execution> retryJob(

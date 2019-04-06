@@ -47,6 +47,7 @@ public class RundeckClient {
     public static final Pattern API_VERS_PATTERN = Pattern.compile("^(.*)(/api/(\\d+)/?)$");
     public static final String ENV_BYPASS_URL = "RD_BYPASS_URL";
     public static final String ENV_INSECURE_SSL = "RD_INSECURE_SSL";
+    public static final String ENV_INSECURE_SSL_NO_WARN = "RD_INSECURE_SSL_NO_WARN";
     public static final String ENV_INSECURE_SSL_HOSTNAME = "RD_INSECURE_SSL_HOSTNAME";
     public static final String ENV_ALT_SSL_HOSTNAME = "RD_ALT_SSL_HOSTNAME";
     public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";

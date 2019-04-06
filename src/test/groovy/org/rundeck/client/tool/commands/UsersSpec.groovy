@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool.commands
 
+import org.rundeck.client.api.model.RoleList
 import org.rundeck.toolbelt.CommandOutput
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.tool.RdApp
@@ -149,5 +150,34 @@ class UsersSpec extends Specification {
         3           | _
         0           | _
 
+    }
+
+    def "list roles"() {
+        given:
+
+        def api = Mock(RundeckApi)
+
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 30, false, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Users users = new Users(hasclient)
+        def out = Mock(CommandOutput){
+            output(_) >>{msg->println(msg)}
+        }
+        RoleList roleList = new RoleList();
+        roleList.roles = Arrays.asList("admin","user");
+
+        when:
+        users.roles(out)
+
+        then:
+        1 * api.listRoles() >>
+        Calls.response(
+                roleList
+        )
+        2 * out.output(_)
     }
 }

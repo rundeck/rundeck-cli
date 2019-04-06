@@ -41,6 +41,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static org.rundeck.client.RundeckClient.ENV_INSECURE_SSL;
+import static org.rundeck.client.RundeckClient.ENV_INSECURE_SSL_NO_WARN;
 
 
 /**
@@ -194,7 +195,8 @@ public class Main {
                 "rundeck.client.insecure.ssl",
                 System.getenv(ENV_INSECURE_SSL)
         ));
-        if (insecureSsl) {
+        boolean insecureSslNoWarn = Boolean.parseBoolean(System.getenv(ENV_INSECURE_SSL_NO_WARN));
+        if (insecureSsl && !insecureSslNoWarn ) {
             belt.finalOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
