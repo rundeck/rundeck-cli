@@ -318,6 +318,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     @Command(description = "Get Schedule Forecast for a Job by ID (API v31)")
     public void forecast(ForecastOpts options, CommandOutput output) throws IOException, InputError {
+        requireApiVersion("jobs forecast", 31);
         ForecastJobItem body = apiCall(api -> api.getJobForecast(options.getId(), options.getDays(), options.getMax()));
         output.output("Forecast:");
         if(body.getFutureScheduledExecutions() != null){
