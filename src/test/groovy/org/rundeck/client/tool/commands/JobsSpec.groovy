@@ -324,8 +324,8 @@ class JobsSpec extends Specification {
         def api = Mock(RundeckApi)
         def opts = Mock(Jobs.ForecastOpts) {
             getId() >> "123"
-            getDays() >> "1"
-            isDays() >> true
+            getTime() >> "1d"
+            isTime() >> true
             getMax() >> "1"
             isMax() >> true
         }
@@ -343,7 +343,7 @@ class JobsSpec extends Specification {
         jobs.forecast(opts, out)
 
         then:
-        1 * api.getJobForecast('123','1','1') >> Calls.response(new ForecastJobItem(futureScheduledExecutions: [date]))
+        1 * api.getJobForecast('123','1d','1') >> Calls.response(new ForecastJobItem(futureScheduledExecutions: [date]))
         1 * out.output('Forecast:')
         1 * out.output([date])
 

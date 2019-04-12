@@ -1287,8 +1287,8 @@ public interface RundeckApi {
     @GET("job/{jobid}/forecast")
     Call<ForecastJobItem> getJobForecast(
             @Path("jobid") String jobid,
-            @Query("daysAhead") String daysAhead,
-            @Query("maxFutures") String maxFutures
+            @Query("time") String time,
+            @Query("max") String max
     );
 
 }

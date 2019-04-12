@@ -284,9 +284,10 @@ public class Jobs extends AppCommand implements HasSubCommands {
         @Option(shortName = "i", longName = "id", description = "Job ID")
         String getId();
 
-        @Option(shortName = "d", longName = "days", description = "Days ahead, default 1 day")
-        String getDays();
-        boolean isDays();
+        @Option(shortName = "t", longName = "time", description = "Time ahead using number+unit. e.g. 1h (1 hour).\n " +
+                "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
+        String getTime();
+        boolean isTime();
 
         @Option(shortName = "m", longName = "max", description = "Max number of results")
         String getMax();
@@ -318,7 +319,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
 
     @Command(description = "Get Schedule Forecast for a Job by ID (API v31)")
     public void forecast(ForecastOpts options, CommandOutput output) throws IOException, InputError {
-        ForecastJobItem body = apiCall(api -> api.getJobForecast(options.getId(), options.getDays(), options.getMax()));
+        ForecastJobItem body = apiCall(api -> api.getJobForecast(options.getId(), options.getTime(), options.getMax()));
         output.output("Forecast:");
         if(body.getFutureScheduledExecutions() != null){
             output.output(body.getFutureScheduledExecutions());
