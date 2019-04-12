@@ -57,7 +57,9 @@ List running executions, attach and follow their output, or kill them.
 	   kill       - Attempt to kill an execution by ID
 	   list       - List all running executions for a project
 	   query      - Query previous executions for a project
-
+	   state      - Get detail about the node and step state of an execution by ID  
+	   deleteall  - Delete all executions for a job
+	   
 ### execution query
 
 Query previous executions for a project.
@@ -97,14 +99,18 @@ List and manage Jobs.
 
 	Available commands:
 
-       disable    - Disable execution for a job
-       enable     - Enable execution for a job
-       info       - Get info about a Job by ID (API v18)
-       list       - List jobs found in a project, or download Job definitions (-f)
-       load       - Load Job definitions from a file in XML or YAML format
-       purge      - Delete jobs matching the query parameters
-       reschedule - Enable schedule for a job
-       unschedule - Disable schedule for a job
+       disable        - Disable execution for a job
+       enable         - Enable execution for a job
+       info           - Get info about a Job by ID (API v18)
+       list           - List jobs found in a project, or download Job definitions (-f)
+       load           - Load Job definitions from a file in XML or YAML format
+       purge          - Delete jobs matching the query parameters
+       reschedule     - Enable schedule for a job
+       unschedule     - Disable schedule for a job
+       enablebulk     - Enable execution for a set of jobs
+       disablebulk    - Disable execution for a set of jobs
+       reschedulebulk - Enable schedule for a set of jobs
+       unschedulebulk - Disable schedule for a set of jobs
        forecast   - Get Schedule Forecast for a Job by ID (API v31)
 
 ## keys
@@ -208,6 +214,13 @@ Run a Job.
 ## scheduler
 
 View scheduler information
+
+    Available commands:
+
+       jobs     - List jobs for the current target server, or a specified server
+       takeover - Tell a Rundeck server in cluster mode to claim all scheduled jobs from another cluster server
+
+### scheduler jobs
 
 List jobs for the current target server, or a specified server.
 
