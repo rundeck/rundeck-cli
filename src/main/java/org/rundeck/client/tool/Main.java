@@ -57,7 +57,6 @@ public class Main {
     public static final String ENV_AUTH_PROMPT   = "RD_AUTH_PROMPT";
     public static final String ENV_DEBUG         = "RD_DEBUG";
     public static final String ENV_RD_FORMAT     = "RD_FORMAT";
-    public static final String RD_ENABLE_PLUGINS = "RD_ENABLE_PLUGINS";
 
     public static void main(String[] args) throws CommandRunFailure {
         Rd rd = new Rd(new Env());
@@ -162,7 +161,6 @@ public class Main {
     };
 
     public static Tool tool(final Rd rd) {
-        boolean pluginsEnabled = Boolean.parseBoolean(System.getenv(RD_ENABLE_PLUGINS));
         ToolBelt belt = ToolBelt.belt("rd")
                                 .defaultHelpCommands()
                                 .ansiColorOutput(rd.isAnsiEnabled())
@@ -180,13 +178,12 @@ public class Main {
                                         new Users(rd),
                                         new Something(),
                                         new Retry(rd),
-                                        new Metrics(rd)
+                                        new Metrics(rd),
+                                        new Plugins(rd)
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
-        if(pluginsEnabled) {
-            belt.add(new Plugins(rd));
-        }
+
         belt.printStackTrace(rd.getDebugLevel() > 0);
         setupColor(belt, rd);
         setupFormat(belt, rd);
