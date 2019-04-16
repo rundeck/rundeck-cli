@@ -1,5 +1,11 @@
 ## 1.1.2
 
+* Add `rd executions metrics` (API v29) Execution Metrics API [#210](https://github.com/rundeck/rundeck-cli/pull/210)
+* Default API version used is 29
+* Add `rd user roles` (API v30) [#211](https://github.com/rundeck/rundeck-cli/pull/211)
+* new `RD_INSECURE_SSL_NO_WARN=true` to suppress insecure SSL warning [#215](https://github.com/rundeck/rundeck-cli/pull/215)
+* support sha384 via upgraded okhttp [#219](https://github.com/rundeck/rundeck-cli/pull/219)
+* `rd plugins` enabled by default [#220](https://github.com/rundeck/rundeck-cli/pull/220)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.1...v1.1.2)
 
