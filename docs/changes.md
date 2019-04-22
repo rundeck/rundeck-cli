@@ -4,6 +4,11 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.1.2
+
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.1...v1.1.2)
+
 ## 1.1.1
 
 * New commands
