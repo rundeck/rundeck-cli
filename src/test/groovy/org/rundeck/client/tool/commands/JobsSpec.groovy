@@ -17,6 +17,7 @@
 package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.Simple
+import org.rundeck.client.api.model.scheduler.ForecastJobItem
 import org.rundeck.toolbelt.CommandOutput
 import org.rundeck.toolbelt.InputError
 import okhttp3.MediaType
@@ -314,6 +315,37 @@ class JobsSpec extends Specification {
         1 * out.info('1 Jobs Failed:\n')
         1 * out.output(['[id:?] Job Name\n\t:Test Error'])
         0 * out._(*_)
+
+    }
+
+    def "job forecast"() {
+        given:
+
+        def api = Mock(RundeckApi)
+        def opts = Mock(Jobs.ForecastOpts) {
+            getId() >> "123"
+            getTime() >> "1d"
+            isTime() >> true
+            getMax() >> "1"
+            isMax() >> true
+        }
+
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 31, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Jobs jobs = new Jobs(hasclient)
+        def out = Mock(CommandOutput)
+        def date = new Date()
+
+        when:
+        jobs.forecast(opts, out)
+
+        then:
+        1 * api.getJobForecast('123','1d','1') >> Calls.response(new ForecastJobItem(futureScheduledExecutions: [date]))
+        1 * out.output('Forecast:')
+        1 * out.output([date])
 
     }
 

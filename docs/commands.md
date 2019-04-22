@@ -111,6 +111,7 @@ List and manage Jobs.
        disablebulk    - Disable execution for a set of jobs
        reschedulebulk - Enable schedule for a set of jobs
        unschedulebulk - Disable schedule for a set of jobs
+       forecast   - Get Schedule Forecast for a Job by ID (API v31)
 
 ## keys
 

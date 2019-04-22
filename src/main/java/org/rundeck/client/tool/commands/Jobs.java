@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.api.model.scheduler.ForecastJobItem;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
@@ -278,6 +279,22 @@ public class Jobs extends AppCommand implements HasSubCommands {
         String getId();
     }
 
+    @CommandLineInterface(application = "forecast") interface ForecastOpts {
+
+        @Option(shortName = "i", longName = "id", description = "Job ID")
+        String getId();
+
+        @Option(shortName = "t", longName = "time", description = "Time ahead using number+unit. e.g. 1h (1 hour).\n " +
+                "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
+        String getTime();
+        boolean isTime();
+
+        @Option(shortName = "m", longName = "max", description = "Max number of results")
+        String getMax();
+        boolean isMax();
+
+    }
+
     interface ToggleOpts extends JobIdentOptions {
 
         @Option(shortName = "j",
@@ -298,6 +315,19 @@ public class Jobs extends AppCommand implements HasSubCommands {
     public void info(InfoOpts options, CommandOutput output) throws IOException, InputError {
         ScheduledJobItem body = apiCall(api -> api.getJobInfo(options.getId()));
         outputJobList(options, output, Collections.singletonList(body));
+    }
+
+    @Command(description = "Get Schedule Forecast for a Job by ID (API v31)")
+    public void forecast(ForecastOpts options, CommandOutput output) throws IOException, InputError {
+        requireApiVersion("jobs forecast", 31);
+        ForecastJobItem body = apiCall(api -> api.getJobForecast(options.getId(), options.getTime(), options.getMax()));
+        output.output("Forecast:");
+        if(body.getFutureScheduledExecutions() != null){
+            output.output(body.getFutureScheduledExecutions());
+        }
+
+        return;
+
     }
 
     @CommandLineInterface(application = "enable") interface EnableOpts extends ToggleOpts {
