@@ -31,6 +31,7 @@ class UploadPluginTest extends Specification {
         File bogusPlugin = File.createTempFile("bogus","plugin")
         def api = Mock(RundeckApi)
         def opts = Mock(UploadPlugin.UploadPluginOption) {
+            getRepoName() >> "private"
             getBinaryPath() >> bogusPlugin.absolutePath
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
@@ -45,7 +46,7 @@ class UploadPluginTest extends Specification {
         uploadCmd.upload(opts,out)
 
         then:
-        1 * api.uploadPlugin(_) >> Calls.response(new ArtifactActionMessage(msg:"Upload succeeded"))
+        1 * api.uploadPlugin("private",_) >> Calls.response(new ArtifactActionMessage(msg:"Upload succeeded"))
         out.output('Upload succeeded')
     }
 }

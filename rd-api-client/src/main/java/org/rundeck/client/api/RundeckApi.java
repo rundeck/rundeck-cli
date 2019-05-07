@@ -1105,15 +1105,22 @@ public interface RundeckApi {
      * @see <a href="http://rundeck.org/docs/api/#upload-plugins">API</a>
      */
     @Headers("Accept: application/json")
-    @POST("plugins/upload")
-    Call<ArtifactActionMessage> uploadPlugin(@Body RequestBody pluginBinary);
+    @POST("plugins/{repoName}/upload")
+    Call<ArtifactActionMessage> uploadPlugin(@Path("repoName") String repoName,@Body RequestBody pluginBinary);
 
     /**
      * @see <a href="http://rundeck.org/docs/api/#install-plugins">API</a>
      */
     @Headers("Accept: application/json")
-    @POST("plugins/install/{pluginId}")
-    Call<ArtifactActionMessage> installPlugin(@Path("pluginId") String pluginId);
+    @POST("plugins/{repoName}/install/{pluginId}")
+    Call<ArtifactActionMessage> installPlugin(@Path("repoName") String repoName, @Path("pluginId") String pluginId);
+
+    /**
+     * @see <a href="http://rundeck.org/docs/api/#install-plugins">API</a>
+     */
+    @Headers("Accept: application/json")
+    @POST("plugins/{repoName}/install/{pluginId}/{version}")
+    Call<ArtifactActionMessage> installPlugin(@Path("repoName") String repoName, @Path("pluginId") String pluginId, @Path("version") String version);
 
     /**
      * @see <a href="http://rundeck.org/docs/api/#uninstall-plugins">API</a>

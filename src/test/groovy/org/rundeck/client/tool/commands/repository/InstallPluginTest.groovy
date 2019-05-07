@@ -30,6 +30,7 @@ class InstallPluginTest extends Specification {
         given:
         def api = Mock(RundeckApi)
         def opts = Mock(InstallPlugin.InstallPluginOption) {
+            getRepoName() >> "private"
             getPluginId() >> 'bcf8885df1e8'
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
@@ -44,7 +45,7 @@ class InstallPluginTest extends Specification {
         installCmd.install(opts,out)
 
         then:
-        1 * api.installPlugin(_) >> Calls.response(new ArtifactActionMessage(msg:"Plugin Installed"))
+        1 * api.installPlugin("private",'bcf8885df1e8') >> Calls.response(new ArtifactActionMessage(msg:"Plugin Installed"))
         out.output('Plugin Installed')
     }
 }

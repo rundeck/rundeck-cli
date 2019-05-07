@@ -17,7 +17,6 @@ package org.rundeck.client.tool.commands.repository;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.toolbelt.Command;
@@ -34,20 +33,14 @@ public class UninstallPlugin extends AppCommand {
 
     @CommandLineInterface
     interface UninstallPluginOption {
-        @Option(longName = "id", description = "Id of the plugin you want to uninstall")
+        @Option(longName = "id", shortName = "i", description = "Id of the plugin you want to uninstall")
         String getPluginId();
     }
 
     @Command(isDefault = true)
     public void uninstall(UninstallPluginOption option, CommandOutput output) throws InputError, IOException {
         String pluginId = option.getPluginId();
-        ArtifactActionMessage msg = apiCall(api -> api.uninstallPlugin(pluginId));
-        if(msg.getErrors() != null && !msg.getErrors().isEmpty()) {
-            msg.getErrors().forEach(error -> {
-                output.error(error.getMsg());
-            });
-        } else {
-            output.output(msg.getMsg());
-        }
+        RepositoryResponseHandler.handle(
+                apiWithErrorResponse(api -> api.uninstallPlugin(pluginId)),output);
     }
 }

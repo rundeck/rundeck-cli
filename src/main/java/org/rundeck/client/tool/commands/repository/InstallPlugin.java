@@ -17,7 +17,6 @@ package org.rundeck.client.tool.commands.repository;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.toolbelt.Command;
@@ -33,21 +32,27 @@ public class InstallPlugin extends AppCommand {
     }
 
     @CommandLineInterface interface InstallPluginOption {
-        @Option(longName = "id", description = "Id of the plugin you want to install")
+        @Option(shortName = "r", longName = "repository", description = "Repository name that contains the plugin.")
+        String getRepoName();
+        @Option(longName = "id",shortName = "i",description = "Id of the plugin you want to install")
         String getPluginId();
+        @Option(longName = "version", shortName = "v",description = "(Optional) Specific version of the plugin you want to install",defaultToNull = true)
+        String getVersion();
     }
 
     @Command(isDefault = true)
     public void install(InstallPluginOption option, CommandOutput output) throws InputError, IOException {
         String pluginId = option.getPluginId();
-        ArtifactActionMessage msg = apiCall(api -> api.installPlugin(pluginId));
-        if(msg.getErrors() != null && !msg.getErrors().isEmpty()) {
-            msg.getErrors().forEach(error -> {
-                output.error(error.getMsg());
-            });
-        } else {
-            output.output(msg.getMsg());
-        }
+
+        RepositoryResponseHandler.handle(
+                apiWithErrorResponse(api -> {
+            if(option.getVersion() != null) {
+                return api.installPlugin(option.getRepoName(),pluginId,option.getVersion());
+            } else {
+                return api.installPlugin(option.getRepoName(), pluginId);
+            }
+        }),output);
+
     }
 
 }
