@@ -34,6 +34,8 @@ public class RepositoryResponseHandler {
             err.getErrors().forEach(error -> {
                 output.error(error.getMsg());
             });
+        } else if(response.getResponse().code() == 403) {
+            output.error("Server returned a 403. Either you don't have access to the API or the repository feature is not enabled.");
         } else if(response.getResponse().code() == 404) {
             output.error("Repository is not enabled, or your Rundeck version is too old. Please ensure you are running Rundeck 3.1.0 or later");
         } else {
