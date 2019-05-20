@@ -51,7 +51,7 @@ public class Plugins extends AppCommand implements HasSubCommands {
                 if(plugin.getInstallId() != null && !plugin.getInstallId().isEmpty()) {
                     String updateable = "";
                     if (plugin.isUpdatable()) {
-                        updateable = " (Updateable to " + plugin.getCurrentVersion() + ")";
+                        updateable = " (Updatable to " + plugin.getCurrentVersion() + ")";
                     }
                     output.output(String.format(
                             "%s : %s : %s (%sinstalled) %s",
