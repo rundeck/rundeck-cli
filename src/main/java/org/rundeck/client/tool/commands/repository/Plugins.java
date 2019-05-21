@@ -46,10 +46,22 @@ public class Plugins extends AppCommand implements HasSubCommands {
     public void list(CommandOutput output) throws InputError, IOException {
         List<RepositoryArtifacts> repos = apiCall(RundeckApi::listPlugins);
         repos.forEach(repo -> {
-            //Ignore repo name for now
-            //output.output("Repository: " + repo.getRepositoryName());
+            output.output("==" + repo.getRepositoryName()+ " Repository==");
             repo.getResults().forEach(plugin -> {
-                output.output(String.format("%s : %s (%sinstalled)",plugin.getId(), plugin.getName(), plugin.isInstalled() ? "":"not "));
+                if(plugin.getInstallId() != null && !plugin.getInstallId().isEmpty()) {
+                    String updateable = "";
+                    if (plugin.isUpdatable()) {
+                        updateable = " (Updatable to " + plugin.getCurrentVersion() + ")";
+                    }
+                    output.output(String.format(
+                            "%s : %s : %s (%sinstalled) %s",
+                            plugin.getInstallId(),
+                            plugin.getName(),
+                            plugin.isInstalled() ? plugin.getInstalledVersion() : plugin.getCurrentVersion(),
+                            plugin.isInstalled() ? "" : "not ",
+                            updateable
+                    ));
+                }
             });
         });
     }

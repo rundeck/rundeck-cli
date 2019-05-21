@@ -18,7 +18,6 @@ package org.rundeck.client.tool.commands.repository;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import okhttp3.RequestBody;
-import org.rundeck.client.api.model.repository.ArtifactActionMessage;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.util.Client;
@@ -37,6 +36,8 @@ public class UploadPlugin extends AppCommand {
 
     @CommandLineInterface
     interface UploadPluginOption {
+        @Option(shortName = "r", longName = "repository", description = "Target name of repository to upload plugin into.")
+        String getRepoName();
         @Option(shortName = "f", longName = "file", description = "Path to Rundeck 2.0 plugin to install in your repository")
         String getBinaryPath();
     }
@@ -47,13 +48,7 @@ public class UploadPlugin extends AppCommand {
         File binary = new File(option.getBinaryPath());
         if(!binary.exists()) throw new IOException(String.format("Unable to find specified file: %s",option.getBinaryPath()));
         RequestBody fileUpload = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, binary);
-        ArtifactActionMessage msg = apiCall(api -> api.uploadPlugin(fileUpload));
-        if(msg.getErrors() != null && !msg.getErrors().isEmpty()) {
-            msg.getErrors().forEach(error -> {
-                output.error(error.getMsg());
-            });
-        } else {
-            output.output(msg.getMsg());
-        }
+
+        RepositoryResponseHandler.handle(apiWithErrorResponse(api -> api.uploadPlugin(option.getRepoName(), fileUpload)),output);
     }
 }
