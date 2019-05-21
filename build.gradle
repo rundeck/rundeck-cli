@@ -281,6 +281,7 @@ ospackage {
     os = 'LINUX'
     packageGroup = 'System'
     user = 'root'
+    prefix(distInstallPath)
 
     //packaging includes the shadowDistZip contents, exclude *.bat
     from(zipTree(shadowDistZip.outputs.files.singleFile)) {
@@ -291,7 +292,9 @@ ospackage {
     def archivedir=shadowDistZip.archiveName - ".${shadowDistZip.extension}"
 
     //symlink /usr/bin/rd to the rd script
-    link("/usr/bin/${applicationName}", "${distInstallPath}/${archivedir}/bin/${applicationName}")
+    postInstall("""
+/bin/ln -s \${RPM_INSTALL_PREFIX:-${distInstallPath}}/${archivedir}/bin/${applicationName} /usr/bin/${applicationName} 
+""")
 }
 
 //depend on the shadow artifact
