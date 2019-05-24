@@ -15,7 +15,7 @@
  */
 
 
-def patterns = [
+def components = [
         rpm: [pattern: '*.rpm', dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
         deb: [pattern: '*.deb', dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
         api: [pattern: '*.jar', dir: "rd-api-client/build/libs", name: 'rd-api-client', desc: 'Rundeck API Lib'],
@@ -33,10 +33,10 @@ def component = (
         project.hasProperty('component') ? project.property('component') :
         System.getenv('BINTRAY_UPLOAD_COMPONENT')
 )
-if (!component || !patterns.containsKey(component)) {
+if (!component || !components.containsKey(component)) {
     throw new Exception(
-            "Component for upload not specified or invalid. Use gradle property -Pcomponent or env var BINTRAY_UPLOAD_COMPONENT.\n" +
-            "Valid values: rpm, deb, api"
+            "Component for upload not specified or invalid (${component}). Use gradle property -Pcomponent or env var BINTRAY_UPLOAD_COMPONENT.\n" +
+            "Valid values: ${components.keySet()}"
     )
 }
 //
@@ -44,13 +44,13 @@ if (!component || !patterns.containsKey(component)) {
 //        System.getenv('BINTRAY_GPG_PASSWORD')
 
 if (bintrayUser && bintrayKey && bintrayRepo) {
-    def includePat = patterns[component].pattern
+    def includePat = components[component].pattern
     apply plugin: 'com.jfrog.bintray'
     bintray {
         user = bintrayUser
         key = bintrayKey
         filesSpec {
-            from(patterns[component].dir) {
+            from(components[component].dir) {
                 include includePat
             }
             into "."
@@ -59,7 +59,7 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
         publish = true
         override = true
         pkg {
-            name = patterns[component].name
+            name = components[component].name
             repo = bintrayRepo
             if(bintrayUserOrg) {
                 userOrg = bintrayUserOrg
@@ -73,10 +73,9 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
 
             version {
                 name = rpmVersion
-                desc = "${patterns[component].desc} ${rpmVersion}"
+                desc = "${components[component].desc} ${rpmVersion}"
                 vcsTag = "v${rpmVersion}"
             }
         }
-
     }
 }
