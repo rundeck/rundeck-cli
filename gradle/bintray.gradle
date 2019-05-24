@@ -14,6 +14,13 @@
  * limitations under the License.
  */
 
+
+def patterns = [
+        rpm: [pattern: '*.rpm', dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
+        deb: [pattern: '*.deb', dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
+        api: [pattern: '*.jar', dir: "rd-api-client/build/libs", name: 'rd-api-client', desc: 'Rundeck API Lib'],
+]
+
 def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
 def bintrayKey = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') :
         System.getenv('BINTRAY_API_KEY')
@@ -21,20 +28,29 @@ def bintrayUserOrg = project.hasProperty('bintrayUserOrg') ? project.property('b
         System.getenv('BINTRAY_USER_ORG')
 def bintrayRepo = project.hasProperty('bintrayRepo') ? project.property('bintrayRepo') :
         System.getenv('BINTRAY_REPO')
-def debUpload = 'true' == (project.hasProperty('debUpload') ? project.property('debUpload') :
-        System.getenv('BINTRAY_DEB_UPLOAD'))
+
+def component = (
+        project.hasProperty('component') ? project.property('component') :
+        System.getenv('BINTRAY_UPLOAD_COMPONENT')
+)
+if (!component || !patterns.containsKey(component)) {
+    throw new Exception(
+            "Component for upload not specified or invalid. Use gradle property -Pcomponent or env var BINTRAY_UPLOAD_COMPONENT.\n" +
+            "Valid values: rpm, deb, api"
+    )
+}
 //
 //def bintrayPassphrase = project.hasProperty('bintray.gpg.password') ? project.property('bintray.gpg.password') :
 //        System.getenv('BINTRAY_GPG_PASSWORD')
 
 if (bintrayUser && bintrayKey && bintrayRepo) {
-    def includePat = debUpload ? '*.deb' : '*.rpm'
+    def includePat = patterns[component].pattern
     apply plugin: 'com.jfrog.bintray'
     bintray {
         user = bintrayUser
         key = bintrayKey
         filesSpec {
-            from ("$buildDir/distributions"){
+            from(patterns[component].dir) {
                 include includePat
             }
             into "."
@@ -43,7 +59,7 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
         publish = true
         override = true
         pkg {
-            name = 'rundeck-cli'
+            name = patterns[component].name
             repo = bintrayRepo
             if(bintrayUserOrg) {
                 userOrg = bintrayUserOrg
@@ -57,7 +73,7 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
 
             version {
                 name = rpmVersion
-                desc = "Rundeck CLI Tools ${rpmVersion}"
+                desc = "${patterns[component].desc} ${rpmVersion}"
                 vcsTag = "v${rpmVersion}"
             }
         }
