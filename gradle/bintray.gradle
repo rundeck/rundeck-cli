@@ -29,21 +29,22 @@ def bintrayUserOrg = project.hasProperty('bintrayUserOrg') ? project.property('b
 def bintrayRepo = project.hasProperty('bintrayRepo') ? project.property('bintrayRepo') :
         System.getenv('BINTRAY_REPO')
 
-def component = (
-        project.hasProperty('component') ? project.property('component') :
-        System.getenv('BINTRAY_UPLOAD_COMPONENT')
-)
-if (!component || !components.containsKey(component)) {
-    throw new Exception(
-            "Component for upload not specified or invalid (${component}). Use gradle property -Pcomponent or env var BINTRAY_UPLOAD_COMPONENT.\n" +
-            "Valid values: ${components.keySet()}"
-    )
-}
 //
 //def bintrayPassphrase = project.hasProperty('bintray.gpg.password') ? project.property('bintray.gpg.password') :
 //        System.getenv('BINTRAY_GPG_PASSWORD')
 
 if (bintrayUser && bintrayKey && bintrayRepo) {
+
+    def component = (
+            project.hasProperty('component') ? project.property('component') :
+            System.getenv('BINTRAY_UPLOAD_COMPONENT')
+    )
+    if (!component || !components.containsKey(component)) {
+        throw new Exception(
+                "Component for upload not specified or invalid (${component}). Use gradle property -Pcomponent or env var BINTRAY_UPLOAD_COMPONENT.\n" +
+                "Valid values: ${components.keySet()}"
+        )
+    }
     def includePat = components[component].pattern
     apply plugin: 'com.jfrog.bintray'
     bintray {
