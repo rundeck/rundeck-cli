@@ -28,7 +28,7 @@ buildscript {
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.4.1'
     id 'groovy'
-    id 'com.github.johnrengelman.shadow' version '2.0.3'
+    id 'com.github.johnrengelman.shadow' version '5.0.0'
     id "nebula.ospackage" version "4.8.0"
 }
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
