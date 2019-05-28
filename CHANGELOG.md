@@ -1,3 +1,8 @@
+## 1.1.3
+
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.2...v1.1.3)
+
 ## 1.1.2
 
 * Add `rd executions metrics` (API v29) Execution Metrics API [#210](https://github.com/rundeck/rundeck-cli/pull/210)
