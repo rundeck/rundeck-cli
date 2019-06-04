@@ -16,9 +16,9 @@
 
 
 def components = [
-        rpm: [pattern: '*.rpm', dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
-        deb: [pattern: '*.deb', dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
-        api: [pattern: '*.jar', dir: "rd-api-client/build/libs", name: 'rd-api-client', desc: 'Rundeck API Lib'],
+        rpm: [patterns: ['*.rpm'], dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
+        deb: [patterns: ['*.deb'], dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
+        api: [patterns: ['*.jar','pom.xml'], dir: "rd-api-client/build/libs", name: 'rd-api-client', desc: 'Rundeck API Lib'],
 ]
 
 def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
@@ -45,14 +45,16 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
                 "Valid values: ${components.keySet()}"
         )
     }
-    def includePat = components[component].pattern
+
     apply plugin: 'com.jfrog.bintray'
     bintray {
         user = bintrayUser
         key = bintrayKey
         filesSpec {
             from(components[component].dir) {
-                include includePat
+                components[component].patterns.each {
+                    include it
+                }
             }
             into "."
         }

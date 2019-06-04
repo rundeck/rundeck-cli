@@ -20,6 +20,8 @@ apply plugin: 'idea'
 apply plugin: 'groovy'
 apply plugin: 'de.fuerstenau.buildconfig'
 
+group = 'org.rundeck.api'
+
 /**
  * Generates java source with embedded version info
  */
@@ -78,4 +80,50 @@ artifacts {
     archives testJar
     archives sourceJar
     archives javadocJar
+}
+ext.pomClosure =  {
+    project {
+        artifactId project.name
+        groupId project.group
+        inceptionYear '2017'
+        packaging 'jar'
+        version version
+        name "Rundeck API Library ${project.version}"
+        description project.description ?: 'Rundeck API Library'
+        url 'http://rundeck.org'
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+        scm {
+            url 'https://github.com/rundeck/rundeck-cli'
+            connection 'scm:git:git@github.com/rundeck/rundeck-cli.git'
+            developerConnection 'scm:git:git@github.com:rundeck/rundeck-cli.git'
+        }
+        developers {
+            developer {
+                id('gschueler')
+                name('Greg Schueler')
+                email('greg@rundeck.com')
+            }
+        }
+        parent {
+            groupId('org.sonatype.oss')
+            artifactId('oss-parent')
+            version('7')
+        }
+    }
+}
+//
+//install{
+//    repositories.mavenInstaller {
+//        pom(pomClosure)
+//    }
+//}
+
+task('createPom').doLast {
+    pom(pomClosure).writeTo("${buildDir}/poms/${project.name}-${project.version}.pom")
 }
