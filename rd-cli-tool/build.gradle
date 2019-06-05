@@ -24,16 +24,17 @@ buildscript {
 }
 plugins {
     id 'groovy'
-    id 'com.github.johnrengelman.shadow' version '2.0.3'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
     id "nebula.ospackage" version "4.8.0"
-    id 'maven'
+//    id 'maven'
 }
 
 apply plugin: 'idea'
-apply plugin: 'groovy'
-apply plugin: 'application'
+//apply plugin: 'groovy'
+//apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'nebula.ospackage'
+//apply plugin: 'nebula.ospackage'
 
 mainClassName = 'org.rundeck.client.tool.Main'
 applicationName = 'rd'
