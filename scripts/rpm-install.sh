@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-rpmfile=$(ls build/distributions/rundeck-cli-*.noarch.rpm)
+rpmfile=$(ls rd-cli-tool/build/distributions/rundeck-cli-*.noarch.rpm)
 
 cp $rpmfile dockers/install/rpm/rundeck-cli-noarch.rpm
 docker build dockers/install/rpm -t rdcli-rpm-install
