@@ -15,12 +15,6 @@
  */
 
 
-def components = [
-        rpm: [patterns: ['*.rpm'], dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
-        deb: [patterns: ['*.deb'], dir: "$buildDir/distributions", name: 'rundeck-cli', desc: 'Rundeck CLI Tools'],
-        api: [patterns: ['*.jar','pom.xml'], dir: "rd-api-client/build/libs", name: 'rd-api-client', desc: 'Rundeck API Lib'],
-]
-
 def bintrayUser = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
 def bintrayKey = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') :
         System.getenv('BINTRAY_API_KEY')
@@ -34,6 +28,11 @@ def bintrayRepo = project.hasProperty('bintrayRepo') ? project.property('bintray
 //        System.getenv('BINTRAY_GPG_PASSWORD')
 
 if (bintrayUser && bintrayKey && bintrayRepo) {
+
+    def components = [
+            rpm: [pat: '*.rpm'],
+            deb: [pat: '*.deb'],
+    ]
 
     def component = (
             project.hasProperty('component') ? project.property('component') :
@@ -50,19 +49,20 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
     bintray {
         user = bintrayUser
         key = bintrayKey
+
         filesSpec {
-            from(components[component].dir) {
-                components[component].patterns.each {
-                    include it
-                }
+            from("$buildDir/distributions") {
+                include components[component].pat
             }
+
             into "."
         }
+
         dryRun = false
         publish = true
         override = true
         pkg {
-            name = components[component].name
+            name = 'rundeck-cli'
             repo = bintrayRepo
             if(bintrayUserOrg) {
                 userOrg = bintrayUserOrg
@@ -73,10 +73,16 @@ if (bintrayUser && bintrayKey && bintrayRepo) {
             issueTrackerUrl = 'https://github.com/rundeck/rundeck-cli/issues'
             githubRepo = 'rundeck/rundeck-cli' //Optional Github repository
             githubReleaseNotesFile = 'README.md' //Optional Github readme file
-
+            if(component=='deb'){
+                debian {
+                    distribution = 'any'
+                    component = 'main'
+                    architecture = 'noarch'
+                }
+            }
             version {
                 name = rpmVersion
-                desc = "${components[component].desc} ${rpmVersion}"
+                desc = "Rundeck CLI Tools ${rpmVersion}"
                 vcsTag = "v${rpmVersion}"
             }
         }

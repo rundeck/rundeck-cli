@@ -177,3 +177,6 @@ ospackage {
 buildDeb.dependsOn shadowDistZip
 buildRpm.dependsOn shadowDistZip
 assemble.dependsOn buildRpm, buildDeb
+
+
+apply from: '../gradle/bintray.gradle'
