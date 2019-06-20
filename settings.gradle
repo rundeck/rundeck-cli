@@ -14,4 +14,4 @@
  * limitations under the License.
  */
 
-include 'rd-api-client'
+include 'rd-api-client', 'rd-cli-tool'
