@@ -1,5 +1,8 @@
 ## 1.1.3
 
+* relocatable rpm
+* fixes for plugins commands
+* add `jobs forecast` command (api v32)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.2...v1.1.3)
 
