@@ -318,6 +318,38 @@ class JobsSpec extends Specification {
 
     }
 
+    def "job load with errors verbose output"() {
+        given:
+            def api = Mock(RundeckApi)
+            def opts = Mock(Jobs.Load) {
+                isProject() >> true
+                getProject() >> 'ProjectName'
+                getFormat() >> 'yaml'
+                isFile() >> true
+                getFile() >> tempFile
+                isVerbose() >> true
+            }
+            def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+            def client = new Client(api, retrofit, null, null, 17, true, null)
+            def hasclient = Mock(RdApp) {
+                getClient() >> client
+            }
+            Jobs jobs = new Jobs(hasclient)
+            def out = Mock(CommandOutput)
+            def resultItem = new JobLoadItem(error: 'Test Error', name: 'Job Name')
+        when:
+            jobs.load(opts, out)
+
+        then:
+            1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+            Calls.response(new ImportResult(succeeded: [], skipped: [], failed: [resultItem]))
+            0 * api._(*_)
+            1 * out.info('1 Jobs Failed:\n')
+            1 * out.output([resultItem])
+            0 * out._(*_)
+
+    }
+
     def "job forecast"() {
         given:
 

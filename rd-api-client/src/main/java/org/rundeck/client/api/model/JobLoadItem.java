@@ -20,6 +20,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict=false)
 public class JobLoadItem extends JobItem {
@@ -48,5 +51,14 @@ public class JobLoadItem extends JobItem {
         } else {
             return super.toBasicString();
         }
+    }
+
+    @Override
+    public Map<?, ?> asMap() {
+        HashMap<Object, Object> map = new HashMap<>(toMap());
+        if (null != error) {
+            map.put("error", getError());
+        }
+        return map;
     }
 }

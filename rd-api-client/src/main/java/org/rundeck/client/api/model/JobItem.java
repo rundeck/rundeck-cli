@@ -17,6 +17,7 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.rundeck.client.util.DataOutput;
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.Root;
@@ -27,7 +28,7 @@ import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 @Root(strict = false)
-public class JobItem {
+public class JobItem implements DataOutput {
     @Element(required = false)
     private String id;
     @Element
@@ -129,6 +130,11 @@ public class JobItem {
             map.put("averageDuration", getAverageDuration());
         }
         return map;
+    }
+
+    @Override
+    public Map<?, ?> asMap() {
+        return toMap();
     }
 
     public String toBasicString() {
