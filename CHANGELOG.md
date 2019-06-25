@@ -1,3 +1,11 @@
+## 1.1.4
+
+* fix [Issue #198](https://github.com/rundeck/rundeck-cli/issues/198) load jobs with verbose output shows error message
+* fix [Issue #202](https://github.com/rundeck/rundeck-cli/issues/202) format exec list for adhoc should work
+* Fix: deb/rpm install scripts to use correct build path
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.3...v1.1.4)
+
 ## 1.1.3
 
 * relocatable rpm
