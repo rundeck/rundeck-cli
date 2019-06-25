@@ -46,9 +46,9 @@ deploy:
   file_glob: true
   skip_cleanup: true
 after_deploy:
-- ./gradlew -p rd-cli-tool -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-rpm -Pcomponent=rpm bintrayUpload
-- ./gradlew -p rd-cli-tool -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-deb -Pcomponent=deb bintrayUpload
-- ./gradlew -p rd-api-client -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-maven bintrayUpload
+- ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-rpm -Pcomponent=rpm bintrayUpload
+- ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-deb -Pcomponent=deb bintrayUpload
+- ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-maven -Pcomponent=api bintrayUpload
 env:
   global:
   - secure: 2LDWRCZsuUYNUNHQz4oiaq9VIcdp0ziI7SKBxUxfqT4rehJ0J7kz+UPqwtgxMiUyQaHJQqzkcR+m6H3VZj9BREY+POiyu+yJOqhe3KRpDAfiN/gnwN81Nh9wloVaxyVe6i5yPaaBvE5vIREi7SAUdDtdsQ6WSkQ3JnaSL5Nz6e3DKR6+wgaTmBhh/TTW1YuN1qo5EjBpm0//M+KwY5BvVYOfPYLHCpVqnWFePQBkZY13lvufC5XPipXMf6c5Un/Uy6oVaRgLSPHDyELQvBzMSRPtzNmJSDm75LvclHHgDYEUcrcxRoWgAEISaBeIpGhe/PnsswCtQMfQBIm0W8Cv+HThbdCrrTdz/hWsohVvLFkCl9L8NOTOnATr2I9F0GBmsdhJvvr10JqGGol8Y9wwu5eiO9AWmchjZPicIWj5Dwo9E8AdT20aX4l287StESedS/Wtqh7gdf4d3Y1svWLEmh3gbERqOI9hRDV0DotfumhaW49SbaN/XecODiyPrnLBONSrYk1bWADDAvBZm/Jy0hvFbaVFFI8HfZMVJCO4GJJwna2MEMnsouNl2eDBFtvX5JHQ00JP4QacPFwW3/0NsgdaUGLiPSNezNJ1kBYtVbhQg4oL3yTkFaU6KuGhJcdSCVJUwOeP0YZF0oklofLhEhc4puzAi6EmGvLpMeh/huw=
