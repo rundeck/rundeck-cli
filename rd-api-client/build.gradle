@@ -132,7 +132,11 @@ def bintrayUserOrg = project.hasProperty('bintrayUserOrg') ? project.property('b
 def bintrayRepo = project.hasProperty('bintrayRepo') ? project.property('bintrayRepo') :
                   System.getenv('BINTRAY_REPO')
 
-if (bintrayUser && bintrayKey && bintrayRepo) {
+def component = (
+        project.hasProperty('component') ? project.property('component') :
+        System.getenv('BINTRAY_UPLOAD_COMPONENT')
+)
+if (component &&  ['api'].contains(component) && bintrayUser && bintrayKey && bintrayRepo) {
 
     apply plugin: 'com.jfrog.bintray'
     bintray {
