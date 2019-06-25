@@ -24,6 +24,8 @@ import com.lexicalscope.jewel.cli.Option;
  * @since 4/10/17
  */
 public interface ProjectRequiredNameOptions {
-    @Option(shortName = "p", longName = "project", description = "Project name")
+    static final String PROJECT_NAME_PATTERN = "^[-_a-zA-Z0-9+][-\\._a-zA-Z0-9+]*$";
+
+    @Option(shortName = "p", longName = "project", description = "Project name", pattern = PROJECT_NAME_PATTERN)
     String getProject();
 }

@@ -28,6 +28,9 @@ import retrofit2.Call;
 
 import java.io.IOException;
 import java.util.function.Function;
+import java.util.regex.Pattern;
+
+import static org.rundeck.client.tool.options.ProjectRequiredNameOptions.PROJECT_NAME_PATTERN;
 
 /**
  * Base type for commands in Rd
@@ -168,7 +171,18 @@ public abstract class AppCommand  {
             return options.getProject();
         }
         try {
-            return getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
+            String
+                    rd_project =
+                    getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
+            Pattern pat = Pattern.compile(PROJECT_NAME_PATTERN);
+            if (!pat.matcher(rd_project).matches()) {
+                throw new InputError(String.format(
+                        "Cannot match (%s) to pattern: /%s/ : RD_PROJECT",
+                        rd_project,
+                        PROJECT_NAME_PATTERN
+                ));
+            }
+            return rd_project;
         } catch (ConfigSource.ConfigSourceError configSourceError) {
             throw new InputError(configSourceError.getMessage());
         }
