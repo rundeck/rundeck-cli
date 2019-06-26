@@ -1,3 +1,4 @@
+import java.text.SimpleDateFormat
 
 buildscript {
     repositories {
@@ -5,6 +6,7 @@ buildscript {
     }
 }
 plugins{
+    id "org.dvaske.gradle.git-build-info" version "0.8"
     id 'de.fuerstenau.buildconfig' version '1.1.8'
     id 'maven'
     id 'maven-publish'
@@ -30,6 +32,19 @@ group = 'org.rundeck.api'
 buildConfig {
     clsName = 'Version'
     packageName = 'org.rundeck.client'
+    buildConfigField 'String', 'GIT_COMMIT', {
+        project.gitCommit
+    }
+    buildConfigField 'String', 'GIT_BRANCH', {
+        project.gitBranch
+    }
+    buildConfigField 'String', 'GIT_DESCRIPTION', {
+        project.gitDescribeInfo
+    }
+    buildConfigField 'String', 'BUILD_DATE', {
+        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").format(new Date())
+    }
+
 }
 
 
