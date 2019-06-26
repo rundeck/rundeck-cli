@@ -1,3 +1,11 @@
+## 1.1.5
+
+* Fix [Issue #242](https://github.com/rundeck/rundeck-cli/issues/242) overwrite symlink if present, and remove on uninstall, add tests
+* fix: travis deploy for maven doesn't work
+* Fix [Issue #180](https://github.com/rundeck/rundeck-cli/issues/180) prevent invalid project name
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.4...v1.1.5)
+
 ## 1.1.4
 
 * fix [Issue #198](https://github.com/rundeck/rundeck-cli/issues/198) load jobs with verbose output shows error message
