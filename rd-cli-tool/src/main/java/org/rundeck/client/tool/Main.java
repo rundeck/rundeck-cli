@@ -179,7 +179,8 @@ public class Main {
                                         new Something(),
                                         new Retry(rd),
                                         new Metrics(rd),
-                                        new Plugins(rd)
+                                        new Plugins(rd),
+                                        new Version()
                                 )
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
