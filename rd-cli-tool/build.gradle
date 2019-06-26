@@ -168,7 +168,12 @@ ospackage {
     //symlink /usr/bin/rd to the rd script
     postInstall(
             """
-/bin/ln -s \${RPM_INSTALL_PREFIX:-${distInstallPath}}/${archivedir}/bin/${applicationName} /usr/bin/${applicationName} 
+/bin/ln -sf \${RPM_INSTALL_PREFIX:-${distInstallPath}}/${archivedir}/bin/${applicationName} /usr/bin/${applicationName} 
+"""
+    )
+    postUninstall(
+            """
+rm /usr/bin/${applicationName} 
 """
     )
 }

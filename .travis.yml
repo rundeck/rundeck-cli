@@ -24,6 +24,8 @@ jobs:
       script: bash scripts/deb-install.sh
     - stage: rpm install test
       script: bash scripts/rpm-install.sh
+    - stage: rpm upgrade test
+      script: bash scripts/rpm-upgrade.sh
 after_success:
 - mkdir $HOME/.gnupg
 - openssl aes-256-cbc -K $encrypted_168997f84686_key -iv $encrypted_168997f84686_iv
