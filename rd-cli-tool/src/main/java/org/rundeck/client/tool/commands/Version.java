@@ -26,6 +26,7 @@ public class Version {
             output.output("GIT_DESCRIPTION: " + org.rundeck.client.Version.GIT_DESCRIPTION);
             output.output("BUILD_DATE: " + org.rundeck.client.Version.BUILD_DATE);
             output.output("API_VERS: " + RundeckClient.API_VERS);
+            output.output("USER_AGENT: " + Main.USER_AGENT);
         } else {
             output.output(org.rundeck.client.Version.VERSION);
         }

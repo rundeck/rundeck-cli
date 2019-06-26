@@ -57,6 +57,9 @@ public class Main {
     public static final String ENV_AUTH_PROMPT   = "RD_AUTH_PROMPT";
     public static final String ENV_DEBUG         = "RD_DEBUG";
     public static final String ENV_RD_FORMAT     = "RD_FORMAT";
+    public static final String
+            USER_AGENT =
+            RundeckClient.Builder.getUserAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
 
     public static void main(String[] args) throws CommandRunFailure {
         Rd rd = new Rd(new Env());
@@ -348,6 +351,7 @@ public class Main {
             builder.passwordAuth(auth.getUsername(), auth.getPassword());
         }
         builder.logger(new OutputLogger(config.getOutput()));
+        builder.userAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
         return builder.build();
 
     }

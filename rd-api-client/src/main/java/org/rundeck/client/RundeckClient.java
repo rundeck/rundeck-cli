@@ -72,6 +72,7 @@ public class RundeckClient {
         Integer apiVersion;
         boolean allowVersionDowngrade;
         Client.Logger logger;
+        private String userAgent = USER_AGENT;
 
         Builder() {
             this.okhttp = new OkHttpClient.Builder();
@@ -160,6 +161,20 @@ public class RundeckClient {
             return this;
         }
 
+        /**
+         * Sets user agent string, the rd-api-client version will be appended
+         *
+         * @param ua user agent string
+         */
+        public Builder userAgent(String ua) {
+            this.userAgent = getUserAgent(ua);
+            return this;
+        }
+
+        public static String getUserAgent(final String info) {
+            return String.format("%s (%s)", info, USER_AGENT);
+        }
+
         private static void buildTokenAuth(
                 final OkHttpClient.Builder builder,
                 final String baseUrl,
@@ -236,7 +251,7 @@ public class RundeckClient {
             //detected final version
             int usedApiVers = apiVersionForUrl(apiBaseUrl, API_VERS);
 
-            okhttp.addInterceptor(new StaticHeaderInterceptor("User-Agent", USER_AGENT));
+            okhttp.addInterceptor(new StaticHeaderInterceptor("User-Agent", userAgent));
 
 
             Retrofit build = new Retrofit.Builder()
