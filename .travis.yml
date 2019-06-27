@@ -16,15 +16,22 @@ addons:
     - expect
     - rpm
     - gnupg
+stages:
+  - name: build
+  - name: test
+  - name: upgrade-test
+    if: tag IS blank
 jobs:
   include:
-    - stage: test
+    - stage: build
       script: ./gradlew clean build
-    - stage: deb install test
+    - stage: test
+      env: JOB='deb install test'
       script: bash scripts/deb-install.sh
-    - stage: rpm install test
+    - env: JOB='rpm install test'
       script: bash scripts/rpm-install.sh
-    - stage: rpm upgrade test
+    - stage: upgrade-test
+      env: JOB='rpm upgrade test'
       script: bash scripts/rpm-upgrade.sh
 after_success:
 - mkdir $HOME/.gnupg
