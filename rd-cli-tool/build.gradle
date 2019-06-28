@@ -53,7 +53,7 @@ ext.toolbeltVersion = "0.2.4"
 ext.toolbeltGroup = "${toolbeltVersion.contains('SNAPSHOT') ? 'org' : 'com.github'}.rundeck.cli-toolbelt"
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:1.16.16"
+    compileOnly "org.projectlombok:lombok:1.18.8"
     annotationProcessor "org.projectlombok:lombok:1.16.16"
 
     compile project(":rd-api-client")
