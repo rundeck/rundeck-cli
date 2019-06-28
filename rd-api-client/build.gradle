@@ -63,7 +63,7 @@ dependencies {
     testCompile 'com.squareup.retrofit2:retrofit-mock:2.1.0'
     testCompile 'com.squareup.okhttp3:mockwebserver:3.5.0'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '1.10.19'
-    testCompile "org.codehaus.groovy:groovy-all:2.3.7"
+    testCompile "org.codehaus.groovy:groovy-all:2.5.7"
     testCompile "org.spockframework:spock-core:0.7-groovy-2.0"
 }
 
