@@ -4,6 +4,16 @@ title: Changes
 permalink: /changes/
 ---
 
+## 1.1.6
+
+* Fix [Issue #250](https://github.com/rundeck/rundeck-cli/issues/250) update signing script build dir path
+* Fix [Issue #245](https://github.com/rundeck/rundeck-cli/issues/245) skip upgrade test on tag build
+* update user agent string, allow customizing it in api client lib
+* add `rd version` command for version info
+* fix: postUninstall should not remove symlink after upgrade
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.5...v1.1.6)
+
 ## 1.1.5
 
 * Fix [Issue #242](https://github.com/rundeck/rundeck-cli/issues/242) overwrite symlink if present, and remove on uninstall, add tests
