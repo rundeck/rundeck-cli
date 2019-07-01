@@ -6,7 +6,7 @@ set -euo pipefail
 IFS=$'\n\t'
 readonly ARGS=("$@")
 
-DIST_DIR=${ARGS[0]:-build/distributions}
+DIST_DIR=${ARGS[0]?dist dir is required}
 KEYID=${SIGNING_KEYID:-}
 PASSWORD=${SIGNING_PASSWORD:-}
 GPG_PATH=${GPG_PATH:-}
@@ -20,6 +20,9 @@ die(){
 }
 
 check_env(){
+    if test -z "$DIST_DIR"; then
+        die "arg DIST_DIR was not set"
+    fi
     if test -z "$KEYID"; then
         die "ENV var SIGNING_KEYID was not set"
     fi
