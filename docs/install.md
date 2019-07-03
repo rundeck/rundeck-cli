@@ -52,14 +52,14 @@ optional: enable all gpg checks:
 ~~~{.sh}
 $ sed -i.bak s/gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/bintray.repo
 $ echo "gpgkey=https://bintray.com/user/downloadSubjectPublicKey?username=bintray" >> /etc/yum.repos.d/bintray.repo
-$ rpm --import http://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key 
+$ rpm --import https://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key
 ~~~
 
 optional: enable only rpm gpg checks:
 
 ~~~{.sh}
 $ sed -i.bak s/^gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/bintray.repo
-$ echo "gpgkey=http://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key" >> /etc/yum.repos.d/bintray.repo 
+$ echo "gpgkey=https://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key" >> /etc/yum.repos.d/bintray.repo
 ~~~
 
 ### Debian usage
