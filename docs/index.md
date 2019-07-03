@@ -6,31 +6,18 @@ layout: page
 title: RD
 ---
 
-# Version {{ site.app_version }}
+The CLI tool for [Rundeck](https://github.com/rundeck/rundeck)
 
-* [View on Github]({{site.github_url}})
-* Have a problem? [File an issue]({{site.github_url}}/issues)
+Version                  | Requirements 
+|-------------------------------------------
+   {{ site.app_version }} |   Java 8     
 
-This is the new CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
+* [Change Log]({{site.url}}{{site.baseurl}}/changes/) 
+* [Source Code on Github]({{site.github_url}}) 
+* [Issues]({{site.github_url}}/issues)
 
-Its goal is to replace the old CLI Tools currently included with Rundeck
-with a modernized, extensible, and nicer implementation.
+## Documentation
 
-The functionality of previous "rd-*" tools (from Rundeck) is now split into subcommands.
-
-## Requirements
-
-Java 8
-
-# Change Log 
-
-[Change Log]({{site.url}}{{site.baseurl}}/changes/)
-
-## Pages
-
-{% for post in site.categories.doc %}
-* [{{ post.title }}]({{ post.permalink }})
-{% endfor %}
 
 * [Install]({{site.url}}{{site.baseurl}}/install)
 * [Configuration]({{site.url}}{{site.baseurl}}/configuration)
