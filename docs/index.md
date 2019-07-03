@@ -25,3 +25,5 @@ Version                  | Requirements
 * [Commands]({{site.url}}{{site.baseurl}}/commands)
 * [Scripting]({{site.url}}{{site.baseurl}}/scripting)
 * [Java API Library]({{site.url}}{{site.baseurl}}/javalib)
+{% for post in site.documentation %}* [{{ post.title }}]({{site.url}}{{site.baseurl}}{{ post.permalink }})
+{% endfor %}
