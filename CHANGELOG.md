@@ -1,3 +1,9 @@
+## 1.1.7
+
+* Update gpg key fix [Issue #252](https://github.com/rundeck/rundeck-cli/issues/252)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.6...v1.1.7)
+
 ## 1.1.6
 
 * Fix [Issue #250](https://github.com/rundeck/rundeck-cli/issues/250) update signing script build dir path
