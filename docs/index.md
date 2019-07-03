@@ -37,3 +37,4 @@ Java 8
 * [SSL Configuration]({{site.url}}{{site.baseurl}}/configuration/ssl/)
 * [Commands]({{site.url}}{{site.baseurl}}/commands)
 * [Scripting]({{site.url}}{{site.baseurl}}/scripting)
+* [Java API Library]({{site.url}}{{site.baseurl}}/javalib)
