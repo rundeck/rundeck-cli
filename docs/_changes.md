@@ -1,6 +1,6 @@
 ---
 layout: page
-title: Changes
+title: Change Log
 permalink: /changes/
 ---
 
