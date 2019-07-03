@@ -21,6 +21,7 @@ stages:
   - name: test
   - name: upgrade-test
     if: tag IS blank
+  - name: sign
 jobs:
   include:
     - stage: build
@@ -33,12 +34,14 @@ jobs:
     - stage: upgrade-test
       env: JOB='rpm upgrade test'
       script: bash scripts/rpm-upgrade.sh
-after_success:
-- mkdir $HOME/.gnupg
-- openssl aes-256-cbc -K $encrypted_168997f84686_key -iv $encrypted_168997f84686_iv
-  -in gpg.tar.enc -out gpg.tar -d
-- tar xv -C $HOME/.gnupg -f gpg.tar
-- GPG_PATH=$HOME/.gnupg ./travis-sign-rpm.sh rd-cli-tool/build/distributions
+    - stage: sign
+      env: JOB='rpm signing'
+      script:
+        - test -d $HOME/.gnupg || mkdir $HOME/.gnupg
+        - openssl aes-256-cbc -K $encrypted_168997f84686_key -iv $encrypted_168997f84686_iv
+          -in gpg.tar.enc -out gpg.tar -d
+        - test -f gpg.tar && tar xv -C $HOME/.gnupg -f gpg.tar
+        - test -f $HOME/.gnupg/secring.gpg && GPG_PATH=$HOME/.gnupg ./travis-sign-rpm.sh rd-cli-tool/build/distributions
 deploy:
   provider: releases
   api_key:
