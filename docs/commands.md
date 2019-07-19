@@ -35,7 +35,7 @@ Dispatch adhoc COMMAND to matching nodes.
 		[--keepgoing -K] : Keep going when an error occurs on multiple dispatch
 		[--progress -r] : Do not echo log text, just an indicator that output is being received.
 		--project -p value : Project name
-		[--quiet -q] : Echo no output, just wait until the execution completes.
+		[--quiet -q] : Echo no output. Combine with -f/--follow to wait silently until the execution completes. Useful for non-interactive scripts.
 		[--restart -t] : Restart from the beginning
 		[--script -s value] : Dispatch specified script file
 		[--stdin -S] : Execute input read from STDIN
@@ -204,7 +204,7 @@ Run a Job.
          [--loglevel -l /(verbose|info|warning|error)/] : Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.
          [--progress -r] : Do not echo log text, just an indicator that output is being received.
          [--project -p value] : Project name
-         [--quiet -q] : Echo no output, just wait until the execution completes.
+         [--quiet -q] : Echo no output. Combine with -f/--follow to wait silently until the execution completes. Useful for non-interactive scripts.
          [--restart -t] : Restart from the beginning
          [--at -@ value] : Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ss'Z')
          [--delay -d /(\d+[smhdwMY]\s*)+/] : Run the job at a certain time from now. Format: ##[smhdwMY] where ## is an integer and the units are seconds, minutes, hours, days, weeks, Months, Years. Can combine units, e.g. "2h30m", "20m30s"
