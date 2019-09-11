@@ -1,0 +1,25 @@
+---
+---
+
+@import "minima";
+
+table, dl{
+	margin-bottom: 15px;
+}
+
+table{
+	border-collapse: collapse;
+}
+table td, table th{
+	border: 1px solid #e8e8e8;
+	padding: 5px;
+}
+
+dl {
+	dt{
+		font-weight: bold;
+	}
+	dt + dd{
+		margin-left: 1em;
+	}
+}
