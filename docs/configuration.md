@@ -19,6 +19,8 @@ you have exported in your shell, you can define config values like:
 
 Which will default the value unless you have already exported `RD_URL`.
 
+**Note**: Using RD_CONF or the default `~/.rd/rd.conf` file requires invoking `rd` via the script included in the zip/deb/rpm installation.  If you invoke it via `java -jar rd-cli.jar` directly, the environment variables in the rd.conf file will not be used.  You will have to export those variables into your shell first.
+
 ## Connection Info
 
 	export RD_URL=http://rundeck:4440
