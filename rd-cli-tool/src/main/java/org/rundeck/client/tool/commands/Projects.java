@@ -52,7 +52,8 @@ public class Projects extends AppCommand implements HasSubCommands {
                 new SCM(getRdApp()),
                 new Readme(getRdApp()),
                 new Configure(getRdApp()),
-                new Archives(getRdApp())
+                new Archives(getRdApp()),
+                new Mode(getRdApp())
         );
     }
 
@@ -158,5 +159,4 @@ public class Projects extends AppCommand implements HasSubCommands {
         ProjectItem body = apiCall(api -> api.createProject(project));
         output.info(String.format("Created project: \n\t%s%n", body.toBasicString()));
     }
-
 }

@@ -20,6 +20,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.*;
+import org.rundeck.client.api.model.executions.EnableLater;
 import org.rundeck.client.api.model.executions.MetricsResponse;
 import org.rundeck.client.api.model.metrics.EndpointListResult;
 import org.rundeck.client.api.model.metrics.HealthCheckStatus;
@@ -1303,6 +1304,26 @@ public interface RundeckApi {
             @Path("jobid") String jobid,
             @Query("time") String time,
             @Query("max") String max
+    );
+
+    @Headers("Accept: application/json")
+    @POST("system/executions/enable/later")
+    Call<ExecutionModeLaterResponse> executionModeEnableLater(@Body EnableLater value);
+
+    @Headers("Accept: application/json")
+    @POST("system/executions/disable/later")
+    Call<ExecutionModeLaterResponse> executionModeDisableLater(@Body EnableLater value);
+
+    @Headers("Accept: application/json")
+    @POST("project/{project}/enable/later")
+    Call<ExecutionModeLaterResponse> projectExecutionModeEnableLater(
+            @Path("project") String project, @Body ProjectExecutionModeLater value
+    );
+
+    @Headers("Accept: application/json")
+    @POST("project/{project}/disable/later")
+    Call<ExecutionModeLaterResponse> projectExecutionModeDisableLater(
+            @Path("project") String project, @Body ProjectExecutionModeLater value
     );
 
 }
