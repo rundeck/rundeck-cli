@@ -3,9 +3,7 @@ package org.rundeck.client.tool.options;
 import com.lexicalscope.jewel.cli.Option;
 
 public interface ProjectExecutionModeLaterOptions extends BaseOptions {
-
-    static final String TIME_PATTERN = "^[-_a-zA-Z0-9+][-\\._a-zA-Z0-9+]*$";
-
+    
     @Option(shortName = "p", longName = "project", description = "Project Name")
     String getProject();
 
