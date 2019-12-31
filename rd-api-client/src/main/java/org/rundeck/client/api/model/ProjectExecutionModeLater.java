@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ProjectExecutionModeLater {
 
-    String type;
-    String value;
+    private String type;
+    private String value;
 
     public String getType() {
         return type;

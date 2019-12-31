@@ -5,8 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ExecutionModeLaterResponse {
 
-    boolean saved;
-    String msg;
+    private boolean saved;
+    private String msg;
 
     public boolean isSaved() {
         return saved;
