@@ -3,7 +3,7 @@ package org.rundeck.client.api.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class ExecutionModeLaterResponse {
+public class ExecutionModeLaterResponse extends ErrorResponse{
 
     private boolean saved;
     private String msg;

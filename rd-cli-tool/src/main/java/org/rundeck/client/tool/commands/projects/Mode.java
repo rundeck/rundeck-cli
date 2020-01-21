@@ -7,6 +7,7 @@ import org.rundeck.client.api.model.ExecutionModeLaterResponse;
 import org.rundeck.client.api.model.ProjectExecutionModeLater;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.commands.ExecutionLaterResponseHandler;
 import org.rundeck.client.tool.options.ProjectExecutionModeLaterOptions;
 import org.rundeck.client.tool.options.QuietOption;
 import org.rundeck.client.util.Client;
@@ -55,7 +56,7 @@ public class Mode extends AppCommand {
 
         checkValidationError(output,getRdApp().getClient(),execute);
 
-        ExecutionModeLaterResponse response = getRdApp().getClient().checkError(execute);
+        ExecutionModeLaterResponse response = ExecutionLaterResponseHandler.handle(execute, output);
 
         if (!opts.isQuiet()) {
             if(response.isSaved()){
@@ -63,7 +64,7 @@ public class Mode extends AppCommand {
                 output.output(response.getMsg());
             }else{
                 output.warning(String.format("%s mode wasn't save", opts.getType() ));
-                output.output(response.getMsg());
+                output.warning(response.getMsg());
             }
         }
 
@@ -90,7 +91,7 @@ public class Mode extends AppCommand {
 
         checkValidationError(output,getRdApp().getClient(),execute);
 
-        ExecutionModeLaterResponse response = getRdApp().getClient().checkError(execute);
+        ExecutionModeLaterResponse response = ExecutionLaterResponseHandler.handle(execute, output);
 
         if (!opts.isQuiet()) {
             if(response.isSaved()){
@@ -98,7 +99,7 @@ public class Mode extends AppCommand {
                 output.output(response.getMsg());
             }else{
                 output.warning(String.format("%s mode wasn't save", opts.getType() ));
-                output.output(response.getMsg());
+                output.warning(response.getMsg());
             }
         }
 
@@ -121,7 +122,12 @@ public class Mode extends AppCommand {
             );
 
             if (null != error) {
-                output.error(error.getMsg());
+                if(error.getErrorMessage()!=null){
+                    output.error(error.getErrorMessage());
+                }
+                if(error.getMsg()!=null){
+                    output.error(error.getMsg());
+                }
             }
 
             throw new RequestFailed(String.format(

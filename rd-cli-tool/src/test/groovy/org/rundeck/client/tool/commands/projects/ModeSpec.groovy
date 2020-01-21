@@ -209,4 +209,51 @@ class ModeSpec extends Specification {
         1 * out.error("Error saving execution mode")
 
     }
+
+    def "enable execution later failed, endpoint doest exists"(){
+
+        given:
+
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 34, true, new Main.OutputLogger(out))
+
+        def appConfig = Mock(RdClientConfig)
+
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> appConfig
+        }
+
+        def opts = Mock(Mode.ModeActiveLater) {
+            getProject() >> 'aproject'
+            getType() >> 'executions'
+            getTimeValue() >> '30m'
+        }
+
+        Mode projectExecutionMode = new Mode(hasclient)
+
+        when:
+
+        projectExecutionMode.enableLater(opts, out)
+
+        then:
+
+        1 * api.projectExecutionModeEnableLater('aproject',_) >>
+                Calls.response(
+                        Response.error(404, ResponseBody.create(
+                                Client.MEDIA_TYPE_JSON,
+                                '{"Error": "Invalid API Request: /api/29/project/Demo/enable/later"}'
+                        )
+                        )
+                )
+
+        0 * out.info("executions will be enable after 30m")
+        1 * out.error("Server returned a 404. Either you don\'t have access to the API or the execution later plugin feature is not enabled.")
+        1 * out.warning('Error processing API')
+    }
 }
