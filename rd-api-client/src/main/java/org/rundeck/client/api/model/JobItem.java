@@ -31,7 +31,7 @@ import java.util.Map;
 public class JobItem implements DataOutput {
     @Element(required = false)
     private String id;
-    @Element
+    @Element(required = false)
     private String name;
     @Element(required = false)
     private String group;
@@ -138,7 +138,7 @@ public class JobItem implements DataOutput {
     }
 
     public String toBasicString() {
-        return String.format("%s %s%s", id, group != null ? group + "/" : "", name);
+        return String.format("%s %s%s", id, group != null ? group + "/" : "", name != null ? name : "");
     }
 
     public Long getAverageDuration() {

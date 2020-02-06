@@ -45,7 +45,7 @@ public class JobLoadItem extends JobItem {
                     "[%s] %s%s\n\t:%s",
                     getId() != null ? getId() : "id:?",
                     getGroup() != null ? getGroup() + "/" : "",
-                    getName(),
+                    getName() != null ? getName() : "(missing name)",
                     getError()
             );
         } else {
