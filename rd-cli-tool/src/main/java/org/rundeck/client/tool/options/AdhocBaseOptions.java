@@ -40,7 +40,6 @@ public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions, Nod
     boolean isKeepgoing();
 
 
-
     @Option(shortName = "s", longName = "script", description = "Dispatch specified script file")
     File getScriptFile();
 
@@ -51,6 +50,19 @@ public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions, Nod
     URL getUrl();
 
     boolean isUrl();
+
+    @Option(shortName = "i", longName = "interpreter", description = "Script interpreter string")
+    String getScriptInterpreter();
+
+    boolean isScriptInterpreter();
+
+    @Option(shortName = "Q", longName = "quoted", description = "Use quoted args")
+    boolean isArgsQuoted();
+
+    @Option(shortName = "x", longName = "extension", description = "File extension to use for temporary script")
+    String getFileExtension();
+
+    boolean isFileExtension();
 
     @Option(shortName = "S", longName = "stdin", description = "Execute input read from STDIN")
     boolean isStdin();
