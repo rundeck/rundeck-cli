@@ -108,6 +108,6 @@ class AppCommandSpec extends Specification {
 
         then:
         RequestFailed e = thrown()
-        e.message=='Request failed: 400 null'
+        e.message=='Request failed: 400 Response.error()'
     }
 }

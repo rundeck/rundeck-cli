@@ -37,6 +37,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -89,6 +90,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -96,6 +98,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -103,6 +106,7 @@ class FormAuthInterceptorSpec extends Specification {
             request secondrequest
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -160,6 +164,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -168,6 +173,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 400
+            message 'error'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -219,6 +225,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -227,6 +234,7 @@ class FormAuthInterceptorSpec extends Specification {
             request new Request.Builder().url(baseurl + errorpath).build()
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -277,6 +285,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
@@ -285,6 +294,7 @@ class FormAuthInterceptorSpec extends Specification {
             request new Request.Builder().url(securityurl).build()
             protocol Protocol.HTTP_1_1
             code 200
+            message 'ok'
             body ResponseBody.create(MediaType.parse('text/html'), 'some html <form a="b" action="j_security_check" > blah')
             build()
         }
@@ -336,6 +346,7 @@ class FormAuthInterceptorSpec extends Specification {
             request firstrequest
             protocol Protocol.HTTP_1_1
             code 400
+            message 'error'
             body ResponseBody.create(MediaType.parse('text/html'), 'blah')
             build()
         }
