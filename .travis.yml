@@ -8,8 +8,8 @@ before_cache:
 - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
 cache:
   directories:
-  - $HOME/.gradle/caches/
-  - $HOME/.gradle/wrapper/
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
 addons:
   apt:
     packages:
@@ -17,32 +17,33 @@ addons:
     - rpm
     - gnupg
 stages:
-  - name: build
-  - name: test
-  - name: upgrade-test
-    if: tag IS blank
-  - name: sign
+- name: build
+- name: test
+- name: upgrade-test
+  if: tag IS blank
+- name: sign
 jobs:
   include:
-    - stage: build
-      script: ./gradlew clean build
-    - stage: test
-      env: JOB='deb install test'
-      script: bash scripts/deb-install.sh
-    - env: JOB='rpm install test'
-      script: bash scripts/rpm-install.sh
-    - stage: upgrade-test
-      env: JOB='rpm upgrade test'
-      script: bash scripts/rpm-upgrade.sh
-    - stage: sign
-      if: fork = false AND type = push AND tag =~ ^v
-      env: JOB='rpm signing'
-      script:
-        - test -d $HOME/.gnupg || mkdir $HOME/.gnupg
-        - openssl aes-256-cbc -K $encrypted_168997f84686_key -iv $encrypted_168997f84686_iv
-          -in gpg.tar.enc -out gpg.tar -d
-        - test -f gpg.tar && tar xv -C $HOME/.gnupg -f gpg.tar
-        - test -f $HOME/.gnupg/secring.gpg && GPG_PATH=$HOME/.gnupg ./travis-sign-rpm.sh rd-cli-tool/build/distributions
+  - stage: build
+    script: "./gradlew clean build"
+  - stage: test
+    env: JOB='deb install test'
+    script: bash scripts/deb-install.sh
+  - env: JOB='rpm install test'
+    script: bash scripts/rpm-install.sh
+  - stage: upgrade-test
+    env: JOB='rpm upgrade test'
+    script: bash scripts/rpm-upgrade.sh
+  - stage: sign
+    if: fork = false AND type = push AND tag =~ ^v
+    env: JOB='rpm signing'
+    script:
+    - test -d $HOME/.gnupg || mkdir $HOME/.gnupg
+    - openssl aes-256-cbc -K $encrypted_168997f84686_key -iv $encrypted_168997f84686_iv
+      -in gpg.tar.enc -out gpg.tar -d
+    - test -f gpg.tar && tar xv -C $HOME/.gnupg -f gpg.tar
+    - test -f $HOME/.gnupg/secring.gpg && GPG_PATH=$HOME/.gnupg ./travis-sign-rpm.sh
+      rd-cli-tool/build/distributions
 deploy:
   provider: releases
   api_key:
@@ -59,11 +60,12 @@ deploy:
   file_glob: true
   skip_cleanup: true
 after_deploy:
-- ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-rpm -Pcomponent=rpm bintrayUpload
-- ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-deb -Pcomponent=deb bintrayUpload
-- ./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-maven -Pcomponent=api bintrayUpload
+- "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-rpm
+  -Pcomponent=rpm bintrayUpload"
+- "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-deb
+  -Pcomponent=deb bintrayUpload"
+- "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-maven
+  -Pcomponent=api bintrayUpload"
 env:
   global:
   - secure: 2LDWRCZsuUYNUNHQz4oiaq9VIcdp0ziI7SKBxUxfqT4rehJ0J7kz+UPqwtgxMiUyQaHJQqzkcR+m6H3VZj9BREY+POiyu+yJOqhe3KRpDAfiN/gnwN81Nh9wloVaxyVe6i5yPaaBvE5vIREi7SAUdDtdsQ6WSkQ3JnaSL5Nz6e3DKR6+wgaTmBhh/TTW1YuN1qo5EjBpm0//M+KwY5BvVYOfPYLHCpVqnWFePQBkZY13lvufC5XPipXMf6c5Un/Uy6oVaRgLSPHDyELQvBzMSRPtzNmJSDm75LvclHHgDYEUcrcxRoWgAEISaBeIpGhe/PnsswCtQMfQBIm0W8Cv+HThbdCrrTdz/hWsohVvLFkCl9L8NOTOnATr2I9F0GBmsdhJvvr10JqGGol8Y9wwu5eiO9AWmchjZPicIWj5Dwo9E8AdT20aX4l287StESedS/Wtqh7gdf4d3Y1svWLEmh3gbERqOI9hRDV0DotfumhaW49SbaN/XecODiyPrnLBONSrYk1bWADDAvBZm/Jy0hvFbaVFFI8HfZMVJCO4GJJwna2MEMnsouNl2eDBFtvX5JHQ00JP4QacPFwW3/0NsgdaUGLiPSNezNJ1kBYtVbhQg4oL3yTkFaU6KuGhJcdSCVJUwOeP0YZF0oklofLhEhc4puzAi6EmGvLpMeh/huw=
-  - secure: "uWOoB6aY4wVByhGvLespKyHO+wGM2byeI/TTe2cphsEgUIasgfDFuNC/l8Ta+qVaAjHY0jm/4zmWUWB50oO/46iFTywWD0PYH256EPaQ7eSEXPXZbY1q9KNlGoVviaqFBwkjWhLcsPgyoi9ejVltkLnT+J0Pk+VIN8bTFaqRo9VyHpv3lCXIdksIX3RBc/C4s9bUyHYODKuvh+t6e4b+cjuXqzJGC1CNdwswZ1WUW9SsTWFlzxUKxkar5hDd9vuMSTLg7VmtnARRVyLI+OD6CYH4+oK8R4mCMCJZCDBxt3M4aaQFPFlkRCpdrZrMPWxlOADtfYziyjyPTk3EzKHhlkNaHPOCggOBFnx6OrzOIBv7XDIoPlldBMUyNWEAiTRQ1HEkcGk/ebe1bK1iqtwvU7MQWuJB0ywZ4WceUUHA49rUbxHzzWrUD7ghAe9nf2dspAXTPTXWsr5gcga1+LwBl/xvE/+F7iYY3lepgByhvjPUYGMM1JSe2DQL3M4OLYS65nkzRWsb+6E3RE7Sz8aXuPdaqop+Tdzelj5xFu17kpZOITInIMFabSZc5jWY+xujl5YVQY0DtKfTODqXNDptEq9S4iHnKioXV9qfTZ0AOmtyp45bVXYlUAOiEjN2jsjfs0w6fVFnGtBPOi4E8K0ZDchkE/WboWWCAq2L/m9mFbo="
-  - secure: "7+XXFQdjfAQ/uo+GVM3nElg6bzevXTQADL6rk1VAOH9+DpNM/TGSn248XG8rmjPA1MLU4Rb+O+9lAIAwe4YSKPWo/xzXyw1xMC2005UrfV+RDWwGZPhkN+/hzXIH5vaC6T5E6Mvg5fCny3/xCQNWRdeeN5toZxZDPdkBAyF1OwqE7DYP531sI5tg/TSP3vefsRCEz6tpUdD+sAFfJuI+tI1jBPaDGCsVFysDbfp5zmTWfn0eH70jUyfVSg9gioHT8T+yDMydxItNij91cPoWHcpCZItezu6zVsO1c0EKNGzGW8DT+2TAJv5iVC2k4EL+h6RwuvGIC9XbYNeTTb9yFshJqNOSffhYQ6p99yyElDYY78n+iZnRfEsAftOtniZ3NzGiS6VGMc0XSYSTmNY8PNlIZbfgdfseXfPX/a8Osz+4qMAIXWEbGMU4OMBAejMlVu9BZYBsgqXw4FzzWLmbWXQ2ovksNmxdohffy8QS6yPV6ceyVsF7WXkaeIand0NU6htDrkPZOuk2owSniZxFFFCUwm4o81B2nMf70y7Z9jjk9vmJ5zorWLsNWTnIkB8fJNkEgL/sEwaqz3g5ZYPGUAXVn5cTrY+QUaHPMqNTrftFSd7jarjf944zBZnYzFaE1gDoDGHWyaluqaIqf7f+X1zs+3mxGHKGiDrqp7A02ow="
