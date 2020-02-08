@@ -35,6 +35,7 @@ jobs:
     env: JOB='rpm upgrade test'
     script: bash scripts/rpm-upgrade.sh
   - stage: sign
+    if: fork = false AND type = push AND tag =~ ^v
     env: JOB='rpm signing'
     script:
     - test -d $HOME/.gnupg || mkdir $HOME/.gnupg
