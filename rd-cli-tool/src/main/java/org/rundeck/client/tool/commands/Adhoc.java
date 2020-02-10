@@ -22,6 +22,7 @@ import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.api.model.Execution;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.AdhocBaseOptions;
 import org.rundeck.client.tool.options.ExecutionResultOptions;
@@ -29,7 +30,6 @@ import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -140,7 +140,7 @@ public class Adhoc extends AppCommand {
             );
         }
 
-        return Executions.maybeFollow(getRdApp(), options, adhocResponse.execution.getId(), output);
+        return Executions.maybeFollow(this, options, adhocResponse.execution.getId(), output);
     }
 
 }

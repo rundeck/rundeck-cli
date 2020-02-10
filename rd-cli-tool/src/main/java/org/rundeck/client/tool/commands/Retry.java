@@ -25,7 +25,7 @@ import org.rundeck.client.tool.commands.jobs.Files;
 import org.rundeck.client.tool.options.RetryBaseOptions;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,7 +54,7 @@ public class Retry extends AppCommand {
     @Command(isDefault = true, isSolo = true)
     public boolean retry(RetryBaseOptions options, CommandOutput out) throws IOException, InputError {
         requireApiVersion("retry", 24);
-        String jobId = Run.getJobIdFromOpts(options, out, getRdApp(), () -> projectOrEnv(options));
+        String jobId = Run.getJobIdFromOpts(options, out, this, () -> projectOrEnv(options));
         String execId = options.getEid();
         if (null == jobId) {
             return false;
@@ -122,7 +122,7 @@ public class Retry extends AppCommand {
             for (String optionName : fileinputs.keySet()) {
                 File file = fileinputs.get(optionName);
                 JobFileUploadResult jobFileUploadResult = Files.uploadFileForJob(
-                        getRdApp(),
+                        this,
                         file,
                         jobId,
                         optionName
@@ -139,6 +139,6 @@ public class Retry extends AppCommand {
         String started = "started";
         out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
 
-        return Executions.maybeFollow(getRdApp(), options, execution.getId(), out);
+        return Executions.maybeFollow(this, options, execution.getId(), out);
     }
 }

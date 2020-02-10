@@ -18,8 +18,9 @@ package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.Simple
 import org.rundeck.client.api.model.scheduler.ForecastJobItem
+import org.rundeck.client.tool.InputError
 import org.rundeck.toolbelt.CommandOutput
-import org.rundeck.toolbelt.InputError
+
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi

@@ -18,9 +18,10 @@ package org.rundeck.client.tool.commands.projects;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
@@ -249,7 +250,7 @@ public class Archives extends AppCommand {
         boolean done = false;
         int perc = status.getPercentage();
         while (!done) {
-            ProjectExportStatus status1 = apiCall(client, api -> api.exportProjectStatus(project, status.getToken()));
+            ProjectExportStatus status1 = client.apiCall(api -> api.exportProjectStatus(project, status.getToken()));
             if (status1.getPercentage() > perc) {
                 out.output(".");
                 perc = status1.getPercentage();
@@ -261,8 +262,7 @@ public class Archives extends AppCommand {
         }
         if (done) {
             receiveArchiveFile(out,
-                               apiCall(
-                                       client,
+                               client.apiCall(
                                        api -> api.exportProjectDownload(project, status.getToken())
                                ), outputfile
             );

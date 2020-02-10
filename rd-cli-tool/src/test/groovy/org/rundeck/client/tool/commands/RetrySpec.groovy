@@ -20,11 +20,12 @@ import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobFileUploadResult
 import org.rundeck.client.api.model.JobRun
+import org.rundeck.client.tool.InputError
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.options.RetryBaseOptions
 import org.rundeck.client.util.Client
 import org.rundeck.toolbelt.CommandOutput
-import org.rundeck.toolbelt.InputError
+
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification

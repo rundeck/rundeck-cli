@@ -56,7 +56,7 @@ dependencies {
     compileOnly "org.projectlombok:lombok:1.18.8"
     annotationProcessor "org.projectlombok:lombok:1.16.16"
 
-    compile project(":rd-api-client")
+    compile project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
 
     compile "$toolbeltGroup:toolbelt:$toolbeltVersion"
     compile "$toolbeltGroup:toolbelt-snakeyaml:$toolbeltVersion"

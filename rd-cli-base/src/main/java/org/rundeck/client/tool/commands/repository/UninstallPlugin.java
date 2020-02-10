@@ -17,19 +17,18 @@ package org.rundeck.client.tool.commands.repository;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
+import lombok.Setter;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
 
 import java.io.IOException;
 
 @Command(description = "Unistall a Rundeck plugin from your Rundeck instance",value = "uninstall")
-public class UninstallPlugin extends AppCommand {
-    public UninstallPlugin(final RdApp rdApp) {
-        super(rdApp);
-    }
+public class UninstallPlugin implements RdCommandExtension {
+   @Setter RdTool rdTool;
 
     @CommandLineInterface
     interface UninstallPluginOption {
@@ -41,6 +40,6 @@ public class UninstallPlugin extends AppCommand {
     public void uninstall(UninstallPluginOption option, CommandOutput output) throws InputError, IOException {
         String pluginId = option.getPluginId();
         RepositoryResponseHandler.handle(
-                apiWithErrorResponse(api -> api.uninstallPlugin(pluginId)),output);
+                rdTool.apiWithErrorResponse(api -> api.uninstallPlugin(pluginId)),output);
     }
 }

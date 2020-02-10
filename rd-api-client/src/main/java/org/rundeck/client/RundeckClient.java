@@ -63,7 +63,7 @@ public class RundeckClient {
 
 
     @SuppressWarnings("UnusedReturnValue")
-    public static class Builder {
+    public static class Builder<A> {
         final OkHttpClient.Builder okhttp;
         String baseUrl;
         String appBaseUrl;
@@ -73,17 +73,19 @@ public class RundeckClient {
         boolean allowVersionDowngrade;
         Client.Logger logger;
         private String userAgent = USER_AGENT;
+        Class<A> api;
 
-        Builder() {
+        Builder(Class<A> api) {
+            this.api = api;
             this.okhttp = new OkHttpClient.Builder();
         }
 
-        <T> Builder accept(BuildWith<Builder, T> bw, T i) {
+        <T> Builder<A> accept(BuildWith<Builder<A>, T> bw, T i) {
             bw.accept(this, i);
             return this;
         }
 
-        public Builder config(RdClientConfig config) {
+        public Builder<A> config(RdClientConfig config) {
             logging(config.getDebugLevel());
             retryConnect(config.getBool(ENV_CONNECT_RETRY, true));
             timeout(config.getLong(ENV_HTTP_TIMEOUT, null));
@@ -95,31 +97,31 @@ public class RundeckClient {
             return this;
         }
 
-        public Builder bypassUrl(final String string) {
+        public Builder<A> bypassUrl(final String string) {
             return accept(RundeckClient::configBypassUrl, string);
         }
 
-        public Builder insecureSSL(final boolean bool) {
+        public Builder<A> insecureSSL(final boolean bool) {
             return accept(RundeckClient::configInsecureSSL, bool);
         }
 
-        public Builder insecureSSLHostname(final boolean bool) {
+        public Builder<A> insecureSSLHostname(final boolean bool) {
             return accept(RundeckClient::configInsecureSSLHostname, bool);
         }
 
-        public Builder alternateSSLHostname(final String hostnames) {
+        public Builder<A> alternateSSLHostname(final String hostnames) {
             return accept(RundeckClient::configAlternateSSLHostname, hostnames);
         }
 
-        public Builder retryConnect(final boolean bool) {
+        public Builder<A> retryConnect(final boolean bool) {
             return accept(RundeckClient::acceptRetry, bool);
         }
 
-        public Builder timeout(final Long timeout) {
+        public Builder<A> timeout(final Long timeout) {
             return accept(RundeckClient::acceptTimeout, timeout);
         }
 
-        public Builder baseUrl(final String baseUrl) {
+        public Builder<A> baseUrl(final String baseUrl) {
             this.parseUrl = HttpUrl.parse(baseUrl);
             validateBaseUrl(baseUrl, parseUrl);
             this.baseUrl = baseUrl;
@@ -127,36 +129,36 @@ public class RundeckClient {
             return this;
         }
 
-        public Builder apiVersion(final int version) {
+        public Builder<A> apiVersion(final int version) {
             this.apiVersion = version;
             return this;
         }
 
-        public Builder allowVersionDowngrade(final boolean allow) {
+        public Builder<A> allowVersionDowngrade(final boolean allow) {
             this.allowVersionDowngrade = allow;
             return this;
         }
 
-        public Builder tokenAuth(final String authToken) {
+        public Builder<A> tokenAuth(final String authToken) {
             buildTokenAuth(okhttp, baseUrl, authToken);
             return this;
         }
 
-        public Builder passwordAuth(final String username, final String password) {
+        public Builder<A> passwordAuth(final String username, final String password) {
             buildFormAuth(baseUrl, username, password, okhttp);
             return this;
         }
 
-        public Client<RundeckApi> build() {
+        public Client<A> build() {
             return buildRundeckClient();
         }
 
-        public Builder logging(final int p) {
+        public Builder<A> logging(final int p) {
             httpLogging = p;
             return accept(RundeckClient::configLogging, p);
         }
 
-        public Builder logger(Client.Logger logger) {
+        public Builder<A> logger(Client.Logger logger) {
             this.logger = logger;
             return this;
         }
@@ -166,7 +168,7 @@ public class RundeckClient {
          *
          * @param ua user agent string
          */
-        public Builder userAgent(String ua) {
+        public Builder<A> userAgent(String ua) {
             this.userAgent = getUserAgent(ua);
             return this;
         }
@@ -237,7 +239,7 @@ public class RundeckClient {
 
         }
 
-        private Client<RundeckApi> buildRundeckClient() {
+        private Client<A> buildRundeckClient() {
             //url without version
             String appBaseUrl = buildBaseAppUrlForVersion(baseUrl);
             final String apiBaseUrl;
@@ -265,7 +267,7 @@ public class RundeckClient {
                     .build();
 
             return new Client<>(
-                    build.create(RundeckApi.class),
+                    build.create(api),
                     build,
                     appBaseUrl,
                     apiBaseUrl,
@@ -335,20 +337,19 @@ public class RundeckClient {
     /**
      * @return new Builder
      */
-    public static Builder builder() {
-        return new Builder();
+    public static Builder<RundeckApi> builder() {
+        return new Builder<>(RundeckApi.class);
     }
 
+    /**
+     * @return new Builder
+     */
+    public static <T> Builder<T> builder(Class<T> api) {
+        return new Builder<>(api);
+    }
 
-
-
-
-
-
-
-
-    private static Builder configInsecureSSL(
-            final Builder builder,
+    private static Builder<?> configInsecureSSL(
+            final Builder<?> builder,
             final boolean insecureSsl
     )
     {
@@ -358,8 +359,8 @@ public class RundeckClient {
         return builder;
     }
 
-    private static Builder configInsecureSSLHostname(
-            final Builder builder,
+    private static Builder<?> configInsecureSSLHostname(
+            final Builder<?> builder,
             final boolean insecureSsl
     )
     {
@@ -369,20 +370,17 @@ public class RundeckClient {
         return builder;
     }
 
-    private static Builder configAlternateSSLHostname(
-            final Builder builder,
+    private static Builder<?> configAlternateSSLHostname(
+            final Builder<?> builder,
             final String value
     )
     {
         if (null != value) {
-            List<String> collect = new ArrayList<>();
-            collect.addAll(
-                    Arrays.stream(value.split(", *"))
-                          .map(String::trim)
-                          .filter(s -> !"".equals(s))
-                          .map(String::toUpperCase)
-                          .collect(Collectors.toList())
-            );
+            List<String> collect = new ArrayList<>(Arrays.stream(value.split(", *"))
+                                                         .map(String::trim)
+                                                         .filter(s -> !"".equals(s))
+                                                         .map(String::toUpperCase)
+                                                         .collect(Collectors.toList()));
 
             List<String> names = Collections.unmodifiableList(collect);
             SSLUtil.addAlternateSSLHostnameVerifier(
@@ -395,7 +393,7 @@ public class RundeckClient {
     }
 
     private static void configBypassUrl(
-            final Builder builder,
+            final Builder<?> builder,
             final String bypassUrl
     )
     {
@@ -408,14 +406,14 @@ public class RundeckClient {
         }
     }
 
-    private static Builder acceptRetry(final Builder builder, final Boolean retryConnect) {
+    private static Builder<?> acceptRetry(final Builder<?> builder, final Boolean retryConnect) {
         if (null != retryConnect) {
             builder.okhttp.retryOnConnectionFailure(retryConnect);
         }
         return builder;
     }
 
-    private static Builder acceptTimeout(final Builder builder, final Long timeout) {
+    private static Builder<?> acceptTimeout(final Builder<?> builder, final Long timeout) {
         if (null != timeout) {
             builder.okhttp
                     .readTimeout(timeout, TimeUnit.SECONDS)
@@ -426,7 +424,7 @@ public class RundeckClient {
         return builder;
     }
 
-    private static Builder configLogging(final Builder builder, final int httpLogging) {
+    private static Builder<?> configLogging(final Builder<?> builder, final int httpLogging) {
         if (httpLogging > 0) {
             HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
 

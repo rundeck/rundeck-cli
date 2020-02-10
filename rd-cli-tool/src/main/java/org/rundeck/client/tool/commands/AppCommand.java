@@ -16,13 +16,16 @@
 
 package org.rundeck.client.tool.commands;
 
-import org.rundeck.toolbelt.InputError;
+import lombok.Getter;
 import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.ProjectInput;
+import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdTool;
+import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ConfigSource;
 import org.rundeck.client.util.RdClientConfig;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.options.ProjectNameOptions;
-import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
@@ -30,39 +33,45 @@ import java.io.IOException;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 
-import static org.rundeck.client.tool.options.ProjectRequiredNameOptions.PROJECT_NAME_PATTERN;
+import static org.rundeck.client.tool.ProjectInput.PROJECT_NAME_PATTERN;
 
 /**
- * Base type for commands in Rd
+ * Base type for commands in Rd todo: rename
  */
-public abstract class AppCommand  {
-    private final RdApp rdApp;
+public class AppCommand
+        implements RdTool
+{
+    @Getter private final RdApp rdApp;
 
     public AppCommand(final RdApp rdApp) {
         this.rdApp = rdApp;
     }
 
+    public <T extends RdCommandExtension> T initExtension(final T extension) {
+        extension.setRdTool(this);
+        return extension;
+    }
+
     public ServiceClient<RundeckApi> getClient() throws InputError {
-        return rdApp.getClient();
+        return getRdApp().getClient();
     }
 
     public RdClientConfig getAppConfig() {
-        return rdApp.getAppConfig();
+        return getRdApp().getAppConfig();
     }
+
 
     /**
      * Perform a downgradable API call
      *
      * @param func function
      * @param <T>  result type
-     *
      * @return result
-     *
      * @throws InputError  on error
      * @throws IOException on error
      */
     public <T> T apiCall(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
-        return apiCallDowngradable(rdApp, func);
+        return apiCallDowngradable(func);
     }
 
     /**
@@ -70,54 +79,26 @@ public abstract class AppCommand  {
      *
      * @param func function
      * @param <T>  result type
-     *
      * @return response
-     *
      * @throws InputError  on error
      * @throws IOException on error
      */
-    public <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponse(Function<RundeckApi, Call<T>> func) throws InputError, IOException {
-        return apiWithErrorResponseDowngradable(rdApp, func);
-    }
-
-    /**
-     * Perform API call with a client
-     *
-     * @param client client
-     * @param func   function
-     * @param <T>    result type
-     *
-     * @return result
-     *
-     * @throws IOException on error
-     */
-    public static <T> T apiCall(
-            final ServiceClient<RundeckApi> client,
-            final Function<RundeckApi, Call<T>> func
-    )
-            throws IOException
+    public <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponse(Function<RundeckApi, Call<T>> func)
+            throws InputError, IOException
     {
-        return client.apiCall(func);
+        return apiWithErrorResponseDowngradable(func);
     }
 
     /**
      * Perform a downgradable api call
      *
-     * @param rdApp app
-     * @param func  function
-     * @param <T>   result type
-     *
+     * @param func function
+     * @param <T>  result type
      * @return result
-     *
      * @throws InputError  on error
      * @throws IOException on error
      */
-    public static <T> T apiCallDowngradable(
-            final RdApp rdApp,
-            final Function<RundeckApi, Call<T>> func
-    )
-            throws InputError, IOException
-    {
+    public <T> T apiCallDowngradable(final Function<RundeckApi, Call<T>> func) throws InputError, IOException {
         try {
             return rdApp.getClient().apiCallDowngradable(func);
         } catch (Client.UnsupportedVersionDowngrade downgrade) {
@@ -129,21 +110,10 @@ public abstract class AppCommand  {
             return rdApp.getClient(downgrade.getSupportedVersion()).apiCall(func);
         }
     }
-    /**
-     * Perform a downgradable api call, without handling errors
-     *
-     * @param rdApp app
-     * @param func  function
-     * @param <T>   result type
-     *
-     * @return response
-     *
-     * @throws InputError  on error
-     * @throws IOException on error
-     */
-    public static <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponseDowngradable(
-            final RdApp rdApp,
-            final Function<RundeckApi, Call<T>> func
+
+    public <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponseDowngradable(
+            final Function<RundeckApi,
+                    Call<T>> func
     )
             throws InputError, IOException
     {
@@ -161,18 +131,15 @@ public abstract class AppCommand  {
 
     /**
      * @param options project options
-     *
      * @return project name from options or ENV
-     *
      * @throws InputError if project is not set via options or ENV
      */
-    public String projectOrEnv(final ProjectNameOptions options) throws InputError {
+    public String projectOrEnv(final ProjectInput options) throws InputError {
         if (null != options.getProject()) {
             return options.getProject();
         }
         try {
-            String
-                    rd_project =
+            String rd_project =
                     getAppConfig().require("RD_PROJECT", "or specify as `-p/--project value` : Project name.");
             Pattern pat = Pattern.compile(PROJECT_NAME_PATTERN);
             if (!pat.matcher(rd_project).matches()) {
@@ -188,32 +155,8 @@ public abstract class AppCommand  {
         }
     }
 
-    public RdApp getRdApp() {
-        return rdApp;
-    }
-
-    protected void requireApiVersion(final String message, final int min) throws InputError {
-        if (getClient().getApiVersion() < min) {
-            throw new InputError(String.format(
-                    "%s: requires API >= %d (current: %d)",
-                    message,
-                    min,
-                    getClient().getApiVersion()
-            ));
-        }
-    }
-
-    /**
-     * Supplier with throwable
-     *
-     * @param <T> type
-     */
-    interface GetInput<T> {
-        /**
-         * @return supplied input
-         * @throws InputError if input error
-         */
-        T get() throws InputError;
+    public void requireApiVersion(final String description, final int min) throws InputError {
+        RdTool.apiVersionCheck(description, min, getClient().getApiVersion());
     }
 
 }

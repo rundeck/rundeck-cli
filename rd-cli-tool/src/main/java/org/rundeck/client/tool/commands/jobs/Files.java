@@ -18,9 +18,10 @@ package org.rundeck.client.tool.commands.jobs;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.model.JobFileItem;
 import org.rundeck.client.api.model.JobFileItemList;
@@ -149,7 +150,7 @@ public class Files extends AppCommand {
 
         String fileName = input.getName();
         JobFileUploadResult jobFileUploadResult = uploadFileForJob(
-                getRdApp(),
+                this,
                 input,
                 options.getId(),
                 options.getOption()
@@ -173,7 +174,7 @@ public class Files extends AppCommand {
      *
      */
     public static JobFileUploadResult uploadFileForJob(
-            final RdApp rdApp,
+            final RdTool rdTool,
             final File input,
             final String jobId,
             final String optionName
@@ -183,8 +184,7 @@ public class Files extends AppCommand {
             throw new IOException("Can't read file: " + input);
         }
         RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
-        return apiCallDowngradable(
-                rdApp,
+        return rdTool.apiCallDowngradable(
                 api -> api.uploadJobOptionFile(
                         jobId,
                         optionName,

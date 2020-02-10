@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.options;
 
-import org.rundeck.toolbelt.InputError;
+
+import org.rundeck.client.tool.InputError;
 
 import java.util.HashMap;
 import java.util.List;

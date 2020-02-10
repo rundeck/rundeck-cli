@@ -24,7 +24,9 @@ import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.tool.commands.*;
-import org.rundeck.client.tool.commands.repository.Plugins;
+import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.util.AdaptedToolbeltOutput;
+import org.rundeck.client.tool.util.ExtensionLoader;
 import org.rundeck.client.util.*;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
@@ -164,27 +166,32 @@ public class Main {
     };
 
     public static Tool tool(final Rd rd) {
+        List<Object> base = new ArrayList<>(Arrays.asList(
+                new Adhoc(rd),
+                new Jobs(rd),
+                new Projects(rd),
+                new Executions(rd),
+                new Run(rd),
+                new Keys(rd),
+                new RDSystem(rd),
+                new Scheduler(rd),
+                new Tokens(rd),
+                new Nodes(rd),
+                new Users(rd),
+                new Something(),
+                new Retry(rd),
+                new Metrics(rd),
+                new Version()
+        ));
+        AppCommand commandTool = new AppCommand(rd);
+        List<RdCommandExtension> list = ExtensionLoader.list();
+        list.forEach(ext -> ext.setRdTool(commandTool));
+        base.addAll(list);
+
         ToolBelt belt = ToolBelt.belt("rd")
                                 .defaultHelpCommands()
                                 .ansiColorOutput(rd.isAnsiEnabled())
-                                .add(
-                                        new Adhoc(rd),
-                                        new Jobs(rd),
-                                        new Projects(rd),
-                                        new Executions(rd),
-                                        new Run(rd),
-                                        new Keys(rd),
-                                        new RDSystem(rd),
-                                        new Scheduler(rd),
-                                        new Tokens(rd),
-                                        new Nodes(rd),
-                                        new Users(rd),
-                                        new Something(),
-                                        new Retry(rd),
-                                        new Metrics(rd),
-                                        new Plugins(rd),
-                                        new Version()
-                                )
+                                .add(base.toArray())
                                 .bannerResource("rd-banner.txt")
                                 .commandInput(new JewelInput());
 
@@ -201,7 +208,7 @@ public class Main {
             belt.finalOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
-        rd.setOutput(belt.finalOutput());
+        rd.setOutput(new AdaptedToolbeltOutput(belt.finalOutput()));
         return belt.buckle();
     }
 
@@ -256,6 +263,24 @@ public class Main {
         }
 
         @Override
+        public <T> ServiceClient<T> getClient(final Class<T> api, final int version) throws InputError {
+            try {
+                return Main.createClient(this, api, version);
+            } catch (ConfigSourceError configSourceError) {
+                throw new InputError(configSourceError.getMessage());
+            }
+        }
+
+        @Override
+        public <T> ServiceClient<T> getClient(final Class<T> api) throws InputError {
+            try {
+                return Main.createClient(this, api, null);
+            } catch (ConfigSourceError configSourceError) {
+                throw new InputError(configSourceError.getMessage());
+            }
+        }
+
+        @Override
         public RdClientConfig getAppConfig() {
             return this;
         }
@@ -307,13 +332,24 @@ public class Main {
     }
 
 
-    public static Client<RundeckApi> createClient(Rd config) throws InputError, ConfigSource.ConfigSourceError {
-        return createClient(config, null);
+    public static Client<RundeckApi> createClient(Rd config) throws ConfigSource.ConfigSourceError {
+        return createClient(config, RundeckApi.class, null);
+    }
+
+    public static <T> Client<T> createClient(Rd config, Class<T> api) throws ConfigSource.ConfigSourceError {
+        return createClient(config, api, null);
     }
 
     public static Client<RundeckApi> createClient(Rd config, Integer requestedVersion)
-            throws InputError, ConfigSource.ConfigSourceError
+            throws ConfigSource.ConfigSourceError
     {
+        return createClient(config, RundeckApi.class, requestedVersion);
+    }
+
+    public static <T> Client<T> createClient(Rd config, Class<T> api, Integer requestedVersion)
+            throws ConfigSource.ConfigSourceError
+    {
+
         Auth auth = new Auth() {
         };
         auth = auth.chain(new ConfigAuth(config));
@@ -325,9 +361,9 @@ public class Main {
         if (!auth.isConfigured() && config.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
             auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
-        RundeckClient.Builder builder = RundeckClient.builder()
-                                                     .baseUrl(baseUrl)
-                                                     .config(config);
+        RundeckClient.Builder<T> builder = RundeckClient.builder(api)
+                                                        .baseUrl(baseUrl)
+                                                        .config(config);
         if (null != requestedVersion) {
             builder.apiVersion(requestedVersion);
         } else {
@@ -568,6 +604,9 @@ public class Main {
     private static class OutputLogger implements Client.Logger {
         final CommandOutput output;
 
+        public OutputLogger(final org.rundeck.toolbelt.CommandOutput output) {
+            this.output = new AdaptedToolbeltOutput(output);
+        }
         public OutputLogger(final CommandOutput output) {
             this.output = output;
         }

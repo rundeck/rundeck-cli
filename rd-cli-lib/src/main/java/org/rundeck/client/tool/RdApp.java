@@ -16,8 +16,6 @@
 
 package org.rundeck.client.tool;
 
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.util.ServiceClient;
@@ -29,6 +27,7 @@ import org.rundeck.client.util.ServiceClient;
  */
 public interface RdApp {
     /**
+     * return base api client
      * @return current service client
      *
      * @throws InputError on error
@@ -37,12 +36,29 @@ public interface RdApp {
 
     /**
      * @param version api version to use
-     *
      * @return service client for particular api version
-     *
      * @throws InputError on erro
      */
     ServiceClient<RundeckApi> getClient(int version) throws InputError;
+
+    /**
+     * Return API client for specified API interface
+     * @param api api interface class
+     * @param <T> api interface type
+     * @return new instance
+     * @throws InputError if configuration input error occurs
+     */
+    <T> ServiceClient<T> getClient(Class<T> api) throws InputError;
+
+    /**
+     * Return API client for specified API interface
+     * @param api api interface class
+     * @param version specified version
+     * @param <T> api interface type
+     * @return new instance
+     * @throws InputError if configuration input error occurs
+     */
+    <T> ServiceClient<T> getClient(Class<T> api, int version) throws InputError;
 
     /**
      * @return app config

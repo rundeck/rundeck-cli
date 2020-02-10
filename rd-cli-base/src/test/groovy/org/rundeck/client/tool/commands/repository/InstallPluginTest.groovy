@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands.repository
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.repository.ArtifactActionMessage
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.Client
 import org.rundeck.toolbelt.CommandOutput
 import retrofit2.Retrofit
@@ -25,11 +26,12 @@ import retrofit2.mock.Calls
 import spock.lang.Specification
 
 
-class UninstallPluginTest extends Specification {
-    def "Uninstall"() {
+class InstallPluginTest extends Specification {
+    def "Install"() {
         given:
         def api = Mock(RundeckApi)
-        def opts = Mock(UninstallPlugin.UninstallPluginOption) {
+        def opts = Mock(InstallPlugin.InstallPluginOption) {
+            getRepoName() >> "private"
             getPluginId() >> 'bcf8885df1e8'
         }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
@@ -37,14 +39,17 @@ class UninstallPluginTest extends Specification {
         def rdapp = Mock(RdApp) {
             getClient() >> client
         }
-        UninstallPlugin uninstallCmd = new UninstallPlugin(rdapp)
+        def rdtool = new MockRdTool(client: client, rdApp: rdapp)
+
+        InstallPlugin installCmd = new InstallPlugin()
+        installCmd.rdTool=rdtool
         def out = Mock(CommandOutput)
 
         when:
-        uninstallCmd.uninstall(opts,out)
+        installCmd.install(opts,out)
 
         then:
-        1 * api.uninstallPlugin(_) >> Calls.response(new ArtifactActionMessage(msg:"Plugin Uninstalled"))
-        out.output('Plugin Uninstalled')
+        1 * api.installPlugin("private",'bcf8885df1e8') >> Calls.response(new ArtifactActionMessage(msg:"Plugin Installed"))
+        out.output('Plugin Installed')
     }
 }

@@ -17,19 +17,19 @@ package org.rundeck.client.tool.commands.repository;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import lombok.Setter;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
 
 import java.io.IOException;
 
 @Command(description = "Install a plugin from your plugin repository into your Rundeck instance",value="install")
-public class InstallPlugin extends AppCommand {
-    public InstallPlugin(final RdApp rdApp) {
-        super(rdApp);
-    }
+public class InstallPlugin implements RdCommandExtension {
+    @Setter RdTool rdTool;
 
     @CommandLineInterface interface InstallPluginOption {
         @Option(shortName = "r", longName = "repository", description = "Repository name that contains the plugin.")
@@ -45,7 +45,7 @@ public class InstallPlugin extends AppCommand {
         String pluginId = option.getPluginId();
 
         RepositoryResponseHandler.handle(
-                apiWithErrorResponse(api -> {
+                rdTool.apiWithErrorResponse(api -> {
             if(option.getVersion() != null) {
                 return api.installPlugin(option.getRepoName(),pluginId,option.getVersion());
             } else {

@@ -24,7 +24,9 @@ import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.api.model.executions.MetricsResponse;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.RdClientConfig;
@@ -32,7 +34,6 @@ import org.rundeck.client.util.ServiceClient;
 import org.rundeck.client.util.Util;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
 
 import java.io.IOException;
 import java.util.*;
@@ -104,7 +105,7 @@ public class Executions extends AppCommand {
         int max = 500;
 
         ExecOutput output = startFollowOutput(
-                getRdApp(),
+                this,
                 max,
                 options.isRestart(),
                 options.getId(),
@@ -128,7 +129,7 @@ public class Executions extends AppCommand {
 
 
     public static ExecOutput startFollowOutput(
-            final RdApp rdApp,
+            final RdTool rdTool,
             final long max,
             final boolean restart,
             final String id,
@@ -139,9 +140,9 @@ public class Executions extends AppCommand {
 
         ExecOutput out;
         if (restart) {
-            out = apiCallDowngradable(rdApp, api -> api.getOutput(id, 0L, 0L, max, compacted));
+            out = rdTool.apiCallDowngradable( api -> api.getOutput(id, 0L, 0L, max, compacted));
         } else {
-            out = apiCallDowngradable(rdApp, api -> api.getOutput(id, tail));
+            out = rdTool.apiCallDowngradable( api -> api.getOutput(id, tail));
         }
         return out;
     }
@@ -596,7 +597,7 @@ public class Executions extends AppCommand {
     }
 
     public static boolean maybeFollow(
-            final RdApp rdApp,
+            final RdTool rdTool,
             final FollowOptions options,
             final String id,
             CommandOutput output
@@ -606,7 +607,7 @@ public class Executions extends AppCommand {
             return true;
         }
         ExecOutput execOutputCall = startFollowOutput(
-                rdApp,
+                rdTool,
                 500,
                 true,
                 id,
@@ -614,7 +615,7 @@ public class Executions extends AppCommand {
                 true
         );
         return followOutput(
-                rdApp.getClient(),
+                rdTool.getClient(),
                 execOutputCall,
                 options.isProgress(),
                 options.isQuiet(),

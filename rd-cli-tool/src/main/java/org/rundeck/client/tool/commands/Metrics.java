@@ -27,7 +27,7 @@ import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
