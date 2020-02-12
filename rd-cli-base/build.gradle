@@ -13,7 +13,6 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 
-ext.toolbeltVersion = "0.2.4"
 ext.toolbeltGroup = "${toolbeltVersion.contains('SNAPSHOT') ? 'org' : 'com.github'}.rundeck.cli-toolbelt"
 
 dependencies {
