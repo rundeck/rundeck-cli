@@ -96,9 +96,9 @@ public class Adhoc extends AppCommand {
                     options.getThreadcount(),
                     options.isKeepgoing(),
                     Quoting.joinStringQuoted(options.getCommandString()),
-                    null,
-                    false,
-                    null,
+                    options.getScriptInterpreter(),
+                    options.isArgsQuoted(),
+                    options.getFileExtension(),
                     options.getFilter()
             ));
         } else if (options.isUrl()) {
@@ -108,9 +108,9 @@ public class Adhoc extends AppCommand {
                     options.getThreadcount(),
                     options.isKeepgoing(),
                     Quoting.joinStringQuoted(options.getCommandString()),
-                    null,
-                    false,
-                    null,
+                    options.getScriptInterpreter(),
+                    options.isArgsQuoted(),
+                    options.getFileExtension(),
                     options.getFilter()
             ));
         } else if (options.getCommandString() != null && options.getCommandString().size() > 0) {

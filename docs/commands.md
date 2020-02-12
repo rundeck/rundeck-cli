@@ -30,18 +30,23 @@ Available commands:
 Dispatch adhoc COMMAND to matching nodes.
 
 	Usage: adhoc options -- COMMAND...
+		[--quoted -Q] : Use quoted args
+		[--extension -x value] : File extension to use for temporary script
 		[--filter -F value] : A node filter string
 		[--follow -f] : Follow execution output as it runs
-		[--keepgoing -K] : Keep going when an error occurs on multiple dispatch
+		[--keepgoing -K] : Keep going when an error occurs
+		[--outformat -% value] : Output format specifier for execution logs. You can use "%key" where key is one of:time,level,log,user,command,node. E.g. "%user@%node/%level: %log"
 		[--progress -r] : Do not echo log text, just an indicator that output is being received.
-		--project -p value : Project name
+		[--project -p /^[-_a-zA-Z0-9+][-\._a-zA-Z0-9+]*$/] : Project name
 		[--quiet -q] : Echo no output, just wait until the execution completes.
 		[--restart -t] : Restart from the beginning
 		[--script -s value] : Dispatch specified script file
+		[--interpreter -i value] : Script interpreter string
 		[--stdin -S] : Execute input read from STDIN
 		[--tail -T value] : Number of lines to tail from the end, default: 1
-		[--threadcount -C value] : Dispatch execution to Nodes using COUNT threads
+		[--threadcount -C value] : Execute using COUNT threads
 		[--url -u value] : Download a URL and dispatch it as a script
+		[--verbose -v] : Extended verbose output
 
 ## executions
 
