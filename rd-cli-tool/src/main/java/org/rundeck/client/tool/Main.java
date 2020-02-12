@@ -208,7 +208,21 @@ public class Main {
             belt.finalOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
+        belt.handles(InputError.class,  (err, context) -> {
+            context.getOutput().warning(String.format(
+                    "Input error for [%s]: %s",
+                    context.getCommandsString(),
+                    err.getMessage()
+            ));
+            context.getOutput().warning(String.format(
+                    "You can use: \"%s %s\" to get help.",
+                    context.getCommandsString(),
+                    "-h"
+            ));
+            return true;
+        });
         rd.setOutput(new AdaptedToolbeltOutput(belt.finalOutput()));
+
         return belt.buckle();
     }
 
