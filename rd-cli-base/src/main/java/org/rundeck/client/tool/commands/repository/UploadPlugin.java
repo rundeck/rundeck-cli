@@ -20,7 +20,6 @@ import com.lexicalscope.jewel.cli.Option;
 import lombok.Setter;
 import okhttp3.RequestBody;
 import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.extension.RdCommandExtension;
 import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.util.Client;

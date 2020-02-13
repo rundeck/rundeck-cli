@@ -19,7 +19,6 @@ import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
 import lombok.Setter;
 import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.extension.RdCommandExtension;
 import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.Command;
