@@ -26,7 +26,7 @@ import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.tool.extension.RdCommandExtension;
 import org.rundeck.client.tool.util.AdaptedToolbeltOutput;
-import org.rundeck.client.tool.util.ExtensionLoader;
+import org.rundeck.client.tool.util.ExtensionLoaderUtil;
 import org.rundeck.client.util.*;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
@@ -184,7 +184,7 @@ public class Main {
                 new Version()
         ));
         AppCommand commandTool = new AppCommand(rd);
-        List<RdCommandExtension> list = ExtensionLoader.list();
+        List<RdCommandExtension> list = ExtensionLoaderUtil.list();
         list.forEach(ext -> ext.setRdTool(commandTool));
         base.addAll(list);
 
