@@ -4,17 +4,12 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.util.Client;
-import org.rundeck.client.util.ConfigSource;
 import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.util.ServiceClient;
 import retrofit2.Call;
 
 import java.io.IOException;
 import java.util.function.Function;
-import java.util.regex.Pattern;
-
-import static org.rundeck.client.tool.ProjectInput.PROJECT_NAME_PATTERN;
 
 /**
  * Interface to the RD tool
