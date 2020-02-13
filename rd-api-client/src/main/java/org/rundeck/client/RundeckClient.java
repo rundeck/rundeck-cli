@@ -73,14 +73,14 @@ public class RundeckClient {
         boolean allowVersionDowngrade;
         Client.Logger logger;
         private String userAgent = USER_AGENT;
-        Class<A> api;
+        private Class<A> api;
 
         Builder(Class<A> api) {
             this.api = api;
             this.okhttp = new OkHttpClient.Builder();
         }
 
-        <T> Builder<A> accept(BuildWith<Builder<A>, T> bw, T i) {
+        public <T> Builder<A> accept(BuildWith<Builder<A>, T> bw, T i) {
             bw.accept(this, i);
             return this;
         }

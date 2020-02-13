@@ -32,7 +32,7 @@ import java.io.IOException;
 
 @Command(description = "Upload a Rundeck plugin to your plugin repository",value="upload")
 public class UploadPlugin implements RdCommandExtension {
-    @Setter RdTool rdTool;
+    @Setter private RdTool rdTool;
 
     @CommandLineInterface
     interface UploadPluginOption {

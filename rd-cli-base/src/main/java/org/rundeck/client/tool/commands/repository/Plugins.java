@@ -34,7 +34,7 @@ public class Plugins
         implements RdCommandExtension, HasSubCommands
 {
 
-    @Setter RdTool rdTool;
+    @Setter private RdTool rdTool;
 
     @Override
     public List<Object> getSubCommands() {

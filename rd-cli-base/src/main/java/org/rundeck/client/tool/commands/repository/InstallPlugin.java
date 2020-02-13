@@ -29,7 +29,7 @@ import java.io.IOException;
 
 @Command(description = "Install a plugin from your plugin repository into your Rundeck instance",value="install")
 public class InstallPlugin implements RdCommandExtension {
-    @Setter RdTool rdTool;
+    @Setter private RdTool rdTool;
 
     @CommandLineInterface interface InstallPluginOption {
         @Option(shortName = "r", longName = "repository", description = "Repository name that contains the plugin.")

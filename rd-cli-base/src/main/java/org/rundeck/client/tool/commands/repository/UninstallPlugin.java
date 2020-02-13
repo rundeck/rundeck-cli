@@ -28,7 +28,7 @@ import java.io.IOException;
 
 @Command(description = "Unistall a Rundeck plugin from your Rundeck instance",value = "uninstall")
 public class UninstallPlugin implements RdCommandExtension {
-   @Setter RdTool rdTool;
+   @Setter private RdTool rdTool;
 
     @CommandLineInterface
     interface UninstallPluginOption {
