@@ -28,13 +28,13 @@ jobs:
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
-        name: rd-${VERSION}.zip
+        name: rd-${{ steps.get_version.outputs.VERSION }}.zip
         # Directory containing files to upload
-        path: rd-cli-tool/build/distributions/rd-${VERSION}.zip
+        path: rd-cli-tool/build/distributions/rd-${{ steps.get_version.outputs.VERSION }}.zip
     - name: Upload all-jar
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
-        name: rundeck-cli-${VERSION}-all.jar
+        name: rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
         # Directory containing files to upload
-        path: rd-cli-tool/build/libs/rundeck-cli-${VERSION}-all.jar
+        path: rd-cli-tool/build/libs/rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
