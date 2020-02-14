@@ -20,7 +20,7 @@ import com.lexicalscope.jewel.cli.Option;
 
 public interface FollowOptions extends RunOptions{
 
-    @Option(shortName = "q", longName = "quiet", description = "Echo no output, just wait until the execution completes.")
+    @Option(shortName = "q", longName = "quiet", description = "Echo no output. Combine with -f/--follow to wait silently until the execution completes. Useful for non-interactive scripts.")
     boolean isQuiet();
 
     @Option(shortName = "r",
