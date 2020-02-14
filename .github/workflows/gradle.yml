@@ -21,3 +21,20 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
+    - name: Get Release Version
+      id: get_version
+      run: VERSION=$(./gradlew currentVersion | grep 'version:' | cut -d ' ' -f 3) && echo ::set-output name=VERSION::$VERSION
+    - name: Upload zip
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: rd-${VERSION}.zip
+        # Directory containing files to upload
+        path: rd-cli-tool/build/distributions/rd-${VERSION}.zip
+    - name: Upload all-jar
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: rundeck-cli-${VERSION}-all.jar
+        # Directory containing files to upload
+        path: rd-cli-tool/build/libs/rundeck-cli-${VERSION}-all.jar
