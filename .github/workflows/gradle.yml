@@ -38,3 +38,10 @@ jobs:
         name: rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
         # Directory containing files to upload
         path: rd-cli-tool/build/libs/rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
+    - name: Upload api-lib
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
+        # Directory containing files to upload
+        path: rd-api-client/build/libs/rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
