@@ -1,3 +1,8 @@
+## Unreleased
+
+* Update dependencies for Retrofit and Jackson #277
+* Update help text of `rd run --quiet` for clarity
+
 ## 1.1.7
 
 * Update gpg key fix [Issue #252](https://github.com/rundeck/rundeck-cli/issues/252)
