@@ -184,9 +184,9 @@ public class Main {
                 new Version()
         ));
         AppCommand commandTool = new AppCommand(rd);
-        List<RdCommandExtension> list = ExtensionLoaderUtil.list();
-        list.forEach(ext -> ext.setRdTool(commandTool));
-        base.addAll(list);
+        List<RdCommandExtension> extensions = ExtensionLoaderUtil.list();
+        extensions.forEach(ext -> ext.setRdTool(commandTool));
+        base.addAll(extensions);
 
         ToolBelt belt = ToolBelt.belt("rd")
                                 .defaultHelpCommands()
@@ -222,6 +222,12 @@ public class Main {
             return true;
         });
         rd.setOutput(new AdaptedToolbeltOutput(belt.finalOutput()));
+
+        if (rd.getDebugLevel() > 0) {
+            extensions.forEach(ext -> {
+                rd.getOutput().warning("# Including extension: " + ext.getClass().getName());
+            });
+        }
 
         return belt.buckle();
     }
