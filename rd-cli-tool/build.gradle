@@ -93,18 +93,23 @@ def scriptsClos = {
         }
     }
 
-    def addUnixConfigSource = prependConfigData.curry(
-            '^# Determine the Java command to use to start the JVM.*',
-            '''
-# Source user's config file
-RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
-test -f $RD_CONF && . $RD_CONF
-'''
-    )
     def setE = appendConfigData.curry(
             '^#!/usr/bin/env sh',
             '''
 set -e
+'''
+    )
+    def setClasspath = appendConfigData.curry(
+            '^CLASSPATH=.*$',
+            '''
+# Source user's config file
+RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
+test -f $RD_CONF && . $RD_CONF
+RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext/}
+
+if [ -n "$RD_EXT_DIR" ] && [ -d "$RD_EXT_DIR" ] ; then
+  CLASSPATH=${CLASSPATH}:$RD_EXT_DIR/*
+fi
 '''
     )
 
@@ -116,8 +121,8 @@ set -e
         unixScript.text =
                 unixScript
                         .readLines()
-                        .collect(addUnixConfigSource)
                         .collect(setE)
+                        .collect(setClasspath)
                         .join('\n')
 
         //TODO: modify windows start script to load config
