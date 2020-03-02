@@ -7,13 +7,8 @@ version '1.1.8-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url "https://jitpack.io" }
-}
 
-ext.toolbeltGroup = "${toolbeltVersion.contains('SNAPSHOT') ? 'org' : 'com.github'}.rundeck.cli-toolbelt"
+ext.toolbeltGroup = "org.rundeck.cli-toolbelt"
 
 dependencies {
 
@@ -22,10 +17,10 @@ dependencies {
 
     compile project(":rd-cli-lib"), project(":rd-api-client")
 
-    compile "$toolbeltGroup:toolbelt:$toolbeltVersion"
-    compile "$toolbeltGroup:toolbelt-snakeyaml:$toolbeltVersion"
-    compile "$toolbeltGroup:toolbelt-json-jackson:$toolbeltVersion"
-    compile "$toolbeltGroup:toolbelt-jewelcli:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt-snakeyaml:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt-json-jackson:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt-jewelcli:$toolbeltVersion"
 
 
     testCompile project(":rd-cli-lib"), project(":rd-api-client")

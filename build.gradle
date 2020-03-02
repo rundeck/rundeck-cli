@@ -124,6 +124,14 @@ scmVersion {
 allprojects {
     project.version = scmVersion.version
     ext.rpmVersion=project.version.replaceAll('-', '.')
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "https://rundeck.bintray.com/maven"
+        }
+    }
 }
 
 def getAxionVersion() {
