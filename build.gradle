@@ -128,9 +128,6 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
-        maven {
-            url "https://rundeck.bintray.com/maven"
-        }
     }
 }
 
