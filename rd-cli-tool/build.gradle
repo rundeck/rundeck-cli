@@ -26,15 +26,12 @@ plugins {
     id 'groovy'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '4.0.4'
-    id "nebula.ospackage" version "4.8.0"
-//    id 'maven'
+    id "nebula.ospackage" version "8.1.0"
+
 }
 
 apply plugin: 'idea'
-//apply plugin: 'groovy'
-//apply plugin: 'application'
 apply plugin: 'com.github.johnrengelman.shadow'
-//apply plugin: 'nebula.ospackage'
 
 mainClassName = 'org.rundeck.client.tool.Main'
 applicationName = 'rd'
@@ -44,22 +41,22 @@ ext.distInstallPath = '/var/lib/rundeck-cli'
 defaultTasks 'clean', 'build'
 
 dependencies {
-    compileOnly "org.projectlombok:lombok:1.18.8"
-    annotationProcessor "org.projectlombok:lombok:1.16.16"
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
-    compile project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
+    implementation project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
 
-    compile "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
-    compile "org.rundeck.cli-toolbelt:toolbelt-snakeyaml:$toolbeltVersion"
-    compile "org.rundeck.cli-toolbelt:toolbelt-json-jackson:$toolbeltVersion"
-    compile "org.rundeck.cli-toolbelt:toolbelt-jewelcli:$toolbeltVersion"
+    implementation "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
+    implementation "org.rundeck.cli-toolbelt:toolbelt-snakeyaml:$toolbeltVersion"
+    implementation "org.rundeck.cli-toolbelt:toolbelt-json-jackson:$toolbeltVersion"
+    implementation "org.rundeck.cli-toolbelt:toolbelt-jewelcli:$toolbeltVersion"
 
-    testCompile project(":rd-api-client")
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-    testCompile 'com.squareup.retrofit2:retrofit-mock:2.1.0'
-    testCompile 'com.squareup.okhttp3:mockwebserver:3.5.0'
-    testCompile "org.codehaus.groovy:groovy-all:2.5.7"
-    testCompile "org.spockframework:spock-core:1.3-groovy-2.5"
+    testImplementation project(":rd-api-client")
+    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation 'com.squareup.retrofit2:retrofit-mock:2.1.0'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:3.5.0'
+    testImplementation "org.codehaus.groovy:groovy-all:2.5.7"
+    testImplementation "org.spockframework:spock-core:1.3-groovy-2.5"
 }
 shadowJar {
 
@@ -158,7 +155,7 @@ ospackage {
         into distInstallPath
     }
 
-    def archivedir = shadowDistZip.archiveName - ".${shadowDistZip.extension}"
+    def archivedir = shadowDistZip.archiveFileName.get() - ".${shadowDistZip.archiveExtension.get()}"
 
     def rdsymlink="/usr/bin/${applicationName}"
     def createLn="""/bin/ln -sf \${RPM_INSTALL_PREFIX:-${distInstallPath}}/${archivedir}/bin/${applicationName} ${rdsymlink}"""
