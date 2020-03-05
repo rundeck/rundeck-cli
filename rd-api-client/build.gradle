@@ -63,71 +63,47 @@ dependencies {
 }
 
 
-// produce a jar file for our test classes
-task testJar(type: Jar) {
-    classifier = 'tests'
-    from sourceSets.test.java
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
-// produce a jar file for our source files
-task sourceJar(type: Jar) {
-    classifier = 'sources'
-    from sourceSets.main.java
-}
-
-// produce a jar file for our javadoc
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-if (JavaVersion.current().isJava8Compatible()) {
-    tasks.withType(Javadoc) {
+javadoc {
+    if (JavaVersion.current().isJava8Compatible()) {
         options.addStringOption('Xdoclint:none', '-quiet')
     }
-}
-
-// add all of the artifacts above to our archives list
-artifacts {
-    archives testJar
-    archives sourceJar
-    archives javadocJar
-}
-def pomConfig = {
-    licenses {
-        license {
-            name 'The Apache Software License, Version 2.0'
-            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-            distribution 'repo'
-        }
-    }
-    scm {
-        url 'https://github.com/rundeck/rundeck-cli'
-        connection 'scm:git:git@github.com/rundeck/rundeck-cli.git'
-        developerConnection 'scm:git:git@github.com:rundeck/rundeck-cli.git'
-    }
-    developers {
-        developer {
-            id('gschueler')
-            name('Greg Schueler')
-            email('greg@rundeck.com')
-        }
+    if (JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
     }
 }
 publishing {
     publications {
         rdApiClientPublication(MavenPublication) {
             from components.java
-            artifact sourceJar
-            artifact javadocJar
-            artifact testJar
 
-            pom.withXml {
-                def root = asNode()
-                root.appendNode('description', project.description ?: 'Rundeck API Library')
-                root.appendNode('name', "Rundeck API Library ${project.version}")
-                root.appendNode('url', 'https://github.com/rundeck/rundeck-cli')
-                root.children().last() + pomConfig
+            pom {
+                name = "Rundeck API Library ${project.version}"
+                description = project.description ?: 'Rundeck API Library'
+                url = 'https://github.com/rundeck/rundeck-cli'
+                licenses {
+                    license {
+                        name= 'The Apache Software License, Version 2.0'
+                        url ='http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        distribution= 'repo'
+                    }
+                }
+                scm {
+                    url ='https://github.com/rundeck/rundeck-cli'
+                    connection= 'scm:git:git@github.com/rundeck/rundeck-cli.git'
+                    developerConnection= 'scm:git:git@github.com:rundeck/rundeck-cli.git'
+                }
+                developers {
+                    developer {
+                        id='gschueler'
+                        name='Greg Schueler'
+                        email='greg@rundeck.com'
+                    }
+                }
             }
 
         }
