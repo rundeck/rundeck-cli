@@ -16,9 +16,10 @@
 
 package org.rundeck.client.tool.commands;
 
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobItem;
@@ -57,7 +58,7 @@ public class Run extends AppCommand {
 
     @Command(isDefault = true, isSolo = true)
     public boolean run(RunBaseOptions options, CommandOutput out) throws IOException, InputError {
-        String jobId = getJobIdFromOpts(options, out, getRdApp(), () -> projectOrEnv(options));
+        String jobId = getJobIdFromOpts(options, out, this, () -> projectOrEnv(options));
         if (null == jobId) {
             return false;
         }
@@ -133,7 +134,7 @@ public class Run extends AppCommand {
                 for (String optionName : fileinputs.keySet()) {
                     File file = fileinputs.get(optionName);
                     JobFileUploadResult jobFileUploadResult = Files.uploadFileForJob(
-                            getRdApp(),
+                            this,
                             file,
                             jobId,
                             optionName
@@ -188,7 +189,7 @@ public class Run extends AppCommand {
             }
             out.info("Started.");
         }
-        return Executions.maybeFollow(getRdApp(), options, execution.getId(), out);
+        return Executions.maybeFollow(this, options, execution.getId(), out);
     }
 
     /**
@@ -197,16 +198,14 @@ public class Run extends AppCommand {
      *
      * @param options ident options
      * @param out     output
-     * @param rdApp  rdApp
+     * @param rdTool  rdTool
      * @param project project name, or null
-     *
      * @return job ID or null
-     *
      */
     public static String getJobIdFromOpts(
             final JobIdentOptions options,
             final CommandOutput out,
-            final RdApp rdApp,
+            final RdTool rdTool,
             final GetInput<String> project
     )
             throws InputError, IOException
@@ -220,7 +219,7 @@ public class Run extends AppCommand {
         String proj = project.get();
         String job = options.getJob();
         String[] parts = Jobs.splitJobNameParts(job);
-        List<JobItem> jobItems = apiCallDowngradable(rdApp, api -> api.listJobs(
+        List<JobItem> jobItems = rdTool.apiCallDowngradable(api -> api.listJobs(
                 proj,
                 null,
                 null,

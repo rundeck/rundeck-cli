@@ -19,7 +19,7 @@ package org.rundeck.client.tool.commands;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.HasSubCommands;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.SystemInfo;
 import org.rundeck.client.tool.RdApp;

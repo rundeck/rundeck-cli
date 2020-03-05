@@ -21,7 +21,7 @@ import com.lexicalscope.jewel.cli.Option;
 import org.rundeck.client.api.model.RoleList;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.User;

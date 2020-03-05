@@ -22,7 +22,7 @@ import org.rundeck.client.api.model.scheduler.*;
 import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.RdApp;
 
 import java.io.IOException;

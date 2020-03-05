@@ -17,14 +17,15 @@
 package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.tool.ProjectInput;
 
 /**
  * Required project name option
  * @author greg
  * @since 4/10/17
  */
-public interface ProjectRequiredNameOptions {
-    static final String PROJECT_NAME_PATTERN = "^[-_a-zA-Z0-9+][-\\._a-zA-Z0-9+]*$";
+public interface ProjectRequiredNameOptions extends ProjectInput {
+
 
     @Option(shortName = "p", longName = "project", description = "Project name", pattern = PROJECT_NAME_PATTERN)
     String getProject();

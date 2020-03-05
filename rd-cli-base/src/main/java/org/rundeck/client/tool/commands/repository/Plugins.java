@@ -15,36 +15,39 @@
  */
 package org.rundeck.client.tool.commands.repository;
 
+import lombok.Setter;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.repository.RepositoryArtifacts;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.HasSubCommands;
-import org.rundeck.toolbelt.InputError;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
 @Command(description = "Manage Rundeck plugins")
-public class Plugins extends AppCommand implements HasSubCommands {
+public class Plugins
+        implements RdCommandExtension, HasSubCommands
+{
 
-    public Plugins(final RdApp rdApp) {
-        super(rdApp);
-    }
+    @Setter private RdTool rdTool;
 
     @Override
     public List<Object> getSubCommands() {
-        return Arrays.asList(new UploadPlugin(getRdApp()),
-                             new InstallPlugin(getRdApp()),
-                             new UninstallPlugin(getRdApp()));
+        return Arrays.asList(
+                rdTool.initExtension(new UploadPlugin()),
+                rdTool.initExtension(new InstallPlugin()),
+                rdTool.initExtension(new UninstallPlugin())
+        );
     }
 
     @Command(isDefault = true, description = "List plugins")
     public void list(CommandOutput output) throws InputError, IOException {
-        List<RepositoryArtifacts> repos = apiCall(RundeckApi::listPlugins);
+        List<RepositoryArtifacts> repos = rdTool.apiCall(RundeckApi::listPlugins);
         repos.forEach(repo -> {
             output.output("==" + repo.getRepositoryName()+ " Repository==");
             repo.getResults().forEach(plugin -> {

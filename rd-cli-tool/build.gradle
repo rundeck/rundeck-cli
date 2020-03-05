@@ -43,25 +43,16 @@ archivesBaseName = 'rundeck-cli'
 ext.distInstallPath = '/var/lib/rundeck-cli'
 defaultTasks 'clean', 'build'
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url "https://jitpack.io" }
-}
-
-ext.toolbeltVersion = "0.2.4"
-ext.toolbeltGroup = "${toolbeltVersion.contains('SNAPSHOT') ? 'org' : 'com.github'}.rundeck.cli-toolbelt"
-
 dependencies {
     compileOnly "org.projectlombok:lombok:1.18.8"
     annotationProcessor "org.projectlombok:lombok:1.16.16"
 
-    compile project(":rd-api-client")
+    compile project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
 
-    compile "$toolbeltGroup:toolbelt:$toolbeltVersion"
-    compile "$toolbeltGroup:toolbelt-snakeyaml:$toolbeltVersion"
-    compile "$toolbeltGroup:toolbelt-json-jackson:$toolbeltVersion"
-    compile "$toolbeltGroup:toolbelt-jewelcli:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt-snakeyaml:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt-json-jackson:$toolbeltVersion"
+    compile "org.rundeck.cli-toolbelt:toolbelt-jewelcli:$toolbeltVersion"
 
     testCompile project(":rd-api-client")
     testCompile group: 'junit', name: 'junit', version: '4.12'
@@ -93,18 +84,23 @@ def scriptsClos = {
         }
     }
 
-    def addUnixConfigSource = prependConfigData.curry(
-            '^# Determine the Java command to use to start the JVM.*',
-            '''
-# Source user's config file
-RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
-test -f $RD_CONF && . $RD_CONF
-'''
-    )
     def setE = appendConfigData.curry(
             '^#!/usr/bin/env sh',
             '''
 set -e
+'''
+    )
+    def setClasspath = appendConfigData.curry(
+            '^CLASSPATH=.*$',
+            '''
+# Source user's config file
+RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
+test -f $RD_CONF && . $RD_CONF
+RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext/}
+
+if [ -n "$RD_EXT_DIR" ] && [ -d "$RD_EXT_DIR" ] ; then
+  CLASSPATH=${CLASSPATH}:$RD_EXT_DIR/*
+fi
 '''
     )
 
@@ -116,8 +112,8 @@ set -e
         unixScript.text =
                 unixScript
                         .readLines()
-                        .collect(addUnixConfigSource)
                         .collect(setE)
+                        .collect(setClasspath)
                         .join('\n')
 
         //TODO: modify windows start script to load config

@@ -19,7 +19,7 @@ package org.rundeck.client.tool.commands.system;
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
@@ -73,7 +73,7 @@ public class ACLs extends AppCommand {
         ACLPolicy aclPolicy = performACLModify(
                 options,
                 (RequestBody body, RundeckApi api) -> api.updateSystemAclPolicy(options.getName(), body),
-                getRdApp(),
+                this,
                 output
         );
         outputPolicyResult(output, aclPolicy);
@@ -89,7 +89,7 @@ public class ACLs extends AppCommand {
         ACLPolicy aclPolicy = performACLModify(
                 options,
                 (RequestBody body, RundeckApi api) -> api.createSystemAclPolicy(options.getName(), body),
-                getRdApp(),
+                this,
                 output
         );
         outputPolicyResult(output, aclPolicy);

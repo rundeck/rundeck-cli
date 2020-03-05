@@ -17,22 +17,21 @@ package org.rundeck.client.tool.commands.repository;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import lombok.Setter;
 import okhttp3.RequestBody;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.util.Client;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
 
 import java.io.File;
 import java.io.IOException;
 
 @Command(description = "Upload a Rundeck plugin to your plugin repository",value="upload")
-public class UploadPlugin extends AppCommand {
-    public UploadPlugin(final RdApp rdApp) {
-        super(rdApp);
-    }
+public class UploadPlugin implements RdCommandExtension {
+    @Setter private RdTool rdTool;
 
     @CommandLineInterface
     interface UploadPluginOption {
@@ -49,6 +48,6 @@ public class UploadPlugin extends AppCommand {
         if(!binary.exists()) throw new IOException(String.format("Unable to find specified file: %s",option.getBinaryPath()));
         RequestBody fileUpload = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, binary);
 
-        RepositoryResponseHandler.handle(apiWithErrorResponse(api -> api.uploadPlugin(option.getRepoName(), fileUpload)),output);
+        RepositoryResponseHandler.handle(rdTool.apiWithErrorResponse(api -> api.uploadPlugin(option.getRepoName(), fileUpload)),output);
     }
 }

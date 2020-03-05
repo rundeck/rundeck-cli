@@ -13,11 +13,6 @@ plugins{
 }
 
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-    maven { url "https://jitpack.io" }
-}
 
 
 apply plugin: 'idea'

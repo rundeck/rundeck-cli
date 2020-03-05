@@ -16,8 +16,7 @@
 package org.rundeck.client.tool.commands.repository
 
 import org.rundeck.client.api.RundeckApi
-import org.rundeck.client.api.model.repository.Artifact
-import org.rundeck.client.api.model.repository.RepositoryArtifacts
+import org.rundeck.client.api.model.repository.ArtifactActionMessage
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import org.rundeck.toolbelt.CommandOutput
@@ -26,34 +25,27 @@ import retrofit2.mock.Calls
 import spock.lang.Specification
 
 
-class PluginsTest extends Specification {
-    def "List"() {
+class UninstallPluginTest extends Specification {
+    def "Uninstall"() {
         given:
         def api = Mock(RundeckApi)
+        def opts = Mock(UninstallPlugin.UninstallPluginOption) {
+            getPluginId() >> 'bcf8885df1e8'
+        }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 26, true, null)
+        def client = new Client(api, retrofit, null, null, 26, false, null)
         def rdapp = Mock(RdApp) {
             getClient() >> client
         }
-        Plugins plugins = new Plugins(rdapp)
+        def rdtool = new MockRdTool(client: client, rdApp: rdapp)
+        UninstallPlugin uninstallCmd = rdtool.initExtension(new UninstallPlugin())
         def out = Mock(CommandOutput)
 
         when:
-        plugins.list(out)
+        uninstallCmd.uninstall(opts,out)
 
         then:
-        1 * api.listPlugins() >> Calls.response(listRepoResponse())
-        out.output('1b7dc3be7836 : JNotify (installed)\nbcf8885df1e8 : Scripter (not installed)')
-
+        1 * api.uninstallPlugin(_) >> Calls.response(new ArtifactActionMessage(msg:"Plugin Uninstalled"))
+        out.output('Plugin Uninstalled')
     }
-
-    List<RepositoryArtifacts> listRepoResponse() {
-        def list = []
-        RepositoryArtifacts ra = new RepositoryArtifacts()
-        ra.repositoryName = "private"
-        ra.results = [new Artifact(id:"1b7dc3be7836",name: "JNotify",installed: true),
-                      new Artifact(id:"bcf8885df1e8",name: "Scripter",installed: false)]
-        return list
-    }
-
 }

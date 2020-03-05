@@ -18,10 +18,11 @@ package org.rundeck.client.tool.commands.projects;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.toolbelt.ANSIColorOutput;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
@@ -123,7 +124,7 @@ public class ACLs extends AppCommand {
         ACLPolicy aclPolicy = performACLModify(
                 options,
                 (RequestBody body, RundeckApi api) -> api.updateAclPolicy(project, options.getName(), body),
-                getRdApp(),
+                this,
                 output
         );
         outputPolicyResult(output, aclPolicy);
@@ -141,7 +142,7 @@ public class ACLs extends AppCommand {
         ACLPolicy aclPolicy = performACLModify(
                 options,
                 (RequestBody body, RundeckApi api) -> api.createAclPolicy(project, options.getName(), body),
-                getRdApp(),
+                this,
                 output
         );
         outputPolicyResult(output, aclPolicy);
@@ -152,7 +153,7 @@ public class ACLs extends AppCommand {
      *
      * @param options file options
      * @param func    create the request
-     * @param rdApp  rdapp
+     * @param rdTool  rdTool
      * @param output  output
      *
      * @return result policy
@@ -161,7 +162,7 @@ public class ACLs extends AppCommand {
     public static ACLPolicy performACLModify(
             final ACLFileOptions options,
             BiFunction<RequestBody, RundeckApi, Call<ACLPolicy>> func,
-            final RdApp rdApp,
+            final RdTool rdTool,
             final CommandOutput output
     )
             throws IOException, InputError
@@ -176,18 +177,18 @@ public class ACLs extends AppCommand {
                 Client.MEDIA_TYPE_YAML,
                 input
         );
-        ServiceClient.WithErrorResponse<ACLPolicy> execute = apiWithErrorResponseDowngradable(
-                rdApp,
+        ServiceClient.WithErrorResponse<ACLPolicy> execute = rdTool.apiWithErrorResponseDowngradable(
+
                 api -> func.apply(requestBody, api)
         );
         checkValidationError(
                 output,
-                rdApp.getClient(),
+                rdTool.getClient(),
                 execute,
                 input.getAbsolutePath(),
-                rdApp.getAppConfig().isAnsiEnabled()
+                rdTool.getAppConfig().isAnsiEnabled()
         );
-        return rdApp.getClient().checkError(execute);
+        return rdTool.getClient().checkError(execute);
     }
 
     private static void checkValidationError(

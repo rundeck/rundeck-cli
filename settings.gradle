@@ -15,3 +15,6 @@
  */
 
 include 'rd-api-client', 'rd-cli-tool'
+include 'rd-cli-lib'
+include 'rd-cli-base'
+

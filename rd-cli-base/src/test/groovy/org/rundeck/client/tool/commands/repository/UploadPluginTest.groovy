@@ -39,7 +39,8 @@ class UploadPluginTest extends Specification {
         def rdapp = Mock(RdApp) {
             getClient() >> client
         }
-        UploadPlugin uploadCmd = new UploadPlugin(rdapp)
+        def rdtool = new MockRdTool(client: client, rdApp: rdapp)
+        UploadPlugin uploadCmd = rdtool.initExtension(new UploadPlugin())
         def out = Mock(CommandOutput)
 
         when:

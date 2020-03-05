@@ -21,7 +21,7 @@ import org.rundeck.client.tool.options.TokenFormatOption;
 import org.rundeck.client.util.Format;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.ApiToken;
 import org.rundeck.client.api.model.CreateToken;
 import org.rundeck.client.tool.RdApp;

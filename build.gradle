@@ -124,6 +124,12 @@ scmVersion {
 allprojects {
     project.version = scmVersion.version
     ext.rpmVersion=project.version.replaceAll('-', '.')
+
+    repositories {
+        mavenLocal()
+        jcenter()
+        mavenCentral()
+    }
 }
 
 def getAxionVersion() {

@@ -23,7 +23,7 @@ import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.CommandOutput;
 import org.rundeck.toolbelt.HasSubCommands;
-import org.rundeck.toolbelt.InputError;
+import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
@@ -373,7 +373,7 @@ public class Jobs extends AppCommand implements HasSubCommands {
         String jobId = Run.getJobIdFromOpts(
                 options,
                 output,
-                getRdApp(),
+                this,
                 () -> projectOrEnv(options)
         );
         if (null == jobId) {
