@@ -28,7 +28,7 @@ buildscript {
 plugins {
     id 'pl.allegro.tech.build.axion-release' version '1.4.1'
 
-    id 'maven'
+    id 'maven-publish'
 }
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
 ext.changelogFile = file("CHANGELOG.md")
@@ -161,6 +161,3 @@ task changeLog(){
     }
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = '4.7'
-}

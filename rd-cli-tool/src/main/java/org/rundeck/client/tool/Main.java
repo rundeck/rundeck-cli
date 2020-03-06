@@ -598,7 +598,7 @@ public class Main {
     @Command("pond")
     public static class Something {
         @Command
-        public void pond(CommandOutput out) {
+        public void pond(org.rundeck.toolbelt.CommandOutput out) {
             int i = new Random().nextInt(4);
             ANSIColorOutput.ColorString kind;
             switch (i) {
