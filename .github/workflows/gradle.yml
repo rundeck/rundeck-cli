@@ -45,3 +45,10 @@ jobs:
         name: rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
         # Directory containing files to upload
         path: rd-api-client/build/libs/rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
+    - name: Upload rd-cli-lib
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: rd-cli-lib-${{ steps.get_version.outputs.VERSION }}.jar
+        # Directory containing files to upload
+        path: rd-cli-lib/build/libs/rd-cli-lib-${{ steps.get_version.outputs.VERSION }}.jar
