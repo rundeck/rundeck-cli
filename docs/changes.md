@@ -4,7 +4,14 @@ title: Change Log
 permalink: /changes/
 ---
 
-## Unreleased
+## 1.2.0-beta1
+
+* refactor to allow extension libraries
+* fix: gh action file pattern for upload
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.8...v1.2.0-beta1)
+
+## 1.1.8
 
 * Update dependencies for Retrofit and Jackson #277
 * Update help text of `rd run --quiet` for clarity

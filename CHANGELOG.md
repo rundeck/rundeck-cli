@@ -1,6 +1,9 @@
-## unreleased
+## 1.2.0-beta1
 
 * refactor to allow extension libraries
+* fix: gh action file pattern for upload
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.8...v1.2.0-beta1)
 
 ## 1.1.8
 
