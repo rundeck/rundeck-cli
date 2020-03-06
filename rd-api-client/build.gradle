@@ -150,11 +150,10 @@ if (component &&  ['api'].contains(component) && bintrayUser && bintrayKey && bi
                 name = rpmVersion
                 desc = "${description} ${rpmVersion}"
                 vcsTag = "v${rpmVersion}"
-            }
-
-            gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = System.getenv('SIGNING_PASSWORD')
+                gpg {
+                    sign = true //Determines whether to GPG sign the files. The default is false
+                    passphrase = System.getenv('SIGNING_PASSWORD')
+                }
             }
         }
     }

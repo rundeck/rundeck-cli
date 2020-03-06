@@ -242,10 +242,10 @@ if (component &&  ['rpm','deb'].contains(component) && bintrayUser && bintrayKey
                 name = rpmVersion
                 desc = "Rundeck CLI Tools ${rpmVersion}"
                 vcsTag = "v${rpmVersion}"
-            }
-            gpg {
-                sign = true //Determines whether to GPG sign the files. The default is false
-                passphrase = System.getenv('SIGNING_PASSWORD')
+                gpg {
+                    sign = true //Determines whether to GPG sign the files. The default is false
+                    passphrase = System.getenv('SIGNING_PASSWORD')
+                }
             }
         }
     }
