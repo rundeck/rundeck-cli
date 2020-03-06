@@ -1,3 +1,8 @@
+## 1.2.1
+
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.0-beta1...v1.2.1)
+
 ## 1.2.0-beta1
 
 * refactor to allow extension libraries
