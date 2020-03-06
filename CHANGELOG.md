@@ -1,4 +1,8 @@
-## Unreleased
+## unreleased
+
+* refactor to allow extension libraries
+
+## 1.1.8
 
 * Update dependencies for Retrofit and Jackson #277
 * Update help text of `rd run --quiet` for clarity
