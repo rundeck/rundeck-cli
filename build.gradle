@@ -92,9 +92,6 @@ scmVersion {
         prefix = 'v'
         versionSeparator = ''
     }
-    branchVersionCreator = [
-        'alpha': 'versionWithBranch'
-    ]
     hooks {
         pre 'fileUpdate', [file       : 'docs/_config.yml',
                            pattern    : { v, c -> /app_version: [^\s]+/ },
