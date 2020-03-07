@@ -64,9 +64,9 @@ after_deploy:
   -Pcomponent=rpm bintrayUpload"
 - "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-deb
   -Pcomponent=deb bintrayUpload"
-- "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-maven
+- "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=maven
   -Pcomponent=api bintrayUpload"
-- "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=rundeck-maven
+- "./gradlew -PbintrayUser=gschueler -PbintrayUserOrg=rundeck -PbintrayRepo=maven
   -Pcomponent=cli-lib bintrayUpload"
 env:
   global:
