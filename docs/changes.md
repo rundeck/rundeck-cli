@@ -4,6 +4,11 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.2.2
+
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.1...v1.2.2)
+
 ## 1.2.1
 
 
