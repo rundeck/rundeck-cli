@@ -342,6 +342,40 @@ public class RundeckClient {
     }
 
     /**
+     * @return new Builder configured with the baseUrl and token authentication
+     */
+    public static Builder<RundeckApi> builder(String baseUrl, String authToken) {
+        Builder<RundeckApi> rundeckApiBuilder = new Builder<>(RundeckApi.class);
+        rundeckApiBuilder.baseUrl(baseUrl);
+        rundeckApiBuilder.tokenAuth(authToken);
+        return rundeckApiBuilder;
+    }
+
+    /**
+     * @return new Builder configured with the baseUrl and password authentication
+     */
+    public static Builder<RundeckApi> builder(String baseUrl, String username, String password) {
+        Builder<RundeckApi> rundeckApiBuilder = new Builder<>(RundeckApi.class);
+        rundeckApiBuilder.baseUrl(baseUrl);
+        rundeckApiBuilder.passwordAuth(username, password);
+        return rundeckApiBuilder;
+    }
+
+    /**
+     * @return new Client with given baseUrl and authToken
+     */
+    public static Client<RundeckApi> with(String baseUrl, String authToken) {
+        return builder(baseUrl,authToken).build();
+    }
+
+    /**
+     * @return new Client with given baseUrl and password authentication
+     */
+    public static Client<RundeckApi> with(String baseUrl, String username, String password) {
+        return builder(baseUrl, username, password).build();
+    }
+
+    /**
      * @return new Builder
      */
     public static <T> Builder<T> builder(Class<T> api) {
