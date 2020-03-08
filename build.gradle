@@ -26,7 +26,7 @@ buildscript {
     }
 }
 plugins {
-    id 'pl.allegro.tech.build.axion-release' version '1.4.1'
+    id 'pl.allegro.tech.build.axion-release' version '1.9.3'
 
     id 'maven-publish'
 }
@@ -132,26 +132,38 @@ allprojects {
     }
 }
 
-def getAxionVersion() {
-    def ctx = pl.allegro.tech.build.axion.release.infrastructure.di.GradleAwareContext.create(project)
-    def rules = ctx.rules
+ext.axionContext=
+    pl.allegro.tech.build.axion.release.infrastructure.di.GradleAwareContext.create(project, project.scmVersion)
+
+
+def getAxionVersion = {
+    def rules = axionContext.rules
+    axionContext.versionService()
     scmVersion.versionService.currentVersion(
-            rules.version,
-            rules.tag,
-            rules.nextVersion
+        rules.version,
+        rules.tag,
+        rules.nextVersion
     )
+}
+
+def getPreviousTag = {
+    def rules = axionContext.rules
+    def curVersion = getAxionVersion()
+    rules.tag.serialize(rules.tag, curVersion.previousVersion.toString())
 }
 
 task previousVersion(){
     doLast {
-        println "Previous version: ${axionVersion.previousVersion}"
+        println "Previous version: ${getAxionVersion().previousVersion}"
+        println "Previous tag: ${getPreviousTag()}"
     }
 }
 task changeLog(){
     doLast {
-        def version = axionVersion
+        def version = getAxionVersion()
+        def prevTag = getPreviousTag()
         println genChangelog(
-                version.position.latestTag,
+                prevTag,
                 githubUrl,
                 version.version,
                 version.previousVersion,
