@@ -54,6 +54,7 @@ deploy:
   - rd-cli-tool/build/distributions/rundeck-cli*.deb
   - rd-cli-tool/build/libs/rundeck-cli-*-all.jar
   - rd-api-client/build/libs/rd-api-client-*.jar
+  - rd-cli-lib/build/libs/rd-cli-lib-*.jar
   on:
     repo: rundeck/rundeck-cli
     tags: true
