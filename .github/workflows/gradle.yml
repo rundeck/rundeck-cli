@@ -31,13 +31,13 @@ jobs:
         name: rd-${{ steps.get_version.outputs.VERSION }}.zip
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rd-${{ steps.get_version.outputs.VERSION }}.zip
-    - name: Upload jar
+    - name: Upload all-jar
       uses: actions/upload-artifact@v1.0.0
       with:
         # Artifact name
-        name: rundeck-cli-${{ steps.get_version.outputs.VERSION }}.jar
+        name: rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
         # Directory containing files to upload
-        path: rd-cli-tool/build/libs/rundeck-cli-${{ steps.get_version.outputs.VERSION }}.jar
+        path: rd-cli-tool/build/libs/rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
     - name: Upload api-lib
       uses: actions/upload-artifact@v1.0.0
       with:
