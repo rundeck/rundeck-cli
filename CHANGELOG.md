@@ -1,3 +1,10 @@
+## 1.2.3
+
+* Fix [Issue #291](https://github.com/rundeck/rundeck-cli/issues/291) shadow jar should have all classifier
+* add simple RundeckClient static builder methods
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.2...v1.2.3)
+
 ## 1.2.2
 
 * (build and release changes)

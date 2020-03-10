@@ -4,20 +4,28 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.2.3
+
+* Fix [Issue #291](https://github.com/rundeck/rundeck-cli/issues/291) shadow jar should have all classifier
+* add simple RundeckClient static builder methods
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.2...v1.2.3)
+
 ## 1.2.2
 
+* (build and release changes)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.1...v1.2.2)
 
 ## 1.2.1
 
+* (build and release changes)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.0-beta1...v1.2.1)
 
 ## 1.2.0-beta1
 
 * refactor to allow extension libraries
-* fix: gh action file pattern for upload
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.1.8...v1.2.0-beta1)
 
