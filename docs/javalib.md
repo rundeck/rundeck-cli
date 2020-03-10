@@ -12,6 +12,9 @@ Currently the library is published to Bintray (jcenter/maven central TBD).
 
 See: <https://bintray.com/rundeck/maven/rd-api-client>
 
+Javadoc:
+* [rd-api-client ![javadoc](https://javadoc.io/badge2/org.rundeck.api/rd-api-client/javadoc.svg)](https://javadoc.io/doc/org.rundeck.api/rd-api-client)
+
 ## Gradle usage
 
 A demo project can be seen here: <https://github.com/gschueler/rd-api-demo>
@@ -32,6 +35,3 @@ dependencies {
 }
 ~~~
 
-## Javadoc
-
-(to be published)

@@ -24,11 +24,18 @@ You can check the list of loaded extensions by running `rd` with `RD_DEBUG=1`.
 
 Extensions can be developed as Java libraries.
 
+
 ### Dependencies
 
 Add the `rd-cli-lib` dependency to your project.
 
 Available in Jcenter repo or [Bintray](https://bintray.com/rundeck/maven/rd-cli-lib).
+
+Javadoc:
+
+* [rd-cli-lib ![javadoc](https://javadoc.io/badge2/org.rundeck.cli/rd-cli-lib/javadoc.svg)](https://javadoc.io/doc/org.rundeck.cli/rd-cli-lib)
+* [cli-toolbelt ![cli-toolbelt](https://javadoc.io/badge2/org.rundeck.cli-toolbelt/toolbelt/javadoc.svg)](https://javadoc.io/doc/org.rundeck.cli-toolbelt/toolbelt)
+
 
 ### Gradle example
 
@@ -96,7 +103,3 @@ Declare your class in a file called `META-INF/services/org.rundeck.client.tool.e
     com.mycompany.MyClass
 
 For a standard Gradle java library, create the file in `src/main/resources/META-INF/services/org.rundeck.client.tool.extension.RdCommandExtension`
-
-## Javadoc
-
-(to be published)

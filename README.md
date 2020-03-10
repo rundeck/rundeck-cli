@@ -19,6 +19,13 @@ This project is now at 1.0.x status.
 * [SSL Configuration](https://rundeck.github.io/rundeck-cli/configuration/ssl/)
 * [Commands](https://rundeck.github.io/rundeck-cli/commands)
 * [Scripting](https://rundeck.github.io/rundeck-cli/scripting)
+* [Java API Library](https://rundeck.github.io/rundeck-cli/javalib/)
+* [Extensions](https://rundeck.github.io/rundeck-cli/extensions/)
+
+# Javadoc
+
+* [rd-api-client ![javadoc](https://javadoc.io/badge2/org.rundeck.api/rd-api-client/javadoc.svg)](https://javadoc.io/doc/org.rundeck.api/rd-api-client)
+* [rd-cli-lib ![javadoc](https://javadoc.io/badge2/org.rundeck.cli/rd-cli-lib/javadoc.svg)](https://javadoc.io/doc/org.rundeck.cli/rd-cli-lib)
 
 # Downloads
 
