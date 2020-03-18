@@ -233,6 +233,11 @@ public interface RundeckApi {
     Call<DeleteJobsResult> deleteJobs(
             @Query("ids") List<String> ids
     );
+    @Headers("Accept: application/json")
+    @POST("jobs/delete")
+    Call<DeleteJobsResult> deleteJobsBulk(
+            @Body BulkJobDelete body
+    );
 
     @Headers("Accept: application/json")
     @GET("projects")
