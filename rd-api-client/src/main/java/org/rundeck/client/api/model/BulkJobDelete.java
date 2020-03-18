@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 public class BulkJobDelete {
 
-    List<String> ids;
+    private List<String> ids;
 
     @JsonCreator
     public BulkJobDelete(final List<String> ids) {
