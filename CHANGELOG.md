@@ -1,3 +1,9 @@
+## 1.2.4
+
+* Fix [Issue #295](https://github.com/rundeck/rundeck-cli/issues/295) URI too large error for jobs bulk delete
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.3...v1.2.4)
+
 ## 1.2.3
 
 * Fix [Issue #291](https://github.com/rundeck/rundeck-cli/issues/291) shadow jar should have all classifier
