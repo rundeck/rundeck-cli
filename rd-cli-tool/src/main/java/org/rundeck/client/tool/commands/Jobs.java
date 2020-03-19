@@ -74,6 +74,14 @@ public class Jobs extends AppCommand implements HasSubCommands {
     @CommandLineInterface(application = "purge") interface Purge extends JobPurgeOptions, ListOpts {
         @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
         boolean isConfirm();
+
+        @Option(longName = "batch", shortName = "b", description = "Batch size if there are many IDs")
+        Integer getBatchSize();
+        boolean isBatchSize();
+
+        @Option(longName = "max", shortName = "m", description = "Maximum number of jobs to delete")
+        Integer getMax();
+        boolean isMax();
     }
 
     @Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
@@ -108,31 +116,40 @@ public class Jobs extends AppCommand implements HasSubCommands {
         if (options.isFile()) {
             list(options, output);
         }
+        int idsSize = ids.size();
+        int idsToDelete = options.isMax() ? Math.min(idsSize, options.getMax()) : idsSize;
         if (!options.isConfirm()) {
             //request confirmation
             if (null == System.console()) {
                 output.error("No user interaction available. Use --confirm to confirm purge without user interaction");
-                output.warning(String.format("Not deleting %d jobs", ids.size()));
+                output.warning(String.format("Not deleting %d jobs", idsToDelete));
                 return false;
             }
-            String s = System.console().readLine("Really delete %d Jobs? (y/N) ", ids.size());
+            String s = System.console().readLine("Really delete %d Jobs? (y/N) ", idsToDelete);
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not deleting %d jobs", ids.size()));
+                output.warning(String.format("Not deleting %d jobs", idsToDelete));
                 return false;
             }
         }
-
-        final List<String> finalIds = ids;
-        DeleteJobsResult deletedJobs = apiCall(api -> api.deleteJobs(finalIds));
-
-        if (deletedJobs.isAllsuccessful()) {
-            output.info(String.format("%d Jobs were deleted%n", deletedJobs.getRequestCount()));
-            return true;
+        int batch = options.isBatchSize() ? Math.min(idsToDelete, options.getBatchSize()) : idsToDelete;
+        int total=0;
+        for (int i = 0; i < idsToDelete; ) {
+            int batchToUse = Math.min(batch, idsToDelete - total);
+            final List<String> finalIds = new ArrayList<>(batchToUse);
+            finalIds.addAll(ids.subList(i, i + batchToUse));
+            DeleteJobsResult deletedJobs = apiCall(api -> api.deleteJobsBulk(new BulkJobDelete(finalIds)));
+            if(!deletedJobs.isAllsuccessful()){
+                output.error(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
+                output.output(deletedJobs.getFailed().stream().map(DeleteJob::toBasicString).collect(Collectors.toList()));
+                return false;
+            }
+            total += finalIds.size();
+            i += batchToUse;
         }
-        output.error(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
-        output.output(deletedJobs.getFailed().stream().map(DeleteJob::toBasicString).collect(Collectors.toList()));
-        return false;
+
+        output.info(String.format("%d Jobs were deleted%n", total));
+        return true;
     }
 
     @CommandLineInterface(application = "load") interface Load extends JobLoadOptions, VerboseOption {

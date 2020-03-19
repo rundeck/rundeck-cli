@@ -211,7 +211,7 @@ class JobsSpec extends Specification {
         then:
         1 * api.listJobs('ProjectName', job, group, jobexact, groupexact) >>
                 Calls.response([new JobItem(id: 'fakeid')])
-        1 * api.deleteJobs(['fakeid']) >> Calls.response(new DeleteJobsResult(allsuccessful: true))
+        1 * api.deleteJobsBulk({it.ids==['fakeid']}) >> Calls.response(new DeleteJobsResult(allsuccessful: true))
         0 * api._(*_)
         result
 
@@ -223,6 +223,71 @@ class JobsSpec extends Specification {
         null | null  | 'a'      | null
         null | null  | 'a'      | 'b/c'
         null | null  | null     | 'b/c'
+    }
+    @Unroll
+    def "job purge with with batchsize"() {
+        given:
+        def api = Mock(RundeckApi)
+
+        def opts = Mock(Jobs.Purge) {
+            getProject() >> 'ProjectName'
+            isJob() >> (job != null)
+            getJob() >> job
+            isConfirm() >> true
+            getBatchSize()>>batch
+            isBatchSize()>>(batch>0)
+            getMax()>>max
+            isMax()>>(max>0)
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 17, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Jobs jobs = new Jobs(hasclient)
+        def out = Mock(CommandOutput)
+        def iter=0
+        when:
+        def result = jobs.purge(opts, out)
+
+        then:
+            1 * api.listJobs('ProjectName', job, null, null, null) >> {
+                Calls.response((1..total).collect{new JobItem(id: "fakeid_$it")})
+            }
+        (expect.size()) * api.deleteJobsBulk({it.ids.size()==expect[iter++]}) >> Calls.response(new DeleteJobsResult(allsuccessful: true))
+        0 * api._(*_)
+        result
+
+        where:
+            job | batch | total | max || expect
+            'a' | -1    | 5     | -1  || [5]
+            'a' | 1     | 5     | -1  || [1, 1, 1, 1, 1,]
+            'a' | 2     | 5     | -1  || [2, 2, 1,]
+            'a' | 3     | 5     | -1  || [3, 2]
+            'a' | 4     | 5     | -1  || [4, 1]
+            'a' | 5     | 5     | -1  || [5]
+            'a' | 6     | 5     | -1  || [5]
+            'a' | 99    | 5     | -1  || [5]
+
+            'a' | -1    | 5     | 99  || [5]
+            'a' | -1    | 5     | 5   || [5]
+            'a' | -1    | 5     | 4   || [4]
+            'a' | -1    | 5     | 1   || [1]
+
+            'a' | 1     | 5     | 5   || [1, 1, 1, 1, 1,]
+            'a' | 1     | 5     | 4   || [1, 1, 1, 1,]
+            'a' | 1     | 5     | 1   || [1,]
+
+            'a' | 2     | 5     | 5   || [2, 2, 1,]
+            'a' | 2     | 5     | 4   || [2, 2,]
+            'a' | 2     | 5     | 3   || [2, 1,]
+            'a' | 2     | 5     | 1   || [1,]
+
+            'a' | 3     | 5     | 99  || [3, 2]
+            'a' | 3     | 5     | 5   || [3, 2]
+            'a' | 3     | 5     | 3   || [3]
+
+            'a' | 99    | 5     | 99  || [5]
     }
 
     def "job purge invalid input"() {
