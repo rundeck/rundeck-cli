@@ -40,11 +40,16 @@ archivesBaseName = 'rundeck-cli'
 ext.distInstallPath = '/var/lib/rundeck-cli'
 defaultTasks 'clean', 'build'
 
+repositories{
+    jcenter()
+    maven { url 'https://jitpack.io' }
+}
 dependencies {
     compileOnly "org.projectlombok:lombok:${lombokVersion}"
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     implementation project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
+    implementation 'com.github.rundeck:rd-ext-acl:v0.1.1:all'
 
     implementation "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
     implementation "org.rundeck.cli-toolbelt:toolbelt-snakeyaml:$toolbeltVersion"
