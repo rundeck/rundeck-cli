@@ -2,12 +2,7 @@
 
 [![Build Status](https://travis-ci.org/rundeck/rundeck-cli.svg?branch=master)](https://travis-ci.org/rundeck/rundeck-cli)
 
-This is a new CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
-
-Its goal is to replace the old CLI Tools currently included with Rundeck with a modernized,
-extensible, and nicer implementation.
-
-This project is now at 1.0.x status.
+This is the official CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 
 # Documentation 
 
@@ -21,6 +16,10 @@ This project is now at 1.0.x status.
 * [Scripting](https://rundeck.github.io/rundeck-cli/scripting)
 * [Java API Library](https://rundeck.github.io/rundeck-cli/javalib/)
 * [Extensions](https://rundeck.github.io/rundeck-cli/extensions/)
+
+## Bundled Extensions
+
+* [rd acl](https://rundeck.github.io/rd-ext-acl/) - Test and generate Rundeck ACL policy files
 
 # Javadoc
 
