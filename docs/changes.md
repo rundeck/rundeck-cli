@@ -4,6 +4,13 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.3.0
+
+* added `rd acl` subcommands for create,test,validate of aclpolicy files
+* update CLI toolbelt, easier picocli in extensions/subcommands
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.2.4...v1.3.0)
+
 ## 1.2.4
 
 * Fix [Issue #295](https://github.com/rundeck/rundeck-cli/issues/295) URI too large error for jobs bulk delete
