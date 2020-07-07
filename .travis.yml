@@ -27,10 +27,8 @@ jobs:
   - stage: build
     script: "./gradlew clean build"
   - stage: test
-    env: JOB='deb install test'
-    script: bash scripts/deb-install.sh
-  - env: JOB='rpm install test'
-    script: bash scripts/rpm-install.sh
+    env: JOB='deb/rpm install test'
+    script: bash scripts/install-test.sh
   - stage: upgrade-test
     env: JOB='rpm upgrade test'
     script: bash scripts/rpm-upgrade.sh
