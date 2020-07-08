@@ -1,3 +1,9 @@
+## 1.3.1
+
+* Fix [Issue #307](https://github.com/rundeck/rundeck-cli/issues/307) acl extension not available in shadow packages (deb)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.0...v1.3.1)
+
 ## 1.3.0
 
 * added `rd acl` subcommands for create,test,validate of aclpolicy files
