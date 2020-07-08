@@ -1,6 +1,6 @@
 # Rundeck CLI Tool
 
-[![Build Status](https://travis-ci.org/rundeck/rundeck-cli.svg?branch=master)](https://travis-ci.org/rundeck/rundeck-cli)
+[![Build Status](https://travis-ci.org/rundeck/rundeck-cli.svg?branch=main)](https://travis-ci.org/rundeck/rundeck-cli)
 
 This is the official CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 
