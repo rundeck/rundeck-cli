@@ -16,20 +16,20 @@
 
 package org.rundeck.client.api.model;
 
-import org.simpleframework.xml.ElementList;
-import org.simpleframework.xml.Root;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@Root(strict=false)
+@XmlRootElement()
 public class ImportResult {
-    @ElementList()
     private List<JobLoadItem> succeeded;
-    @ElementList()
     private List<JobLoadItem> failed;
-    @ElementList()
     private List<JobLoadItem> skipped;
 
+    @XmlElementWrapper
+    @XmlElement(name = "job")
     public List<JobLoadItem> getSucceeded() {
         return succeeded;
     }
@@ -38,6 +38,8 @@ public class ImportResult {
         this.succeeded = succeeded;
     }
 
+    @XmlElementWrapper
+    @XmlElement(name = "job")
     public List<JobLoadItem> getFailed() {
         return failed;
     }
@@ -46,6 +48,8 @@ public class ImportResult {
         this.failed = failed;
     }
 
+    @XmlElementWrapper
+    @XmlElement(name = "job")
     public List<JobLoadItem> getSkipped() {
         return skipped;
     }

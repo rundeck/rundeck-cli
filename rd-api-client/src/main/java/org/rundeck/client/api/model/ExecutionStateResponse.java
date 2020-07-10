@@ -17,11 +17,8 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import org.rundeck.client.util.RdClientConfig;
-import org.simpleframework.xml.Element;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;

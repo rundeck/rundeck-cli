@@ -18,8 +18,8 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.rundeck.client.util.DataOutput;
-import org.simpleframework.xml.Root;
 
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +29,7 @@ import java.util.Map;
  * @since 3/1/17
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Root(strict = false)
+@XmlRootElement()
 public class JobFileItem implements DataOutput {
     private String id;
     private String user;

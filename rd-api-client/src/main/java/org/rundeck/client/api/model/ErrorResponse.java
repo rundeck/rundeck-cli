@@ -17,58 +17,93 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.rundeck.client.util.Xml;
-import org.simpleframework.xml.*;
 
+import javax.xml.bind.annotation.*;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Root(strict = false)
+@XmlRootElement()
 @Xml
 
-public class ErrorResponse implements ErrorDetail {
+public class ErrorResponse
+        implements ErrorDetail
+{
 
-    @Attribute
-    public String error;
+    @XmlAttribute(name = "error")
+    @JsonProperty("error")
+    public String errorString;
+    @JsonProperty("message")
+    public String messageString;
+    @JsonProperty("messages")
+    public List<String> messages;
+    @JsonProperty("errorCode")
+    public String errorCodeJson;
 
-    @Attribute
+    @XmlAttribute
     public int apiversion;
 
-    @Attribute(name = "code", required = false)
-    @Path("error")
-    public String errorCode;
+    static class Error {
+        @XmlAttribute
+        String code;
+        @XmlElement(name = "message")
+        String messageString;
+        @XmlElementWrapper(name = "messages")
+        @XmlElement(name = "message")
+        public List<Message> messageList;
 
-    @Element(required = false)
-    @Path("error")
-    public String message;
+        @XmlElement(name = "message")
+        public Message message;
 
-    @Path("error")
-    @ElementList(entry = "message", required = false)
-    public List<String> messages;
+        String getSingleMessage(){
+            if(null!=messageList ){
+                if(messageList.size()==1) {
+                    return messageList.get(0).message;
+                }else{
+                    return messageList.toString();
+                }
+            }else if(null!=message){
+                return message.message;
+            }else{
+                return messageString;
+            }
+        }
+        static class Message{
+            @XmlValue
+            String message;
+
+            @Override
+            public String toString() {
+                return message;
+            }
+        }
+    }
+
+    @XmlElement
+    Error error;
+
+    public String getErrorCode() {
+        return null != error ? error.code : errorCodeJson;
+    }
+
+
 
     public String toCodeString() {
-        if (null != errorCode) {
+        if (null != getErrorCode()) {
             return String.format(
                     "[code: %s; APIv%d]",
-                    errorCode,
+                    getErrorCode(),
                     apiversion
             );
         }
         return "";
     }
 
-    @Override
-    public String getErrorCode() {
-        return errorCode;
-    }
 
     @Override
     public String getErrorMessage() {
-        return message != null ? message :
-               messages != null ? messages.size() == 1
-                                  ? messages.get(0)
-                                  : messages.toString()
-                                : error;
+        return error != null ? error.getSingleMessage() : null != messages ? messages.toString() : messageString;
     }
 
     @Override

@@ -5,7 +5,7 @@ import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import retrofit2.converter.jaxb.JaxbConverterFactory
 import spock.lang.Specification
 import spock.lang.Unroll
 
@@ -20,7 +20,7 @@ class ErrorResponseSpec extends Specification {
     def "xml parse code not required"() {
         given:
         def retrofit = new Retrofit.Builder().baseUrl('http://test').
-                addConverterFactory(SimpleXmlConverterFactory.create()).
+                addConverterFactory(JaxbConverterFactory.create()).
                 build()
 
         when:
@@ -34,9 +34,9 @@ class ErrorResponseSpec extends Specification {
 
         result != null
         result.errorCode == code
-        result.error == error
-        result.message == message
-        result.messages == null
+        result.errorString == error
+        result.error?.messageString == message
+        result.error?.messageList == null
         result.errorMessage == message
         result.apiVersion == version
 
@@ -60,7 +60,7 @@ class ErrorResponseSpec extends Specification {
     def "xml parse multi message"() {
         given:
         def retrofit = new Retrofit.Builder().baseUrl('http://test').
-                addConverterFactory(SimpleXmlConverterFactory.create()).
+                addConverterFactory(JaxbConverterFactory.create()).
                 build()
 
         when:
@@ -74,8 +74,8 @@ class ErrorResponseSpec extends Specification {
 
         result != null
         result.errorCode == code
-        result.error == error
-        result.messages == messages
+            result.errorString == error
+            result.error.messageList*.message == messages
         result.errorMessage == messages.toString()
         result.apiVersion == version
 
@@ -94,6 +94,7 @@ class ErrorResponseSpec extends Specification {
 
     }
 
+    @Unroll
     def "json parse with multiple messages"() {
         given:
         def retrofit = new Retrofit.Builder().baseUrl('http://test').
@@ -113,8 +114,8 @@ class ErrorResponseSpec extends Specification {
 
         result != null
         result.errorCode == code
-        result.error == error
-        result.message == message
+        result.errorString == error
+        result.errorMessage == message
         result.messages == messages
         result.apiVersion == version
 
@@ -128,7 +129,7 @@ class ErrorResponseSpec extends Specification {
         '{"error":true,"apiversion":21,"errorCode":"test","messages":["a","b"]}'               |
                 'test'              |
                 'true' |
-                null        |
+                '[a, b]'        |
                 ['a', 'b'] |
                 21
         '{"error":true,"apiversion":21,"errorCode":"api.error.unknown","message":"A message"}' |

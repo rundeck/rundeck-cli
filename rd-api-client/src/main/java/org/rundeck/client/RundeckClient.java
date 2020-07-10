@@ -24,7 +24,7 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.util.*;
 import retrofit2.Retrofit;
 import retrofit2.converter.jackson.JacksonConverterFactory;
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
+import retrofit2.converter.jaxb.JaxbConverterFactory;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -261,7 +261,7 @@ public class RundeckClient {
                     .client(okhttp.build())
                     .addConverterFactory(new QualifiedTypeConverterFactory(
                             JacksonConverterFactory.create(),
-                            SimpleXmlConverterFactory.create(),
+                            JaxbConverterFactory.create(),
                             true
                     ))
                     .build();
