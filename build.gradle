@@ -19,10 +19,12 @@ import java.util.regex.Matcher
 buildscript {
     repositories {
         jcenter()
+        mavenCentral()
     }
 
     dependencies {
         classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.8.4'
+        classpath 'org.owasp:dependency-check-gradle:5.3.2'
     }
 }
 plugins {
@@ -30,8 +32,13 @@ plugins {
 
     id 'maven-publish'
 }
+apply plugin: 'org.owasp.dependencycheck'
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
 ext.changelogFile = file("CHANGELOG.md")
+
+dependencyCheck {
+    suppressionFile='cve-suppress.xml'
+}
 
 /**
  * Unreleased changes list from the changelog file
