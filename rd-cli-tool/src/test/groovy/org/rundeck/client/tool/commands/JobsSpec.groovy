@@ -254,7 +254,9 @@ class JobsSpec extends Specification {
             1 * api.listJobs('ProjectName', job, null, null, null) >> {
                 Calls.response((1..total).collect{new JobItem(id: "fakeid_$it")})
             }
-        (expect.size()) * api.deleteJobsBulk({it.ids.size()==expect[iter++]}) >> Calls.response(new DeleteJobsResult(allsuccessful: true))
+        (expect.size()) * api.deleteJobsBulk({it.ids.size()==expect[iter++]}) >> {
+            Calls.response(new DeleteJobsResult(allsuccessful: true))
+        }
         0 * api._(*_)
         result
 
