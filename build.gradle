@@ -38,6 +38,8 @@ ext.changelogFile = file("CHANGELOG.md")
 
 dependencyCheck {
     suppressionFile='cve-suppress.xml'
+    format='ALL'
+    failBuildOnCVSS=8
 }
 
 /**
