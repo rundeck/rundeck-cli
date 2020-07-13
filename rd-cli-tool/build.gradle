@@ -49,7 +49,7 @@ dependencies {
     annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
 
     implementation project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
-    implementation 'com.github.rundeck:rd-ext-acl:v0.1.1:all'
+    implementation 'com.github.rundeck:rd-ext-acl:v0.1.2:all'
 
     implementation "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
     implementation "org.rundeck.cli-toolbelt:toolbelt-snakeyaml:$toolbeltVersion"
