@@ -18,34 +18,28 @@ package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.rundeck.client.util.DataOutput;
-import org.simpleframework.xml.Attribute;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Root(strict = false)
+@XmlRootElement()
 public class JobItem implements DataOutput {
-    @Element(required = false)
     private String id;
-    @Element(required = false)
     private String name;
-    @Element(required = false)
     private String group;
-    @Element
     private String project;
     private String description;
-    @Attribute(required = false)
     private String href;
-    @Element(required = false)
     private String permalink;
 
-    @Attribute(required = false)
     private Long averageDuration;
 
+    @XmlElement()
     public String getId() {
         return id;
     }
@@ -54,6 +48,7 @@ public class JobItem implements DataOutput {
         this.id = id;
     }
 
+    @XmlElement()
     public String getName() {
         return name;
     }
@@ -62,6 +57,7 @@ public class JobItem implements DataOutput {
         this.name = name;
     }
 
+    @XmlElement()
     public String getGroup() {
         return group;
     }
@@ -70,6 +66,7 @@ public class JobItem implements DataOutput {
         this.group = group;
     }
 
+    @XmlElement
     public String getProject() {
         return project;
     }
@@ -86,6 +83,7 @@ public class JobItem implements DataOutput {
         this.description = description;
     }
 
+    @XmlAttribute()
     public String getHref() {
         return href;
     }
@@ -94,6 +92,7 @@ public class JobItem implements DataOutput {
         this.href = href;
     }
 
+    @XmlElement()
     public String getPermalink() {
         return permalink;
     }
@@ -141,6 +140,7 @@ public class JobItem implements DataOutput {
         return String.format("%s %s%s", id, group != null ? group + "/" : "", name != null ? name : "");
     }
 
+    @XmlAttribute()
     public Long getAverageDuration() {
         return averageDuration;
     }

@@ -17,19 +17,19 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.simpleframework.xml.Element;
-import org.simpleframework.xml.Root;
 
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Root(strict=false)
+@XmlRootElement()
 public class JobLoadItem extends JobItem {
 
-    @Element(required = false)
     private String error;
 
+    @XmlElement(required = false)
     public String getError() {
         return error;
     }

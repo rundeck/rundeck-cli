@@ -213,7 +213,7 @@ public class ACLs extends AppCommand {
                     output.output(filename);
                     output.output(colorize ? Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW) : map);
                 });
-                if (!validationData.isPresent() && "true".equals(error.error)) {
+                if (!validationData.isPresent() && "true".equals(error.errorString)) {
                     output.error("Invalid Request:");
                     //other error
                     client.reportApiError(error);

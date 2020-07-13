@@ -50,7 +50,7 @@ dependencies {
 
     api "com.squareup.retrofit2:retrofit:${retrofitVersion}"
     api "com.squareup.retrofit2:converter-jackson:${retrofitVersion}"
-    api "com.squareup.retrofit2:converter-simplexml:${retrofitVersion}"
+    api "com.squareup.retrofit2:converter-jaxb:${retrofitVersion}"
     api 'com.squareup.okhttp3:logging-interceptor:3.5.0'
     api 'com.squareup.okhttp3:okhttp-urlconnection:3.5.0'
 

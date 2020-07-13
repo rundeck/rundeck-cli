@@ -4,7 +4,7 @@ import okhttp3.MediaType
 import okhttp3.ResponseBody
 import retrofit2.Converter
 import retrofit2.Retrofit
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory
+import retrofit2.converter.jaxb.JaxbConverterFactory
 import spock.lang.Specification
 
 import java.lang.annotation.Annotation
@@ -22,7 +22,7 @@ class JobLoadItemSpec extends Specification {
       <error>Job Name is required</error>
     </job>'''
             def retrofit = new Retrofit.Builder().baseUrl('http://test').
-                    addConverterFactory(SimpleXmlConverterFactory.create()).
+                    addConverterFactory(JaxbConverterFactory.create()).
                     build()
 
         when:
@@ -32,7 +32,7 @@ class JobLoadItemSpec extends Specification {
 
         then:
             result != null
-            result.name == null
+            result.name == ''
             result.id == '896a3c9e-f765-43cc-8e1a-15566fe275fa'
             result.permalink == 'http://rundeck.local:4440/rundeck/project/asdf/job/show/896a3c9e-f765-43cc-8e1a-15566fe275fa'
             result.group == 'Sales'

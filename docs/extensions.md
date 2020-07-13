@@ -59,7 +59,7 @@ dependencies {
 
     implementation 'com.squareup.retrofit2:retrofit:2.7.1'
     implementation 'com.squareup.retrofit2:converter-jackson:2.7.1'
-    implementation 'com.squareup.retrofit2:converter-simplexml:2.7.1'
+    implementation 'com.squareup.retrofit2:converter-jaxb:2.7.1'
 
 }
 ~~~
