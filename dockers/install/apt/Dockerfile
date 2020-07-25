@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 RUN apt-get -y update
-RUN apt-get -y install apt-transport-https curl
+RUN apt-get --no-install-recommends -y install apt-transport-https curl
 
 RUN echo "deb https://dl.bintray.com/rundeck/rundeck-deb /" | tee -a /etc/apt/sources.list
 
@@ -10,5 +10,5 @@ RUN apt-key add - < /tmp/bintray.gpg.key
 
 
 RUN apt-get -y update
-RUN apt-get install -y openjdk-8-jdk
-RUN apt-get -y install rundeck-cli
+RUN apt-get --no-install-recommends -y install openjdk-8-jdk
+RUN apt-get --no-install-recommends -y install rundeck-cli

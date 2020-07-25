@@ -71,9 +71,9 @@ via Bintray
 echo "deb https://dl.bintray.com/rundeck/rundeck-deb /" | sudo tee -a /etc/apt/sources.list
 curl "https://bintray.com/user/downloadSubjectPublicKey?username=bintray" > /tmp/bintray.gpg.key
 apt-key add - < /tmp/bintray.gpg.key
-apt-get -y install apt-transport-https
+apt-get --no-install-recommends -y install apt-transport-https
 apt-get -y update
-apt-get -y install rundeck-cli
+apt-get --no-install-recommends -y install rundeck-cli
 ~~~
 
 ### Arch Linux install
