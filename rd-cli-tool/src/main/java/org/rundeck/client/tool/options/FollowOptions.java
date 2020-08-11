@@ -18,7 +18,7 @@ package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
 
-public interface FollowOptions extends RunOptions{
+public interface FollowOptions extends RunOptions, OutputFormat{
 
     @Option(shortName = "q", longName = "quiet", description = "Echo no output. Combine with -f/--follow to wait silently until the execution completes. Useful for non-interactive scripts.")
     boolean isQuiet();
@@ -39,10 +39,6 @@ public interface FollowOptions extends RunOptions{
 
     boolean isTail();
 
-    @Option(shortName = "%",
-            longName = "outformat",
-            description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
-                          "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
     String getOutputFormat();
 
     boolean isOutputFormat();

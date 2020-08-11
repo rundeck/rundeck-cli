@@ -35,8 +35,10 @@ import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 
 /**
@@ -173,7 +175,15 @@ public class Run extends AppCommand {
             ));
         }
         String started = runat != null ? "scheduled" : "started";
-        out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
+
+        if(!options.isFollow()){
+            if (!options.isOutputFormat() && !options.isVerbose()) {
+                out.info(String.format("Execution %s%n", started));
+            }
+            Executions.outputExecutionList(options, out, getAppConfig(), Stream.<Execution>builder().add(execution).build());
+        }else{
+            out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
+        }
 
         if (runat != null && options.isFollow()) {
             Date now = new Date();

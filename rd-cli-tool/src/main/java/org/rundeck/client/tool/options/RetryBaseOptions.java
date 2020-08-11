@@ -55,5 +55,10 @@ public interface RetryBaseOptions extends JobIdentOptions, FollowOptions, RetryE
     @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath -OPTFILE2@ filepath", description = "Job options")
     List<String> getCommandString();
 
+    @Option(shortName = "%",
+            longName = "outformat",
+            description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
+                          "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
+    String getOutputFormat();
 }
 
