@@ -40,3 +40,9 @@ jobs:
 
       # run tests!
       - run: ./gradlew test
+      - store_test_results:
+        path: rd-cli-tool/build/test-results
+      - store_test_results:
+        path: rd-cli-base/build/test-results
+      - store_test_results:
+        path: rd-api-client/build/test-results
