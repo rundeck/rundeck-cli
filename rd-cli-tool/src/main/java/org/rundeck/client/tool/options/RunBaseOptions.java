@@ -24,7 +24,7 @@ import org.rundeck.client.api.model.DateInfo;
 import java.util.List;
 
 @CommandLineInterface(application = "run")
-public interface RunBaseOptions extends JobIdentOptions, FollowOptions, OptionalProjectOptions, NodeFilterOptions {
+public interface RunBaseOptions extends JobIdentOptions, FollowOptions, OptionalProjectOptions, NodeFilterOptions, VerboseOption {
     @Option(shortName = "l",
             longName = "loglevel",
             description = "Run the command using the specified LEVEL. LEVEL can be debug, verbose, info, warning, error.",
@@ -65,6 +65,15 @@ public interface RunBaseOptions extends JobIdentOptions, FollowOptions, Optional
 
     @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath -OPTFILE2@ filepath", description = "Job options")
     List<String> getCommandString();
+
+
+    @Option(shortName = "%",
+            longName = "outformat",
+            description =
+                    "Output format specifier for execution logs (follow mode) or Execution info (non-follow mode). You can use \"%key\" where key is one of:"
+                          + "\n\t\tFollow mode: time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\" "
+                          + "\n\t\tExecution info mode: id, project, description, argstring, permalink, href, status, job, job.*, user, serverUUID, dateStarted, dateEnded, successfulNodes, failedNodes. E.g. \"%id %href\"")
+    String getOutputFormat();
 
 }
 

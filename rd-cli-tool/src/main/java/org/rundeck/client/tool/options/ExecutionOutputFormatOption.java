@@ -18,7 +18,7 @@ package org.rundeck.client.tool.options;
 
 import com.lexicalscope.jewel.cli.Option;
 
-public interface ExecutionOutputFormatOption {
+public interface ExecutionOutputFormatOption extends OutputFormat{
 
     @Option(shortName = "%",
             longName = "outformat",

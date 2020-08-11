@@ -471,7 +471,7 @@ public class Executions extends AppCommand {
     }
 
     public static void outputExecutionList(
-            final ExecutionResultOptions options,
+            final OutputFormat options,
             final CommandOutput out,
             final RdClientConfig config,
             final Stream<Execution> executions

@@ -23,4 +23,9 @@ public interface ExecutionsFollowOptions extends BaseOptions, FollowOptions {
     @Option(shortName = "e", longName = "eid", description = "Execution ID")
     String getId();
 
+    @Option(shortName = "%",
+            longName = "outformat",
+            description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
+                          "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
+    String getOutputFormat();
 }

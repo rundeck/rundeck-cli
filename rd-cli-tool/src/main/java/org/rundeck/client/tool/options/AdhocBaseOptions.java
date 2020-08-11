@@ -71,4 +71,9 @@ public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions, Nod
     List<String> getCommandString();
 
 
+    @Option(shortName = "%",
+            longName = "outformat",
+            description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
+                          "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
+    String getOutputFormat();
 }

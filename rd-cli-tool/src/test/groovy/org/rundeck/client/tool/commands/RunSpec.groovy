@@ -95,6 +95,75 @@ class RunSpec extends Specification {
         result
 
     }
+    def "run command --outformat applies to exec data"() {
+
+        given:
+        def api = Mock(RundeckApi)
+
+        def opts = Mock(RunBaseOptions) {
+            isJob() >> true
+            isProject() >> true
+            getProject() >> 'ProjectName'
+            getJob() >> 'a group/path/a job'
+            getLoglevel()>>'debug'
+            isOutputFormat()>>true
+            getOutputFormat()>>'%id'
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 17, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Run run = new Run(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        def result = run.run(opts, out)
+
+        then:
+        1 * api.listJobs('ProjectName', null, null, 'a job', 'a group/path') >>
+                Calls.response([new JobItem(id: 'fakeid')])
+        1 * api.runJob('fakeid', null, 'DEBUG', null, null) >> Calls.response(new Execution(id: 123, description: ''))
+        0 * api._(*_)
+        1 * out.output("123")
+        result
+
+    }
+    def "run command --verbose outputs exec data map"() {
+
+        given:
+        def api = Mock(RundeckApi)
+
+        def opts = Mock(RunBaseOptions) {
+            isJob() >> true
+            isProject() >> true
+            getProject() >> 'ProjectName'
+            getJob() >> 'a group/path/a job'
+            getLoglevel()>>'debug'
+            isVerbose()>>true
+        }
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 17, true, null)
+        def hasclient = Mock(RdApp) {
+            getClient() >> client
+        }
+        Run run = new Run(hasclient)
+        def out = Mock(CommandOutput)
+        when:
+        def result = run.run(opts, out)
+
+        then:
+        1 * api.listJobs('ProjectName', null, null, 'a job', 'a group/path') >>
+                Calls.response([new JobItem(id: 'fakeid')])
+        1 * api.runJob('fakeid', null, 'DEBUG', null, null) >> Calls.response(new Execution(id: 123, description: ''))
+        0 * api._(*_)
+        1 * out.output({
+            it == [['failedNodes': null, 'description': '', 'project': null, 'successfulNodes': null, 'argstring':
+                null, 'serverUUID': null, 'dateStarted': null, 'dateEnded': null, 'id': '123', 'href': null,
+                    'permalink': null, 'user': null, 'status': null]]
+        })
+        result
+
+    }
 
     @Unroll
     def "run gets project from ENV if specified = false #isproj"() {
