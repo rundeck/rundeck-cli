@@ -128,6 +128,7 @@ class RunSpec extends Specification {
         result
 
     }
+    @Unroll
     def "run command --verbose outputs exec data map"() {
 
         given:
@@ -146,6 +147,7 @@ class RunSpec extends Specification {
         def hasclient = Mock(RdApp) {
             getClient() >> client
         }
+        def job = new JobItem(id: 'fakeid')
         Run run = new Run(hasclient)
         def out = Mock(CommandOutput)
         when:
@@ -153,15 +155,46 @@ class RunSpec extends Specification {
 
         then:
         1 * api.listJobs('ProjectName', null, null, 'a job', 'a group/path') >>
-                Calls.response([new JobItem(id: 'fakeid')])
-        1 * api.runJob('fakeid', null, 'DEBUG', null, null) >> Calls.response(new Execution(id: 123, description: ''))
+                Calls.response([job])
+        1 * api.runJob('fakeid', null, 'DEBUG', null, null) >> Calls.response(new Execution(id: 123, description: '',job: hasJob?job:null))
         0 * api._(*_)
         1 * out.output({
-            it == [['failedNodes': null, 'description': '', 'project': null, 'successfulNodes': null, 'argstring':
-                null, 'serverUUID': null, 'dateStarted': null, 'dateEnded': null, 'id': '123', 'href': null,
-                    'permalink': null, 'user': null, 'status': null]]
+            it == [
+                [
+                    'failedNodes'    : null,
+                    'description'    : '',
+                    'project'        : null,
+                    'successfulNodes': null,
+                    'argstring'      : null,
+                    'serverUUID'     : null,
+                    'dateStarted'    : null,
+                    'dateEnded'      : null,
+                    'id'             : '123',
+                    'href'           : null,
+                    'permalink'      : null,
+                    'user'           : null,
+                    'status'         : null,
+                    'adhoc'          : adhoc,
+                ] + (
+                    hasJob ? [
+                        job: [
+                            'id'         : 'fakeid',
+                            'name'       : null,
+                            'project'    : null,
+                            'href'       : null,
+                            'permalink'  : null,
+                            'description': null
+                        ]
+                    ] :
+                    [:]
+                )
+            ]
         })
         result
+        where:
+            hasJob | adhoc
+            true | 'false'
+            false | 'true'
 
     }
 
