@@ -96,6 +96,9 @@ public class Execution {
         map.put("project", getProject());
         if(null!=getJob()) {
             map.put("job", getJob().toMap());
+            map.put("adhoc", "false");
+        }else{
+            map.put("adhoc", "true");
         }
         map.put("user", getUser());
         map.put("serverUUID", getServerUUID());

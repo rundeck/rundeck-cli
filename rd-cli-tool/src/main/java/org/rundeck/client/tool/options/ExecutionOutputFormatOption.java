@@ -24,7 +24,7 @@ public interface ExecutionOutputFormatOption {
             longName = "outformat",
             description = "Output format specifier for execution data. You can use \"%key\" where key is one of:" +
                           "id, project, description, argstring, permalink, href, status, job, job.*, user, serverUUID, " +
-                          "dateStarted, dateEnded, successfulNodes, failedNodes. E.g. \"%id %href\"")
+                          "dateStarted, dateEnded, successfulNodes, failedNodes, adhoc. E.g. \"%id %href\"")
     String getOutputFormat();
 
     boolean isOutputFormat();
