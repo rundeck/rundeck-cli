@@ -237,10 +237,12 @@ class SCMSpec extends Specification {
                                         type: 'String'
                                 )],
                                 importItems: [
-                                        new ScmImportItem(itemId: '/a/path', tracked: false, job: null),
+                                        new ScmImportItem(itemId: '/a/path', tracked: false, job: null,deleted: false, status:'CLEAN'),
                                         new ScmImportItem(
                                                 itemId: '/b/path',
                                                 tracked: true,
+                                                deleted: false,
+                                                status:'CLEAN',
                                                 job: new ScmJobItem(
                                                         jobId: 'ajob',
                                                         jobName: 'job name',
@@ -266,8 +268,8 @@ class SCMSpec extends Specification {
         1 * out.output('Items:')
         1 * out.output(
                 [
-                        ['itemId': '/a/path', 'tracked': false],
-                        ['itemId': '/b/path', 'tracked': true,
+                        ['itemId': '/a/path', 'tracked': false, 'deleted': false, status:'CLEAN'],
+                        ['itemId': '/b/path', 'tracked': true, 'deleted': false, status:'CLEAN',
                          'job'   : [
                                  'jobName'  : 'job name',
                                  'jobId'    : 'ajob',
