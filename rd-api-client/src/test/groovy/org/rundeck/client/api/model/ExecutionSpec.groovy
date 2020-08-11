@@ -7,7 +7,7 @@ import sun.security.util.AuthResources_fr
 
 class ExecutionSpec extends Specification {
     @Unroll
-    def "get info map has job #hasJob"() {
+    def "get info map has job #hasJob adhoc #adhoc"() {
         given:
             def jobmap = [
                     id             : 'jobid',
@@ -26,7 +26,11 @@ class ExecutionSpec extends Specification {
             def result = e.getInfoMap(config)
         then:
             result
+        then:
+            result.adhoc == adhoc
         where:
-            hasJob << [true, false]
+            hasJob | adhoc
+            true   | 'false'
+            false  | 'true'
     }
 }
