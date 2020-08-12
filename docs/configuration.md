@@ -96,12 +96,25 @@ the `RD_BYPASS_URL` will be replaced by `http://internal-rundeck:4440/rundeck`.
 
 ## HTTP/connect timeout
 
-Use `RD_HTTP_TIMEOUT` env var:
 
-	# 30 second timeout
-	export RD_HTTP_TIMEOUT=30
+    # sets connection timeout (default: 2 Minutes)
+    export RD_HTTP_CONN_TIMEOUT=120
+    
+    # sets write timeout (default: 10 Seconds)
+    export RD_HTTP_WRITE_TIMEOUT=10
+    
+    # sets read timeout (default: 10 Minutes)
+    export RD_HTTP_READ_TIMEOUT=600
+    
+    # sets call* timeout (default: none)
+    export RD_HTTP_CALL_TIMEOUT=240
+    
+    # Sets the timeout for READ, CONNECT, and WRITE. This overrides any settings above.
+    export RD_HTTP_TIMEOUT=30
 
-Note: if the timeout seems longer than you specify, it is because the "connection retry" is set to true
+*\* Call Timeout*: This is sets a timeout on the entire request/response sequence including DNS resolution and redirect following.
+
+Note: if the timeout seems longer than you specify, it is because the [connection retry](#connection-retry) is set to true
 by default.
 
 ## Connection Retry

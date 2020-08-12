@@ -51,12 +51,18 @@ public class RundeckClient {
     public static final String ENV_INSECURE_SSL_HOSTNAME = "RD_INSECURE_SSL_HOSTNAME";
     public static final String ENV_ALT_SSL_HOSTNAME = "RD_ALT_SSL_HOSTNAME";
     public static final String ENV_HTTP_TIMEOUT = "RD_HTTP_TIMEOUT";
+    public static final String ENV_HTTP_READ_TIMEOUT = "RD_HTTP_READ_TIMEOUT";
+    public static final String ENV_HTTP_WRITE_TIMEOUT = "RD_HTTP_WRITE_TIMEOUT";
+    public static final String ENV_HTTP_CONN_TIMEOUT = "RD_HTTP_CONN_TIMEOUT";
+    public static final String ENV_HTTP_CALL_TIMEOUT = "RD_HTTP_CALL_TIMEOUT";
     public static final String ENV_CONNECT_RETRY = "RD_CONNECT_RETRY";
     /**
      * If true, allow API version to be automatically degraded when unsupported version is detected
      */
     public static final String RD_API_DOWNGRADE = "RD_API_DOWNGRADE";
     public static final int INSECURE_SSL_LOGGING = 2;
+    public static final long DEFAULT_READ_TIMEOUT_SECONDS = 10 * 60L;
+    public static final long DEFAULT_CONN_TIMEOUT_SECONDS = 2 * 60L;
 
     private RundeckClient() {
     }
@@ -88,7 +94,11 @@ public class RundeckClient {
         public Builder<A> config(RdClientConfig config) {
             logging(config.getDebugLevel());
             retryConnect(config.getBool(ENV_CONNECT_RETRY, true));
+            readTimeout(config.getLong(ENV_HTTP_READ_TIMEOUT, DEFAULT_READ_TIMEOUT_SECONDS));
+            connectTimeout(config.getLong(ENV_HTTP_CONN_TIMEOUT, DEFAULT_CONN_TIMEOUT_SECONDS));
+            writeTimeout(config.getLong(ENV_HTTP_WRITE_TIMEOUT, null));
             timeout(config.getLong(ENV_HTTP_TIMEOUT, null));
+            callTimeout(config.getLong(ENV_HTTP_CALL_TIMEOUT, null));
             bypassUrl(config.getString(ENV_BYPASS_URL, null));
             insecureSSL(config.getBool(ENV_INSECURE_SSL, false));
             insecureSSLHostname(config.getBool(ENV_INSECURE_SSL_HOSTNAME, false));
@@ -113,12 +123,41 @@ public class RundeckClient {
             return accept(RundeckClient::configAlternateSSLHostname, hostnames);
         }
 
-        public Builder<A> retryConnect(final boolean bool) {
-            return accept(RundeckClient::acceptRetry, bool);
+        public Builder<A> retryConnect(final Boolean retryConnect) {
+            if (null != retryConnect) {
+                this.okhttp.retryOnConnectionFailure(retryConnect);
+            }
+            return this;
         }
 
         public Builder<A> timeout(final Long timeout) {
-            return accept(RundeckClient::acceptTimeout, timeout);
+            return readTimeout(timeout)
+                    .connectTimeout(timeout)
+                    .writeTimeout(timeout);
+        }
+        public Builder<A> readTimeout(final Long timeout) {
+            if (null != timeout) {
+                this.okhttp.readTimeout(timeout, TimeUnit.SECONDS);
+            }
+            return this;
+        }
+        public Builder<A> writeTimeout(final Long timeout) {
+            if (null != timeout) {
+                this.okhttp.writeTimeout(timeout, TimeUnit.SECONDS);
+            }
+            return this;
+        }
+        public Builder<A> connectTimeout(final Long timeout) {
+            if (null != timeout) {
+                this.okhttp.connectTimeout(timeout, TimeUnit.SECONDS);
+            }
+            return this;
+        }
+        public Builder<A> callTimeout(final Long timeout) {
+            if (null != timeout) {
+                this.okhttp.callTimeout(timeout, TimeUnit.SECONDS);
+            }
+            return this;
         }
 
         public Builder<A> baseUrl(final String baseUrl) {
@@ -440,23 +479,6 @@ public class RundeckClient {
         }
     }
 
-    private static Builder<?> acceptRetry(final Builder<?> builder, final Boolean retryConnect) {
-        if (null != retryConnect) {
-            builder.okhttp.retryOnConnectionFailure(retryConnect);
-        }
-        return builder;
-    }
-
-    private static Builder<?> acceptTimeout(final Builder<?> builder, final Long timeout) {
-        if (null != timeout) {
-            builder.okhttp
-                    .readTimeout(timeout, TimeUnit.SECONDS)
-                    .connectTimeout(timeout, TimeUnit.SECONDS)
-                    .writeTimeout(timeout, TimeUnit.SECONDS)
-            ;
-        }
-        return builder;
-    }
 
     private static Builder<?> configLogging(final Builder<?> builder, final int httpLogging) {
         if (httpLogging > 0) {
