@@ -359,12 +359,28 @@ public class SCM extends AppCommand {
                 }
             } else {
                 List<ScmImportItem> importItems = inputs.importItems;
-                perform.setItems(importItems.stream()
-                                            .filter(a -> options.isAllItems() ||
-                                                         options.isAllTrackedItems() && a.tracked ||
-                                                         options.isAllUntrackedItems() && !a.tracked)
-                                            .map(a -> a.itemId)
-                                            .collect(Collectors.toList()));
+                perform.setItems(
+                        importItems.stream()
+                                   .filter(a -> !a.deleted && (
+                                                   options.isAllItems() ||
+                                                   options.isAllTrackedItems() && a.tracked ||
+                                                   options.isAllUntrackedItems() && !a.tracked
+                                           )
+                                   )
+                                   .map(a -> a.itemId)
+                                   .collect(Collectors.toList())
+                );
+                perform.setDeletedJobs(
+                        importItems.stream()
+                                   .filter(a -> a.deleted && a.job != null && (
+                                                   options.isAllItems() ||
+                                                   options.isAllTrackedItems() && a.tracked ||
+                                                   options.isAllUntrackedItems() && !a.tracked
+                                           )
+                                   )
+                                   .map(a -> a.job.jobId)
+                                   .collect(Collectors.toList())
+                );
             }
         }
         ServiceClient.WithErrorResponse<ScmActionResult> response = apiWithErrorResponse(api -> api.performScmAction(

@@ -31,7 +31,7 @@ import java.util.Map;
 public class ScmImportItem implements DataOutput {
     public String itemId;
     public Boolean tracked;
-    public Boolean deleted;
+    public boolean deleted;
     public ScmJobItem job;
     public String status;
 
@@ -39,7 +39,7 @@ public class ScmImportItem implements DataOutput {
         HashMap<String, Object> map = new HashMap<>();
         map.put("itemId", itemId);
         map.put("tracked", tracked);
-        map.put("deleted", deleted != null ? deleted : false);
+        map.put("deleted", deleted);
         map.put("status", status);
         if(null!=job) {
             map.put("job", job.toMap());

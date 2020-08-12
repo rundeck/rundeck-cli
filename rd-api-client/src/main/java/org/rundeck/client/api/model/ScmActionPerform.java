@@ -34,6 +34,7 @@ public class ScmActionPerform {
     private List<String> jobs;
     private List<String> items;
     private List<String> deleted;
+    private List<String> deletedJobs;
 
     public Map<String, String> getInput() {
         return input;
@@ -65,5 +66,13 @@ public class ScmActionPerform {
 
     public void setDeleted(List<String> deleted) {
         this.deleted = deleted;
+    }
+
+    public List<String> getDeletedJobs() {
+        return deletedJobs;
+    }
+
+    public void setDeletedJobs(List<String> deletedJobs) {
+        this.deletedJobs = deletedJobs;
     }
 }

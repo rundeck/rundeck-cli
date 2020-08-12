@@ -37,6 +37,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.mock.Calls
 import spock.lang.Specification
+import spock.lang.Unroll
 
 /**
  * @author greg
@@ -83,6 +84,7 @@ class SCMSpec extends Specification {
         1 * out.output([message: 'required'])
     }
 
+    @Unroll
     def "perform import with include flags"() {
         given:
         def api = Mock(RundeckApi)
@@ -112,6 +114,8 @@ class SCMSpec extends Specification {
         def items = [
                 new ScmImportItem(itemId: 'a', tracked: true),
                 new ScmImportItem(itemId: 'b', tracked: false),
+                new ScmImportItem(itemId: 'c', tracked: true, deleted: true, job: new ScmJobItem(jobId: 'ajob')),
+                new ScmImportItem(itemId: 'd', tracked: false, deleted: true, job: new ScmJobItem(jobId: 'xjob')),
         ]
         when:
         def result = scm.perform(opts, out)
@@ -123,7 +127,8 @@ class SCMSpec extends Specification {
                 )
 
         1 * api.performScmAction('aproject', 'import', 'import-all', { ScmActionPerform arg ->
-            arg.items == expected
+            arg.items == expectedItems
+            arg.deletedJobs==expectedDeletedJobs
         }
         ) >>
                 Calls.response(
@@ -132,10 +137,10 @@ class SCMSpec extends Specification {
 
         0 * api._(*_)
         where:
-        all   | tracked | untracked | expected
-        true  | false   | false     | ['a', 'b']
-        false | true    | false     | ['a']
-        false | false   | true      | ['b']
+        all   | tracked | untracked | expectedItems | expectedDeletedJobs
+        true  | false   | false     | ['a', 'b']    | ['ajob','xjob']
+        false | true    | false     | ['a']         | ['ajob']
+        false | false   | true      | ['b']         | ['xjob']
     }
 
     def "perform export with include flags"() {
