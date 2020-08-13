@@ -28,6 +28,7 @@ buildscript {
     }
 }
 plugins {
+    id 'base'
     id 'pl.allegro.tech.build.axion-release' version '1.9.3'
 
     id 'maven-publish'
