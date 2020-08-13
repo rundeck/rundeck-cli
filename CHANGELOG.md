@@ -1,3 +1,14 @@
+## 1.3.2
+
+* fix [Issue #305](https://github.com/rundeck/rundeck-cli/issues/305) scm import perform should include deletedJobs in request
+* fix [Issue #304](https://github.com/rundeck/rundeck-cli/issues/304) add scm import status and deleted fields to import items
+* Fix [Issue #285](https://github.com/rundeck/rundeck-cli/issues/285) rd run output supports -v and -% and RD_FORMAT when not using follow mode
+* Fix [Issue #323](https://github.com/rundeck/rundeck-cli/issues/323) indentation in verbose data output
+* Fix [Issue #272](https://github.com/rundeck/rundeck-cli/issues/272) execution info includes adhoc flag
+* fix: docs/Gemfile to reduce vulnerabilities
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.1...v1.3.2)
+
 ## 1.3.1
 
 * Fix [Issue #307](https://github.com/rundeck/rundeck-cli/issues/307) acl extension not available in shadow packages (deb)
