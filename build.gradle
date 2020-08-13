@@ -105,9 +105,6 @@ scmVersion {
         pre 'fileUpdate', [file       : 'docs/_config.yml',
                            pattern    : { v, c -> /app_version: [^\s]+/ },
                            replacement: { v, c -> "app_version: $v" }]
-        pre 'fileUpdate', [file       : 'rd-cli-tool/src/main/resources/rd-banner.txt',
-                           pattern    : { v, c -> /\(v$v\)/ },
-                           replacement: { v, c -> "(v$v)" }]
         pre { context ->
             def changelog = changelogFile
             def changes = file('docs/changes.md')
