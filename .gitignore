@@ -8,3 +8,4 @@
 *.iws
 /scratch
 /out
+/docs/.jekyll-cache
