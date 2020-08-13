@@ -192,7 +192,7 @@ public class Main {
                                 .defaultHelpCommands()
                                 .ansiColorOutput(rd.isAnsiEnabled())
                                 .add(base.toArray())
-                                .bannerResource("rd-banner.txt")
+                                .bannerResource("rd-banner.txt",Collections.singletonMap("@version@",org.rundeck.client.Version.VERSION))
                                 .commandInput(new JewelInput());
 
         belt.printStackTrace(rd.getDebugLevel() > 0);
