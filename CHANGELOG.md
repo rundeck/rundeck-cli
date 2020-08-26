@@ -1,3 +1,11 @@
+## 1.3.3
+
+* Revert "Fix [Issue #323](https://github.com/rundeck/rundeck-cli/issues/323) indentation in verbose data output"
+* fix: snapshot build version is not shown in banner
+* fix [Issue #262](https://github.com/rundeck/rundeck-cli/issues/262) increase default read/connect timeouts (10m/2m)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.2...v1.3.3)
+
 ## 1.3.2
 
 * fix [Issue #305](https://github.com/rundeck/rundeck-cli/issues/305) scm import perform should include deletedJobs in request
