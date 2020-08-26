@@ -114,7 +114,7 @@ public class Main {
                 return super.format(o);
             }
         };
-        formatter.setCollectionIndicator("- ");
+        formatter.setCollectionIndicator("");
         belt.formatter(formatter);
         belt.channels().info(new FormattedOutput(
                 belt.defaultOutput(),
