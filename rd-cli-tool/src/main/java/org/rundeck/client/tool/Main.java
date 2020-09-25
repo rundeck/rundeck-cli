@@ -27,6 +27,7 @@ import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.tool.extension.RdCommandExtension;
 import org.rundeck.client.tool.util.AdaptedToolbeltOutput;
 import org.rundeck.client.tool.util.ExtensionLoaderUtil;
+import org.rundeck.client.tool.util.Resources;
 import org.rundeck.client.util.*;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
@@ -37,6 +38,8 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
@@ -64,18 +67,21 @@ public class Main {
             RundeckClient.Builder.getUserAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
 
     public static void main(String[] args) throws CommandRunFailure {
-        Rd rd = new Rd(new Env());
-        Tool tool = tool(rd);
         boolean success = false;
-        try {
-            success = tool.runMain(args, false);
-        } catch (RequestFailed failure) {
-            rd.getOutput().error(failure.getMessage());
-            if (rd.getDebugLevel() > 0) {
-                StringWriter sb = new StringWriter();
-                failure.printStackTrace(new PrintWriter(sb));
-                rd.getOutput().error(sb.toString());
+        try (Rd rd = new Rd(new Env())) {
+            Tool tool = tool(rd);
+            try {
+                success = tool.runMain(args, false);
+            } catch (RequestFailed failure) {
+                rd.getOutput().error(failure.getMessage());
+                if (rd.getDebugLevel() > 0) {
+                    StringWriter sb = new StringWriter();
+                    failure.printStackTrace(new PrintWriter(sb));
+                    rd.getOutput().error(sb.toString());
+                }
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         if (!success) {
             System.exit(2);
@@ -232,7 +238,8 @@ public class Main {
         return belt.buckle();
     }
 
-    static class Rd extends ExtConfigSource implements RdApp, RdClientConfig {
+    static class Rd extends ExtConfigSource implements RdApp, RdClientConfig, Closeable {
+        private final Resources resources = new Resources();
         Client<RundeckApi> client;
         private CommandOutput output;
 
@@ -264,7 +271,7 @@ public class Main {
         public Client<RundeckApi> getClient() throws InputError {
             if (null == client) {
                 try {
-                    client = Main.createClient(this);
+                    client = resources.add(Main.createClient(this));
                 } catch (ConfigSourceError configSourceError) {
                     throw new InputError(configSourceError.getMessage());
                 }
@@ -275,7 +282,7 @@ public class Main {
         @Override
         public Client<RundeckApi> getClient(final int version) throws InputError {
             try {
-                client = Main.createClient(this, version);
+                client = resources.add(Main.createClient(this, version));
             } catch (ConfigSourceError configSourceError) {
                 throw new InputError(configSourceError.getMessage());
             }
@@ -285,7 +292,7 @@ public class Main {
         @Override
         public <T> ServiceClient<T> getClient(final Class<T> api, final int version) throws InputError {
             try {
-                return Main.createClient(this, api, version);
+                return resources.add(Main.createClient(this, api, version));
             } catch (ConfigSourceError configSourceError) {
                 throw new InputError(configSourceError.getMessage());
             }
@@ -294,7 +301,7 @@ public class Main {
         @Override
         public <T> ServiceClient<T> getClient(final Class<T> api) throws InputError {
             try {
-                return Main.createClient(this, api, null);
+                return resources.add(Main.createClient(this, api, null));
             } catch (ConfigSourceError configSourceError) {
                 throw new InputError(configSourceError.getMessage());
             }
@@ -327,6 +334,11 @@ public class Main {
 
         public void setOutput(CommandOutput output) {
             this.output = output;
+        }
+
+        @Override
+        public void close() throws IOException {
+            resources.close();
         }
     }
 
