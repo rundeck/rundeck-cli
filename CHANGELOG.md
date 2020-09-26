@@ -1,3 +1,9 @@
+## 1.3.4
+
+* Fix [Issue #302](https://github.com/rundeck/rundeck-cli/issues/302) jvm exit delayed by lingering threads
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.3...v1.3.4)
+
 ## 1.3.3
 
 * Revert "Fix [Issue #323](https://github.com/rundeck/rundeck-cli/issues/323) indentation in verbose data output"
