@@ -25,9 +25,8 @@ buildscript {
 plugins {
     id 'groovy'
     id 'application'
-    id 'com.github.johnrengelman.shadow' version '5.2.0'
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
     id "nebula.ospackage" version "8.1.0"
-
 }
 
 apply plugin: 'idea'
@@ -98,11 +97,7 @@ set -e
 # Source user's config file
 RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
 test -f $RD_CONF && . $RD_CONF
-RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext/}
-
-if [ -n "$RD_EXT_DIR" ] && [ -d "$RD_EXT_DIR" ] ; then
-  CLASSPATH=${CLASSPATH}:$RD_EXT_DIR/*
-fi
+export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext}
 '''
     )
 

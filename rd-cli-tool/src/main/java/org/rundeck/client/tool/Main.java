@@ -29,6 +29,7 @@ import org.rundeck.client.tool.util.AdaptedToolbeltOutput;
 import org.rundeck.client.tool.util.ExtensionLoaderUtil;
 import org.rundeck.client.tool.util.Resources;
 import org.rundeck.client.util.*;
+import org.rundeck.client.util.DataOutput;
 import org.rundeck.toolbelt.*;
 import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
 import org.rundeck.toolbelt.format.yaml.snakeyaml.YamlFormatter;
@@ -38,37 +39,40 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.Function;
 
-import static org.rundeck.client.RundeckClient.ENV_INSECURE_SSL;
-import static org.rundeck.client.RundeckClient.ENV_INSECURE_SSL_NO_WARN;
+import static org.rundeck.client.RundeckClient.*;
 
 
 /**
  * Entrypoint for commandline
  */
 public class Main {
+    public static final String RD_USER = "RD_USER";
+    public static final String RD_PASSWORD = "RD_PASSWORD";
+    public static final String RD_TOKEN = "RD_TOKEN";
+    public static final String RD_URL = "RD_URL";
+    public static final String RD_API_VERSION = "RD_API_VERSION";
+    public static final String RD_AUTH_PROMPT = "RD_AUTH_PROMPT";
+    public static final String RD_DEBUG = "RD_DEBUG";
+    public static final String RD_FORMAT = "RD_FORMAT";
+    public static final String RD_EXT_DISABLED = "RD_EXT_DISABLED";
+    public static final String RD_EXT_DIR = "RD_EXT_DIR";
 
-    public static final String ENV_USER          = "RD_USER";
-    public static final String ENV_PASSWORD      = "RD_PASSWORD";
-    public static final String ENV_TOKEN         = "RD_TOKEN";
-    public static final String ENV_URL           = "RD_URL";
-    public static final String ENV_API_VERSION   = "RD_API_VERSION";
-    public static final String ENV_AUTH_PROMPT   = "RD_AUTH_PROMPT";
-    public static final String ENV_DEBUG         = "RD_DEBUG";
-    public static final String ENV_RD_FORMAT     = "RD_FORMAT";
     public static final String
             USER_AGENT =
             RundeckClient.Builder.getUserAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
 
     public static void main(String[] args) throws CommandRunFailure {
         boolean success = false;
-        try (Rd rd = new Rd(new Env())) {
+        ConfigSource config = buildConfig();
+        loadExtensionJars(config);
+        try (Rd rd = new Rd(config)) {
             Tool tool = tool(rd);
             try {
                 success = tool.runMain(args, false);
@@ -88,15 +92,54 @@ public class Main {
         }
     }
 
+    private static ConfigSource buildConfig() {
+        return new ConfigBase(new MultiConfigValues(new Env(), new SysProps()));
+    }
+
+    private static void loadExtensionJars(ConfigSource config) {
+        if (config.getBool(RD_EXT_DISABLED, false)) {
+            return;
+        }
+        String rd_ext_dir = config.get(RD_EXT_DIR);
+        if(null==rd_ext_dir){
+            return;
+        }
+        File extDir = new File(rd_ext_dir);
+        if (!extDir.isDirectory()) {
+            return;
+        }
+        File[] jars = extDir.listFiles(f -> f.getName().endsWith(".jar"));
+        //add to class loader
+        if(jars==null){
+            return;
+        }
+        URLClassLoader urlClassLoader = buildClassLoader(jars);
+        Thread.currentThread().setContextClassLoader(urlClassLoader);
+    }
+
+    private static URLClassLoader buildClassLoader(final File[] jars) {
+        ClassLoader parent = Main.class.getClassLoader();
+        final List<URL> urls = new ArrayList<>();
+        try {
+            for (File jar : jars) {
+                final URL url = jar.toURI().toURL();
+                urls.add(url);
+            }
+            return URLClassLoader.newInstance(urls.toArray(new URL[0]), parent);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error creating classloader for urls: " + urls, e);
+        }
+    }
+
     private static void setupFormat(final ToolBelt belt, RdClientConfig config) {
-        final String format = config.get(ENV_RD_FORMAT);
+        final String format = config.get(RD_FORMAT);
         if ("yaml".equalsIgnoreCase(format)) {
             configYamlFormat(belt, config);
         } else if ("json".equalsIgnoreCase(format)) {
             configJsonFormat(belt);
         } else {
             if (null != format) {
-                belt.finalOutput().warning(String.format("# WARNING: Unknown value for %s: %s", ENV_RD_FORMAT, format));
+                belt.finalOutput().warning(String.format("# WARNING: Unknown value for %s: %s", RD_FORMAT, format));
             }
             configNiceFormat(belt);
         }
@@ -205,11 +248,8 @@ public class Main {
         setupColor(belt, rd);
         setupFormat(belt, rd);
 
-        boolean insecureSsl = Boolean.parseBoolean(System.getProperty(
-                "rundeck.client.insecure.ssl",
-                System.getenv(ENV_INSECURE_SSL)
-        ));
-        boolean insecureSslNoWarn = Boolean.parseBoolean(System.getenv(ENV_INSECURE_SSL_NO_WARN));
+        boolean insecureSsl = rd.getBool(ENV_INSECURE_SSL, false);
+        boolean insecureSslNoWarn = rd.getBool(ENV_INSECURE_SSL_NO_WARN, false);
         if (insecureSsl && !insecureSslNoWarn ) {
             belt.finalOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
@@ -238,12 +278,12 @@ public class Main {
         return belt.buckle();
     }
 
-    static class Rd extends ExtConfigSource implements RdApp, RdClientConfig, Closeable {
+    static class Rd extends ConfigBase implements RdApp, RdClientConfig, Closeable {
         private final Resources resources = new Resources();
         Client<RundeckApi> client;
         private CommandOutput output;
 
-        public Rd(final ConfigSource src) {
+        public Rd(final ConfigValues src) {
             super(src);
         }
 
@@ -260,7 +300,7 @@ public class Main {
 
         @Override
         public int getDebugLevel() {
-            return getInt(ENV_DEBUG, 0);
+            return getInt(RD_DEBUG, 0);
         }
 
         public String getDateFormat() {
@@ -386,11 +426,11 @@ public class Main {
         };
         auth = auth.chain(new ConfigAuth(config));
         String baseUrl = config.require(
-                ENV_URL,
+                RD_URL,
                 "Please specify the Rundeck base URL, e.g. http://host:port or http://host:port/api/14"
         );
 
-        if (!auth.isConfigured() && config.getBool(ENV_AUTH_PROMPT, true) && null != System.console()) {
+        if (!auth.isConfigured() && config.getBool(RD_AUTH_PROMPT, true) && null != System.console()) {
             auth = auth.chain(new ConsoleAuth(String.format("Credentials for URL: %s", baseUrl)).memoize());
         }
         RundeckClient.Builder<T> builder = RundeckClient.builder(api)
@@ -399,7 +439,7 @@ public class Main {
         if (null != requestedVersion) {
             builder.apiVersion(requestedVersion);
         } else {
-            int anInt = config.getInt(ENV_API_VERSION, -1);
+            int anInt = config.getInt(RD_API_VERSION, -1);
             if (anInt > 0) {
                 builder.apiVersion(anInt);
             }
@@ -410,11 +450,11 @@ public class Main {
         } else {
             if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
                 throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
-                                                   ENV_USER + " or " + ENV_TOKEN);
+                                                   RD_USER + " or " + RD_TOKEN);
             }
             if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
                 throw new IllegalArgumentException("Password must be entered, or use environment variable " +
-                                                   ENV_PASSWORD);
+                                                   RD_PASSWORD);
             }
             builder.passwordAuth(auth.getUsername(), auth.getPassword());
         }
@@ -471,17 +511,17 @@ public class Main {
 
         @Override
         public String getUsername() {
-            return config.get(ENV_USER);
+            return config.get(RD_USER);
         }
 
         @Override
         public String getPassword() {
-            return config.get(ENV_PASSWORD);
+            return config.get(RD_PASSWORD);
         }
 
         @Override
         public String getToken() {
-            return config.get(ENV_TOKEN);
+            return config.get(RD_TOKEN);
         }
     }
 
