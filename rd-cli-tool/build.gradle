@@ -64,6 +64,11 @@ dependencies {
 }
 shadowJar {
     mergeServiceFiles()
+    manifest {
+        attributes(
+            ['Add-Opens':'java.base/java.lang.invoke']
+        )
+    }
 }
 
 //force distZip/distTar artifacts to be overwritten by shadow versions
@@ -100,6 +105,14 @@ test -f $RD_CONF && . $RD_CONF
 export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext}
 '''
     )
+    def setJ11AddOpens=appendConfigData.curry(
+        '^APP_ARGS=.*$',
+        '''
+if $JAVACMD --add-opens 2>&1 | grep 'requires modules' >/dev/null; then
+  JAVA_OPTS="$JAVA_OPTS --add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+fi
+'''
+    )
 
     // The default script content is generated and
     // with the doLast method we can still alter
@@ -111,9 +124,8 @@ export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext}
                         .readLines()
                         .collect(setE)
                         .collect(setClasspath)
+                        .collect(setJ11AddOpens)
                         .join('\n')
-
-        //TODO: modify windows start script to load config
     }
 
 }
