@@ -38,10 +38,10 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.representer.Representer;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.Function;
 
@@ -68,6 +68,7 @@ public class Main {
 
     public static void main(String[] args) throws CommandRunFailure {
         boolean success = false;
+        loadExtensionJars();
         try (Rd rd = new Rd(new Env())) {
             Tool tool = tool(rd);
             try {
@@ -85,6 +86,38 @@ public class Main {
         }
         if (!success) {
             System.exit(2);
+        }
+    }
+
+    private static void loadExtensionJars() {
+        String rd_ext_dir = System.getenv("RD_EXT_DIR");
+        if(null==rd_ext_dir){
+            return;
+        }
+        File extDir = new File(rd_ext_dir);
+        if (!extDir.isDirectory()) {
+            return;
+        }
+        File[] jars = extDir.listFiles(f -> f.getName().endsWith(".jar"));
+        //add to class loader
+        if(jars==null){
+            return;
+        }
+        URLClassLoader urlClassLoader = buildClassLoader(jars);
+        Thread.currentThread().setContextClassLoader(urlClassLoader);
+    }
+
+    private static URLClassLoader buildClassLoader(final File[] jars) {
+        ClassLoader parent = Main.class.getClassLoader();
+        final List<URL> urls = new ArrayList<>();
+        try {
+            for (File jar : jars) {
+                final URL url = jar.toURI().toURL();
+                urls.add(url);
+            }
+            return URLClassLoader.newInstance(urls.toArray(new URL[0]), parent);
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Error creating classloader for urls: " + urls, e);
         }
     }
 
