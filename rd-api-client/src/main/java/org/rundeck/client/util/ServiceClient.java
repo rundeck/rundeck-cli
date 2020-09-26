@@ -7,6 +7,7 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.util.function.Function;
 
@@ -14,7 +15,7 @@ import java.util.function.Function;
  * @author greg
  * @since 10/19/17
  */
-public interface ServiceClient<T> {
+public interface ServiceClient<T> extends Closeable {
     /**
      * @param mediaType1 test type
      * @param types list of media types

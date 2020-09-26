@@ -60,6 +60,7 @@ public class Client<T> implements ServiceClient<T> {
     private final String apiBaseUrl;
     private final boolean allowVersionDowngrade;
     private final Logger logger;
+    private final Closeable closer;
 
     public interface Logger {
         void output(String out);
@@ -86,6 +87,33 @@ public class Client<T> implements ServiceClient<T> {
         this.apiVersion = apiVersion;
         this.allowVersionDowngrade = allowVersionDowngrade;
         this.logger = logger;
+        this.closer = () -> {
+        };
+    }
+    public Client(
+            final T service,
+            final Retrofit retrofit,
+            final Closeable closer,
+            final String appBaseUrl,
+            final String apiBaseUrl,
+            final int apiVersion,
+            final boolean allowVersionDowngrade,
+            final Logger logger
+    )
+    {
+        this.service = service;
+        this.retrofit = retrofit;
+        this.appBaseUrl = appBaseUrl;
+        this.apiBaseUrl = apiBaseUrl;
+        this.apiVersion = apiVersion;
+        this.allowVersionDowngrade = allowVersionDowngrade;
+        this.logger = logger;
+        this.closer = closer;
+    }
+
+    @Override
+    public void close() throws IOException {
+        closer.close();
     }
 
     /**

@@ -16,6 +16,7 @@
 
 package org.rundeck.client;
 
+import okhttp3.Cache;
 import okhttp3.HttpUrl;
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
@@ -294,10 +295,11 @@ public class RundeckClient {
 
             okhttp.addInterceptor(new StaticHeaderInterceptor("User-Agent", userAgent));
 
+            OkHttpClient okhttp = this.okhttp.build();
 
-            Retrofit build = new Retrofit.Builder()
+            Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(apiBaseUrl)
-                    .client(okhttp.build())
+                    .client(okhttp)
                     .addConverterFactory(new QualifiedTypeConverterFactory(
                             JacksonConverterFactory.create(),
                             JaxbConverterFactory.create(),
@@ -306,8 +308,16 @@ public class RundeckClient {
                     .build();
 
             return new Client<>(
-                    build.create(api),
-                    build,
+                    retrofit.create(api),
+                    retrofit,
+                    () -> {
+                        okhttp.dispatcher().executorService().shutdown();
+                        okhttp.connectionPool().evictAll();
+                        Cache cache = okhttp.cache();
+                        if (null != cache && !cache.isClosed()) {
+                            cache.close();
+                        }
+                    },
                     appBaseUrl,
                     apiBaseUrl,
                     usedApiVers,
