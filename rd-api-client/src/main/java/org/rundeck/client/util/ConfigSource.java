@@ -20,7 +20,7 @@ package org.rundeck.client.util;
  * @author greg
  * @since 1/11/17
  */
-public interface ConfigSource {
+public interface ConfigSource extends ConfigValues {
 
     int getInt(final String key, final int defval);
 
@@ -29,8 +29,6 @@ public interface ConfigSource {
     boolean getBool(final String key, final boolean defval);
 
     String getString(final String key, final String defval);
-
-    String get(final String key);
 
     String require(final String key, final String description) throws ConfigSourceError;
 

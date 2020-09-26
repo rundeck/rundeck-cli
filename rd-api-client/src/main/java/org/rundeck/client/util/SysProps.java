@@ -1,14 +1,23 @@
 package org.rundeck.client.util;
 
 /**
- * Returns config value if it is defined in System properties,
- * it will be converted to lowercase, and "_" replaced with ".".
+ * Returns config value if it is defined in System properties, it will be converted to lowercase, and "_" replaced with
+ * ".".
  */
 public class SysProps
-        extends ConfigBase
-        implements ConfigSource
+        implements ConfigValues
 {
-    public String getString(final String key, final String defval) {
-        return System.getProperty(key.toLowerCase().replaceAll("_", "."), defval);
+    private GetProperty getter = System::getProperty;
+
+    public void setGetter(GetProperty getter) {
+        this.getter = getter;
+    }
+
+    static interface GetProperty {
+        public String getProperty(String key, String defval);
+    }
+
+    public String get(final String key) {
+        return getter.getProperty(key.toLowerCase().replaceAll("_", "."), null);
     }
 }

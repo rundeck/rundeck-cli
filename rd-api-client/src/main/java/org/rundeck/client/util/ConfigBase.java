@@ -3,9 +3,26 @@ package org.rundeck.client.util;
 /**
  * Base for config sources
  */
-public abstract class ConfigBase
+public class ConfigBase
         implements ConfigSource
 {
+    final ConfigValues configSource;
+
+    public ConfigBase(final ConfigValues configSource) {
+        this.configSource = configSource;
+    }
+
+    @Override
+    public String get(final String key) {
+        return configSource.get(key);
+    }
+
+    @Override
+    public String getString(final String key, final String defval) {
+        String val = get(key);
+        return null == val ? defval : val;
+    }
+
     public int getInt(final String debug, final int defval) {
         String envProp = getString(debug, null);
         if (null != envProp) {
@@ -26,11 +43,6 @@ public abstract class ConfigBase
 
     public boolean getBool(final String key, final boolean defval) {
         return "true".equalsIgnoreCase(getString(key, defval ? "true" : "false"));
-    }
-
-    @Override
-    public String get(final String key) {
-        return getString(key, null);
     }
 
     public String require(final String name, final String description) throws ConfigSourceError {

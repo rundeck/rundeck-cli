@@ -93,7 +93,7 @@ public class Main {
     }
 
     private static ConfigSource buildConfig() {
-        return new MultiConfigSource(new Env(), new SysProps());
+        return new ConfigBase(new MultiConfigValues(new Env(), new SysProps()));
     }
 
     private static void loadExtensionJars(ConfigSource config) {
@@ -278,12 +278,12 @@ public class Main {
         return belt.buckle();
     }
 
-    static class Rd extends ExtConfigSource implements RdApp, RdClientConfig, Closeable {
+    static class Rd extends ConfigBase implements RdApp, RdClientConfig, Closeable {
         private final Resources resources = new Resources();
         Client<RundeckApi> client;
         private CommandOutput output;
 
-        public Rd(final ConfigSource src) {
+        public Rd(final ConfigValues src) {
             super(src);
         }
 

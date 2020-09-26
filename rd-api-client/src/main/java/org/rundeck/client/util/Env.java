@@ -17,16 +17,22 @@
 package org.rundeck.client.util;
 
 /**
- * Configuration values from System.getenv,
- * keys will be converted to upper case, and "." replaced with "_".
+ * Configuration values from System.getenv, keys will be converted to upper case, and "." replaced with "_".
  */
-public class Env extends ConfigBase implements ConfigSource {
-    public String getString(final String key, final String defval) {
-        String val = System.getenv(key.toUpperCase().replaceAll("\\.", "_"));
-        if (val != null) {
-            return val;
-        } else {
-            return defval;
-        }
+public class Env
+        implements ConfigValues
+{
+    private Getenv getter = System::getenv;
+
+    public void setGetter(Getenv getter) {
+        this.getter = getter;
+    }
+
+    static interface Getenv {
+        public String getenv(final String key);
+    }
+
+    public String get(final String key) {
+        return getter.getenv(key.toUpperCase().replaceAll("\\.", "_"));
     }
 }

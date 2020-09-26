@@ -24,14 +24,12 @@ public class ExtConfigSource
         extends ConfigBase
         implements ConfigSource
 {
-    final ConfigSource configSource;
-
-    public ExtConfigSource(final ConfigSource configSource) {
-        this.configSource = configSource;
+    public ExtConfigSource(final ConfigValues configSource) {
+        super(configSource);
     }
 
     @Override
-    public String getString(final String key, final String defval) {
-        return configSource.getString(key, defval);
+    public String get(final String key) {
+        return configSource.get(key);
     }
 }

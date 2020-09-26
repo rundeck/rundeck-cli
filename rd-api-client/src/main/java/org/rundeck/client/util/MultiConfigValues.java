@@ -7,28 +7,27 @@ import java.util.List;
 /**
  * Returns first value from multiple sources
  */
-public class MultiConfigSource
-        extends ConfigBase
-        implements ConfigSource
+public class MultiConfigValues
+        implements ConfigValues
 {
-    private final List<ConfigSource> sources;
+    private final List<ConfigValues> sources;
 
-    public MultiConfigSource(final List<ConfigSource> sources) {
+    public MultiConfigValues(final List<ConfigValues> sources) {
         this.sources = sources;
     }
 
-    public MultiConfigSource(final ConfigSource... sources) {
+    public MultiConfigValues(final ConfigValues... sources) {
         this.sources = new ArrayList<>(Arrays.asList(sources));
     }
 
     @Override
-    public String getString(final String key, final String defval) {
-        for (ConfigSource source : sources) {
+    public String get(final String key) {
+        for (ConfigValues source : sources) {
             String val = source.get(key);
             if (null != val) {
                 return val;
             }
         }
-        return defval;
+        return null;
     }
 }
