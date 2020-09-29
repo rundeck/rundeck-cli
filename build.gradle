@@ -33,7 +33,6 @@ plugins {
 
     id 'maven-publish'
 
-    id "org.sonarqube" version "3.0"
 }
 apply plugin: 'org.owasp.dependencycheck'
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
@@ -43,14 +42,6 @@ dependencyCheck {
     suppressionFile='cve-suppress.xml'
     format='ALL'
     failBuildOnCVSS=8
-}
-
-sonarqube {
-  properties {
-    property "sonar.projectKey", "rundeck_rundeck-cli"
-    property "sonar.organization", "rundeck"
-    property "sonar.host.url", "https://sonarcloud.io"
-  }
 }
 
 /**
