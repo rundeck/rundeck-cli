@@ -53,6 +53,7 @@ dependencies {
     api "com.squareup.retrofit2:converter-jaxb:${retrofitVersion}"
     api 'com.squareup.okhttp3:logging-interceptor:3.5.0'
     api 'com.squareup.okhttp3:okhttp-urlconnection:3.5.0'
+    api 'com.sun.xml.bind:jaxb-impl:2.3.3'
 
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
@@ -68,14 +69,6 @@ java {
     withSourcesJar()
 }
 
-javadoc {
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addStringOption('Xdoclint:none', '-quiet')
-    }
-    if (JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
-    }
-}
 publishing {
     publications {
         rdApiClientPublication(MavenPublication) {

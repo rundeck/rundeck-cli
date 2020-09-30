@@ -2,9 +2,6 @@ plugins {
     id 'java-library'
     id 'groovy'
 }
-
-sourceCompatibility = 1.8
-
 ext.toolbeltGroup = "org.rundeck.cli-toolbelt"
 
 dependencies {
