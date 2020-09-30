@@ -23,6 +23,7 @@ sonarqube {
     property "sonar.projectKey", "rundeck_rundeck-cli_rd-cli-lib"
     property "sonar.organization", "rundeck"
     property "sonar.host.url", "https://sonarcloud.io"
+    property "sonar.verbose", "true"
   }
 }
 

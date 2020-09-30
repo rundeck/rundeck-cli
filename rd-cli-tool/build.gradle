@@ -45,6 +45,14 @@ sonarqube {
     property "sonar.projectKey", "rundeck_rundeck-cli_rd-cli-tool"
     property "sonar.organization", "rundeck"
     property "sonar.host.url", "https://sonarcloud.io"
+    property "sonar.verbose", "true"
+    property "sonar.sources", sourceSets.main.allSource.srcDirs
+    property "sonar.tests", sourceSets.test.allSource.srcDirs
+    property "sonar.java.binaries", sourceSets.main.output.classesDir
+    property "sonar.java.libraries", sourceSets.main.compileClasspath
+    property "sonar.java.test.binaries", sourceSets.test.output.classesDir
+    property "sonar.java.test.libraries", sourceSets.test.compileClasspath
+  }
   }
 }
 repositories{
