@@ -42,6 +42,26 @@ dependencyCheck {
     format='ALL'
     failBuildOnCVSS=8
 }
+subprojects{
+
+    apply plugin: "java-library"
+
+    java {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    javadoc {
+        if (JavaVersion.current().isJava8Compatible()) {
+            options.addStringOption('Xdoclint:none', '-quiet')
+        }
+        if (JavaVersion.current().isJava9Compatible()) {
+            options.addBooleanOption('html5', true)
+        }
+    }
+}
 
 /**
  * Unreleased changes list from the changelog file
