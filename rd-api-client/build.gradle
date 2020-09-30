@@ -10,32 +10,13 @@ plugins{
     id "org.dvaske.gradle.git-build-info" version "0.8"
     id 'de.fuerstenau.buildconfig' version '1.1.8'
     id 'maven-publish'
-    id "org.sonarqube" version "3.0"
 }
 
-
-
-
 apply plugin: 'idea'
-apply plugin: 'groovy'
 apply plugin: 'de.fuerstenau.buildconfig'
 
 group = 'org.rundeck.api'
 
-sonarqube {
-  properties {
-    property "sonar.projectKey", "rundeck_rundeck-cli_rd-api-client"
-    property "sonar.organization", "rundeck"
-    property "sonar.host.url", "https://sonarcloud.io"
-    property "sonar.verbose", "true"
-    property "sonar.sources", sourceSets.main.allSource.srcDirs
-    property "sonar.tests", sourceSets.test.allSource.srcDirs
-    property "sonar.java.binaries", sourceSets.main.output.classesDirs
-    property "sonar.java.libraries", sourceSets.main.compileClasspath
-    property "sonar.java.test.binaries", sourceSets.test.output.classesDirs
-    property "sonar.java.test.libraries", sourceSets.test.compileClasspath
-  }
-}
 
 /**
  * Generates java source with embedded version info

@@ -23,11 +23,9 @@ buildscript {
 
 }
 plugins {
-    id 'groovy'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '6.0.0'
     id "nebula.ospackage" version "8.1.0"
-    id "org.sonarqube" version "3.0"
 }
 
 apply plugin: 'idea'
@@ -40,20 +38,6 @@ archivesBaseName = 'rundeck-cli'
 ext.distInstallPath = '/var/lib/rundeck-cli'
 defaultTasks 'clean', 'build'
 
-sonarqube {
-  properties {
-    property "sonar.projectKey", "rundeck_rundeck-cli_rd-cli-tool"
-    property "sonar.organization", "rundeck"
-    property "sonar.host.url", "https://sonarcloud.io"
-    property "sonar.verbose", "true"
-    property "sonar.sources", sourceSets.main.allSource.srcDirs
-    property "sonar.tests", sourceSets.test.allSource.srcDirs
-    property "sonar.java.binaries", sourceSets.main.output.classesDirs
-    property "sonar.java.libraries", sourceSets.main.compileClasspath
-    property "sonar.java.test.binaries", sourceSets.test.output.classesDirs
-    property "sonar.java.test.libraries", sourceSets.test.compileClasspath
-  }
-}
 repositories{
     jcenter()
     maven { url 'https://jitpack.io' }

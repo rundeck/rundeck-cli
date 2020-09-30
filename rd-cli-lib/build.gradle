@@ -1,7 +1,6 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
-    id "org.sonarqube" version "3.0"
 }
 
 group = 'org.rundeck.cli'
@@ -17,20 +16,6 @@ dependencies {
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation "org.codehaus.groovy:groovy-all:2.5.7"
     testImplementation "org.spockframework:spock-core:1.3-groovy-2.5"
-}
-sonarqube {
-  properties {
-    property "sonar.projectKey", "rundeck_rundeck-cli_rd-cli-lib"
-    property "sonar.organization", "rundeck"
-    property "sonar.host.url", "https://sonarcloud.io"
-    property "sonar.verbose", "true"
-    property "sonar.sources", sourceSets.main.allSource.srcDirs
-    property "sonar.tests", sourceSets.test.allSource.srcDirs
-    property "sonar.java.binaries", sourceSets.main.output.classesDirs
-    property "sonar.java.libraries", sourceSets.main.compileClasspath
-    property "sonar.java.test.binaries", sourceSets.test.output.classesDirs
-    property "sonar.java.test.libraries", sourceSets.test.compileClasspath
-  }
 }
 
 java {

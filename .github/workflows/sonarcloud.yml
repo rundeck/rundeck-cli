@@ -32,20 +32,5 @@ jobs:
       - name: Sonarcloud CLI LIB
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLI_LIB }}
-        run: ./gradlew -p rd-cli-lib build sonarqube --info
-      - name: Sonarcloud API CLIENT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_API_CLIENT }}
-        run: ./gradlew -p rd-api-client build sonarqube --info
-      - name: Sonarcloud CLI TOOL
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLI_TOOL }}
-        run: ./gradlew -p rd-cli-tool build sonarqube --info
-      - name: Sonarcloud CLI BASE
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN_CLI_BASE }}
-        run: ./gradlew -p rd-cli-base build sonarqube --info
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew build sonarqube --info --stacktrace
