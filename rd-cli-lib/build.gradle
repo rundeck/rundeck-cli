@@ -24,6 +24,12 @@ sonarqube {
     property "sonar.organization", "rundeck"
     property "sonar.host.url", "https://sonarcloud.io"
     property "sonar.verbose", "true"
+    property "sonar.sources", sourceSets.main.allSource.srcDirs
+    property "sonar.tests", sourceSets.test.allSource.srcDirs
+    property "sonar.java.binaries", sourceSets.main.output.classesDirs
+    property "sonar.java.libraries", sourceSets.main.compileClasspath
+    property "sonar.java.test.binaries", sourceSets.test.output.classesDirs
+    property "sonar.java.test.libraries", sourceSets.test.compileClasspath
   }
 }
 
