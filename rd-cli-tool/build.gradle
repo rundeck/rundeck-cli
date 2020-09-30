@@ -23,6 +23,7 @@ buildscript {
 
 }
 plugins {
+    id 'groovy'
     id 'application'
     id 'com.github.johnrengelman.shadow' version '6.0.0'
     id "nebula.ospackage" version "8.1.0"
