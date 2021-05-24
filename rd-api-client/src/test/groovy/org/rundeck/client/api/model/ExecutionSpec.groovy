@@ -3,7 +3,6 @@ package org.rundeck.client.api.model
 import org.rundeck.client.util.RdClientConfig
 import spock.lang.Specification
 import spock.lang.Unroll
-import sun.security.util.AuthResources_fr
 
 class ExecutionSpec extends Specification {
     @Unroll
