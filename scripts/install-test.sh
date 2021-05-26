@@ -9,12 +9,26 @@ CENTOSVERS="7 8"
 
 test_basic() {
   local TAG=$1
-  docker run $TAG rd pond | grep 'For your reference'
+  set +e
+  docker run $TAG rd pond 2>&1 | grep 'For your reference'
+  ret=$?
+  if [ $ret -ne 0 ]; then
+    echo "test_basic failed with: $ret"
+  fi
+  set -e
+  test $ret -eq 0
 }
 test_ext() {
   local TAG=$1
   local EXT=$2
+  set +e
   docker run -e RD_DEBUG=1 $TAG rd version 2>&1 | grep "Including extension: $EXT"
+  ret=$?
+  if [ $ret -ne 0 ]; then
+    echo "test_ext failed with: $ret"
+  fi
+  set -e
+  test $ret -eq 0
 }
 
 build_deb_version() {
