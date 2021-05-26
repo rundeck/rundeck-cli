@@ -2,7 +2,8 @@ ARG VERS
 FROM centos:${VERS:-7}
 
 RUN yum -y update
-RUN yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel
+RUN yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel which
+RUN which java
 
 RUN mkdir /root/.rd/
 COPY test-rd.conf /root/.rd/rd.conf
