@@ -5,7 +5,7 @@ set -euo pipefail
 DEBTAG=rdcli-deb
 RPMTAG=rdcli-rpm
 UBUNTUVERS="16.04 18.04"
-CENTOSVERS="6 7"
+CENTOSVERS="7 8"
 
 test_basic() {
   local TAG=$1
