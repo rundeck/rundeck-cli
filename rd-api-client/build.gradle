@@ -51,14 +51,14 @@ dependencies {
     api "com.squareup.retrofit2:retrofit:${retrofitVersion}"
     api "com.squareup.retrofit2:converter-jackson:${retrofitVersion}"
     api "com.squareup.retrofit2:converter-jaxb:${retrofitVersion}"
-    api 'com.squareup.okhttp3:logging-interceptor:3.5.0'
-    api 'com.squareup.okhttp3:okhttp-urlconnection:3.5.0'
+    api "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
+    api "com.squareup.okhttp3:okhttp-urlconnection:${okhttpVersion}"
     api 'com.sun.xml.bind:jaxb-impl:2.3.3'
 
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
     testImplementation "com.squareup.retrofit2:retrofit-mock:${retrofitVersion}"
-    testImplementation 'com.squareup.okhttp3:mockwebserver:3.5.0'
+    testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
     testImplementation "org.codehaus.groovy:groovy-all:2.5.7"
     testImplementation "org.spockframework:spock-core:1.3-groovy-2.5"
 }
