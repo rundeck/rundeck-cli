@@ -1,8 +1,8 @@
-ARG VERS
-FROM centos:${VERS:-7}
-
+ARG VERS=7
+FROM centos:$VERS
+ARG JDK=openjdk-8-jdk
 RUN yum -y update
-RUN yum -y install java-1.8.0-openjdk java-1.8.0-openjdk-devel which
+RUN yum -y install ${JDK} ${JDK}-devel which
 RUN which java
 
 RUN mkdir /root/.rd/
