@@ -35,7 +35,7 @@ public class Format {
     }
 
     public static String format(String format, Map<?, ?> data, final String start, final String end) {
-        Pattern pat = Pattern.compile(Pattern.quote(start) + "([\\w.]+)" + Pattern.quote(end));
+        Pattern pat = Pattern.compile(Pattern.quote(start) + "([\\w._-]+)" + Pattern.quote(end));
         Matcher matcher = pat.matcher(format);
         StringBuffer sb = new StringBuffer();
         while (matcher.find()) {
