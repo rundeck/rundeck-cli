@@ -37,6 +37,8 @@ class FormatSpec extends Specification {
         '%'   | ''  | 'a %b %c'     | [b: 'x']   | 'a x '
         '%'   | ''  | 'a %b %c'     | [b: '$x']  | 'a $x '
         '%'   | ''  | 'a %b %c'     | [b: '\\x'] | 'a \\x '
+        '%'   | ''  | 'a %b-x q'    | ['b-x': 'z'] | 'a z q'
+        '%'   | ''  | 'a %b_x r'    | ['b_x': 'z'] | 'a z r'
 
     }
 
@@ -52,6 +54,9 @@ class FormatSpec extends Specification {
         '${'  | '}' | '${b.c} b c'   | [a: 'x', b: [c: 'd']] | 'd b c'
         '${'  | '}' | '${b.DNE} b c' | [a: 'x', b: [c: 'd']] | ' b c'
         '${'  | '}' | '${a.b} b c'   | [a: 'x', b: [c: 'd']] | ' b c'
+        '%'   | ''  | '%a.b b c'     | [a: 'x', b: [c: 'd']] | ' b c'
+        '%'   | ''  | '%b.c-d q r'     | [a: 'x', b: ['c-d': 'e']] | 'e q r'
+        '%'   | ''  | '%b.c_d q r'     | [a: 'x', b: ['c_d': 'e']] | 'e q r'
 
     }
 }
