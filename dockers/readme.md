@@ -12,7 +12,7 @@ First build the rpm with `./gradlew build`.
 
 Build the docker image
 
-	$ docker build dockers/signing
+	$ docker build dockers/signing -t rdrpmsign
 	...
 	Successfully built d0ed26db360e
 
@@ -21,8 +21,16 @@ Run the built docker image with env vars expected by the `travis-sign-rpm.sh` sc
 	$ docker run -v $PWD:/data \
 		-e SIGNING_KEYID=xyz \
 		-e SIGNING_PASSWORD=abc \
-		-e GPG_PATH=/path/togpgkeys \
-		d0ed26db360e
+		-e GPG_PATH=/path/to/existing/gpgkeys \
+		rdrpmsign 
+OR you can supply the secret key as base64 encoded string:
+
+	$ docker run -v $PWD:/data \
+		-e SIGNING_KEYID=xyz \
+		-e SIGNING_PASSWORD=abc \
+		-e GPG_PATH=/any/path \
+		-e GPG_B64="base64 encoded key" \
+		rdrpmsign 
 
 This will sign the `build/distribution/*.rpm` files with a v3 signature.
 
