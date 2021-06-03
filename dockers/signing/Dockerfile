@@ -7,7 +7,7 @@ WORKDIR /data
 ARG SIGNING_KEYID
 ARG SIGNING_PASSWORD
 ARG GPG_PATH
-ARG GPG_B64
+ARG SIGNING_KEY_B64
 
 RUN yum update -y && yum install -y expect which rpm-sign
 

@@ -29,7 +29,7 @@ OR you can supply the secret key as base64 encoded string:
 		-e SIGNING_KEYID=xyz \
 		-e SIGNING_PASSWORD=abc \
 		-e GPG_PATH=/any/path \
-		-e GPG_B64="base64 encoded key" \
+		-e SIGNING_KEY_B64="base64 encoded key" \
 		rdrpmsign 
 
 This will sign the `build/distribution/*.rpm` files with a v3 signature.

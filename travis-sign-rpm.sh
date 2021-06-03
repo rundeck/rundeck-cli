@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 #/ Sign the RPMs in the dist dir ...
 #/ usage: [dist dir]
+#/ define env vars:
+#/ SIGNING_KEYID=<id of signing key>
+#/ SIGNING_PASSWORD=<key password>
+#/ GPG_PATH=/path/to/.gnupg  (may be empty dir if you use SIGNING_KEY_B64)
+#/ SIGNING_KEY_B64=<base64 encoded ascii-armored private gpg key> (optional)
 
 set -euo pipefail
 IFS=$'\n\t'
@@ -10,6 +15,7 @@ DIST_DIR=${ARGS[0]?dist dir is required}
 KEYID=${SIGNING_KEYID:-}
 PASSWORD=${SIGNING_PASSWORD:-}
 GPG_PATH=${GPG_PATH:-}
+SIGNING_KEY_B64=${SIGNING_KEY_B64:-}
 
 
 usage() {
@@ -32,11 +38,16 @@ check_env(){
     if test -z "$GPG_PATH"; then
         die "ENV var GPG_PATH was not set"
     fi
-    
+
     which gpg || die "gpg not found"
     which rpm || die "rpm not found"
     which expect || die "expect not found"
 
+}
+check_key(){
+  if [ -n "${SIGNING_KEY_B64}" ] ; then
+    echo "${SIGNING_KEY_B64}" | base64 -d | GNUPGHOME="$GPG_PATH" gpg --import --batch
+  fi
 }
 list_rpms(){
     local FARGS=("$@")
@@ -65,6 +76,7 @@ END
 
 main() {
     check_env
+    check_key
     sign_rpms
 }
 main
