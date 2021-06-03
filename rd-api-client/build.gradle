@@ -9,7 +9,6 @@ plugins{
     id "java-library"
     id "org.dvaske.gradle.git-build-info" version "0.8"
     id 'de.fuerstenau.buildconfig' version '1.1.8'
-    id 'maven-publish'
 }
 
 
@@ -20,6 +19,13 @@ apply plugin: 'groovy'
 apply plugin: 'de.fuerstenau.buildconfig'
 
 group = 'org.rundeck.api'
+
+ext.publishName = "Rundeck API Library ${project.version}"
+ext.publishDescription = project.description ?: 'Rundeck API Library'
+ext.githubSlug = 'rundeck/rundeck-cli'
+ext.developers = [
+    [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
+]
 
 /**
  * Generates java source with embedded version info
@@ -69,36 +75,4 @@ java {
     withSourcesJar()
 }
 
-publishing {
-    publications {
-        rdApiClientPublication(MavenPublication) {
-            from components.java
-
-            pom {
-                name = "Rundeck API Library ${project.version}"
-                description = project.description ?: 'Rundeck API Library'
-                url = 'https://github.com/rundeck/rundeck-cli'
-                licenses {
-                    license {
-                        name= 'The Apache Software License, Version 2.0'
-                        url ='http://www.apache.org/licenses/LICENSE-2.0.txt'
-                        distribution= 'repo'
-                    }
-                }
-                scm {
-                    url ='https://github.com/rundeck/rundeck-cli'
-                    connection= 'scm:git:git@github.com/rundeck/rundeck-cli.git'
-                    developerConnection= 'scm:git:git@github.com:rundeck/rundeck-cli.git'
-                }
-                developers {
-                    developer {
-                        id='gschueler'
-                        name='Greg Schueler'
-                        email='greg@rundeck.com'
-                    }
-                }
-            }
-
-        }
-    }
-}
+apply from: "${rootDir}/gradle/publishing.gradle"
