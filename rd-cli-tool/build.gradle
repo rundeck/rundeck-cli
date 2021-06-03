@@ -40,9 +40,8 @@ ext.distInstallPath = '/var/lib/rundeck-cli'
 defaultTasks 'clean', 'build'
 
 group='org.rundeck.rd'
-description=''
+description='Rundeck CLI Tool Executable Jar'
 ext.publishName = "Rundeck CLI Tool ${project.version}"
-ext.publishDescription = project.description ?: 'Rundeck CLI Tool'
 ext.publishShadow = true
 ext.githubSlug = 'rundeck/rundeck-cli'
 ext.developers = [
