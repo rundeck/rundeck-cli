@@ -39,6 +39,15 @@ archivesBaseName = 'rundeck-cli'
 ext.distInstallPath = '/var/lib/rundeck-cli'
 defaultTasks 'clean', 'build'
 
+group='org.rundeck.rd'
+description='Rundeck CLI Tool Executable Jar'
+ext.publishName = "Rundeck CLI Tool ${project.version}"
+ext.publishShadow = true
+ext.githubSlug = 'rundeck/rundeck-cli'
+ext.developers = [
+    [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
+]
+
 repositories{
     jcenter()
     maven { url 'https://jitpack.io' }
@@ -187,3 +196,5 @@ ospackage {
 buildDeb.dependsOn shadowDistZip
 buildRpm.dependsOn shadowDistZip
 assemble.dependsOn buildRpm, buildDeb
+
+apply from: "${rootDir}/gradle/publishing.gradle"
