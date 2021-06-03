@@ -19,6 +19,14 @@ jobs:
           java-version: 1.8
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Sign RPM and Deb
+        run: |
+          test -d $HOME/.gnupg || mkdir $HOME/.gnupg
+          GPG_PATH=$HOME/.gnupg ./travis-sign-rpm.sh rd-cli-tool/build/distributions
+        env:
+          SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_KEYID: build@rundeck.org
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
