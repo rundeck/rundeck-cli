@@ -4,6 +4,11 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.3.6
+
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.5...v1.3.6)
+
 ## 1.3.5
 
 * Fix [Issue #352](https://github.com/rundeck/rundeck-cli/issues/352) node attribute expansion not working for ssh-xyz attributes
