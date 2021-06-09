@@ -4,6 +4,19 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.3.5
+
+* Fix [Issue #352](https://github.com/rundeck/rundeck-cli/issues/352) node attribute expansion not working for ssh-xyz attributes
+* Fix: centos 6 EOL
+* Fix: rd script requires `which` utility
+* Fix: docker build arg not working
+* Fix: centos 6 EOL
+* Fix: allow using java 11 to build
+* Fix [Issue #331](https://github.com/rundeck/rundeck-cli/issues/331) java 11 illegal access warnings
+* Fix: extension jars not loadable running as shadow dist
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.4...v1.3.5)
+
 ## 1.3.4
 
 * Fix [Issue #302](https://github.com/rundeck/rundeck-cli/issues/302) jvm exit delayed by lingering threads
