@@ -201,7 +201,10 @@ task changeLog(){
 
 
 nexusPublishing {
+    packageGroup = 'org.rundeck'
     repositories {
-        sonatype()
+        sonatype{
+            stagingProfileId = '67d196ce5bae'
+        }
     }
 }
