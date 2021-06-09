@@ -22,7 +22,7 @@ apply plugin: 'signing'
 publishing {
     publications {
         "${project.name}"(MavenPublication) { publication ->
-            if (ext.hasProperty('publishShadow') && ext.publishShadow) {
+            if (project.ext.hasProperty('publishShadow') && project.ext.publishShadow) {
                 project.shadow.component(publication)
             } else {
                 from components.java
@@ -30,7 +30,7 @@ publishing {
 
             pom {
                 name = publishName
-                description = ext.hasProperty('publishDescription') ? ext.publishDescription :
+                description = project.ext.hasProperty('publishDescription') ? project.ext.publishDescription :
                               project.description ?: publishName
                 url = "https://github.com/${githubSlug}"
                 licenses {
@@ -45,9 +45,9 @@ publishing {
                     connection = "scm:git:git@github.com/${githubSlug}.git"
                     developerConnection = "scm:git:git@github.com:${githubSlug}.git"
                 }
-                if (ext.hasProperty('developers')) {
+                if (project.ext.developers) {
                     developers {
-                        ext.developers.each { dev ->
+                        project.ext.developers.each { dev ->
                             developer {
                                 id = dev.id
                                 name = dev.name
