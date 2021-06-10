@@ -36,7 +36,7 @@ This will sign the `rd-cli-tool/build/distribution/*.rpm` files with a v3 signat
 
 This will sign the `rd-cli-tool/build/distribution/*.deb` files.
 
-## verify
+## verify rpm
 
 Verify the signature of signed rpm. 
 
@@ -50,3 +50,24 @@ Verify the signature of signed rpm.
 If it fails you would see something like: 
 
 	rundeck-cli-0.1.17-1.noarch.rpm: RSA sha1 ((MD5) PGP) md5 NOT OK (MISSING KEYS: (MD5) PGP#146e75aa)
+
+## verify deb
+
+Verify the signature of signed deb. 
+
+	$ docker build dockers/verifydeb -t debsigverify
+	...
+	Successfully built 3936c3b25bd2
+
+	$ docker run -i -v $PWD:/build debsigverify
+	gpg: /root/.gnupg/trustdb.gpg: trustdb created
+    gpg: key F192529298C4C654: public key "PagerDuty (Rundeck release signing) <signing@rundeck.com>" imported
+    gpg: Total number processed: 1
+    gpg:               imported: 1
+
+	Processing /data/rundeck-cli_1.3.9.SNAPSHOT-1_all.deb...
+    GOODSIG _gpgbuilder 31327DA0C35EA6B88B9D4648F192529298C4C654 1623364592
+
+If it fails you would see something like:
+ 
+    UNKNOWNSIG _gpgbuilder 98C4C654
