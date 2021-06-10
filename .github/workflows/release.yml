@@ -13,12 +13,21 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+          submodules: true
       - name: Set up JDK 1.8
         uses: actions/setup-java@v1
         with:
           java-version: 1.8
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Sign RPM and Deb
+        run: |
+          test -d $HOME/.gnupg || mkdir $HOME/.gnupg
+          GPG_PATH=$HOME/.gnupg scripts/sign-packages.sh $PWD/rd-cli-tool/build/distributions
+        env:
+          SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_KEYID: build@rundeck.org
       - name: Release
         uses: softprops/action-gh-release@v1
         with:

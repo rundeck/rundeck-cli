@@ -1,4 +1,4 @@
-FROM centos:6
+FROM ubuntu:18.04
 
 VOLUME /data
 
@@ -6,8 +6,10 @@ WORKDIR /data
 
 ARG SIGNING_KEYID
 ARG SIGNING_PASSWORD
-ARG SIGNING_KEYRING_FILE
+ARG GPG_PATH
+ARG SIGNING_KEY_B64
+ARG DEBIAN_FRONTEND=noninteractive
 
-RUN yum update && yum install -y expect
+RUN apt-get update -y && apt-get install -y expect rpm dpkg-sig
 
-CMD ./travis-sign-rpm.sh
+CMD ./scripts/sign-packages.sh /data/rd-cli-tool/build/distributions
