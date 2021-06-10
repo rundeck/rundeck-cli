@@ -32,22 +32,21 @@ OR you can supply the secret key as base64 encoded string:
 		-e SIGNING_KEY_B64="base64 encoded key" \
 		rdrpmsign 
 
-This will sign the `build/distribution/*.rpm` files with a v3 signature.
+This will sign the `rd-cli-tool/build/distribution/*.rpm` files with a v3 signature.
+
+This will sign the `rd-cli-tool/build/distribution/*.deb` files.
 
 ## verify
 
-Verify the installation of latest signed rpms from bintray. 
+Verify the signature of signed rpm. 
 
-	$ docker build dockers/verify
+	$ docker build dockers/verify -t rpmsigverify
 	...
 	Successfully built 3936c3b25bd2
-	$ docker run -v $PWD/dockers/verify:/data 3936c3b25bd2
-	...(output from script)
 
-Or to test local rpms:
+	$ docker run -i -v $PWD:/build rpmsigverify
+	/build/rd-cli-tool/build/distributions/rundeck-cli-1.3.9.SNAPSHOT-1.noarch.rpm: rsa sha1 (md5) pgp md5 OK
 
-	$ docker run -i -v $PWD/build/distributions:/data 3936c3b25bd2 bash
-	rpm --checksig *.rpm
+If it fails you would see something like: 
+
 	rundeck-cli-0.1.17-1.noarch.rpm: RSA sha1 ((MD5) PGP) md5 NOT OK (MISSING KEYS: (MD5) PGP#146e75aa)
-
-In this case the signing key was not yet imported. Import with `rpm --import $KEY_URL`.
