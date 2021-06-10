@@ -20,6 +20,10 @@ jobs:
           java-version: 1.8
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Install expect
+          run: |
+            sudo apt-get update -y
+            sudo apt-get -y install expect dpkg-sig
       - name: Sign RPM and Deb
         run: |
           test -d $HOME/.gnupg || mkdir $HOME/.gnupg
@@ -27,7 +31,7 @@ jobs:
         env:
           SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_KEYID: build@rundeck.org
+          SIGNING_KEYID: signing@rundeck.com
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
