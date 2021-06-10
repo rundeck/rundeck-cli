@@ -52,3 +52,18 @@ jobs:
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+      - name: Install Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+      - name: Install packagecloud.io CLI
+        run: |
+          gem install package_cloud
+      - name: Publish to Packagecloud
+        run: |
+            package_cloud push pagerduty/rundeck/any/any rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb
+            package_cloud push pagerduty/rundeckpro/any/any rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb
+            package_cloud push pagerduty/rundeck/rpm_any/rpm_any rd-cli-tool/build/distributions/rundeck-cli-*-1.noarch.rpm
+            package_cloud push pagerduty/rundeckpro/rpm_any/rpm_any rd-cli-tool/build/distributions/rundeck-cli-*-1.noarch.rpm
+        env:
+          PACKAGECLOUD_TOKEN: ${{ secrets.PKGCLD_WRITE_TOKEN }}
