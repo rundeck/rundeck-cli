@@ -20,9 +20,6 @@ die() {
     echo >&2 "$@"
     exit 2
 }
-isgpg2(){
-    gpg --version | grep 'gpg (GnuPG) 2' -q
-}
 
 main() {
     check_env
