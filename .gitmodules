@@ -1,0 +1,3 @@
+[submodule "packaging"]
+	path = packaging
+	url = git@github.com:rundeck/packaging.git
