@@ -28,7 +28,7 @@ jobs:
         env:
           SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_KEYID: build@rundeck.org
+          SIGNING_KEYID: signing@rundeck.com
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
