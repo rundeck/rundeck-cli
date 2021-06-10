@@ -17,6 +17,10 @@ jobs:
           java-version: 1.8
       - name: Build with Gradle
         run: ./gradlew build
+      - name: Install expect
+        run: |
+          sudo apt-get update -y
+          sudo apt-get -y install expect dpkg-sig
       - name: Sign RPM and Deb
         run: |
           test -d $HOME/.gnupg || mkdir $HOME/.gnupg
