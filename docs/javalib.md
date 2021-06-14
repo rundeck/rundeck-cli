@@ -15,7 +15,7 @@ The Java library used by RD can be used as a dependency in your Java project to 
 A demo project can be seen here: <https://github.com/gschueler/rd-api-demo>
 
 ~~~{groovy}
-//use bintray maven repo
+//use maven central
 repositories {
     mavenCentral()
 }

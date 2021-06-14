@@ -10,20 +10,24 @@ The CLI tool for [Rundeck](https://github.com/rundeck/rundeck)
 
 Version                  | Requirements 
 |-------------------------------------------
-   {{ site.app_version }} |   Java 8     
+   [{{ site.app_version }}](changes) |   Java 8 or Java 11
 
-* [Change Log]({{site.url}}{{site.baseurl}}/changes/) 
 * [Source Code on Github]({{site.github_url}}) 
 * [Issues]({{site.github_url}}/issues)
 
+[changes]: {{site.url}}{{site.baseurl}}/changes/
+
 ## Documentation
 
-
-* [Install]({{site.url}}{{site.baseurl}}/install)
-* [Configuration]({{site.url}}{{site.baseurl}}/configuration)
-* [SSL Configuration]({{site.url}}{{site.baseurl}}/configuration/ssl/)
-* [Commands]({{site.url}}{{site.baseurl}}/commands)
-* [Scripting]({{site.url}}{{site.baseurl}}/scripting)
-* [Java API Library]({{site.url}}{{site.baseurl}}/javalib)
-{% for post in site.documentation %}* [{{ post.title }}]({{site.url}}{{site.baseurl}}{{ post.permalink }})
-{% endfor %}
+{% for post in site.pages %}
+{%- if post.title -%}
+{% if post.path != 'index.md' -%}
+* [{{ post.title }}]({{site.url}}{{site.baseurl}}{{ post.permalink }})
+{% endif -%}
+{%- endif -%}
+{%- endfor -%}
+{%- for post in site.documentation -%}
+{% if post.title -%}
+* [{{ post.title }}]({{site.url}}{{site.baseurl}}{{ post.permalink }})
+{% endif -%}
+{%- endfor -%}

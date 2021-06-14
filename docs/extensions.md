@@ -42,7 +42,7 @@ Javadoc:
 A demo project can be seen here: <https://github.com/gschueler/rd-extension-demo>
 
 ~~~{groovy}
-//use bintray maven repo
+//use maven central
 repositories { 
     mavenCentral()
 }
@@ -87,7 +87,7 @@ class MyClass implements RdCommandExtension{
 }
 ```
 
-Argument parsing is done with the CLI Toolbelt, and can use the JewelCLI library.  See the Example code.
+Argument parsing is done with the CLI Toolbelt, and can use the JewelCLI or Picocli libraries.  See the Example code.
 
 ## Declare the Service
 
