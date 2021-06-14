@@ -265,7 +265,7 @@ public class Run extends AppCommand {
         while (matcher.find()) {
             String digit = matcher.group("digits");
             String unit = matcher.group("unit");
-            long count = Integer.parseInt(digit);
+            int count = Integer.parseInt(digit);
             long unitms;
             //simple addition for time units
             switch (unit) {
