@@ -1,35 +1,15 @@
 ## 1.3.9
 
-
-[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.8...v1.3.9)
-
-## 1.3.8
-
-
-[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.7...v1.3.8)
-
-## 1.3.7
-
-
-[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.6...v1.3.7)
-
-## 1.3.6
-
-
-[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.5...v1.3.6)
-
-## 1.3.5
-
+* Update OkHttp lib [#357](https://github.com/rundeck/rundeck-cli/pull/357)
 * Fix [Issue #352](https://github.com/rundeck/rundeck-cli/issues/352) node attribute expansion not working for ssh-xyz attributes
-* Fix: centos 6 EOL
-* Fix: rd script requires `which` utility
-* Fix: docker build arg not working
-* Fix: centos 6 EOL
 * Fix: allow using java 11 to build
 * Fix [Issue #331](https://github.com/rundeck/rundeck-cli/issues/331) java 11 illegal access warnings
 * Fix: extension jars not loadable running as shadow dist
 
-[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.4...v1.3.5)
+Note: 1.3.5 - 1.3.8 changes were related to packaging and release scripts. Publishing of artifacts was moved
+from bintray to packagecloud and java libs are now published to maven central. See [install docs](https://github.com/rundeck/rundeck-cli/blob/main/docs/install.md).
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.4...v1.3.9)
 
 ## 1.3.4
 
