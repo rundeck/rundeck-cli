@@ -10,11 +10,12 @@ The CLI tool for [Rundeck](https://github.com/rundeck/rundeck)
 
 Version                  | Requirements 
 |-------------------------------------------
-   {{ site.app_version }} |   Java 8     
+   [{{ site.app_version }}](changes) |   Java 8 or Java 11
 
-* [Change Log]({{site.url}}{{site.baseurl}}/changes/) 
 * [Source Code on Github]({{site.github_url}}) 
 * [Issues]({{site.github_url}}/issues)
+
+[changes]: {{site.url}}{{site.baseurl}}/changes/
 
 ## Documentation
 
