@@ -6,7 +6,7 @@ permalink: /install/
 ---
 
 
-Download all artifacts from: [github releases](https://github.com/rundeck/rundeck-cli/releases)
+All artifacts can be downloaded from: [github releases](https://github.com/rundeck/rundeck-cli/releases/latest)
 
 * [zip install](#zip-install) `rd-x.y.zip`/`rd-x.y.tar`
 * [standalone executable jar](#jar-install) `rundeck-cli-x.y-all.jar`
@@ -14,67 +14,91 @@ Download all artifacts from: [github releases](https://github.com/rundeck/rundec
 * [debian install](#debian-usage) `rundeck-cli-x.y_all.deb`
 * [arch install](#arch-linux-install)
 
-Additional Yum/Debian repos hosted by:
-
-[![bintray]({{site.url}}{{site.baseurl}}/images/downloads-by-bintray-150.png)](https://bintray.com)
-
 ### Jar install
+
+Download the `rundeck-cli-x.y.z-all.jar` from [github releases](https://github.com/rundeck/rundeck-cli/releases/latest).
 
 Simply execute:
 
-    java -jar rundeck-cli-x.y-all.jar
+    java -jar rundeck-cli-x.y.z-all.jar
 
 ### Zip install
 
-Install `rd-0.x.y.zip`
+
+Download the `rd-x.y.z.zip` from [github releases](https://github.com/rundeck/rundeck-cli/releases/latest).
+
+Install:
 
     $ unzip rd-x.y.zip
-	rd
+	rd-x.y.z
 	├── bin
 	│   ├── rd
 	│   └── rd.bat
 	└── lib
 	    ├── ....jar
 
+Execute:
+
+    rd-x.y.z/bin/rd
 
 ### Yum usage
 
-[![Download](https://api.bintray.com/packages/rundeck/rundeck-rpm/rundeck-cli/images/download.svg?version={{site.app_version}}) ](https://bintray.com/rundeck/rundeck-rpm/rundeck-cli/{{site.app_version}}/link) via Bintray 
+---
+**NOTE**: If you previously installed via Bintray Yum repo (RD version prior to 1.3.9), please remove the `/etc/yum.repos.d/bintray.repo` file if it exists.
+
+---
+
+Add Yum Repo: 
 
 ~~~{.sh}
-$ wget https://bintray.com/rundeck/rundeck-rpm/rpm -O bintray.repo
-$ sudo mv bintray.repo /etc/yum.repos.d/
-$ yum install rundeck-cli
+curl https://raw.githubusercontent.com/rundeck/packaging/main/scripts/rpm-setup.sh 2> /dev/null | bash -s rundeck
 ~~~
 
-optional: enable all gpg checks:
+Optional: enable all gpg checks:
 
 ~~~{.sh}
-$ sed -i.bak s/gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/bintray.repo
-$ echo "gpgkey=https://bintray.com/user/downloadSubjectPublicKey?username=bintray" >> /etc/yum.repos.d/bintray.repo
-$ rpm --import https://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key
+$ sed -i.bak s/gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/rundeck.repo
+$ rpm --import https://raw.githubusercontent.com/rundeck/packaging/main/pubring.gpg
 ~~~
 
-optional: enable only rpm gpg checks:
+
+Finally: install rundeck-cli
 
 ~~~{.sh}
-$ sed -i.bak s/^gpgcheck=0/gpgcheck=1/ /etc/yum.repos.d/bintray.repo
-$ echo "gpgkey=https://rundeck.org/keys/BUILD-GPG-KEY-Rundeck.org.key" >> /etc/yum.repos.d/bintray.repo
+yum install rundeck-cli
 ~~~
+
+#### Download RPM Package
+
+Or Download individual packages at
+[rundeck-cli rpms via packagecloud](https://packagecloud.io/app/pagerduty/rundeck/search?q=rundeck-cli&filter=rpms&filter=rpms&dist=) 
+
+
 
 ### Debian usage
 
- [ ![Download](https://api.bintray.com/packages/rundeck/rundeck-deb/rundeck-cli/images/download.svg?version={{site.app_version}}) ](https://bintray.com/rundeck/rundeck-deb/rundeck-cli/{{site.app_version}}/link)
-via Bintray
+---
+
+**NOTE**: If you previously installed via the Bintray APT repo (rd version prior to 1.3.9), please remove the line `deb https://dl.bintray.com/rundeck/rundeck-deb /` from your `/etc/apt/sources.list` file.  
+
+---
+
+Install the packagecloud APT repo for rundeck:
 
 ~~~{.sh}
-echo "deb https://dl.bintray.com/rundeck/rundeck-deb /" | sudo tee -a /etc/apt/sources.list
-curl "https://bintray.com/user/downloadSubjectPublicKey?username=bintray" > /tmp/bintray.gpg.key
-apt-key add - < /tmp/bintray.gpg.key
-apt-get -y install apt-transport-https
-apt-get -y update
-apt-get -y install rundeck-cli
+curl -s https://packagecloud.io/install/repositories/pagerduty/rundeck/script.deb.sh | os=any dist=any bash
 ~~~
+
+Finally: install rundeck-cli
+
+~~~{.sh}
+apt-get install rundeck-cli
+~~~
+
+#### Download Deb Package
+
+Or Download individual packages at [rundeck-cli debs via packagecloud](https://packagecloud.io/app/pagerduty/rundeck/search?q=rundeck-cli&filter=debs)
+
 
 ### Arch Linux install
 
