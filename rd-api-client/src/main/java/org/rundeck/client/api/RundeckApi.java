@@ -302,7 +302,7 @@ public interface RundeckApi {
 
 
     /**
-     * Export project archive (<=v18)
+     * Export project archive (&lt;=v18)
      *
      * @param project project
      * @param ids     option execution IDs, or null for all contents
@@ -317,7 +317,7 @@ public interface RundeckApi {
     );
 
     /**
-     * Export project archive (>=v19)
+     * Export project archive (&gt;=v19)
      *
      * @param project
      * @param all
@@ -343,7 +343,7 @@ public interface RundeckApi {
     );
 
     /**
-     * Export project archive (>=v19)
+     * Export project archive (&gt;=v19)
      *
      * @param project
      * @param ids     option execution IDs, or null for all contents
@@ -388,7 +388,7 @@ public interface RundeckApi {
     );
 
     /**
-     * Export project archive (<=v18)
+     * Export project archive (&lt;=v18)
      *
      * @param project project
      *
