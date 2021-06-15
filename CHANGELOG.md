@@ -1,3 +1,9 @@
+## 1.3.10
+
+* Fix [Issue #342](https://github.com/rundeck/rundeck-cli/issues/342) uninstall script does not work with sh
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.9...v1.3.10)
+
 ## 1.3.9
 
 * Update OkHttp lib [#357](https://github.com/rundeck/rundeck-cli/pull/357)

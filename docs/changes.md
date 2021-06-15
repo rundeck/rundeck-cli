@@ -4,6 +4,12 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.3.10
+
+* Fix [Issue #342](https://github.com/rundeck/rundeck-cli/issues/342) uninstall script does not work with sh
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.9...v1.3.10)
+
 ## 1.3.9
 
 * Update OkHttp lib [#357](https://github.com/rundeck/rundeck-cli/pull/357)
@@ -16,19 +22,6 @@ Note: 1.3.5 - 1.3.8 changes were related to packaging and release scripts. Publi
 from bintray to packagecloud and java libs are now published to maven central. See [install docs](https://github.com/rundeck/rundeck-cli/blob/main/docs/install.md).
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.4...v1.3.9)
-
-## 1.3.5
-
-* Fix [Issue #352](https://github.com/rundeck/rundeck-cli/issues/352) node attribute expansion not working for ssh-xyz attributes
-* Fix: centos 6 EOL
-* Fix: rd script requires `which` utility
-* Fix: docker build arg not working
-* Fix: centos 6 EOL
-* Fix: allow using java 11 to build
-* Fix [Issue #331](https://github.com/rundeck/rundeck-cli/issues/331) java 11 illegal access warnings
-* Fix: extension jars not loadable running as shadow dist
-
-[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.4...v1.3.5)
 
 ## 1.3.4
 
