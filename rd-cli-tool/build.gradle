@@ -185,11 +185,11 @@ ospackage {
     postInstall(createLn)
 
     //remove symlink, only if $1==0, package is being removed
-    postUninstall("""[ \$1 == 0  ] && test -f ${rdsymlink}  && rm ${rdsymlink} || true""")
+    postUninstall("""[ \$1 = 0  ] && test -f ${rdsymlink}  && rm ${rdsymlink} || true""")
 
     //after upgrade try to create symlink if missing
     //earlier rd-cli version will always remove symlink in postUninstall
-    postTrans("""[ \$1 == 0  ] && ! test -f ${rdsymlink} && ${createLn} || true""")
+    postTrans("""[ \$1 = 0  ] && ! test -f ${rdsymlink} && ${createLn} || true""")
 }
 
 //depend on the shadow artifact
