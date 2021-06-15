@@ -1,6 +1,6 @@
 ARG VERS=7
 FROM centos:$VERS
-ARG JDK=openjdk-8-jdk
+ARG JDK=java-1.8.0-openjdk
 RUN yum -y update
 RUN yum -y install ${JDK} ${JDK}-devel which
 RUN which java
