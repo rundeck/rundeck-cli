@@ -18,7 +18,6 @@ import java.util.regex.Matcher
 
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
     }
 
@@ -153,7 +152,6 @@ allprojects {
 
     repositories {
         mavenLocal()
-        jcenter()
         mavenCentral()
     }
 }
