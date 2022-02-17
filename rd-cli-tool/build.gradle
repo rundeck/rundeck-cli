@@ -18,7 +18,7 @@
 
 buildscript {
     repositories {
-        jcenter()
+        mavenCentral()
     }
 
 }
@@ -85,16 +85,8 @@ shadowDistZip.mustRunAfter distZip
 shadowDistTar.mustRunAfter distTar
 
 def scriptsClos = {
-
-    def prependConfigData = { regexTest, additionalText, line ->
-        // Looking for the line that starts with regexTest closure argument,
-        //prepend the additionalText
-        line = line.replaceAll(~/${regexTest}/) { original ->
-            additionalText + "\n" + original
-        }
-    }
     def appendConfigData = { regexTest, additionalText, line ->
-        line = line.replaceAll(~/${regexTest}/) { original ->
+        line.replaceAll(~/${regexTest}/) { original ->
             original + "\n" + additionalText
         }
     }
