@@ -5,7 +5,7 @@ set -euo pipefail
 DEBTAG=rdcli-deb
 RPMTAG=rdcli-rpm
 UBUNTUVERS="16.04 18.04"
-CENTOSVERS="7 8"
+CENTOSVERS="7"
 RPMJDK="java-1.8.0-openjdk java-11-openjdk"
 DEBJDK="openjdk-8-jdk openjdk-11-jdk"
 
