@@ -8,6 +8,7 @@ import org.rundeck.client.tool.commands.enterprise.api.model.LicenseStoreRespons
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.util.Format;
 import org.rundeck.toolbelt.Command;
 import org.rundeck.toolbelt.SubCommand;
@@ -55,6 +56,7 @@ public class License
 
     @Command(description = "license status")
     public boolean status(StatusOpts opts) throws InputError, IOException {
+        RdTool.apiVersionCheck("license status", 41, getClient().getApiVersion());
         LicenseResponse response = getClient().apiCall(EnterpriseApi::verifyLicense);
 
         if (opts.isOutputFormat()) {
@@ -109,7 +111,7 @@ public class License
 
     @Command(description = "Store license")
     public boolean store(StoreOpts opts) throws InputError, IOException {
-
+        RdTool.apiVersionCheck("Store License", 41, getClient().getApiVersion());
         RequestBody body = RequestBody.create(opts.getFile(), LICENSE_KEY_MEDIA_TYPE);
         LicenseStoreResponse response = getClient().apiCall(api -> api.storeLicense(body, opts.isAgree()));
 
