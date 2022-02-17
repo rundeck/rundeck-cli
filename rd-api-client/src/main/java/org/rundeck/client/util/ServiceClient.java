@@ -23,6 +23,9 @@ public interface ServiceClient<T> extends Closeable {
      * @return true if body has one of the media types
      */
     static boolean hasAnyMediaType(final MediaType mediaType1, MediaType... types) {
+        if (mediaType1 == null) {
+            return false;
+        }
         for (MediaType mediaType : types) {
             if (mediaType1.type().equals(mediaType.type()) && mediaType1.subtype().equals(mediaType.subtype())) {
                 return true;
