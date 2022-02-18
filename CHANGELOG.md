@@ -1,3 +1,9 @@
+## 1.3.11
+
+* Fix: empty content type causes exception
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.10...v1.3.11)
+
 ## 1.3.10
 
 * Fix [Issue #342](https://github.com/rundeck/rundeck-cli/issues/342) uninstall script does not work with sh
