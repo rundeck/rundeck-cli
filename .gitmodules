@@ -1,4 +1,4 @@
 [submodule "packaging"]
 	path = packaging
 	url = git@github.com:rundeck/packaging.git
-    branch = enh/signing-helpers
+    branch = main
