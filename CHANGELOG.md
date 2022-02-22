@@ -1,6 +1,7 @@
 ## 1.3.11
 
 * Fix: empty content type causes exception
+* Add Enterprise License APIs [#375](https://github.com/rundeck/rundeck-cli/pull/375) (for RD4.0 APIv41, yet to be released)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.10...v1.3.11)
 
