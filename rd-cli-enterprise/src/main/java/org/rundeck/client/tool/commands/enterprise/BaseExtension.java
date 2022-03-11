@@ -1,4 +1,4 @@
-package org.rundeck.client.tool.commands.enterprise.license;
+package org.rundeck.client.tool.commands.enterprise;
 
 import org.rundeck.client.tool.commands.enterprise.api.EnterpriseApi;
 import lombok.Getter;

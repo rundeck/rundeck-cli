@@ -2,6 +2,7 @@ package org.rundeck.client.tool.commands.enterprise.license;
 
 import com.lexicalscope.jewel.cli.CommandLineInterface;
 import com.lexicalscope.jewel.cli.Option;
+import org.rundeck.client.tool.commands.enterprise.BaseExtension;
 import org.rundeck.client.tool.commands.enterprise.api.EnterpriseApi;
 import org.rundeck.client.tool.commands.enterprise.api.model.LicenseResponse;
 import org.rundeck.client.tool.commands.enterprise.api.model.LicenseStoreResponse;
