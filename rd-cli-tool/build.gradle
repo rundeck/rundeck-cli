@@ -66,7 +66,7 @@ dependencies {
     implementation "org.rundeck.cli-toolbelt:toolbelt-jewelcli:$toolbeltVersion"
 
     testImplementation project(":rd-api-client")
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
     testImplementation "com.squareup.retrofit2:retrofit-mock:${retrofitVersion}"
     testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
     testImplementation "org.codehaus.groovy:groovy-all:2.5.16"
