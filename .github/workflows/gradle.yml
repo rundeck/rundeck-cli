@@ -8,16 +8,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: Get Fetch Tags
       run: git -c protocol.version=2 fetch --tags --progress --no-recurse-submodules origin
       if: "!contains(github.ref, 'refs/tags')"
     - name: Set up JDK 1.8
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v3
       with:
-        java-version: 1.8
+        java-version: '8'
+        distribution: 'zulu'
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
@@ -33,42 +34,42 @@ jobs:
       id: get_rpm_version
       run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet | sed 's/-/./') && echo ::set-output name=VERSION::$VERSION
     - name: Upload zip
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v3.0.0
       with:
         # Artifact name
         name: rd-${{ steps.get_version.outputs.VERSION }}.zip
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rd-${{ steps.get_version.outputs.VERSION }}.zip
     - name: Upload rpm
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v3.0.0
       with:
         # Artifact name
         name: rundeck-cli-${{ steps.get_rpm_version.outputs.VERSION }}-1.noarch.rpm
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rundeck-cli-${{ steps.get_rpm_version.outputs.VERSION }}-1.noarch.rpm
     - name: Upload deb
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v3.0.0
       with:
         # Artifact name
         name: rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
     - name: Upload all-jar
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v3.0.0
       with:
         # Artifact name
         name: rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
         # Directory containing files to upload
         path: rd-cli-tool/build/libs/rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
     - name: Upload api-lib
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v3.0.0
       with:
         # Artifact name
         name: rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
         # Directory containing files to upload
         path: rd-api-client/build/libs/rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
     - name: Upload rd-cli-lib
-      uses: actions/upload-artifact@v1.0.0
+      uses: actions/upload-artifact@v3.0.0
       with:
         # Artifact name
         name: rd-cli-lib-${{ steps.get_version.outputs.VERSION }}.jar

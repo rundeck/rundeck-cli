@@ -75,6 +75,15 @@ public class Archives extends AppCommand {
         @Option(shortName = "s", longName = "include-scm", description = "Include SCM configuration in import, default: false (api v28 required)")
         boolean isIncludeScm();
 
+        @Option(shortName = "w", longName = "include-webhooks", description = "Include Webhooks in import, default: false (api v34 required)")
+        boolean isIncludeWebhooks();
+
+        @Option(shortName = "t", longName = "regenerate-tokens", description = "regenerate the auth tokens associated with the webhook in import, default: false (api v34 required)")
+        boolean whkRegenAuthTokens();
+
+        @Option(shortName = "n", longName = "include-node-sources", description = "Include node resources in import, default: false (api v38 required)")
+        boolean isIncludeNodeSources();
+
         @Option(description = "Return non-zero exit status if any imported item had an error. Default: only job " +
                               "import errors are treated as failures.")
         boolean isStrict();
@@ -87,7 +96,12 @@ public class Archives extends AppCommand {
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
-
+        if ((opts.isIncludeWebhooks() || opts.whkRegenAuthTokens()) && getClient().getApiVersion() < 34) {
+            throw new InputError(String.format("Cannot use --include-webhooks or --regenerate-tokens with API < 34 (currently: %s)", getClient().getApiVersion()));
+        }
+        if ((opts.isIncludeNodeSources()) && getClient().getApiVersion() < 38) {
+            throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getClient().getApiVersion()));
+        }
         RequestBody body = RequestBody.create(Client.MEDIA_TYPE_ZIP, input);
 
         String project = projectOrEnv(opts);
@@ -98,6 +112,9 @@ public class Archives extends AppCommand {
                 opts.isIncludeConfig(),
                 opts.isIncludeAcl(),
                 opts.isIncludeScm(),
+                opts.isIncludeWebhooks(),
+                opts.whkRegenAuthTokens(),
+                opts.isIncludeNodeSources(),
                 body
         ));
         boolean anyerror = false;
