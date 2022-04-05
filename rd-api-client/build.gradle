@@ -55,7 +55,7 @@ dependencies {
     api "com.squareup.retrofit2:converter-jaxb:${retrofitVersion}"
     api "com.squareup.okhttp3:logging-interceptor:${okhttpVersion}"
     api "com.squareup.okhttp3:okhttp-urlconnection:${okhttpVersion}"
-    api 'com.sun.xml.bind:jaxb-impl:2.3.6'
+    api 'com.sun.xml.bind:jaxb-impl:3.0.2'
 
 
     testImplementation group: 'junit', name: 'junit', version: '4.12'
