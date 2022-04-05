@@ -96,7 +96,12 @@ public class Archives extends AppCommand {
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
-
+        if ((opts.isIncludeWebhooks() || opts.whkRegenAuthTokens()) && getClient().getApiVersion() < 34) {
+            throw new InputError(String.format("Cannot use --include-webhooks or --regenerate-tokens with API < 34 (currently: %s)", getClient().getApiVersion()));
+        }
+        if ((opts.isIncludeNodeSources()) && getClient().getApiVersion() < 38) {
+            throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getClient().getApiVersion()));
+        }
         RequestBody body = RequestBody.create(Client.MEDIA_TYPE_ZIP, input);
 
         String project = projectOrEnv(opts);
