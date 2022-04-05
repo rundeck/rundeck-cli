@@ -75,6 +75,15 @@ public class Archives extends AppCommand {
         @Option(shortName = "s", longName = "include-scm", description = "Include SCM configuration in import, default: false (api v28 required)")
         boolean isIncludeScm();
 
+        @Option(shortName = "w", longName = "include-webhooks", description = "Include Webhooks in import, default: false (api v34 required)")
+        boolean isIncludeWebhooks();
+
+        @Option(shortName = "t", longName = "regenerate-tokens", description = "regenerate the auth tokens associated with the webhook in import, default: false (api v34 required)")
+        boolean whkRegenAuthTokens();
+
+        @Option(shortName = "n", longName = "include-node-sources", description = "Include node resources in import, default: false (api v38 required)")
+        boolean isIncludeNodeSources();
+
         @Option(description = "Return non-zero exit status if any imported item had an error. Default: only job " +
                               "import errors are treated as failures.")
         boolean isStrict();
@@ -98,6 +107,9 @@ public class Archives extends AppCommand {
                 opts.isIncludeConfig(),
                 opts.isIncludeAcl(),
                 opts.isIncludeScm(),
+                opts.isIncludeWebhooks(),
+                opts.whkRegenAuthTokens(),
+                opts.isIncludeNodeSources(),
                 body
         ));
         boolean anyerror = false;

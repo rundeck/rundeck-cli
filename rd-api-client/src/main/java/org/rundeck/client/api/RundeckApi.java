@@ -403,6 +403,9 @@ public interface RundeckApi {
             @Query("importConfig") Boolean importConfig,
             @Query("importACL") Boolean importACL,
             @Query("importScm") Boolean importScm,
+            @Query("importWebhooks") Boolean importWebhooks,
+            @Query("whkRegenAuthTokens") Boolean whkRegenAuthTokens,
+            @Query("importNodesSources") Boolean importNodesSources,
             @Body RequestBody body
     );
 
