@@ -7,12 +7,11 @@ buildscript {
 }
 plugins{
     id "org.dvaske.gradle.git-build-info" version "0.9"
-    id 'de.fuerstenau.buildconfig' version '1.1.8'
+    id 'com.github.gmazzo.buildconfig' version '3.0.3'
 }
 
 apply plugin: 'idea'
 apply plugin: 'groovy'
-apply plugin: 'de.fuerstenau.buildconfig'
 
 group = 'org.rundeck.api'
 
@@ -27,21 +26,15 @@ ext.developers = [
  * Generates java source with embedded version info
  */
 buildConfig {
-    clsName = 'Version'
-    packageName = 'org.rundeck.client'
-    buildConfigField 'String', 'GIT_COMMIT', {
-        project.gitCommit
-    }
-    buildConfigField 'String', 'GIT_BRANCH', {
-        project.gitBranch
-    }
-    buildConfigField 'String', 'GIT_DESCRIPTION', {
-        project.gitDescribeInfo
-    }
-    buildConfigField 'String', 'BUILD_DATE', {
-        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").format(new Date())
-    }
+    className "Version"
+    packageName 'org.rundeck.client'
 
+    buildConfigField('String', 'NAME', "\"rundeck-cli\"")
+    buildConfigField('String', 'VERSION', "\"${project.version}\"")
+    buildConfigField('String', 'GIT_COMMIT', "\"${project.gitCommit}\"")
+    buildConfigField('String', 'GIT_BRANCH', "\"${project.gitBranch}\"")
+    buildConfigField('String', 'GIT_DESCRIPTION', "\"${project.gitDescribeInfo}\"")
+    buildConfigField('String', 'BUILD_DATE', "\"${new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssX").format(new Date())}\"")
 }
 
 
