@@ -137,6 +137,7 @@ startShadowScripts scriptsClos
 task verifyScripts {
     group = "Verification"
     description = 'Verify the start scripts (normal and shadow) contain the modifications for the RD_CONF'
+    dependsOn(assemble)
     doFirst {
         [startScripts.outputDir, startShadowScripts.outputDir].each { dir ->
             def f = new File(dir, applicationName)
