@@ -22,7 +22,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -Porg.gradle.dependency.verification.console=verbose
     - name: deb/rpm install test
       run: bash scripts/install-test.sh
     - name: rpm upgrade test
