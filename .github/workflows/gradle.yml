@@ -23,6 +23,11 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build -Porg.gradle.dependency.verification.console=verbose
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: dependency-verification
+        path: build/reports/dependency-verification/
     - name: deb/rpm install test
       run: bash scripts/install-test.sh
     - name: rpm upgrade test
