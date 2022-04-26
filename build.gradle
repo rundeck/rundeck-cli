@@ -22,7 +22,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.owasp:dependency-check-gradle:5.3.2.1'
+        classpath 'org.owasp:dependency-check-gradle:7.0.4.1'
     }
 }
 plugins {
