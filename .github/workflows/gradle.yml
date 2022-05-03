@@ -22,7 +22,7 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
-      run: ./gradlew build -Porg.gradle.dependency.verification.console=verbose
+      run: ./gradlew build -Porg.gradle.dependency.verification.console=verbose --dependency-verification lenient
     - uses: actions/upload-artifact@v3
       if: failure()
       with:
