@@ -31,3 +31,38 @@ This is the official CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 [Github Releases](https://github.com/rundeck/rundeck-cli/releases)
 
 For apt and yum repos, see [Install](https://rundeck.github.io/rundeck-cli/install/)
+
+# Howto
+
+## Build
+
+Build with gradle
+
+Produces packages in: rd-cli-tool/build/distributions/
+* rd-VERS.zip/.tar
+* rundeck_cli_VERS.rpm
+* rundeck_cli_VERS.deb
+
+Produces Jars in: rd-cli-tool/build/libs
+* rundeck-cli-VERS-all.jar (shadowed jar)
+
+
+    ./gradlew build
+
+## Build Lenient
+
+Build with lenient mode dependency verification
+
+	./gradlew build --dependency-verification lenient
+
+## Install
+
+Install to local path rd-cli-tool/build/install/rd/bin/rd
+
+	./gradlew :rd-cli-tool:installDist
+
+## Release
+
+Release a new version
+
+	./gradlew release
