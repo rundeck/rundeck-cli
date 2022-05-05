@@ -57,7 +57,7 @@ jobs:
       run: chmod +x gradlew
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -Porg.gradle.dependency.verification.console=verbose --dependency-verification lenient
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
