@@ -3,6 +3,30 @@ name: CI Tests
 on: [push]
 
 jobs:
+  build-verify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Get Fetch Tags
+      run: git -c protocol.version=2 fetch --tags --progress --no-recurse-submodules origin
+      if: "!contains(github.ref, 'refs/tags')"
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'zulu'
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+    - name: Build with Gradle
+      run: ./gradlew build -Porg.gradle.dependency.verification.console=verbose --dependency-verification strict
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: dependency-verification
+        path: build/reports/dependency-verification/
   build:
 
     runs-on: ubuntu-latest
@@ -23,11 +47,6 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build -Porg.gradle.dependency.verification.console=verbose --dependency-verification lenient
-    - uses: actions/upload-artifact@v3
-      if: failure()
-      with:
-        name: dependency-verification
-        path: build/reports/dependency-verification/
     - name: deb/rpm install test
       run: bash scripts/install-test.sh
     - name: rpm upgrade test
