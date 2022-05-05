@@ -39,7 +39,7 @@ jobs:
           key: v1-dependencies-{{ checksum "build.gradle" }}
 
       # run tests!
-      - run: ./gradlew test
+      - run: ./gradlew test -Porg.gradle.dependency.verification.console=verbose --dependency-verification lenient
       - store_test_results:
           path: rd-cli-tool/build/test-results
       - store_test_results:
