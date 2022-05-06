@@ -53,24 +53,22 @@ repositories{
     maven { url 'https://jitpack.io' }
 }
 dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
 
     implementation project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
     implementation project(":rd-cli-enterprise")
+
     implementation 'com.github.rundeck:rd-ext-acl:v0.1.2:all'
 
-    implementation "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
-    implementation "org.rundeck.cli-toolbelt:toolbelt-snakeyaml:$toolbeltVersion"
-    implementation "org.rundeck.cli-toolbelt:toolbelt-json-jackson:$toolbeltVersion"
-    implementation "org.rundeck.cli-toolbelt:toolbelt-jewelcli:$toolbeltVersion"
+    implementation libs.bundles.toolbelt
 
     testImplementation project(":rd-api-client")
-    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    testImplementation "com.squareup.retrofit2:retrofit-mock:${retrofitVersion}"
-    testImplementation "com.squareup.okhttp3:mockwebserver:${okhttpVersion}"
-    testImplementation "org.codehaus.groovy:groovy-all:3.0.10"
-    testImplementation "org.spockframework:spock-core:2.1-groovy-3.0"
+
+    testImplementation libs.retrofitMock
+    testImplementation libs.okhttpMockwebserver
+    testImplementation libs.bundles.test
 }
 shadowJar {
     mergeServiceFiles()

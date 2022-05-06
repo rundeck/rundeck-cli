@@ -11,13 +11,14 @@ ext.developers = [
 
 dependencies {
 
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+
     api project(":rd-api-client")
-    api "org.rundeck.cli-toolbelt:toolbelt:$toolbeltVersion"
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
-    testImplementation group: 'junit', name: 'junit', version: '4.13.2'
-    testImplementation "org.codehaus.groovy:groovy-all:3.0.10"
-    testImplementation "org.spockframework:spock-core:2.1-groovy-3.0"
+
+    api libs.toolbelt
+
+    testImplementation libs.bundles.test
 }
 
 
