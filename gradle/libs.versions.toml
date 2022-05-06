@@ -8,6 +8,13 @@ jaxb = "3.0.2"
 junit = "4.13.2"
 groovy = "3.0.10"
 spock = "2.1-groovy-3.0"
+axion = "1.13.6"
+nexusPublish = "1.1.0"
+shadow = "7.1.2"
+ospackage = "9.1.1"
+buildInfo = "0.9"
+buildConfig = "3.0.3"
+owasp = "7.1.0.1"
 
 [libraries]
 
@@ -37,3 +44,13 @@ toolbeltCli = { module = "org.rundeck.cli-toolbelt:toolbelt-jewelcli", version.r
 retrofit = ["retrofitCore", "retrofitJackson", "retrofitJaxb", "okhttpLogging", "okhttpUrlconnection", "jaxb"]
 test = ["junit", "groovy", "spock"]
 toolbelt = ["toolbelt", "toolbeltYaml", "toolbeltJackson", "toolbeltCli"]
+
+[plugins]
+
+axion = { id = "pl.allegro.tech.build.axion-release", version.ref = "axion" }
+nexusPublish = { id = "io.github.gradle-nexus.publish-plugin", version.ref = "nexusPublish" }
+shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+ospackage = { id = "nebula.ospackage", version.ref = "ospackage" }
+buildInfo = { id = "org.dvaske.gradle.git-build-info", version.ref = "buildInfo" }
+buildConfig = { id = 'com.github.gmazzo.buildconfig', version.ref = "buildConfig" }
+owasp = { id = "org.owasp.dependencycheck", version.ref = "owasp" }

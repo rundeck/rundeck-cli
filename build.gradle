@@ -16,20 +16,11 @@
 
 import java.util.regex.Matcher
 
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'org.owasp:dependency-check-gradle:7.1.0.1'
-    }
-}
 plugins {
     id 'base'
-    id 'pl.allegro.tech.build.axion-release' version '1.13.6'
-
-    id 'io.github.gradle-nexus.publish-plugin' version "1.1.0"
+    alias(libs.plugins.owasp)
+    alias(libs.plugins.axion)
+    alias(libs.plugins.nexusPublish)
 }
 apply plugin: 'org.owasp.dependencycheck'
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
