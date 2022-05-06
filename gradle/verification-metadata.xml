@@ -23,7 +23,10 @@
             <trusting group="com.h2database" name="h2" version="2.1.210"/>
          </trusted-key>
          <trusted-key id="0dcf749d41a80e58041aae1728f57f70167c0b3a" group="^org[.]sonatype($|([.].*))" regex="true"/>
-         <trusted-key id="120d6f34e627ed3a772ebbfe55c7e5e701832382" group="org.yaml" name="snakeyaml" version="1.26"/>
+         <trusted-key id="120d6f34e627ed3a772ebbfe55c7e5e701832382">
+            <trusting group="org.yaml" name="snakeyaml" version="1.26"/>
+            <trusting group="org.yaml" name="snakeyaml" version="1.30"/>
+         </trusted-key>
          <trusted-key id="19beab2d799c020f17c69126b16698a4adf4d638">
             <trusting group="org.checkerframework" name="checker-qual" version="2.10.0"/>
             <trusting group="org.checkerframework" name="checker-qual" version="3.12.0"/>
