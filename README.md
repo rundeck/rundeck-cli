@@ -55,7 +55,7 @@ Build with lenient mode dependency verification
 
 	./gradlew build --dependency-verification lenient
 
-## Update Dependency Verification
+## Write Dependency Verification
 
 Update dependency verification metadata and export any new keys.
 
@@ -63,6 +63,12 @@ Update dependency verification metadata and export any new keys.
     rm gradle/verification-keyring.gpg
     git add gradle/verification-metadata.xml
     git add gradle/verification-keyring.keys
+
+## Owasp Dependency check
+
+Check OWASP scan for dependencies
+
+    ./gradlew dependencyCheckAggregate -Porg.gradle.dependency.verification.console=verbose --dependency-verification lenient
 
 ## Install
 
