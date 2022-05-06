@@ -2,7 +2,6 @@ plugins {
     id 'java-library'
     id 'groovy'
 }
-ext.toolbeltGroup = "org.rundeck.cli-toolbelt"
 
 dependencies {
 
@@ -14,11 +13,9 @@ dependencies {
 
     implementation libs.bundles.toolbelt
 
-
     testImplementation project(":rd-cli-lib"), project(":rd-api-client")
 
     testImplementation libs.retrofitMock
     testImplementation libs.okhttpMockwebserver
     testImplementation libs.bundles.test
-
 }

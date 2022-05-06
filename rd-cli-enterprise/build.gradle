@@ -2,7 +2,6 @@ plugins {
     id 'java-library'
     id 'groovy'
 }
-ext.toolbeltGroup = "org.rundeck.cli-toolbelt"
 
 dependencies {
 
