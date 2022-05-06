@@ -23,3 +23,8 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew dependencyCheckAggregate -Porg.gradle.dependency.verification.console=verbose --dependency-verification lenient
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: dependency-check-reports
+          path: build/reports/dependency-check-report*

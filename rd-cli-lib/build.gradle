@@ -17,6 +17,7 @@ dependencies {
     api project(":rd-api-client")
 
     api libs.toolbelt
+    api libs.jacksonDatabind
 
     testImplementation libs.bundles.test
 }
