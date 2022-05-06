@@ -38,14 +38,14 @@ For apt and yum repos, see [Install](https://rundeck.github.io/rundeck-cli/insta
 
 Build with gradle
 
-Produces packages in: rd-cli-tool/build/distributions/
-* rd-VERS.zip/.tar
-* rundeck_cli_VERS.rpm
-* rundeck_cli_VERS.deb
+Produces packages in: rd-cli-tool/build/distributions:
 
-Produces Jars in: rd-cli-tool/build/libs
-* rundeck-cli-VERS-all.jar (shadowed jar)
+> rd-VERS.zip/.tar
+> rundeck_cli_VERS.rpm
+> rundeck_cli_VERS.deb
 
+Produces Jars in: rd-cli-tool/build/libs:
+rundeck-cli-VERS-all.jar (shadowed jar)
 
     ./gradlew build
 
@@ -54,6 +54,15 @@ Produces Jars in: rd-cli-tool/build/libs
 Build with lenient mode dependency verification
 
 	./gradlew build --dependency-verification lenient
+
+## Update Dependency Verification
+
+Update dependency verification metadata and export any new keys.
+
+    ./gradlew --write-verification-metadata pgp,sha256 --refresh-keys --export-keys build
+    rm gradle/verification-keyring.gpg
+    git add gradle/verification-metadata.xml
+    git add gradle/verification-keyring.keys
 
 ## Install
 
@@ -65,4 +74,26 @@ Install to local path rd-cli-tool/build/install/rd/bin/rd
 
 Release a new version
 
+Uses [axion release](https://axion-release-plugin.readthedocs.io/en/latest/) plugin.
+
 	./gradlew release
+
+## Release using Snapshots
+
+If you need to release with any SNAPSHOT dependency
+Otherwise, axion-release will fail the prerelease check. Only do this for testing.
+
+    ./gradlew release -Prelease.disableChecks
+
+
+##  Next Minor Version
+
+Updates minor version without releasing, e.g. 0.1.x-SNAPSHOT becomes 0.2.0-SNAPSHOT
+
+    ./gradlew markNextVersion -Prelease.incrementer=incrementMinor
+
+## Release Force version
+
+Release and force a particular version
+
+    ./gradlew release -Prelease.forceVersion=${1:?version argument must be specified}
