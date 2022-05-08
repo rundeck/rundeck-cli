@@ -71,9 +71,17 @@ public class Jobs extends BaseCommand {
         @CommandLine.Option(names = {"--batch", "-b"}, description = "Batch size if there are many IDs")
         Integer batchSize;
 
+        boolean isBatchSize() {
+            return batchSize != null && batchSize > 0;
+        }
+
 
         @CommandLine.Option(names = {"--max", "-m"}, description = "Maximum number of jobs to delete")
         Integer max;
+
+        boolean isMax() {
+            return max != null && max > 0;
+        }
 
     }
 
@@ -113,7 +121,7 @@ public class Jobs extends BaseCommand {
             list(jobOutputFormatOption, jobFileOptions, jobListOptions);
         }
         int idsSize = ids.size();
-        int idsToDelete = options.getMax() != null ? Math.min(idsSize, options.getMax()) : idsSize;
+        int idsToDelete = options.isMax() ? Math.min(idsSize, options.getMax()) : idsSize;
         if (!options.isConfirm()) {
             //request confirmation
             if (null == System.console()) {
@@ -128,7 +136,7 @@ public class Jobs extends BaseCommand {
                 return false;
             }
         }
-        int batch = options.getBatchSize() != null ? Math.min(idsToDelete, options.getBatchSize()) : idsToDelete;
+        int batch = options.isBatchSize() ? Math.min(idsToDelete, options.getBatchSize()) : idsToDelete;
         int total = 0;
         for (int i = 0; i < idsToDelete; ) {
             int batchToUse = Math.min(batch, idsToDelete - total);

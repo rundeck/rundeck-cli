@@ -26,7 +26,7 @@ public class JobLoadOptions {
             defaultValue = "update",
             description = "Behavior when uploading a Job matching a name+group that already exists, either: update, " +
                     "skip, create")
-    Duplication duplicate;
+    Duplication duplicate = Duplication.update;
 
     public enum Duplication {
         update,
