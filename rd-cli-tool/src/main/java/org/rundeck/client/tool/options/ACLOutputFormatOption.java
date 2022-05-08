@@ -22,8 +22,8 @@ import picocli.CommandLine;
 public class ACLOutputFormatOption  extends VerboseOption{
 
     @CommandLine.Option(names={"-%","--outformat"},
-            description = "Output format specifier for ACL info. You can use \"%key\" where key is one of:" +
-                          "name, type, href. E.g. \"%name %href\"")
+            description = "Output format specifier for ACL info. You can use \"%%key\" where key is one of:" +
+                          "name, type, href. E.g. \"%%name %%href\"")
     String outputFormat;
 
 }

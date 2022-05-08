@@ -39,11 +39,11 @@ public class License
 
 
         @CommandLine.Option(names = {"-%", "--outformat"},
-                description = "Output format specifier for license data. You can use \"%key\" where key is one of:"
+                description = "Output format specifier for license data. You can use \"%%key\" where key is one of:"
                         + " applicationVersion, gracePeriod, reason, validSince, contactEmail, shouldWarn, "
                         + "active, edition, type, perpetual, invalidCode, remaining, baseUrl, editions, "
                         + "application, serverUUIDs, validUntil, warning, company, state, issueDate, licenseId,"
-                        + " graceUntil. E.g. \"%state, %remaining\"")
+                        + " graceUntil. E.g. \"%%state, %%remaining\"")
         String outputFormat;
     }
 

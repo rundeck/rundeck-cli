@@ -26,8 +26,8 @@ public class ExecutionsFollowOptions extends FollowOptions {
     String id;
 
     @CommandLine.Option(names = {"-%", "--outformat"},
-            description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
-                    "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
+            description = "Output format specifier for execution logs. You can use \"%%key\" where key is one of:" +
+                    "time,level,log,user,command,node. E.g. \"%%user@%%node/%%level: %%log\"")
     String outputFormat;
 
     public boolean isOutputFormat() {

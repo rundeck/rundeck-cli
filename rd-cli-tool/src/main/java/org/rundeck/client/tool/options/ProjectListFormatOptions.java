@@ -27,8 +27,8 @@ import picocli.CommandLine;
 public class ProjectListFormatOptions {
 
     @CommandLine.Option(names={"-%","--outformat"},
-            description = "Output format specifier for project info. You can use \"%key\" where key is one of: " +
-                          "name, description, url, config, config.KEY. E.g. \"%name: " +
-                          "%description\".")
+            description = "Output format specifier for project info. You can use \"%%key\" where key is one of: " +
+                          "name, description, url, config, config.KEY. E.g. \"%%name: " +
+                          "%%description\".")
     String outputFormat;
 }

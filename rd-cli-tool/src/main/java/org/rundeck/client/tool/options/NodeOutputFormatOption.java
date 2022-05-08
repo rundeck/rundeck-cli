@@ -27,9 +27,9 @@ import picocli.CommandLine;
 public class NodeOutputFormatOption extends VerboseOption implements OutputFormat {
 
     @CommandLine.Option(names = {"-%", "--outformat"},
-            description = "Output format specifier for Node info. You can use \"%key\" where key is one of:" +
+            description = "Output format specifier for Node info. You can use \"%%key\" where key is one of:" +
                     "nodename, hostname, osFamily, osVersion, osArch, description, username, tags, or any " +
-                    "attribute. E.g. \"%nodename %tags\"")
+                    "attribute. E.g. \"%%nodename %%tags\"")
     private String outputFormat;
 
 }

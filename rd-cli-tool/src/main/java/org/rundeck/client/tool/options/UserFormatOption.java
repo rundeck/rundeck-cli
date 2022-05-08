@@ -11,8 +11,8 @@ import picocli.CommandLine;
 public class UserFormatOption extends VerboseOption implements OutputFormat {
 
     @CommandLine.Option(names = {"-%", "--outformat"},
-            description = "Output format specifier for User info. You can use \"%key\" where key is one of:" +
-                    "login, firstName, lastName, email. E.g. \"%login:%email\"")
+            description = "Output format specifier for User info. You can use \"%%key\" where key is one of:" +
+                    "login, firstName, lastName, email. E.g. \"%%login:%%email\"")
     String outputFormat;
 
 }
