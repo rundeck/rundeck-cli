@@ -6,7 +6,7 @@ import org.rundeck.client.api.model.Execution
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
 import org.rundeck.client.util.RdClientConfig
-import org.rundeck.toolbelt.CommandOutput
+
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification

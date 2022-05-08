@@ -16,49 +16,61 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
-import com.lexicalscope.jewel.cli.Unparsed;
+
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
+
 import org.rundeck.client.api.model.DateInfo;
 
 import java.util.List;
 
-@CommandLineInterface(application = "retry")
-public interface RetryBaseOptions extends JobIdentOptions, FollowOptions, RetryExecutionOption {
-    @Option(shortName = "l",
-            longName = "loglevel",
+@Data
+public class RetryBaseOptions extends JobIdentOptions implements  OutputFormat {
+    @CommandLine.Option(names = {"-l", "--loglevel"},
             description = "Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.",
-            defaultValue = {"info"},
-            pattern = "(verbose|info|warning|error)")
-    String getLoglevel();
+            defaultValue = "info")
+    private RunBaseOptions.Loglevel loglevel;
 
-    @Option(hidden = true, pattern = "(verbose|info|warning|error)")
-    String getLogevel();
-
-    boolean isLogevel();
+    @CommandLine.Option(names = {"-e", "--eid"}, description = "Execution ID to retry on failed nodes.")
+    String eid;
 
 
-    @Option(shortName = "u", longName = "user", description = "A username to run the job as, (runAs access required).")
-    String getUser();
+    boolean isLoglevel() {
+        return loglevel != null;
+    }
 
-    boolean isUser();
 
-    @Option(shortName = "F", longName = "failedNodes", description = "Run only on failed nodes (default=true).",
-            defaultValue = {"true"},
-            pattern = "(true|false)")
-    String getFailedNodes();
+    @CommandLine.Option(names = {"-u", "--user"}, description = "A username to run the job as, (runAs access required).")
+    private String user;
 
-    @Option(longName = "raw",
+    boolean isUser() {
+        return user != null;
+    }
+
+    @CommandLine.Option(
+            names = {"-F", "--failedNodes"},
+            description = "Run only on failed nodes (default=true).",
+            defaultValue = "true",
+            arity = "1"
+    )
+    private boolean failedNodes;
+
+    @CommandLine.Option(names = {"--raw"},
             description = "Treat option values as raw text, so that '-opt @value' is sent literally")
-    boolean isRawOptions();
+    private boolean rawOptions;
 
-    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath -OPTFILE2@ filepath", description = "Job options")
-    List<String> getCommandString();
+    @CommandLine.Parameters(paramLabel = "-OPT VAL or -OPTFILE @filepath", description = "Job options")
+    private List<String> commandString;
 
-    @Option(shortName = "%",
-            longName = "outformat",
+    @CommandLine.Option(names = {"-%", "--outformat"},
             description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
-                          "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
-    String getOutputFormat();
+                    "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
+    private String outputFormat;
+
+
+    @CommandLine.Option(names = {"-v", "--verbose"}, description = "Extended verbose output")
+    private boolean verbose;
 }
 

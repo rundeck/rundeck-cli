@@ -5,6 +5,7 @@ import org.rundeck.client.tool.InputError
 import org.rundeck.client.tool.ProjectInput
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.extension.RdCommandExtension
+import org.rundeck.client.tool.extension.RdOutput
 import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.RdClientConfig
 import org.rundeck.client.util.ServiceClient
@@ -20,6 +21,9 @@ class MockRdTool implements RdTool {
     @Override
     def <T extends RdCommandExtension> T initExtension(final T extension) {
         extension.setRdTool(this)
+        if (extension instanceof RdOutput) {
+            ((RdOutput) extension).rdOutput = rdApp.output
+        }
         extension
     }
 

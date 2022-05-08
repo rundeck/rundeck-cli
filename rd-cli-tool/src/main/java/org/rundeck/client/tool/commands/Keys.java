@@ -16,20 +16,19 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
-import com.lexicalscope.jewel.cli.Unparsed;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.client.tool.InputError;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.model.KeyStorageItem;
-import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
 import org.rundeck.client.util.Util;
+import picocli.CommandLine;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -41,16 +40,12 @@ import java.util.stream.Collectors;
 /**
  * keys subcommands
  */
-@Command(description = "Manage Keys via the Key Storage Facility." +
-                       "\nSpecify the path using -p/--path, or as the last argument to the command.")
+@CommandLine.Command(description = "Manage Keys via the Key Storage Facility." +
+        "\nSpecify the path using -p/--path, or as the last argument to the command.", name = "keys")
 
-public class Keys extends AppCommand {
+public class Keys extends BaseCommand {
 
     public static final String P_PATH_IS_REQUIRED = "-p/--path is required";
-
-    public Keys(final RdApp client) {
-        super(client);
-    }
 
     public static class Path {
         final String pathString;
@@ -72,61 +67,60 @@ public class Keys extends AppCommand {
         }
     }
 
-    interface PathArgs {
 
-        @Option(shortName = "p",
-                longName = "path",
-                description = "Storage path in the form 'path/to/file', or 'keys/path/to/file'.",
-                defaultValue = "")
-        Path getPath();
+    @CommandLine.Option(names = {"-p", "--path"},
+            description = "Storage path in the form 'path/to/file', or 'keys/path/to/file'.",
+            defaultValue = "")
+    @Getter
+    @Setter
+    private Path path;
+
+    @CommandLine.Spec
+    CommandLine.Model.CommandSpec spec;
+
+    void validateRequired() {
+        String path1 = path.keysPath();
+        if (path1.length() < 1) {
+            throw new CommandLine.ParameterException(spec.commandLine(), P_PATH_IS_REQUIRED);
+        }
     }
 
-    @CommandLineInterface(application = "list") interface ListArg extends PathArgs {
-    }
+    @CommandLine.Command(description = "List the keys and directories at a given path, or at the root by default.",
+            aliases = {"ls"})
+    public boolean list() throws IOException, InputError {
 
-    @Command(description = "List the keys and directories at a given path, or at the root by default.",
-             synonyms = {"ls"})
-    public boolean list(ListArg options, CommandOutput output) throws IOException, InputError {
-
-        Path path = argPath(options);
         KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(path.keysPath()));
 
-        output.output(keyStorageItem.toBasicString());
+        getRdOutput().output(keyStorageItem.toBasicString());
         if (keyStorageItem.getType() == KeyStorageItem.KeyItemType.directory) {
-            output.output(
+            getRdOutput().output(
                     keyStorageItem.getResources()
-                                  .stream()
-                                  .sorted()
-                                  .map(KeyStorageItem::toBasicString)
-                                  .collect(Collectors.toList()));
+                            .stream()
+                            .sorted()
+                            .map(KeyStorageItem::toBasicString)
+                            .collect(Collectors.toList()));
             return true;
         } else {
-            output.error(String.format("Path is not a directory: %s", path));
+            getRdOutput().error(String.format("Path is not a directory: %s", path));
             return false;
         }
     }
 
-    private Path argPath(final PathArgs options) {
-        return options.getPath();
-    }
 
-    @CommandLineInterface(application = "info") interface Info extends PathArgs {
-    }
+    @CommandLine.Command(description = "Get metadata about the given path")
+    public void info() throws IOException, InputError {
 
-    @Command(description = "Get metadata about the given path")
-    public void info(Info options, CommandOutput output) throws IOException, InputError {
-        Path path = argPath(options);
         KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(keysPath(path.keysPath())));
 
-        output.output(String.format("Path: %s", keyStorageItem.getPath()));
-        output.output(String.format("Type: %s", keyStorageItem.getType()));
+        getRdOutput().output(String.format("Path: %s", keyStorageItem.getPath()));
+        getRdOutput().output(String.format("Type: %s", keyStorageItem.getType()));
 
         if (keyStorageItem.getType() == KeyStorageItem.KeyItemType.directory) {
-            output.output(String.format("Directory: %d entries", keyStorageItem.getResources().size()));
+            getRdOutput().output(String.format("Directory: %d entries", keyStorageItem.getResources().size()));
         } else {
-            output.output(String.format("Name: %s", keyStorageItem.getName()));
-            output.output("Metadata:");
-            output.output(keyStorageItem.getMetaString("  "));
+            getRdOutput().output(String.format("Name: %s", keyStorageItem.getName()));
+            getRdOutput().output("Metadata:");
+            getRdOutput().output(keyStorageItem.getMetaString("  "));
         }
     }
 
@@ -141,117 +135,103 @@ public class Keys extends AppCommand {
         return path;
     }
 
-    @CommandLineInterface(application = "get") interface GetOpts extends PathArgs {
+    @Data
+    static class GetOpts {
 
-        @Option(shortName = "f",
-                longName = "file",
-                defaultToNull = true,
+        @CommandLine.Option(names = {"-f", "--file"},
                 description = "File path for storing the public key. If unset, the output will be written to stdout.")
-        File getFile();
+        private File file;
     }
 
-    @Command(description = "Get the contents of a public key")
-    public boolean get(GetOpts options, CommandOutput output) throws IOException, InputError {
-        Path path = argPath(options);
-        String path1 = path.keysPath();
-        if (path1.length() < 1) {
-            throw new InputError(P_PATH_IS_REQUIRED);
-        }
+    @CommandLine.Command(description = "Get the contents of a public key")
+    public boolean get(@CommandLine.Mixin GetOpts options) throws IOException, InputError {
+        validateRequired();
         KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(path.keysPath()));
 
         if (keyStorageItem.getType() != KeyStorageItem.KeyItemType.file) {
-            output.error(String.format("Requested path (%s) is not a file", path));
+            getRdOutput().error(String.format("Requested path (%s) is not a file", path));
             return false;
         }
         if (keyStorageItem.getFileType() != KeyStorageItem.KeyFileType.publicKey) {
-            output.error(String.format(
+            getRdOutput().error(String.format(
                     "Requested path (%s) is not a public key. Type: %s",
                     path,
                     keyStorageItem.getFileType()
             ));
             return false;
         }
-        ResponseBody body = apiCall(api -> api.getPublicKey(path.keysPath()));
-        if (!ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_GPG_KEYS)) {
-            throw new IllegalStateException("Unexpected response format: " + body.contentType());
-        }
-        InputStream inputStream = body.byteStream();
-        File outFile = options.getFile();
-        if (outFile != null) {
-            try (FileOutputStream out = new FileOutputStream(outFile)) {
-                long total = Util.copyStream(inputStream, out);
-                output.info(String.format(
-                        "Wrote %d bytes of %s to file %s%n",
-                        total,
-                        body.contentType(),
-                        outFile
-                ));
+        try (ResponseBody body = apiCall(api -> api.getPublicKey(path.keysPath()))) {
+            if (!ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_GPG_KEYS)) {
+                throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }
-        } else {
-            Util.copyStream(inputStream, System.out);
+            InputStream inputStream = body.byteStream();
+            File outFile = options.getFile();
+            if (outFile != null) {
+                try (FileOutputStream out = new FileOutputStream(outFile)) {
+                    long total = Util.copyStream(inputStream, out);
+                    getRdOutput().info(String.format(
+                            "Wrote %d bytes of %s to file %s%n",
+                            total,
+                            body.contentType(),
+                            outFile
+                    ));
+                }
+            } else {
+                Util.copyStream(inputStream, System.out);
+            }
         }
         return true;
     }
 
-    @CommandLineInterface(application = "delete") interface Delete extends PathArgs {
 
-    }
-
-    @Command(synonyms = {"rm"}, description = "Delete the key at the given path.")
-    public void delete(Delete opts, CommandOutput output) throws IOException, InputError {
-        Path path = argPath(opts);
-        String path1 = path.keysPath();
-        if (path1.length() < 1) {
-            throw new InputError(P_PATH_IS_REQUIRED);
-        }
+    @CommandLine.Command(aliases = {"rm"}, description = "Delete the key at the given path.")
+    public void delete() throws IOException, InputError {
+        validateRequired();
         apiCall(api -> api.deleteKeyStorage(path.keysPath()));
-        output.info(String.format("Deleted: %s", path));
+        getRdOutput().info(String.format("Deleted: %s", path));
     }
 
-    @CommandLineInterface(application = "create") interface Upload extends PathArgs {
+    @Data
+    static class Upload {
 
 
-        @Option(shortName = "t",
-                longName = "type",
+        @CommandLine.Option(names = {"-t", "--type"},
                 description = "Type of key to store: publicKey,privateKey,password.")
-        KeyStorageItem.KeyFileType getType();
+        private KeyStorageItem.KeyFileType type;
 
-        @Option(shortName = "f",
-                longName = "file",
+        @CommandLine.Option(names = {"-f", "--file"},
                 description = "File path for reading the upload contents.")
-        File getFile();
+        private File file;
 
-        boolean isFile();
+        boolean isFile() {
+            return file != null;
+        }
 
-        @Option(
-                longName = "charset",
+        @CommandLine.Option(
+                names = {"--charset"},
                 description = "Encoding charset of the File, e.g. 'UTF-8'. If not specified, the JVM default will be " +
-                              "used.")
-        String getCharset();
+                        "used.")
+        private String charset;
 
-        boolean isCharset();
+        boolean isCharset() {
+            return charset != null;
+        }
 
-        @Option(
-                shortName = "P",
-                longName = "prompt",
+        @CommandLine.Option(
+                names = {"-P", "--prompt"},
                 description = "(password type only) prompt on console for the password value, if -f is not specified."
         )
-        boolean isPrompt();
+        private boolean prompt;
     }
 
-    @Command(description = "Create a new key entry.")
-    public void create(Upload options, CommandOutput output) throws IOException, InputError {
-
-        Path path = argPath(options);
-        String path1 = path.keysPath();
-        if (path1.length() < 1) {
-            throw new InputError(P_PATH_IS_REQUIRED);
-        }
+    @CommandLine.Command(description = "Create a new key entry.")
+    public void create(@CommandLine.Mixin Upload options) throws IOException, InputError {
+        validateRequired();
         RequestBody requestBody = prepareKeyUpload(options);
 
 
-        KeyStorageItem keyStorageItem = apiCall(api -> api.createKeyStorage(path1, requestBody));
-        output.info(String.format("Created: %s", keyStorageItem.toBasicString()));
+        KeyStorageItem keyStorageItem = apiCall(api -> api.createKeyStorage(path.keysPath(), requestBody));
+        getRdOutput().info(String.format("Created: %s", keyStorageItem.toBasicString()));
     }
 
     static RequestBody prepareKeyUpload(final Upload options) throws IOException, InputError {
@@ -325,19 +305,12 @@ public class Keys extends AppCommand {
         return requestBody;
     }
 
-    @CommandLineInterface(application = "update") interface Update extends Upload {
-    }
-
-    @Command(description = "Update an existing key entry")
-    public void update(Update options, CommandOutput output) throws IOException, InputError {
-        Path path = argPath(options);
-        String path1 = path.keysPath();
-        if (path1.length() < 1) {
-            throw new InputError(P_PATH_IS_REQUIRED);
-        }
+    @CommandLine.Command(description = "Update an existing key entry")
+    public void update(@CommandLine.Mixin Upload options) throws IOException, InputError {
+        validateRequired();
         RequestBody requestBody = prepareKeyUpload(options);
         KeyStorageItem keyStorageItem = apiCall(api -> api.updateKeyStorage(path.keysPath(), requestBody));
-        output.info(String.format("Updated: %s", keyStorageItem.toBasicString()));
+        getRdOutput().info(String.format("Updated: %s", keyStorageItem.toBasicString()));
     }
 
     private static MediaType getUploadContentType(final KeyStorageItem.KeyFileType type) {

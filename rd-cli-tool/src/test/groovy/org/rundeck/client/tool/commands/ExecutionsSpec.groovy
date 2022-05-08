@@ -22,7 +22,7 @@ import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.Paging
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.RdClientConfig
-import org.rundeck.toolbelt.CommandOutput
+
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest

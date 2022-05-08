@@ -16,10 +16,28 @@
 
 package org.rundeck.client.tool.options;
 
+import lombok.Data;
+import org.rundeck.client.tool.ProjectInput;
+import picocli.CommandLine;
+
 /**
  * Optional Project name options
  */
-public interface ProjectNameOptions extends BaseOptions, ProjectRequiredNameOptions {
+@Data
+public class ProjectNameOptions implements ProjectInput {
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec; // injected by picocli
+    @CommandLine.Option(
+            names = {"-p", "--project"},
+            description = "Project name"
+    )
+    private String project;
 
-    boolean isProject();
+    public boolean isProject() {
+        return project != null;
+    }
+
+    void validate() {
+        ProjectRequiredNameOptions.validateProjectName(getProject(), spec.commandLine());
+    }
 }

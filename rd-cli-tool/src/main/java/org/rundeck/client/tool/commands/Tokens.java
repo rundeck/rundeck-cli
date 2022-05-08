@@ -16,11 +16,13 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
+import org.rundeck.client.tool.extension.BaseCommand;
+import picocli.CommandLine;
 import org.rundeck.client.tool.options.TokenFormatOption;
 import org.rundeck.client.util.Format;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+
+
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.ApiToken;
 import org.rundeck.client.api.model.CreateToken;
@@ -35,34 +37,35 @@ import java.util.stream.Collectors;
 /**
  * tokens subcommands
  */
-@Command(description = "Create, and manage tokens")
-public class Tokens extends AppCommand {
-    public Tokens(final RdApp client) {
-        super(client);
-    }
+@CommandLine.Command(description = "Create, and manage tokens", name = "tokens")
+public class Tokens extends BaseCommand {
 
-    public interface CreateOptions extends TokenFormatOption {
-        @Option(longName = "user", shortName = "u", description = "user name")
-        String getUser();
 
-        @Option(longName = "duration",
-                shortName = "d",
+    @Data
+    static class CreateOptions extends TokenFormatOption {
+        @CommandLine.Option(names = {"--user", "-u"}, description = "user name", required = true)
+        String user;
+
+        @CommandLine.Option(names = {"--duration", "-d"},
                 description = "Token duration, in the form '#[ydhms]`, e.g. '2y','5h','24h30m'")
-        String getDuration();
+        String duration;
 
-        boolean isDuration();
+        boolean isDuration() {
+            return duration != null;
+        }
 
-        @Option(longName = "roles",
-                shortName = "r",
+        @CommandLine.Option(names = {"--roles", "-r"},
                 description = "List of roles to set for the token, space separated (api v19+)")
-        List<String> getRoles();
+        List<String> roles;
 
-        boolean isRoles();
+        boolean isRoles() {
+            return roles != null && !roles.isEmpty();
+        }
     }
 
-    @Command(description = "Create a token for a user")
-    public ApiToken create(CreateOptions options, CommandOutput output) throws IOException, InputError {
-        boolean v19 = getClient().minApiVersion(19);
+    @CommandLine.Command(description = "Create a token for a user")
+    public ApiToken create(@CommandLine.Mixin CreateOptions options) throws IOException, InputError {
+        boolean v19 = getRdTool().getClient().minApiVersion(19);
         ApiToken apiToken;
         if (v19) {
             if (!options.isRoles()) {
@@ -79,9 +82,9 @@ public class Tokens extends AppCommand {
             }
             apiToken = apiCall(api -> api.createToken(options.getUser()));
         }
-        output.info("API Token created:");
+        getRdOutput().info("API Token created:");
 
-        output.output(
+        getRdOutput().output(
                 formatTokenOutput(v19, options, ApiToken::toMap, true)
                         .apply(apiToken)
         );
@@ -89,31 +92,32 @@ public class Tokens extends AppCommand {
         return apiToken;
     }
 
-    public interface ListOptions extends TokenFormatOption {
-        @Option(longName = "user", shortName = "u", description = "user name")
-        String getUser();
+    @Data
+    static class ListOptions extends TokenFormatOption {
+        @CommandLine.Option(names = {"--user", "-u"}, description = "user name", required = true)
+        private String user;
 
-        @Option(longName = "verbose", shortName = "v", description = "show full tokens")
-        boolean isVerbose();
+        @CommandLine.Option(names = {"--verbose", "-v"}, description = "show full tokens")
+        private boolean verbose;
     }
 
-    @Command(description = "List tokens for a user")
-    public List<ApiToken> list(ListOptions options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "List tokens for a user")
+    public List<ApiToken> list(@CommandLine.Mixin ListOptions options) throws IOException, InputError {
 
         List<ApiToken> tokens = apiCall(api -> api.listTokens(options.getUser()));
-        output.info(String.format("API Tokens for %s:", options.getUser()));
+        getRdOutput().info(String.format("API Tokens for %s:", options.getUser()));
 
-        output.output(
+        getRdOutput().output(
                 tokens.stream()
-                      .map(
-                              formatTokenOutput(
-                                      getClient().minApiVersion(19),
-                                      options,
-                                      ApiToken::toMap,
-                                      false
-                              )
-                      )
-                      .collect(Collectors.toList())
+                        .map(
+                                formatTokenOutput(
+                                        getRdTool().getClient().minApiVersion(19),
+                                        options,
+                                        ApiToken::toMap,
+                                        false
+                                )
+                        )
+                        .collect(Collectors.toList())
         );
 
         return tokens;
@@ -145,29 +149,30 @@ public class Tokens extends AppCommand {
         }
     }
 
-    public interface RevealOption extends TokenFormatOption {
-        @Option(longName = "id", shortName = "id", description = "Token ID")
-        String getId();
+    @Data
+    static class RevealOption extends TokenFormatOption {
+        @CommandLine.Option(names = {"--id", "-id"}, description = "Token ID")
+        private String id;
     }
 
-    @Command(description = "Reveal token value for an ID (API v19+)")
-    public void reveal(RevealOption options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Reveal token value for an ID (API v19+)")
+    public void reveal(RevealOption options) throws IOException, InputError {
         ApiToken token = apiCall(api -> api.getToken(options.getId()));
-        output.info(String.format("API Token %s:", options.getId()));
-        output.output(
+        getRdOutput().info(String.format("API Token %s:", options.getId()));
+        getRdOutput().output(
                 formatTokenOutput(true, options, ApiToken::toMap, true)
                         .apply(token)
         );
     }
 
     public interface DeleteOptions {
-        @Option(longName = "token", shortName = "t", description = "API token")
+        @CommandLine.Option(names = {"--token", "-t"}, description = "API token")
         String getToken();
     }
 
-    @Command(description = "Delete a token")
-    public void delete(DeleteOptions options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Delete a token")
+    public void delete(DeleteOptions options) throws IOException, InputError {
         Void aVoid = apiCall(api -> api.deleteToken(options.getToken()));
-        output.info("Token deleted.");
+        getRdOutput().info("Token deleted.");
     }
 }

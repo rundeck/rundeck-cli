@@ -16,13 +16,15 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
+import picocli.CommandLine;
 
 /**
  * @author greg
  * @since 11/22/16
  */
-public interface QuietOption {
-    @Option(shortName = "q", longName = "quiet", description = "Reduce output.")
-    boolean isQuiet();
+@Data
+public class QuietOption {
+    @CommandLine.Option(names = {"-q", "--quiet"}, description = "Reduce output.")
+    private boolean quiet;
 }

@@ -16,17 +16,17 @@
 
 package org.rundeck.client.tool.commands.projects;
 
-import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import lombok.Data;
+import lombok.Getter;
+import org.rundeck.client.tool.ProjectInput;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
+import picocli.CommandLine;
 import org.rundeck.client.tool.InputError;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.ReadmeFile;
 import org.rundeck.client.api.model.ProjectReadme;
-import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.options.ProjectNameOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -35,47 +35,61 @@ import java.io.IOException;
 /**
  * projects readme subcommands
  */
-@Command(description = "Manage Project readme.md/motd.md")
-public class Readme extends AppCommand {
-    public Readme(final RdApp client) {
-        super(client);
+@CommandLine.Command(description = "Manage Project readme.md/motd.md", name = "readme")
+public class Readme extends BaseCommand implements ProjectInput {
+
+    @CommandLine.Option(names = {"-m", "--motd"},
+            description = "Choose the 'motd.md' file. If unset, choose 'readme.md'.")
+    @Getter
+    private boolean motd;
+    @CommandLine.Option(names = {"--project", "-p"},
+            description = "Project name"
+    )
+    @Getter
+    private String project;
+
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec; // injected by picocli
+
+    String validate() throws InputError {
+        if (null != getProject()) {
+            ProjectRequiredNameOptions.validateProjectName(getProject(), spec.commandLine());
+        }
+        return getRdTool().projectOrEnv(this);
     }
 
-    public interface GetOptions extends ProjectNameOptions {
-        @Option(shortName = "m",
-                longName = "motd",
-                description = "Choose the 'motd.md' file. If unset, choose 'readme.md'.")
-        boolean isMotd();
-
+    public ReadmeFile getReadmeFile() {
+        return isMotd() ? ReadmeFile.MOTD : ReadmeFile.README;
     }
 
-    public ReadmeFile getReadmeFile(GetOptions options) {
-        return options.isMotd() ? ReadmeFile.MOTD : ReadmeFile.README;
-    }
-
-    @Command(description = "get project readme/motd file")
-    public void get(GetOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        ProjectReadme readme = apiCall(api -> api.getReadme(project, getReadmeFile(options)));
-        output.output(readme.getContents());
-    }
-
-
-    public interface SetOptions extends GetOptions {
-        @Option(shortName = "f", longName = "file", description = "Path to a file to read for readme/motd contents.")
-        File getFile();
-
-        boolean isFile();
-
-        @Option(shortName = "t", longName = "text", description = "Text to use for readme/motd contents.")
-        String getText();
-
-        boolean isText();
+    @CommandLine.Command(description = "get project readme/motd file")
+    public void get() throws IOException, InputError {
+        String project = validate();
+        ProjectReadme readme = apiCall(api -> api.getReadme(project, getReadmeFile()));
+        getRdOutput().output(readme.getContents());
     }
 
 
-    @Command(description = "set project readme/motd file")
-    public void put(SetOptions options, CommandOutput output) throws IOException, InputError {
+    @Data
+    public static class SetOptions {
+        @CommandLine.Option(names = {"-f", "--file"}, description = "Path to a file to read for readme/motd contents.")
+        File file;
+
+        boolean isFile() {
+            return file != null;
+        }
+
+        @CommandLine.Option(names = {"-t", "--text"}, description = "Text to use for readme/motd contents.")
+        String text;
+
+        boolean isText() {
+            return text != null;
+        }
+    }
+
+
+    @CommandLine.Command(description = "set project readme/motd file")
+    public void put(@CommandLine.Mixin SetOptions options) throws IOException, InputError {
         if (!options.isText() && !options.isFile()) {
             throw new InputError("-f/--file or -t/--text is required");
         }
@@ -91,16 +105,16 @@ public class Readme extends AppCommand {
                     options.getText()
             );
         }
-        String project = projectOrEnv(options);
-        ProjectReadme readme = apiCall(api -> api.putReadme(project, getReadmeFile(options), requestBody));
-        output.output(readme.getContents());
+        String project = validate();
+        ProjectReadme readme = apiCall(api -> api.putReadme(project, getReadmeFile(), requestBody));
+        getRdOutput().output(readme.getContents());
     }
 
 
-    @Command(description = "delete project readme/motd file")
-    public void delete(GetOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        Void readme = apiCall(api -> api.deleteReadme(project, getReadmeFile(options)));
-        output.info(String.format("Deleted %s for project %s", getReadmeFile(options), project));
+    @CommandLine.Command(description = "delete project readme/motd file")
+    public void delete() throws IOException, InputError {
+        String project = validate();
+        Void readme = apiCall(api -> api.deleteReadme(project, getReadmeFile()));
+        getRdOutput().info(String.format("Deleted %s for project %s", getReadmeFile(), project));
     }
 }

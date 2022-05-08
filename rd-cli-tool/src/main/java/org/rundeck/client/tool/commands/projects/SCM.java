@@ -17,20 +17,19 @@
 package org.rundeck.client.tool.commands.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.toolbelt.ANSIColorOutput;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import lombok.Data;
+import lombok.Getter;
+import org.rundeck.client.tool.CommandOutput;
+import org.rundeck.client.tool.ProjectInput;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
+import picocli.CommandLine;
 import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.OptionUtil;
-import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.tool.util.Colorz;
@@ -38,6 +37,7 @@ import org.rundeck.client.util.ServiceClient;
 import retrofit2.Response;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,296 +47,272 @@ import java.util.stream.Collectors;
  * scm subcommands
  */
 
-@Command(description = "Manage Project SCM")
-public class SCM extends AppCommand {
-    public SCM(final RdApp client) {
-        super(client);
+@CommandLine.Command(description = "Manage Project SCM", name = "scm")
+public class SCM extends BaseCommand implements ProjectInput {
+    static final List<String> INTEGRATIONS = new ArrayList<>(Arrays.asList("import", "export"));
+    @CommandLine.Option(names = {"--integration", "-i"},
+            description = "Integration type (export/import)",
+            required = true
+//            pattern = "^(import|export)$"
+    )
+    @Getter
+    private String integration;
+    @CommandLine.Option(names = {"--project", "-p"},
+            description = "Project name"
+    )
+    @Getter
+    private String project;
+
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec; // injected by picocli
+
+    String validate() throws InputError {
+        if (!INTEGRATIONS.contains(integration)) {
+            throw new CommandLine.ParameterException(spec.commandLine(), "--integration/-i must be one of: " + INTEGRATIONS);
+        }
+        if (null != getProject()) {
+            ProjectRequiredNameOptions.validateProjectName(getProject(), spec.commandLine());
+        }
+        return getRdTool().projectOrEnv(this);
     }
 
-    public interface BaseScmOptions extends ProjectNameOptions {
-
-        @Option(longName = "integration",
-                shortName = "i",
-                description = "Integration type (export/import)",
-                pattern = "^(import|export)$")
-        String getIntegration();
-    }
-
-    @CommandLineInterface(application = "config")
-    public interface ConfigOptions extends BaseScmOptions {
-
-        @Option(longName = "file", shortName = "f", description = "If specified, write config to a file (json format)")
-        File getFile();
-
-        boolean isFile();
-    }
-
-    @Command(description = "Get SCM Config for a Project")
-    public void config(ConfigOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        ScmConfig scmConfig1 = apiCall(api -> api.getScmConfig(project, options.getIntegration()));
+    @CommandLine.Command(description = "Get SCM Config for a Project")
+    public void config(
+            @CommandLine.Option(names = {"--file", "-f"}, description = "If specified, write config to a file (json format)")
+            File file
+    ) throws IOException, InputError {
+        String project = validate();
+        ScmConfig scmConfig1 = apiCall(api -> api.getScmConfig(project, integration));
 
         HashMap<String, Object> basic = new HashMap<>();
         basic.put("Project", scmConfig1.project);
         basic.put("SCM Plugin type", scmConfig1.type);
         basic.put("SCM Plugin integration", scmConfig1.integration);
-        output.info(basic);
+        getRdOutput().info(basic);
 
         HashMap<String, Object> map = new HashMap<>();
         map.put("config", scmConfig1.config);
-        if (options.isFile()) {
+        if (file != null) {
             //write to file
             ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.writeValue(options.getFile(), map);
-            output.info("Wrote config to file: " + options.getFile());
+            objectMapper.writeValue(file, map);
+            getRdOutput().info("Wrote config to file: " + file);
         } else {
-            output.output(map);
+            getRdOutput().output(map);
         }
     }
 
-    @CommandLineInterface(application = "setup")
-    public interface SetupOptions extends BaseScmOptions {
-        @Option(longName = "type", shortName = "t", description = "Plugin type")
-        String getType();
-
-        @Option(longName = "file", shortName = "f", description = "Config file (json format)")
-        File getFile();
+    @Data
+    static class TypeOptions {
+        @CommandLine.Option(names = {"--type", "-t"}, description = "Plugin type", required = true)
+        private String type;
     }
 
-    @Command(description = "Setup SCM Config for a Project")
-    public boolean setup(SetupOptions options, CommandOutput output) throws IOException, InputError {
+    @Data
+    static class FileOptions {
+        @CommandLine.Option(names = {"--file", "-f"}, description = "Config file (json format)", required = true)
+        private File file;
+    }
 
+    @CommandLine.Command(description = "Setup SCM Config for a Project")
+    public boolean setup(
+            @CommandLine.Mixin TypeOptions typeOptions,
+            @CommandLine.Mixin FileOptions fileOptions
+    ) throws IOException, InputError {
+        String project = validate();
         /*
          * body containing the file
          */
         RequestBody requestBody = RequestBody.create(
                 Client.MEDIA_TYPE_JSON,
-                options.getFile()
+                fileOptions.getFile()
         );
-        String project = projectOrEnv(options);
 
         //get response to handle 400 validation error
-        ServiceClient.WithErrorResponse<ScmActionResult> response = apiWithErrorResponse(api -> api
+        ServiceClient.WithErrorResponse<ScmActionResult> response = getRdTool().apiWithErrorResponse(api -> api
                 .setupScmConfig(
                         project,
-                        options.getIntegration(),
-                        options.getType(),
+                        integration,
+                        typeOptions.getType(),
                         requestBody
                 ));
 
         //check for 400 error with validation information
         if (hasValidationError(
-                output,
-                getClient(),
+                getRdOutput(),
+                getRdTool().getClient(),
                 response,
-                "Setup config Validation for file: " + options.getFile().getAbsolutePath(),
-                getAppConfig().isAnsiEnabled()
+                "Setup config Validation for file: " + fileOptions.getFile().getAbsolutePath(),
+                getRdTool().getAppConfig().isAnsiEnabled()
         )) {
             return false;
         }
 
         //otherwise check other error codes and fail if necessary
-        ScmActionResult result = getClient().checkError(response);
+        ScmActionResult result = getRdTool().getClient().checkError(response);
 
 
-        return outputScmActionResult(output, result, "Setup");
+        return outputScmActionResult(getRdOutput(), result, "Setup");
     }
 
     private boolean outputScmActionResult(final CommandOutput output, final ScmActionResult result, final String name) {
         if (result.success) {
-            output.info(name + " was successful.");
+            getRdOutput().info(name + " was successful.");
         } else {
-            output.warning(name + " was not successful.");
+            getRdOutput().warning(name + " was not successful.");
         }
         if (result.message != null) {
-            output.info("Result: " + result.message);
+            getRdOutput().info("Result: " + result.message);
         }
         if (result.nextAction != null) {
-            output.output(ANSIColorOutput.colorize(
-                    "Next Action: ",
-                    ANSIColorOutput.Color.GREEN,
-                    result.nextAction
+            getRdOutput().output(CommandLine.Help.Ansi.AUTO.string(
+                    "Next Action: @|green " + result.nextAction + "|@"
             ));
         }
 
         return result.success;
     }
 
-    @CommandLineInterface(application = "status")
-    public interface StatusOptions extends BaseScmOptions {
-    }
 
-    @Command(description = "Get SCM Status for a Project")
-    public boolean status(StatusOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
+    @CommandLine.Command(description = "Get SCM Status for a Project")
+    public boolean status() throws IOException, InputError {
+        String project = validate();
         ScmProjectStatusResult result = apiCall(api -> api.getScmProjectStatus(
                 project,
-                options.getIntegration()
+                integration
         ));
 
 
-        output.output(result.toMap());
+        getRdOutput().output(result.toMap());
         return result.synchState == ScmSynchState.CLEAN;
     }
 
-    @CommandLineInterface(application = "enable")
-    public interface EnableOptions extends BaseScmOptions {
-        @Option(longName = "type", shortName = "t", description = "Plugin type")
-        String getType();
+
+    @CommandLine.Command(description = "Enable plugin ")
+    public void enable(@CommandLine.Mixin TypeOptions options) throws IOException, InputError {
+        String project = validate();
+        apiCall(api -> api.enableScmPlugin(
+                project,
+                getIntegration(),
+                options.getType()
+        ));
     }
 
-    @Command(description = "Enable plugin ")
-    public void enable(EnableOptions options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Disable plugin ")
+    public void disable(@CommandLine.Mixin TypeOptions options) throws IOException, InputError {
         //otherwise check other error codes and fail if necessary
-        String project = projectOrEnv(options);
-        Void result = apiCall(api -> api.enableScmPlugin(
+        String project = validate();
+
+        apiCall(api -> api.disableScmPlugin(
                 project,
-                options.getIntegration(),
+                getIntegration(),
                 options.getType()
         ));
 
     }
 
-    @CommandLineInterface(application = "disable")
-    public interface DisableOptions extends EnableOptions {
-    }
 
-    @Command(description = "Disable plugin ")
-    public void disable(DisableOptions options, CommandOutput output) throws IOException, InputError {
-        //otherwise check other error codes and fail if necessary
-        String project = projectOrEnv(options);
-        Void result = apiCall(api -> api.disableScmPlugin(
-                project,
-                options.getIntegration(),
-                options.getType()
-        ));
+    @CommandLine.Command(description = "Get SCM Setup inputs")
+    public void setupinputs(@CommandLine.Mixin TypeOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
-    }
-
-    @CommandLineInterface(application = "setupinputs")
-    public interface InputsOptions extends BaseScmOptions, VerboseOption {
-        @Option(longName = "type", shortName = "t", description = "Plugin type")
-        String getType();
-    }
-
-    @Command(description = "Get SCM Setup inputs")
-    public void setupinputs(InputsOptions options, CommandOutput output) throws IOException, InputError {
-
-        String project = projectOrEnv(options);
+        String project = validate();
         //otherwise check other error codes and fail if necessary
         ScmSetupInputsResult result = apiCall(api -> api.getScmSetupInputs(
                 project,
-                options.getIntegration(),
+                getIntegration(),
                 options.getType()
         ));
 
-        if (options.isVerbose()) {
-            output.output(result);
+        if (verboseOption.isVerbose()) {
+            getRdOutput().output(result);
             return;
         }
 
-        output.output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
+        getRdOutput().output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
     }
 
-    @CommandLineInterface(application = "inputs")
-    public interface ActionInputsOptions extends BaseScmOptions, VerboseOption {
-        @Option(longName = "action", shortName = "a", description = "Action ID")
-        String getAction();
-
+    @Data
+    public static class ActionInputsOptions {
+        @CommandLine.Option(names = {"--action", "-a"}, description = "Action ID", required = true)
+        private String action;
     }
 
-    @Command(description = "Get SCM action inputs")
-    public void inputs(ActionInputsOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
+    @CommandLine.Command(description = "Get SCM action inputs")
+    public void inputs(@CommandLine.Mixin ActionInputsOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
+        String project = validate();
 
         ScmActionInputsResult result = apiCall(api -> api.getScmActionInputs(
                 project,
-                options.getIntegration(),
+                integration,
                 options.getAction()
         ));
 
-        if (options.isVerbose()) {
-            output.output(result);
+        if (verboseOption.isVerbose()) {
+            getRdOutput().output(result);
             return;
         }
-        output.output(result.title + ": " + result.description);
-        output.output("Fields:");
-        output.output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
-        output.output("Items:");
-        if ("export".equals(options.getIntegration())) {
-            output.output(result.exportItems.stream().map(ScmExportItem::asMap).collect(Collectors.toList()));
+        getRdOutput().output(result.title + ": " + result.description);
+        getRdOutput().output("Fields:");
+        getRdOutput().output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
+        getRdOutput().output("Items:");
+        if ("export".equals(integration)) {
+            getRdOutput().output(result.exportItems.stream().map(ScmExportItem::asMap).collect(Collectors.toList()));
         } else {
-            output.output(result.importItems.stream().map(ScmImportItem::asMap).collect(Collectors.toList()));
+            getRdOutput().output(result.importItems.stream().map(ScmImportItem::asMap).collect(Collectors.toList()));
         }
     }
 
-    @CommandLineInterface(application = "perform")
-    public interface ActionPerformOptions extends BaseScmOptions {
-        @Option(longName = "action", shortName = "a", description = "Action ID")
-        String getAction();
+    @Data
+    public static class ActionPerformOptions extends ActionInputsOptions {
+        @CommandLine.Option(names = {"--field", "-f"}, description = "Field input values, space separated key=value list")
+        private List<String> fields;
 
-        @Option(longName = "field", shortName = "f", description = "Field input values, space separated key=value list")
-        List<String> getFields();
+        @CommandLine.Option(names = {"--item", "-I"}, description = "Items to include, space separated list")
+        private List<String> item;
 
-        boolean isFields();
-
-        @Option(longName = "item", shortName = "I", description = "Items to include, space separated list")
-        List<String> getItem();
-
-        boolean isItem();
-
-        @Option(shortName = "A",
-                longName = "allitems",
+        @CommandLine.Option(names = {"-A", "--allitems"},
                 description = "Include all items from the result of calling Inputs in export or import action")
-        boolean isAllItems();
+        boolean allItems;
 
-        @Option(shortName = "M",
-                longName = "allmodified",
+        @CommandLine.Option(names = {"-M", "--allmodified"},
                 description = "Include all modified (not deleted) items from the result of calling Inputs in Export " +
-                              "action (export only)")
-        boolean isAllModifiedItems();
+                        "action (export only)")
+        boolean allModifiedItems;
 
-        @Option(shortName = "D",
-                longName = "alldeleted",
+        @CommandLine.Option(names = {"-D", "--alldeleted"},
                 description = "Include all deleted items from the result of calling Inputs in Export " +
-                              "action (export only)")
-        boolean isAllDeletedItems();
+                        "action (export only)")
+        boolean allDeletedItems;
 
-        @Option(shortName = "T",
-                longName = "alltracked",
+        @CommandLine.Option(names = {"-T", "--alltracked"},
                 description = "Include all tracked (not new) items from the result of calling Inputs in Import action" +
-                              " (import only)")
-        boolean isAllTrackedItems();
+                        " (import only)")
+        boolean allTrackedItems;
 
-        @Option(shortName = "U",
-                longName = "alluntracked",
+        @CommandLine.Option(names = {"-U", "--alluntracked"},
                 description = "Include all untracked (new) items from the result of calling Inputs in Import action " +
-                              "(import only)")
-        boolean isAllUntrackedItems();
+                        "(import only)")
+        boolean allUntrackedItems;
 
-        @Option(longName = "job", shortName = "j", description = "Job IDs to include, space separated list")
-        List<String> getJob();
+        @CommandLine.Option(names = {"--job", "-j"}, description = "Job IDs to include, space separated list")
+        List<String> job;
 
-        boolean isJob();
 
-        @Option(longName = "delete",
-                shortName = "d",
+        @CommandLine.Option(names = {"--delete", "-d"},
                 description = "Job IDs or Item Ids to delete, space separated list")
-        List<String> getDelete();
+        List<String> delete;
 
-        boolean isDelete();
     }
 
-    @Command(description = "Perform SCM action")
-    public boolean perform(ActionPerformOptions options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Perform SCM action")
+    public boolean perform(@CommandLine.Mixin ActionPerformOptions options) throws IOException, InputError {
 
         ScmActionPerform perform = performFromOptions(options);
-        String project = projectOrEnv(options);
-        String integration = options.getIntegration();
+        String project = validate();
         boolean export = "export".equals(integration);
         if (options.isAllItems() ||
-            export && (options.isAllDeletedItems() || options.isAllModifiedItems()) ||
-            !export && (options.isAllTrackedItems() || options.isAllUntrackedItems())) {
+                export && (options.isAllDeletedItems() || options.isAllModifiedItems()) ||
+                !export && (options.isAllTrackedItems() || options.isAllUntrackedItems())) {
             //call the Inputs endpoint to list the items for the action
             ScmActionInputsResult inputs = apiCall(api -> api.getScmActionInputs(
                     project,
@@ -383,27 +359,27 @@ public class SCM extends AppCommand {
                 );
             }
         }
-        ServiceClient.WithErrorResponse<ScmActionResult> response = apiWithErrorResponse(api -> api.performScmAction(
+        ServiceClient.WithErrorResponse<ScmActionResult> response = getRdTool().apiWithErrorResponse(api -> api.performScmAction(
                 project,
-                options.getIntegration(),
+                integration,
                 options.getAction(),
                 perform
         ));
 
         //check for 400 error with validation information
         if (hasValidationError(
-                output,
-                getClient(),
+                getRdOutput(),
+                getRdTool().getClient(),
                 response,
                 "Action " + options.getAction(),
-                getAppConfig().isAnsiEnabled()
+                getRdTool().getAppConfig().isAnsiEnabled()
         )) {
             return false;
         }
 
         //otherwise check other error codes and fail if necessary
-        ScmActionResult result = getClient().checkError(response);
-        return outputScmActionResult(output, result, "Action " + options.getAction());
+        ScmActionResult result = getRdTool().getClient().checkError(response);
+        return outputScmActionResult(getRdOutput(), result, "Action " + options.getAction());
     }
 
     private ScmActionPerform performFromOptions(final ActionPerformOptions options) throws InputError {
@@ -422,22 +398,17 @@ public class SCM extends AppCommand {
         return perform;
     }
 
-    @CommandLineInterface(application = "plugins")
-    public interface ListPluginsOptions extends BaseScmOptions {
-
-    }
-
-    @Command(description = "List SCM plugins")
-    public void plugins(ListPluginsOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        ScmPluginsResult result = apiCall(api -> api.listScmPlugins(project, options.getIntegration()));
-        output.output(result.plugins.stream().map(ScmPlugin::toMap).collect(Collectors.toList()));
+    @CommandLine.Command(description = "List SCM plugins")
+    public void plugins() throws IOException, InputError {
+        String project = validate();
+        ScmPluginsResult result = apiCall(api -> api.listScmPlugins(project, integration));
+        getRdOutput().output(result.plugins.stream().map(ScmPlugin::toMap).collect(Collectors.toList()));
     }
 
     /**
      * Check for validation info from resposne
      *
-     * @param name action name for error messages
+     * @param name     action name for error messages
      * @param colorize
      */
     private static boolean hasValidationError(
@@ -465,10 +436,10 @@ public class SCM extends AppCommand {
                     Optional<? extends Map<?, ?>> errorData = Optional.ofNullable(error.toMap());
                     errorData.ifPresent(map -> output.output(
                             colorize ?
-                            Colorz.colorizeMapRecurse(
-                                    map,
-                                    ANSIColorOutput.Color.YELLOW
-                            ) : map
+                                    Colorz.colorizeMapRecurse(
+                                            map,
+                                            "yellow"
+                                    ) : map
                     ));
                 }
             } catch (IOException e) {

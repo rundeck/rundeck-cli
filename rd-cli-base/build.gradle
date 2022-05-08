@@ -11,7 +11,10 @@ dependencies {
 
     implementation project(":rd-cli-lib"), project(":rd-api-client")
 
-    implementation libs.bundles.toolbelt
+//    implementation libs.bundles.toolbelt
+
+    implementation libs.picocli
+    annotationProcessor libs.picocliCodegen
 
     testImplementation project(":rd-cli-lib"), project(":rd-api-client")
 

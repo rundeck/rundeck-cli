@@ -17,8 +17,8 @@ package org.rundeck.client.tool.commands.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.rundeck.client.api.model.repository.ArtifactActionMessage;
+import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.util.ServiceClient;
-import org.rundeck.toolbelt.CommandOutput;
 
 import java.io.IOException;
 

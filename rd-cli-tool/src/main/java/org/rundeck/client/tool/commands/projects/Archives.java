@@ -16,22 +16,22 @@
 
 package org.rundeck.client.tool.commands.projects;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
+import lombok.Getter;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectExportStatus;
 import org.rundeck.client.api.model.ProjectImportStatus;
+import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.options.ProjectNameOptions;
+import org.rundeck.client.tool.ProjectInput;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
 import org.rundeck.client.util.Util;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import picocli.CommandLine;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,64 +47,81 @@ import java.util.function.BooleanSupplier;
  * @since 4/10/17
  */
 
-@Command(description = "Project Archives import and export")
-public class Archives extends AppCommand {
-    public Archives(final RdApp rdApp) {
-        super(rdApp);
+@CommandLine.Command(description = "Project Archives import and export", name = "archives")
+public class Archives extends BaseCommand implements ProjectInput {
+
+
+    @CommandLine.Option(names = {"-f"}, description = "Output file path", required = true)
+    @Getter
+    private File file;
+    @CommandLine.Option(names = {"--project", "-p"},
+            description = "Project name"
+    )
+    @Getter
+    private String project;
+
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec; // injected by picocli
+
+    String validate() throws InputError {
+        if (null != getProject()) {
+            ProjectRequiredNameOptions.validateProjectName(getProject(), spec.commandLine());
+        }
+        return getRdTool().projectOrEnv(this);
     }
 
-    @CommandLineInterface(application = "import") interface ArchiveImportOpts
-            extends ArchiveFileOpts,
-            ProjectNameOptions
-    {
-        @Option(shortName = "r", description = "Remove Job UUIDs in imported jobs. Default: preserve job UUIDs.")
-        boolean isRemove();
+    @Data
+    static class ArchiveImportOpts {
+        @CommandLine.Option(names = {"-r"}, description = "Remove Job UUIDs in imported jobs. Default: preserve job UUIDs.")
+        boolean remove;
 
-        @Option(shortName = "x",
+        @CommandLine.Option(names = {"-x"},
                 description = "Do not include executions in import. Default: do include executions in import.")
-        boolean isNoExecutions();
+        boolean noExecutions;
 
-        @Option(shortName = "c",
-                longName = "include-config",
+        @CommandLine.Option(names = {"-c", "--include-config"},
                 description = "Include project configuration in import, default: false")
-        boolean isIncludeConfig();
+        boolean includeConfig;
 
-        @Option(shortName = "a", longName = "include-acl", description = "Include ACLs in import, default: false")
-        boolean isIncludeAcl();
+        @CommandLine.Option(names = {"-a", "--include-acl"}, description = "Include ACLs in import, default: false")
+        boolean includeAcl;
 
-        @Option(shortName = "s", longName = "include-scm", description = "Include SCM configuration in import, default: false (api v28 required)")
-        boolean isIncludeScm();
+        @CommandLine.Option(names = {"-s", "--include-scm"}, description = "Include SCM configuration in import, default: false (api v28 required)")
+        boolean includeScm;
 
-        @Option(shortName = "w", longName = "include-webhooks", description = "Include Webhooks in import, default: false (api v34 required)")
-        boolean isIncludeWebhooks();
+        @CommandLine.Option(names = {"-w", "--include-webhooks"}, description = "Include Webhooks in import, default: false (api v34 required)")
+        boolean includeWebhooks;
 
-        @Option(shortName = "t", longName = "regenerate-tokens", description = "regenerate the auth tokens associated with the webhook in import, default: false (api v34 required)")
-        boolean whkRegenAuthTokens();
+        @CommandLine.Option(names = {"-t", "--regenerate-tokens"}, description = "regenerate the auth tokens associated with the webhook in import, default: false (api v34 required)")
+        boolean whkRegenAuthTokens;
 
-        @Option(shortName = "n", longName = "include-node-sources", description = "Include node resources in import, default: false (api v38 required)")
-        boolean isIncludeNodeSources();
+        @CommandLine.Option(names = {"-n", "--include-node-sources"}, description = "Include node resources in import, default: false (api v38 required)")
+        boolean includeNodeSources;
 
-        @Option(description = "Return non-zero exit status if any imported item had an error. Default: only job " +
-                              "import errors are treated as failures.")
-        boolean isStrict();
+        @CommandLine.Option(
+                names = {"--strict"},
+                description = "Return non-zero exit status if any imported item had an error. Default: only job " +
+                        "import errors are treated as failures.")
+        boolean strict;
 
     }
 
-    @Command(description = "Import a project archive", value = "import")
-    public boolean importArchive(ArchiveImportOpts opts, CommandOutput out) throws InputError, IOException {
-        File input = opts.getFile();
+    @CommandLine.Command(description = "Import a project archive", name = "import")
+    public boolean importArchive(@CommandLine.Mixin ArchiveImportOpts opts) throws InputError, IOException {
+        validate();
+        File input = getFile();
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
-        if ((opts.isIncludeWebhooks() || opts.whkRegenAuthTokens()) && getClient().getApiVersion() < 34) {
-            throw new InputError(String.format("Cannot use --include-webhooks or --regenerate-tokens with API < 34 (currently: %s)", getClient().getApiVersion()));
+        if ((opts.isIncludeWebhooks() || opts.isWhkRegenAuthTokens()) && getRdTool().getClient().getApiVersion() < 34) {
+            throw new InputError(String.format("Cannot use --include-webhooks or --regenerate-tokens with API < 34 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
-        if ((opts.isIncludeNodeSources()) && getClient().getApiVersion() < 38) {
-            throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getClient().getApiVersion()));
+        if ((opts.isIncludeNodeSources()) && getRdTool().getClient().getApiVersion() < 38) {
+            throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
         RequestBody body = RequestBody.create(Client.MEDIA_TYPE_ZIP, input);
 
-        String project = projectOrEnv(opts);
+        String project = validate();
         ProjectImportStatus status = apiCall(api -> api.importProjectArchive(
                 project,
                 opts.isRemove() ? "remove" : "preserve",
@@ -113,63 +130,59 @@ public class Archives extends AppCommand {
                 opts.isIncludeAcl(),
                 opts.isIncludeScm(),
                 opts.isIncludeWebhooks(),
-                opts.whkRegenAuthTokens(),
+                opts.isWhkRegenAuthTokens(),
                 opts.isIncludeNodeSources(),
                 body
         ));
         boolean anyerror = false;
         if (status.getResultSuccess()) {
-            out.info("Jobs imported successfully");
+            getRdOutput().info("Jobs imported successfully");
         } else {
             anyerror = true;
             if (null != status.errors && status.errors.size() > 0) {
-                out.error("Some imported Jobs failed:");
-                out.error(status.errors);
+                getRdOutput().error("Some imported Jobs failed:");
+                getRdOutput().error(status.errors);
             }
         }
         if (null != status.executionErrors && status.executionErrors.size() > 0) {
             anyerror = true;
-            out.error("Some imported executions failed:");
-            out.error(status.executionErrors);
+            getRdOutput().error("Some imported executions failed:");
+            getRdOutput().error(status.executionErrors);
         }
         if (null != status.aclErrors && status.aclErrors.size() > 0) {
             anyerror = true;
-            out.error("Some imported ACLs failed:");
-            out.error(status.aclErrors);
+            getRdOutput().error("Some imported ACLs failed:");
+            getRdOutput().error(status.aclErrors);
         }
 
         return opts.isStrict() ? !anyerror : status.getResultSuccess();
     }
 
-    interface ArchiveFileOpts {
 
-        @Option(shortName = "f", description = "Output file path")
-        File getFile();
-    }
+    @Data
+    static class ArchiveExportOpts {
 
-    @CommandLineInterface(application = "export") interface ArchiveExportOpts
-            extends ArchiveFileOpts,
-            ProjectNameOptions
-    {
-
-        @Option(
-                longName = "execids",
-                shortName = "e",
+        @CommandLine.Option(
+                names = {"--execids", "-e"},
                 description = "List of execution IDs. Exports only those ids.")
-        List<String> getExecutionIds();
+        List<String> executionIds;
 
-        boolean isExecutionIds();
+        boolean isExecutionIds() {
+            return executionIds != null && !executionIds.isEmpty();
+        }
 
-        @Option(
-                longName = "include",
-                shortName = "i",
+
+        @CommandLine.Option(
+                names = {"--include", "-i"},
                 description =
                         "List of archive contents to include. [all,jobs,executions,configs,readmes,acls,scm]. Default: " +
-                        "all. (API v19 required for other " +
-                        "options).")
-        Set<Flags> getIncludeFlags();
+                                "all. (API v19 required for other " +
+                                "options).")
+        Set<Flags> includeFlags;
 
-        boolean isIncludeFlags();
+        boolean isIncludeFlags() {
+            return includeFlags != null && !includeFlags.isEmpty();
+        }
 
     }
 
@@ -183,18 +196,18 @@ public class Archives extends AppCommand {
         scm
     }
 
-    @Command(description = "Export a project archive")
-    public boolean export(ArchiveExportOpts opts, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Export a project archive")
+    public boolean export(@CommandLine.Mixin ArchiveExportOpts opts) throws IOException, InputError {
         if (opts.isIncludeFlags() && opts.isExecutionIds()) {
             throw new InputError("Cannot use --execids/-e with --include/-i");
         }
-        boolean apiv19 = getClient().getApiVersion() >= 19;
+        boolean apiv19 = getRdTool().getClient().getApiVersion() >= 19;
 
         Set<Flags> includeFlags = opts.isIncludeFlags() ? opts.getIncludeFlags() : new HashSet<>();
         if (!opts.isIncludeFlags()) {
             includeFlags.add(Flags.all);
         }
-        String project = projectOrEnv(opts);
+        String project = validate();
         if (!apiv19) {
             if (opts.isIncludeFlags() && includeFlags.size() > 1) {
                 throw new InputError("Cannot use --include: " + includeFlags + " with API < 19");
@@ -202,28 +215,28 @@ public class Archives extends AppCommand {
             if (opts.isIncludeFlags() && !includeFlags.contains(Flags.all)) {
                 throw new InputError("Cannot use --include: " + includeFlags + " with API < 19");
             }
-            output.info(String.format("Export Archive for project: %s", project));
+            getRdOutput().info(String.format("Export Archive for project: %s", project));
             if (opts.isExecutionIds()) {
-                output.info(String.format("Contents: only execution IDs: %s", opts.getExecutionIds()));
+                getRdOutput().info(String.format("Contents: only execution IDs: %s", opts.getExecutionIds()));
             } else {
-                output.info("Contents: all");
+                getRdOutput().info("Contents: all");
             }
-            output.info("Begin synchronous request...");
+            getRdOutput().info("Begin synchronous request...");
             //sync
             receiveArchiveFile(
-                    output,
+                    getRdOutput(),
                     apiCall(api -> api.exportProject(project, opts.getExecutionIds())),
-                    opts.getFile()
+                    getFile()
             );
             return true;
         }
-        output.info(String.format("Export Archive for project: %s", project));
+        getRdOutput().info(String.format("Export Archive for project: %s", project));
         if (opts.isExecutionIds()) {
-            output.info(String.format("Contents: only execution IDs: %s", opts.getExecutionIds()));
+            getRdOutput().info(String.format("Contents: only execution IDs: %s", opts.getExecutionIds()));
         } else {
-            output.info(String.format("Contents: %s", opts.getIncludeFlags()));
+            getRdOutput().info(String.format("Contents: %s", opts.getIncludeFlags()));
         }
-        output.info("Begin asynchronous request...");
+        getRdOutput().info("Begin asynchronous request...");
         ProjectExportStatus status;
         if (opts.isExecutionIds()) {
             status = apiCall(api -> api.exportProjectAsync(
@@ -244,7 +257,7 @@ public class Archives extends AppCommand {
             ));
         }
 
-        return loopStatus(getClient(), status, project, opts.getFile(), output, () -> {
+        return loopStatus(getRdTool().getClient(), status, project, getFile(), getRdOutput(), () -> {
             try {
                 Thread.sleep(2000);
                 return true;

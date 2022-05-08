@@ -22,24 +22,29 @@ import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobRun;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.jobs.Files;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.FollowOptions;
 import org.rundeck.client.tool.options.RetryBaseOptions;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+
+
 import org.rundeck.client.tool.InputError;
+import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 
 /**
  * retry subcommand
  */
-@Command(description = "Run a Job based on a specific execution. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
-                       "@path\" or \"-opt@ path\". If they aren't specified, the options are going to be overridden by the execution options")
-public class Retry extends AppCommand {
+@CommandLine.Command(description = "Run a Job based on a specific execution. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
+        "@path\" or \"-opt@ path\". If they aren't specified, the options are going to be overridden by the execution options"
+        , name = "retry")
+public class Retry extends BaseCommand implements Callable<Boolean> {
 
     public static final int SEC_MS = 1000;
     public static final int MIN_MS = 60 * 1000;
@@ -47,32 +52,28 @@ public class Retry extends AppCommand {
     public static final int DAY_MS = 24 * 60 * 60 * 1000;
     public static final int WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-    public Retry(final RdApp client) {
-        super(client);
-    }
 
-    @Command(isDefault = true, isSolo = true)
-    public boolean retry(RetryBaseOptions options, CommandOutput out) throws IOException, InputError {
-        requireApiVersion("retry", 24);
-        String jobId = Run.getJobIdFromOpts(options, out, this, () -> projectOrEnv(options));
+    @CommandLine.Mixin
+    RetryBaseOptions options;
+    @CommandLine.Mixin
+    FollowOptions followOptions;
+
+    public Boolean call() throws IOException, InputError {
+        getRdTool().requireApiVersion("retry", 24);
+        String jobId = Run.getJobIdFromOpts(options, getRdOutput(), getRdTool(), () -> getRdTool().projectOrEnv(options));
         String execId = options.getEid();
         if (null == jobId) {
             return false;
         }
         Execution execution;
 
-        final String loglevel;
-        if (options.isLogevel()) {
-            out.warning("--logevel is [DEPRECATED: To be removed], use --loglevel");
-            loglevel = options.getLogevel().toUpperCase();
-        } else {
-            loglevel = null != options.getLoglevel() ? options.getLoglevel().toUpperCase() : null;
-        }
+        final String loglevel = null != options.getLoglevel() ? options.getLoglevel().toString().toUpperCase() : null;
+
 
         ExecRetry request = new ExecRetry();
         request.setLoglevel(loglevel);
         request.setAsUser(options.getUser());
-        request.setFailedNodes(options.getFailedNodes());
+        request.setFailedNodes(Boolean.toString(options.isFailedNodes()));
         List<String> commandString = options.getCommandString();
         boolean rawOptions = options.isRawOptions();
         Map<String, String> jobopts = new HashMap<>();
@@ -122,14 +123,14 @@ public class Retry extends AppCommand {
             for (String optionName : fileinputs.keySet()) {
                 File file = fileinputs.get(optionName);
                 JobFileUploadResult jobFileUploadResult = Files.uploadFileForJob(
-                        this,
+                        getRdTool(),
                         file,
                         jobId,
                         optionName
                 );
                 String fileid = jobFileUploadResult.getFileIdForOption(optionName);
                 jobopts.put(optionName, fileid);
-                out.info(String.format("File Upload OK (%s -> %s)", file, fileid));
+                getRdOutput().info(String.format("File Upload OK (%s -> %s)", file, fileid));
             }
         }
 
@@ -137,8 +138,8 @@ public class Retry extends AppCommand {
         execution = apiCall(api -> api.retryJob(jobId, execId, request));
 
         String started = "started";
-        out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
+        getRdOutput().info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
 
-        return Executions.maybeFollow(this, options, execution.getId(), out);
+        return Executions.maybeFollow(getRdTool(), followOptions, options, execution.getId(), getRdOutput());
     }
 }

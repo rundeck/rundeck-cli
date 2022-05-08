@@ -16,11 +16,14 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
+
+import lombok.Data;
+import org.rundeck.client.tool.CommandOutput;
+import org.rundeck.client.tool.extension.BaseCommand;
+import picocli.CommandLine;
 import org.rundeck.client.api.model.RoleList;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+
+
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.JobItem;
@@ -37,34 +40,31 @@ import java.util.stream.Collectors;
 /**
  * user commands
  */
-@Command(description = "Manage user information.")
-public class Users extends AppCommand {
-    public Users(final RdApp client) {
-        super(client);
-    }
+@CommandLine.Command(description = "Manage user information.", name = "users")
+public class Users extends BaseCommand {
 
-    @CommandLineInterface(application = "info") interface Info extends LoginNameOption,
-            UserFormatOption
-    {
-    }
+    @CommandLine.Mixin
+    UserFormatOption opts;
 
-    @Command(description = "Get information of the same user or from another if 'user' is specified.")
-    public void info(Info opts, CommandOutput output) throws IOException, InputError {
-        requireApiVersion("users info", 21);
+
+    @CommandLine.Command(description = "Get information of the same user or from another if 'user' is specified.")
+    public void info(@CommandLine.Mixin LoginNameOption nameOption) throws IOException, InputError {
+        getRdTool().requireApiVersion("users info", 21);
         User user = apiCall(api -> {
-            if (opts.isLogin()) {
-                return api.getUserInfo(opts.getLogin());
+            if (nameOption.isLogin()) {
+                return api.getUserInfo(nameOption.getLogin());
             } else {
                 return api.getUserInfo();
             }
 
         });
 
-        outputUserInfo(opts, output, user);
+        outputUserInfo(user);
     }
 
-    private void outputUserInfo(final UserFormatOption opts, final CommandOutput output, final User user) {
+    private void outputUserInfo(final User user) {
         final Function<User, ?> outformat;
+        CommandOutput output = getRdOutput();
         if (opts.isVerbose()) {
             output.output(user.toMap());
             return;
@@ -88,28 +88,33 @@ public class Users extends AppCommand {
         }
     }
 
-    @CommandLineInterface(application = "edit") interface Edit extends LoginNameOption,
-            UserFormatOption
-    {
-        @Option(shortName = "e", longName = "email", description = "user email")
-        String getEmail();
+    @Data
+    static class Edit extends LoginNameOption {
+        @CommandLine.Option(names = {"-e", "--email"}, description = "user email")
+        private String email;
 
-        boolean isEmail();
+        boolean isEmail() {
+            return email != null;
+        }
 
-        @Option(shortName = "n", longName = "name", description = "user first name")
-        String getFirstName();
+        @CommandLine.Option(names = {"-n", "--name"}, description = "user first name")
+        private String firstName;
 
-        boolean isFirstName();
+        boolean isFirstName() {
+            return firstName != null;
+        }
 
-        @Option(shortName = "l", longName = "last", description = "user last name")
-        String getLastName();
+        @CommandLine.Option(names = {"-l", "--last"}, description = "user last name")
+        String lastName;
 
-        boolean isLastName();
+        boolean isLastName() {
+            return lastName != null;
+        }
     }
 
-    @Command(description = "Edit information of the same user or another if 'user' is specified.")
-    public void edit(Edit opts, CommandOutput output) throws IOException, InputError {
-        requireApiVersion("users edit", 21);
+    @CommandLine.Command(description = "Edit information of the same user or another if 'user' is specified.")
+    public void edit(@CommandLine.Mixin Edit opts) throws IOException, InputError {
+        getRdTool().requireApiVersion("users edit", 21);
         User u = new User();
         if (opts.isEmail()) {
             u.setEmail(opts.getEmail());
@@ -130,36 +135,34 @@ public class Users extends AppCommand {
 
         });
 
-        outputUserInfo(opts, output, user);
+        outputUserInfo(user);
     }
 
-    @CommandLineInterface(application = "edit") interface ListOption extends UserFormatOption {
-    }
 
-    @Command(description = "Get the list of users.")
-    public void list(ListOption options, CommandOutput output) throws IOException, InputError {
-        requireApiVersion("users list", 21);
+    @CommandLine.Command(description = "Get the list of users.")
+    public void list() throws IOException, InputError {
+        getRdTool().requireApiVersion("users list", 21);
         List<User> users = apiCall(RundeckApi::listUsers);
         final Function<User, ?> outformat;
-        if (options.isVerbose()) {
-            output.output(users.stream().map(User::toMap).collect(Collectors.toList()));
+        if (opts.isVerbose()) {
+            getRdOutput().output(users.stream().map(User::toMap).collect(Collectors.toList()));
             return;
         }
-        if (options.isOutputFormat()) {
-            outformat = Format.formatter(options.getOutputFormat(), User::toMap, "%", "");
+        if (opts.isOutputFormat()) {
+            outformat = Format.formatter(opts.getOutputFormat(), User::toMap, "%", "");
         } else {
             outformat = User::toBasicString;
         }
-        output.info(String.format("%d Users:", users.size()));
-        users.forEach(e -> output.output(outformat.apply(e)));
+        getRdOutput().info(String.format("%d Users:", users.size()));
+        users.forEach(e -> getRdOutput().output(outformat.apply(e)));
     }
 
-    @Command(description = "Get the list of roles for the current user.")
-    public void roles(CommandOutput output) throws IOException, InputError {
-        requireApiVersion("user roles", 30);
+    @CommandLine.Command(description = "Get the list of roles for the current user.")
+    public void roles() throws IOException, InputError {
+        getRdTool().requireApiVersion("user roles", 30);
         RoleList roleList = apiCall(RundeckApi::listRoles);
-        output.info(String.format("%d Roles:", roleList.getRoles().size()));
-        roleList.getRoles().forEach(e -> output.output(e));
+        getRdOutput().info(String.format("%d Roles:", roleList.getRoles().size()));
+        roleList.getRoles().forEach(e -> getRdOutput().output(e));
     }
 
 

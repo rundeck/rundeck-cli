@@ -1,118 +1,150 @@
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
+import picocli.CommandLine;
 
 import java.util.List;
+@Data
+public class QueryOptions
+        extends ProjectNameOptions {
+  @CommandLine.Option(names = {"-d", "--recent"},
+          description = "Get executions newer than specified time. e.g. \"3m\" (3 months). \n" +
+                  "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
+  private String recentFilter;
 
-public interface QueryOptions
-    extends ProjectNameOptions{
-  @Option(shortName = "d",
-      longName = "recent",
-      description = "Get executions newer than specified time. e.g. \"3m\" (3 months). \n" +
-          "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
-  String getRecentFilter();
+  public boolean isRecentFilter() {
+    return recentFilter != null;
+  }
 
-  boolean isRecentFilter();
+  @CommandLine.Option(names = {"-O", "--older"},
+          description = "Get executions older than specified time. e.g. \"3m\" (3 months). \n" +
+                  "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
+  private String olderFilter;
 
-  @Option(shortName = "O", longName = "older",
-      description = "Get executions older than specified time. e.g. \"3m\" (3 months). \n" +
-          "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
-  String getOlderFilter();
+  public boolean isOlderFilter() {
+    return olderFilter != null;
+  }
 
-  boolean isOlderFilter();
+  @CommandLine.Option(names = {"-s", "--status"},
+          description = "Status filter, one of: running,succeeded,failed,aborted")
+  private String statusFilter;
 
-  @Option(shortName = "s", longName = "status",
-      description = "Status filter, one of: running,succeeded,failed,aborted")
-  String getStatusFilter();
+  public boolean isStatusFilter() {
+    return statusFilter != null;
+  }
 
-  boolean isStatusFilter();
+  @CommandLine.Option(names = {"-u", "--user"},
+          description = "User filter")
+  private String userFilter;
 
-  @Option(shortName = "u", longName = "user",
-      description = "User filter")
-  String getUserFilter();
+  public boolean isUserFilter() {
+    return userFilter != null;
+  }
 
-  boolean isUserFilter();
+  @CommandLine.Option(names = {"-A", "--adhoconly"},
+          description = "Adhoc executions only")
+  private boolean adhoc;
 
-  @Option(shortName = "A", longName = "adhoconly",
-      description = "Adhoc executions only")
-  boolean isAdhoc();
+  @CommandLine.Option(names = {"-J", "--jobonly"},
+          description = "Job executions only")
+  private boolean job;
 
-  @Option(shortName = "J", longName = "jobonly",
-      description = "Job executions only")
-  boolean isJob();
+  @CommandLine.Option(names = {"-i", "--jobids"},
+          description = "Job ID list to include")
+  private List<String> jobIdList;
 
-  @Option(shortName = "i", longName = "jobids",
-      description = "Job ID list to include")
-  List<String> getJobIdList();
+  public boolean isJobIdList() {
+    return jobIdList != null && jobIdList.size() > 0;
+  }
 
-  boolean isJobIdList();
+  @CommandLine.Option(names = {"-j", "--jobs"},
+          description = "List of Full job group and name to include.")
+  private List<String> jobList;
 
-  @Option(shortName = "j", longName = "jobs",
-      description = "List of Full job group and name to include.")
-  List<String> getJobList();
+  public boolean isJobList() {
+    return jobList != null && jobList.size() > 0;
+  }
 
-  boolean isJobList();
+  @CommandLine.Option(names = {"-x", "--xjobids"},
+          description = "Job ID list to exclude")
+  private List<String> excludeJobIdList;
 
-  @Option(shortName = "x", longName = "xjobids",
-      description = "Job ID list to exclude")
-  List<String> getExcludeJobIdList();
+  public boolean isExcludeJobIdList() {
+    return excludeJobIdList != null && !excludeJobIdList.isEmpty();
+  }
 
-  boolean isExcludeJobIdList();
+  @CommandLine.Option(names = {"-X", "--xjobs"},
+          description = "List of Full job group and name to exclude.")
+  private List<String> excludeJobList;
 
-  @Option(shortName = "X", longName = "xjobs",
-      description = "List of Full job group and name to exclude.")
-  List<String> getExcludeJobList();
-
-  boolean isExcludeJobList();
+  public boolean isExcludeJobList() {
+    return excludeJobList != null && !excludeJobList.isEmpty();
+  }
 
 
-  @Option(shortName = "g", longName = "group",
-      description = "Group or partial group path to include, \"-\" means top-level jobs only")
-  String getGroupPath();
+  @CommandLine.Option(names = {"-g", "--group"},
+          description = "Group or partial group path to include, \"-\" means top-level jobs only")
+  private String groupPath;
 
-  boolean isGroupPath();
+  public boolean isGroupPath() {
+    return groupPath != null;
+  }
 
-  @Option(longName = "xgroup",
-      description = "Group or partial group path to exclude, \"-\" means top-level jobs only")
-  String getExcludeGroupPath();
+  @CommandLine.Option(names = {"--xgroup"},
+          description = "Group or partial group path to exclude, \"-\" means top-level jobs only")
+  private String excludeGroupPath;
 
-  boolean isExcludeGroupPath();
+  public boolean isExcludeGroupPath() {
+    return excludeGroupPath != null;
+  }
 
-  @Option(shortName = "G", longName = "groupexact",
-      description = "Exact group path to include, \"-\" means top-level jobs only")
-  String getGroupPathExact();
+  @CommandLine.Option(names = {"-G", "--groupexact"},
+          description = "Exact group path to include, \"-\" means top-level jobs only")
+  private String groupPathExact;
 
-  boolean isGroupPathExact();
+  public boolean isGroupPathExact() {
+    return groupPathExact != null;
+  }
 
-  @Option(longName = "xgroupexact",
-      description = "Exact group path to exclude, \"-\" means top-level jobs only")
-  String getExcludeGroupPathExact();
+  @CommandLine.Option(names = {"--xgroupexact"},
+          description = "Exact group path to exclude, \"-\" means top-level jobs only")
+  private String excludeGroupPathExact;
 
-  boolean isExcludeGroupPathExact();
+  public boolean isExcludeGroupPathExact() {
+    return excludeGroupPathExact != null;
+  }
 
-  @Option(shortName = "n", longName = "name",
-      description = "Job Name Filter, include any name that matches this value")
-  String getJobFilter();
+  @CommandLine.Option(names = {"-n", "--name"},
+          description = "Job Name Filter, include any name that matches this value")
+  private String jobFilter;
 
-  boolean isJobFilter();
+  public boolean isJobFilter() {
+    return jobFilter != null;
+  }
 
-  @Option(longName = "xname",
-      description = "Exclude Job Name Filter, exclude any name that matches this value")
-  String getExcludeJobFilter();
+  @CommandLine.Option(names = {"--xname"},
+          description = "Exclude Job Name Filter, exclude any name that matches this value")
+  private String excludeJobFilter;
 
-  boolean isExcludeJobFilter();
+  public boolean isExcludeJobFilter() {
+    return excludeJobFilter != null;
+  }
 
-  @Option(shortName = "N", longName = "nameexact",
-      description = "Exact Job Name Filter, include any name that is equal to this value")
-  String getJobExactFilter();
+  @CommandLine.Option(names = {"-N", "--nameexact"},
+          description = "Exact Job Name Filter, include any name that is equal to this value")
+  private String jobExactFilter;
 
-  boolean isJobExactFilter();
+  public boolean isJobExactFilter() {
+    return jobExactFilter != null;
+  }
 
-  @Option(longName = "xnameexact",
-      description = "Exclude Exact Job Name Filter, exclude any name that is equal to this value")
-  String getExcludeJobExactFilter();
+  @CommandLine.Option(names = {"--xnameexact"},
+          description = "Exclude Exact Job Name Filter, exclude any name that is equal to this value")
+  private String excludeJobExactFilter;
 
-  boolean isExcludeJobExactFilter();
+  public boolean isExcludeJobExactFilter() {
+    return excludeJobExactFilter != null;
+  }
 
 
 }

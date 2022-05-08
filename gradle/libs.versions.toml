@@ -16,10 +16,14 @@ buildInfo = "0.9"
 buildConfig = "3.0.3"
 owasp = "7.1.0.1"
 jacksondb = "2.13.2.2"
+picocli = "4.6.3"
+snakeYaml = "1.30"
 
 [libraries]
 
 lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+picocli = { module = 'info.picocli:picocli', version.ref = "picocli" }
+picocliCodegen = { module = 'info.picocli:picocli-codegen', version.ref = "picocli" }
 
 retrofitCore = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofitJackson = { module = "com.squareup.retrofit2:converter-jackson", version.ref = "retrofit" }
@@ -41,6 +45,7 @@ toolbeltJackson = { module = "org.rundeck.cli-toolbelt:toolbelt-json-jackson", v
 toolbeltCli = { module = "org.rundeck.cli-toolbelt:toolbelt-jewelcli", version.ref = "toolbelt" }
 
 jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksondb" }
+snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
 
 [bundles]
 

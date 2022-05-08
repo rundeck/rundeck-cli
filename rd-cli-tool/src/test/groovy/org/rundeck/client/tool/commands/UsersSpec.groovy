@@ -17,7 +17,7 @@
 package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.RoleList
-import org.rundeck.toolbelt.CommandOutput
+
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client

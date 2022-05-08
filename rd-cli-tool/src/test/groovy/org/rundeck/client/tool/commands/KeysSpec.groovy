@@ -1,7 +1,7 @@
 package org.rundeck.client.tool.commands
 
 import org.rundeck.client.tool.InputError
-import org.rundeck.toolbelt.CommandOutput
+
 
 import okhttp3.RequestBody
 import okhttp3.mockwebserver.MockResponse

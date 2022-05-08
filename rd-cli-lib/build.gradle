@@ -16,8 +16,11 @@ dependencies {
 
     api project(":rd-api-client")
 
-    api libs.toolbelt
+
+    api libs.picocli
+    annotationProcessor libs.picocliCodegen
     api libs.jacksonDatabind
+    api libs.snakeYaml
 
     testImplementation libs.bundles.test
 }

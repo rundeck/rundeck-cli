@@ -16,24 +16,22 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
 import org.rundeck.client.api.model.executions.MetricsResponse;
+import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.RdClientConfig;
 import org.rundeck.client.util.ServiceClient;
 import org.rundeck.client.util.Util;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import picocli.CommandLine;
 
 import java.io.IOException;
 import java.util.*;
@@ -47,22 +45,14 @@ import java.util.stream.Stream;
 /**
  * executions subcommands
  */
-@Command(description = "List running executions, attach and follow their output, or kill them.")
-public class Executions extends AppCommand {
+@CommandLine.Command(name = "executions", description = "List running executions, attach and follow their output, or kill them.")
+public class Executions extends BaseCommand {
 
     private static final ObjectMapper JSON = new ObjectMapper();
 
 
-    public Executions(final RdApp client) {
-        super(client);
-    }
-
-    @CommandLineInterface(application = "kill") interface Kill extends ExecutionIdOption {
-
-    }
-
-    @Command(description = "Attempt to kill an execution by ID.")
-    public boolean kill(Kill options, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "Attempt to kill an execution by ID.")
+    public boolean kill(@CommandLine.Mixin ExecutionIdOption options) throws IOException, InputError {
         if (null == options.getId()) {
             throw new InputError("-e is required");
         }
@@ -71,41 +61,34 @@ public class Executions extends AppCommand {
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
 
-        out.output(String.format("Kill [%s] result: %s", options.getId(), abort != null ? abort.status : null));
+        getRdOutput().output(String.format("Kill [%s] result: %s", options.getId(), abort != null ? abort.status : null));
 
         if (null != execution) {
-            out.output(String.format("Execution [%s] status: %s", options.getId(), execution.getStatus()));
+            getRdOutput().output(String.format("Execution [%s] status: %s", options.getId(), execution.getStatus()));
         }
 
         if (failed) {
-            out.warning(String.format("Kill request failed: %s", abort.reason));
+            getRdOutput().warning(String.format("Kill request failed: %s", abort.reason));
         }
         return !failed;
     }
 
-    @CommandLineInterface(application = "delete") interface Delete extends ExecutionIdOption {
 
-    }
-
-    @Command(description = "Delete an execution by ID.")
-    public void delete(Delete options, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "Delete an execution by ID.")
+    public void delete(@CommandLine.Mixin ExecutionIdOption options) throws IOException, InputError {
         apiCall(api -> api.deleteExecution(options.getId()));
-        out.info(String.format("Delete [%s] succeeded.", options.getId()));
-    }
-
-    @CommandLineInterface(application = "follow") interface Follow extends ExecutionsFollowOptions {
-
+        getRdOutput().info(String.format("Delete [%s] succeeded.", options.getId()));
     }
 
 
-    @Command(description = "Follow the output of an execution. Restart from the beginning, or begin tailing as it " +
-                           "runs.")
-    public boolean follow(Follow options, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "Follow the output of an execution. Restart from the beginning, or begin tailing as it " +
+            "runs.")
+    public boolean follow(@CommandLine.Mixin ExecutionsFollowOptions options) throws IOException, InputError {
 
         int max = 500;
 
         ExecOutput output = startFollowOutput(
-                this,
+                getRdTool(),
                 max,
                 options.isRestart(),
                 options.getId(),
@@ -115,13 +98,13 @@ public class Executions extends AppCommand {
 
 
         return followOutput(
-                getClient(),
+                getRdTool().getClient(),
                 output,
                 options.isProgress(),
                 options.isQuiet(),
                 options.getId(),
                 max,
-                out,
+                getRdOutput(),
                 options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null,
                 waitUnlessInterrupt(2000)
         );
@@ -236,95 +219,92 @@ public class Executions extends AppCommand {
         return "succeeded".equals(status);
     }
 
-    @CommandLineInterface(application = "info") interface Info extends ExecutionIdOption, ExecutionResultOptions {
 
-    }
-
-    @Command(description = "Get info about a single execution by ID.")
-    public void info(Info options, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "Get info about a single execution by ID.")
+    public void info(@CommandLine.Mixin ExecutionIdOption options, @CommandLine.Mixin ExecutionOutputFormatOption outputFormatOption) throws IOException, InputError {
 
         Execution execution = apiCall(api -> api.getExecution(options.getId()));
 
-        outputExecutionList(options, out, getAppConfig(), Collections.singletonList(execution).stream());
+        outputExecutionList(outputFormatOption, getRdOutput(), getRdTool().getAppConfig(), Collections.singletonList(execution).stream());
     }
 
 
     /*
     Executions state command
      */
-    @CommandLineInterface(application = "state") interface State extends ExecutionIdOption {
-    }
 
-    @Command(description = "Get detail about the node and step state of an execution by ID.")
-    public void state(State options, CommandOutput out) throws IOException, InputError {
+
+    @CommandLine.Command(description = "Get detail about the node and step state of an execution by ID.")
+    public void state(@CommandLine.Mixin ExecutionIdOption options) throws IOException, InputError {
         ExecutionStateResponse response = apiCall(api -> api.getExecutionState(options.getId()));
-        out.info(response.execInfoString(getAppConfig()));
-        out.output(response.nodeStatusString());
+        getRdOutput().info(response.execInfoString(getRdTool().getAppConfig()));
+        getRdOutput().output(response.nodeStatusString());
     }
 
 
     /* END state command */
 
 
-    @CommandLineInterface(application = "list") interface ListCmd
-            extends ExecutionListOptions, ProjectNameOptions, ExecutionResultOptions
-    {
+    @CommandLine.Command(description = "List all running executions for a project.")
+    public void list(@CommandLine.Mixin ExecutionOutputFormatOption outputFormatOption,
+                     @CommandLine.Mixin PagingResultOptions paging,
+                     @CommandLine.Mixin ProjectNameOptions projectNameOptions) throws IOException, InputError {
+        int offset = paging.isOffset() ? paging.getOffset() : 0;
+        int max = paging.isMax() ? paging.getMax() : 20;
 
-    }
-
-    @Command(description = "List all running executions for a project.")
-    public void list(ListCmd options, CommandOutput out) throws IOException, InputError {
-        int offset = options.isOffset() ? options.getOffset() : 0;
-        int max = options.isMax() ? options.getMax() : 20;
-
-        String project = projectOrEnv(options);
+        String project = getRdTool().projectOrEnv(projectNameOptions);
         ExecutionList executionList = apiCall(api -> api.runningExecutions(project, offset, max));
 
-        if (!options.isOutputFormat()) {
-            out.info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
+        if (!outputFormatOption.isOutputFormat()) {
+            getRdOutput().info(String.format("Running executions: %d items%n", executionList.getPaging().getCount()));
         }
 
-        outputExecutionList(options, out, getAppConfig(), executionList.getExecutions().stream());
+        outputExecutionList(outputFormatOption, getRdOutput(), getRdTool().getAppConfig(), executionList.getExecutions().stream());
     }
 
 
-    @CommandLineInterface(application = "query")
-    interface QueryCmd extends QueryOptions, ExecutionResultOptions, ExecutionListOptions  {
+    @Data
+    static class QueryCmd extends QueryOptions {
 
-        @Option(longName = "noninteractive",
-            description = "Don't use interactive prompts to load more pages if there are more paged results (query command only)")
-        boolean isNonInteractive();
+        @CommandLine.Option(names = {"--noninteractive"},
+                description = "Don't use interactive prompts to load more pages if there are more paged results (query command only)")
+        private boolean nonInteractive;
 
-        @Option(longName = "autopage",
-            description = "Automatically load more results in non-interactive mode if there are more paged "
-                + "results. (query command only)")
-        boolean isAutoLoadPages();
+        @CommandLine.Option(names = {"--autopage"},
+                description = "Automatically load more results in non-interactive mode if there are more paged "
+                        + "results. (query command only)")
+        private boolean autoLoadPages;
 
     }
 
-    @Command(description = "Query previous executions for a project.")
-    public ExecutionList query(QueryCmd options, CommandOutput out) throws IOException, InputError {
-        return query(false, options, out);
+    @CommandLine.Command(description = "Query previous executions for a project.")
+    public ExecutionList query(
+            @CommandLine.Mixin QueryCmd options,
+            @CommandLine.Mixin PagingResultOptions paging,
+            @CommandLine.Mixin ExecutionOutputFormatOption outputFormatOption
+    ) throws IOException, InputError {
+        return query(false, options, paging, outputFormatOption);
     }
 
 
-    public ExecutionList query(boolean disableInteractive, QueryCmd options, CommandOutput out)
+    public ExecutionList query(boolean disableInteractive, QueryCmd options, PagingResultOptions paging, ExecutionOutputFormatOption outputFormatOption)
             throws IOException, InputError {
-        int offset = options.isOffset() ? options.getOffset() : 0;
-        int max = options.isMax() ? options.getMax() : 20;
+        CommandOutput out = getRdOutput();
+        int offset = paging.isOffset() ? paging.getOffset() : 0;
+        int max = paging.isMax() ? paging.getMax() : 20;
 
         Map<String, String> query = createQueryParams(options, max, offset);
 
         boolean interactive = !disableInteractive && !options.isNonInteractive();
-        if (getAppConfig().getString("RD_FORMAT", null) != null) {
+        if (getRdTool().getAppConfig().getString("RD_FORMAT", null) != null) {
             interactive = false;
         }
         boolean autopage = interactive || options.isAutoLoadPages();
 
-        String project = projectOrEnv(options);
+        String project = getRdTool().projectOrEnv(options);
 
         ExecutionList result = null;
-        boolean verboseInfo = !options.isOutputFormat() && !autopage || interactive;
+        boolean verboseInfo = !outputFormatOption.isOutputFormat() && !autopage || interactive;
         List<Stream<Execution>> allResults = new ArrayList<>();
         while (offset >= 0) {
             query.put("offset", Integer.toString(offset));
@@ -345,7 +325,7 @@ public class Executions extends AppCommand {
             allResults.add(executionList.getExecutions().stream());
 
             if (interactive) {
-                outputExecutionList(options, out, getAppConfig(), executionList.getExecutions().stream());
+                outputExecutionList(outputFormatOption, out, getRdTool().getAppConfig(), executionList.getExecutions().stream());
             }
             if (verboseInfo && !autopage) {
                 out.info(page.moreResults("-o",
@@ -410,7 +390,7 @@ public class Executions extends AppCommand {
 
         }
         if (!interactive) {
-            outputExecutionList(options, out, getAppConfig(), allResults.stream().flatMap(a -> a));
+            outputExecutionList(outputFormatOption, out, getRdTool().getAppConfig(), allResults.stream().flatMap(a -> a));
         }
         return result;
     }
@@ -493,82 +473,86 @@ public class Executions extends AppCommand {
 
 
     // Delete All executions for job command.
-    @CommandLineInterface(application = "deleteall") interface DeleteAllExecCmd {
-        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
-        boolean isConfirm();
+    @Data
+    static class DeleteAllExecCmd {
+        @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
+        private boolean confirm;
 
-        @Option(shortName = "i", longName = "id", description = "Job ID")
-        String getId();
+        @CommandLine.Option(names = {"-i", "--id"}, description = "Job ID")
+        private String id;
     }
 
-    @Command(description = "Delete all executions for a job.")
-    public boolean deleteall(DeleteAllExecCmd options, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "Delete all executions for a job.")
+    public boolean deleteall(@CommandLine.Mixin DeleteAllExecCmd options) throws IOException, InputError {
 
         if (!options.isConfirm()) {
             //request confirmation
             String s = System.console().readLine("Really delete all executions for job %s? (y/N) ", options.getId());
 
             if (!"y".equals(s)) {
-                out.warning("Not deleting executions.");
+                getRdOutput().warning("Not deleting executions.");
                 return false;
             }
         }
 
         BulkExecutionDeleteResponse result = apiCall(api -> api.deleteAllJobExecutions(options.getId()));
         if (!result.isAllsuccessful()) {
-            out.error(String.format("Failed to delete %d executions:", result.getFailedCount()));
-            out.error(result.getFailures()
-                .stream()
-                .map(BulkExecutionDeleteResponse.DeleteFailure::toString)
-                .collect(Collectors.toList()));
-        }else{
-            out.info(String.format("Deleted %d executions.", result.getSuccessCount()));
+            getRdOutput().error(String.format("Failed to delete %d executions:", result.getFailedCount()));
+            getRdOutput().error(result.getFailures()
+                    .stream()
+                    .map(BulkExecutionDeleteResponse.DeleteFailure::toString)
+                    .collect(Collectors.toList()));
+        } else {
+            getRdOutput().info(String.format("Deleted %d executions.", result.getSuccessCount()));
         }
         return result.isAllsuccessful();
     }
 
 
-
-
     // End Delete all executions.
 
 
-    @CommandLineInterface(application = "deletebulk") interface BulkDeleteCmd extends QueryCmd {
-        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
-        boolean isConfirm();
+    @Data
+    static class BulkDeleteCmd extends QueryCmd {
+        @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
+        private boolean confirm;
 
-        @Option(shortName = "i", longName = "idlist", description = "Comma separated list of Execution IDs")
-        String getIdlist();
+        @CommandLine.Option(names = {"-i", "--idlist"}, description = "Comma separated list of Execution IDs")
+        private String idlist;
 
-        boolean isIdlist();
+        public boolean isIdlist() {
+            return idlist != null;
+        }
 
-        @Option(shortName = "R",
-                longName = "require",
+
+        @CommandLine.Option(names = {"-R", "--require"},
                 description = "Treat 0 query results as failure, otherwise succeed if no executions were returned")
-        boolean require();
+        private boolean require;
     }
 
-    @Command(description = "Find and delete executions in a project. Use the query options to find and delete " +
-                           "executions, or specify executions with the `idlist` option.")
-    public boolean deletebulk(BulkDeleteCmd options, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "Find and delete executions in a project. Use the query options to find and delete " +
+            "executions, or specify executions with the `idlist` option.")
+    public boolean deletebulk(@CommandLine.Mixin BulkDeleteCmd options,
+                              @CommandLine.Mixin PagingResultOptions paging,
+                              @CommandLine.Mixin ExecutionOutputFormatOption outputFormatOption) throws IOException, InputError {
 
         List<String> execIds;
         if (options.isIdlist()) {
             execIds = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
-            ExecutionList executionList = query(true, options, out);
+            ExecutionList executionList = query(true, options, paging, outputFormatOption);
 
             execIds = executionList.getExecutions()
-                                   .stream()
-                                   .map(Execution::getId)
-                                   .collect(Collectors.toList());
-            if (null == execIds || execIds.size() < 1) {
-                if (!options.require()) {
-                    out.info("No executions found to delete");
+                    .stream()
+                    .map(Execution::getId)
+                    .collect(Collectors.toList());
+            if (execIds.size() < 1) {
+                if (!options.isRequire()) {
+                    getRdOutput().info("No executions found to delete");
                 } else {
-                    out.warning("No executions found to delete");
+                    getRdOutput().warning("No executions found to delete");
                 }
-                return !options.require();
+                return !options.isRequire();
             }
         }
 
@@ -577,7 +561,7 @@ public class Executions extends AppCommand {
             String s = System.console().readLine("Really delete %d executions? (y/N) ", execIds.size());
 
             if (!"y".equals(s)) {
-                out.warning("Not deleting executions.");
+                getRdOutput().warning("Not deleting executions.");
                 return false;
             }
         }
@@ -585,13 +569,13 @@ public class Executions extends AppCommand {
         BulkExecutionDeleteResponse result = apiCall(api -> api.deleteExecutions(new BulkExecutionDelete
                                                                                          (finalExecIds)));
         if (!result.isAllsuccessful()) {
-            out.error(String.format("Failed to delete %d executions:", result.getFailedCount()));
-            out.error(result.getFailures()
-                            .stream()
-                            .map(BulkExecutionDeleteResponse.DeleteFailure::toString)
-                            .collect(Collectors.toList()));
+            getRdOutput().error(String.format("Failed to delete %d executions:", result.getFailedCount()));
+            getRdOutput().error(result.getFailures()
+                    .stream()
+                    .map(BulkExecutionDeleteResponse.DeleteFailure::toString)
+                    .collect(Collectors.toList()));
         }else{
-            out.info(String.format("Deleted %d executions.", result.getSuccessCount()));
+            getRdOutput().info(String.format("Deleted %d executions.", result.getSuccessCount()));
         }
         return result.isAllsuccessful();
     }
@@ -599,6 +583,7 @@ public class Executions extends AppCommand {
     public static boolean maybeFollow(
             final RdTool rdTool,
             final FollowOptions options,
+            final OutputFormat formatOptions,
             final String id,
             CommandOutput output
     ) throws IOException, InputError
@@ -622,7 +607,7 @@ public class Executions extends AppCommand {
                 id,
                 500,
                 output,
-                options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null,
+                formatOptions.isOutputFormat() ? Format.formatter(formatOptions.getOutputFormat(), ExecLog::toMap, "%", "") : null,
                 waitUnlessInterrupt(2000)
         );
     }
@@ -644,35 +629,38 @@ public class Executions extends AppCommand {
         };
     }
 
-    @CommandLineInterface(application = "metrics")
-    interface MetricsCmd
-            extends QueryOptions
-    {
+    @Data
+    static class MetricsCmd extends QueryOptions implements OutputFormat {
 
-        @Option(
-                longName = "xml",
+        @CommandLine.Option(
+                names = {"--xml"},
                 description = "Get the result in raw xml. Note: cannot be combined with RD_FORMAT env variable.")
-        boolean isRawXML();
+        private boolean rawXML;
 
 
-        @Option(shortName = "%",
-                longName = "outformat",
+        @CommandLine.Option(names = {"-%", "--outformat"},
                 description =
                         "Output format specifier for execution metrics data. You can use \"%key\" where key is one "
-                        + "of: total,failed-with-retry,failed,succeeded,duration-avg,duration-min,duration-max. E.g. "
-                        + "\"%total %failed %succeeded\"")
-        String getOutputFormat();
+                                + "of: total,failed-with-retry,failed,succeeded,duration-avg,duration-min,duration-max. E.g. "
+                                + "\"%total %failed %succeeded\"")
+        private String outputFormat;
 
-        boolean isOutputFormat();
+        public boolean isOutputFormat() {
+            return outputFormat != null;
+        }
+
+
+        @CommandLine.Option(names = {"--verbose", "-v"}, description = "Show verbose output")
+        private boolean verbose;
     }
 
 
-    @Command(description = "Obtain metrics over the result set of an execution query.")
-    public void metrics(MetricsCmd options, CommandOutput out) throws IOException, InputError {
-        requireApiVersion("metrics", 29);
+    @CommandLine.Command(description = "Obtain metrics over the result set of an execution query.")
+    public void metrics(@CommandLine.Mixin MetricsCmd options) throws IOException, InputError {
+        getRdTool().requireApiVersion("metrics", 29);
 
         // Check parameters.
-        if (!"xml".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", "xml")) && options.isRawXML()) {
+        if (!"xml".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", "xml")) && options.isRawXML()) {
             throw new InputError("You cannot use RD_FORMAT env var with --xml");
         }
 
@@ -684,7 +672,7 @@ public class Executions extends AppCommand {
         if (options.isProject()) {
 
             // Raw XML
-            if ("XML".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
+            if ("XML".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
                 ResponseBody response = apiCall(api -> api.executionMetricsXML(
                         options.getProject(),
                         query,
@@ -693,7 +681,7 @@ public class Executions extends AppCommand {
                         options.getJobList(),
                         options.getExcludeJobList()
                 ));
-                out.output(response.string());
+                getRdOutput().output(response.string());
                 return;
             }
 
@@ -713,7 +701,7 @@ public class Executions extends AppCommand {
         else {
 
             // Raw XML
-            if ("XML".equalsIgnoreCase(getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
+            if ("XML".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
                 ResponseBody response = apiCall(api -> api.executionMetricsXML(
                         query,
                         options.getJobIdList(),
@@ -721,7 +709,7 @@ public class Executions extends AppCommand {
                         options.getJobList(),
                         options.getExcludeJobList()
                 ));
-                out.output(response.string());
+                getRdOutput().output(response.string());
                 return;
             }
 
@@ -738,14 +726,14 @@ public class Executions extends AppCommand {
 
         if (!options.isOutputFormat()) {
             if (result.getTotal() == null || result.getTotal() < 1) {
-                out.info("No results.");
+                getRdOutput().info("No results.");
                 return;
             }
-            out.info(String.format("Showing stats for %d matching executions.", result.getTotal()));
-            out.output(result);
+            getRdOutput().info(String.format("Showing stats for %d matching executions.", result.getTotal()));
+            getRdOutput().output(result);
             return;
         }
-        out.output(Format.format(options.getOutputFormat(), result, "%", ""));
+        getRdOutput().output(Format.format(options.getOutputFormat(), result, "%", ""));
     }
 
 

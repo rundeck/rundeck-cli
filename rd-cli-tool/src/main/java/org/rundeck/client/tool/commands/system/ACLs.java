@@ -16,19 +16,14 @@
 
 package org.rundeck.client.tool.commands.system;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.ACLOutputFormatOption;
 import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
 import org.rundeck.client.api.model.ACLPolicyItem;
-import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.projects.ACLFileOptions;
-import org.rundeck.client.tool.commands.projects.ACLNameOptions;
-import org.rundeck.client.tool.options.ACLOutputOptions;
+import picocli.CommandLine;
 
 import java.io.IOException;
 
@@ -37,72 +32,52 @@ import static org.rundeck.client.tool.commands.projects.ACLs.*;
 /**
  * System ACLs
  */
-@Command(description = "Manage System ACLs")
-public class ACLs extends AppCommand {
-    public ACLs(final RdApp client) {
-        super(client);
-    }
+@CommandLine.Command(description = "Manage System ACLs", name = "acls")
+public class ACLs extends BaseCommand {
 
-    @CommandLineInterface(application = "list") interface ListOptions extends ACLOutputOptions {
 
-    }
-    @Command(description = "list system acls")
-    public void list(ListOptions options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "list system acls")
+    public void list(@CommandLine.Mixin ACLOutputFormatOption options) throws IOException, InputError {
         ACLPolicyItem items = apiCall(RundeckApi::listSystemAcls);
-        outputListResult(options, output, items, "system");
+        outputListResult(options, getRdOutput(), items, "system");
     }
 
 
-    @CommandLineInterface(application = "get") interface Get extends ACLNameOptions {
-    }
-
-    @Command(description = "get a system ACL definition")
-    public void get(Get options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "get a system ACL definition")
+    public void get(@CommandLine.Mixin ACLNameOptions options) throws IOException, InputError {
         ACLPolicy aclPolicy = apiCall(api -> api.getSystemAclPolicy(options.getName()));
-        outputPolicyResult(output, aclPolicy);
+        outputPolicyResult(getRdOutput(), aclPolicy);
     }
 
 
-    @CommandLineInterface(application = "upload") interface Put extends ACLNameOptions, ACLFileOptions {
-    }
-
-    @Command(description = "Upload a system ACL definition")
-    public void upload(Put options, CommandOutput output)
-            throws IOException, InputError
-    {
+    @CommandLine.Command(description = "Upload a system ACL definition")
+    public void upload(@CommandLine.Mixin ACLNameOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions)
+            throws IOException, InputError {
         ACLPolicy aclPolicy = performACLModify(
-                options,
-                (RequestBody body, RundeckApi api) -> api.updateSystemAclPolicy(options.getName(), body),
-                this,
-                output
+                aclFileOptions,
+                (RequestBody body, RundeckApi api) -> api.updateSystemAclPolicy(aclNameOptions.getName(), body),
+                getRdTool(),
+                getRdOutput()
         );
-        outputPolicyResult(output, aclPolicy);
+        outputPolicyResult(getRdOutput(), aclPolicy);
     }
 
-    @CommandLineInterface(application = "create") interface Create extends ACLNameOptions,
-            ACLFileOptions
-    {
-    }
 
-    @Command(description = "Create a system ACL definition")
-    public void create(Create options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Create a system ACL definition")
+    public void create(@CommandLine.Mixin ACLNameOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions) throws IOException, InputError {
         ACLPolicy aclPolicy = performACLModify(
-                options,
-                (RequestBody body, RundeckApi api) -> api.createSystemAclPolicy(options.getName(), body),
-                this,
-                output
+                aclFileOptions,
+                (RequestBody body, RundeckApi api) -> api.createSystemAclPolicy(aclNameOptions.getName(), body),
+                getRdTool(),
+                getRdOutput()
         );
-        outputPolicyResult(output, aclPolicy);
+        outputPolicyResult(getRdOutput(), aclPolicy);
     }
 
 
-    @CommandLineInterface(application = "delete") interface Delete extends ACLNameOptions {
-
-    }
-
-    @Command(description = "Delete a system ACL definition")
-    public void delete(Delete options, CommandOutput output) throws IOException, InputError {
-        apiCall(api -> api.deleteSystemAclPolicy(options.getName()));
-        output.output(String.format("Deleted System ACL Policy: %s", options.getName()));
+    @CommandLine.Command(description = "Delete a system ACL definition")
+    public void delete(@CommandLine.Mixin ACLNameOptions aclNameOptions) throws IOException, InputError {
+        apiCall(api -> api.deleteSystemAclPolicy(aclNameOptions.getName()));
+        getRdOutput().output(String.format("Deleted System ACL Policy: %s", aclNameOptions.getName()));
     }
 }

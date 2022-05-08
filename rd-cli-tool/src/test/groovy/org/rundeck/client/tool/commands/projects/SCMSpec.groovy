@@ -16,7 +16,7 @@
 
 package org.rundeck.client.tool.commands.projects
 
-import org.rundeck.toolbelt.CommandOutput
+
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ScmActionInputsResult

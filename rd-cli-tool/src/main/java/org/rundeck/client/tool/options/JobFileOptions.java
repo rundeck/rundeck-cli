@@ -16,26 +16,32 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
+import picocli.CommandLine;
 
 import java.io.File;
 
-public interface JobFileOptions {
+@Data
+public class JobFileOptions {
 
-    @Option(shortName = "f",
-            longName = "file",
+    @CommandLine.Option(names = {"-f", "--file"},
             description = "File path of the file to upload (load command) or destination for storing the jobs (list " +
-                          "command)")
-    File getFile();
+                    "command)")
+    File file;
 
-    boolean isFile();
+    public boolean isFile() {
+        return file != null;
+    }
 
-    @Option(shortName = "F",
-            longName = "format",
+    @CommandLine.Option(names = {"-F", "--format"},
             defaultValue = "xml",
-            pattern = "^(xml|yaml)$",
-            description = "Format for the Job definition file, either xml or yaml")
-    String getFormat();
 
+            description = "Format for the Job definition file, either xml or yaml")
+    Format format;
+
+    public enum Format {
+        xml,
+        yaml
+    }
 
 }

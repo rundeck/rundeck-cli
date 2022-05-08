@@ -24,7 +24,7 @@ import org.rundeck.client.tool.InputError
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.options.RetryBaseOptions
 import org.rundeck.client.util.Client
-import org.rundeck.toolbelt.CommandOutput
+
 
 import retrofit2.Retrofit
 import retrofit2.mock.Calls

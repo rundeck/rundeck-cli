@@ -60,9 +60,10 @@ dependencies {
     implementation project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
     implementation project(":rd-cli-enterprise")
 
-    implementation 'com.github.rundeck:rd-ext-acl:v0.1.2:all'
+//    implementation 'com.github.rundeck:rd-ext-acl:v0.1.2:all'
 
-    implementation libs.bundles.toolbelt
+    implementation libs.picocli
+    annotationProcessor libs.picocliCodegen
 
     testImplementation project(":rd-api-client")
 

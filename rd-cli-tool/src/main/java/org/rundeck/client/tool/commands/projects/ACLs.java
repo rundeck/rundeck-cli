@@ -16,27 +16,24 @@
 
 package org.rundeck.client.tool.commands.projects;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.client.tool.extension.RdTool;
-import org.rundeck.toolbelt.ANSIColorOutput;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.client.tool.InputError;
+import lombok.Data;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ACLPolicy;
 import org.rundeck.client.api.model.ACLPolicyItem;
 import org.rundeck.client.api.model.ACLPolicyValidation;
-import org.rundeck.client.tool.commands.AppCommand;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.options.ACLOutputOptions;
+import org.rundeck.client.tool.CommandOutput;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.extension.RdTool;
+import org.rundeck.client.tool.options.ACLOutputFormatOption;
 import org.rundeck.client.tool.options.ProjectNameOptions;
-import org.rundeck.client.util.Client;
 import org.rundeck.client.tool.util.Colorz;
+import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.ServiceClient;
+import picocli.CommandLine;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -52,25 +49,24 @@ import java.util.stream.Collectors;
 /**
  * projects acls subcommands
  */
-@Command(description = "Manage Project ACLs")
-public class ACLs extends AppCommand {
-    public ACLs(final RdApp client) {
-        super(client);
+@CommandLine.Command(description = "Manage Project ACLs", name = "acls")
+public class ACLs extends BaseCommand {
+    @CommandLine.Mixin
+    ProjectNameOptions projectNameOptions;
+
+    private String getProjectName() throws InputError {
+        return getRdTool().projectOrEnv(projectNameOptions);
     }
 
-
-    interface ListCommandOptions extends ProjectNameOptions, ACLOutputOptions {
-
-    }
-    @Command(description = "list project acls")
-    public void list(ListCommandOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
+    @CommandLine.Command(description = "list project acls")
+    public void list(@CommandLine.Mixin ACLOutputFormatOption outputOptions) throws IOException, InputError {
+        String project = getProjectName();
         ACLPolicyItem items = apiCall(api -> api.listAcls(project));
-        outputListResult(options, output, items, String.format("project %s", project));
+        outputListResult(outputOptions, getRdOutput(), items, String.format("project %s", project));
     }
 
     public static void outputListResult(
-            final ACLOutputOptions options,
+            final ACLOutputFormatOption options,
             final CommandOutput output,
             final ACLPolicyItem aclList,
             final String ident
@@ -85,25 +81,40 @@ public class ACLs extends AppCommand {
         if (options.isVerbose()) {
             output.output(aclList.getResources().stream().map(ACLPolicyItem::toMap).collect(Collectors.toList()));
             return;
-        } else if (options.isOutputFormat()) {
+        } else if (options.getOutputFormat() != null) {
             outformat = Format.formatter(options.getOutputFormat(), ACLPolicyItem::toMap, "%", "");
         } else {
             outformat = ACLPolicyItem::getPath;
 
         }
         output.output(aclList.getResources()
-                             .stream()
-                             .map(outformat)
-                             .collect(Collectors.toList()));
+                .stream()
+                .map(outformat)
+                .collect(Collectors.toList()));
     }
 
-    @CommandLineInterface(application = "get") interface Get extends ACLNameOptions, ProjectNameOptions {
+    @Data
+    public static class ACLNameOptions {
+        @CommandLine.Option(names = {"-n", "--name"}, description = "name of the aclpolicy file")
+        String name;
     }
 
-    @Command(description = "get a project ACL definition")
-    public void get(Get options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        ACLPolicy aclPolicy = apiCall(api -> api.getAclPolicy(project, options.getName()));
+    @Data
+    public static class ACLNameRequiredOptions {
+        @CommandLine.Option(names = {"-n", "--name"}, description = "name of the aclpolicy file", required = true)
+        String name;
+    }
+
+    @Data
+    public static class ACLFileOptions {
+        @CommandLine.Option(names = {"-f", "--file"}, description = "ACLPolicy file to upload", required = true)
+        File file;
+    }
+
+    @CommandLine.Command(description = "get a project ACL definition")
+    public void get(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions, CommandOutput output) throws IOException, InputError {
+        String project = getProjectName();
+        ACLPolicy aclPolicy = apiCall(api -> api.getAclPolicy(project, aclNameOptions.name));
         outputPolicyResult(output, aclPolicy);
     }
 
@@ -112,40 +123,28 @@ public class ACLs extends AppCommand {
     }
 
 
-    @CommandLineInterface(application = "upload") interface Put extends ProjectNameOptions, ACLFileOptions {
-        @Option(shortName = "n", longName = "name", description = "name of the aclpolicy file")
-        String getName();
-
-    }
-
-    @Command(description = "Upload a project ACL definition")
-    public void upload(Put options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
+    @CommandLine.Command(description = "Upload a project ACL definition")
+    public void upload(@CommandLine.Mixin ACLNameOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions) throws IOException, InputError {
+        String project = getProjectName();
         ACLPolicy aclPolicy = performACLModify(
-                options,
-                (RequestBody body, RundeckApi api) -> api.updateAclPolicy(project, options.getName(), body),
-                this,
-                output
+                fileOptions,
+                (RequestBody body, RundeckApi api) -> api.updateAclPolicy(project, nameOptions.getName(), body),
+                getRdTool(),
+                getRdOutput()
         );
-        outputPolicyResult(output, aclPolicy);
+        outputPolicyResult(getRdOutput(), aclPolicy);
     }
 
-    @CommandLineInterface(application = "create") interface Create extends ProjectNameOptions, ACLFileOptions {
-        @Option(shortName = "n", longName = "name", description = "name of the aclpolicy file")
-        String getName();
-
-    }
-
-    @Command(description = "Create a project ACL definition")
-    public void create(Create options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
+    @CommandLine.Command(description = "Create a project ACL definition")
+    public void create(@CommandLine.Mixin ACLNameRequiredOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions) throws IOException, InputError {
+        String project = getProjectName();
         ACLPolicy aclPolicy = performACLModify(
-                options,
-                (RequestBody body, RundeckApi api) -> api.createAclPolicy(project, options.getName(), body),
-                this,
-                output
+                fileOptions,
+                (RequestBody body, RundeckApi api) -> api.createAclPolicy(project, nameOptions.getName(), body),
+                getRdTool(),
+                getRdOutput()
         );
-        outputPolicyResult(output, aclPolicy);
+        outputPolicyResult(getRdOutput(), aclPolicy);
     }
 
     /**
@@ -211,7 +210,7 @@ public class ACLs extends AppCommand {
                 validationData.ifPresent(map -> {
                     output.error("ACL Policy Validation failed for the file: ");
                     output.output(filename);
-                    output.output(colorize ? Colorz.colorizeMapRecurse(map, ANSIColorOutput.Color.YELLOW) : map);
+                    output.output(colorize ? Colorz.colorizeMapRecurse(map, "yellow") : map);
                 });
                 if (!validationData.isPresent() && "true".equals(error.errorString)) {
                     output.error("Invalid Request:");
@@ -228,16 +227,10 @@ public class ACLs extends AppCommand {
     }
 
 
-    @CommandLineInterface(application = "delete") interface Delete extends ProjectNameOptions {
-        @Option(shortName = "n", longName = "name", description = "name of the aclpolicy file")
-        String getName();
-
-    }
-
-    @Command(description = "Delete a project ACL definition")
-    public void delete(Delete options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
+    @CommandLine.Command(description = "Delete a project ACL definition")
+    public void delete(@CommandLine.Mixin ACLNameRequiredOptions options) throws IOException, InputError {
+        String project = getProjectName();
         apiCall(api -> api.deleteAclPolicy(project, options.getName()));
-        output.info(String.format("Deleted ACL Policy for %s: %s", project, options.getName()));
+        getRdOutput().info(String.format("Deleted ACL Policy for %s: %s", project, options.getName()));
     }
 }

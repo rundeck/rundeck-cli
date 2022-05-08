@@ -1,10 +1,12 @@
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
+import picocli.CommandLine;
 
-public interface BulkJobActionOptions extends JobListOptions {
+@Data
+public class BulkJobActionOptions extends JobListOptions {
 
-  @Option(longName = "confirm", shortName = "y", description = "Force confirmation of request.")
-  boolean isConfirm();
+  @CommandLine.Option(names={"--confirm","-y"}, description = "Force confirmation of request.")
+  boolean confirm;
 
 }

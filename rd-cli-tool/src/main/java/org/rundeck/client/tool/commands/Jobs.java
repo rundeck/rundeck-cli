@@ -16,19 +16,17 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Data;
+import org.rundeck.client.tool.CommandOutput;
+import org.rundeck.client.tool.extension.BaseCommand;
+import picocli.CommandLine;
 import org.rundeck.client.api.model.scheduler.ForecastJobItem;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.HasSubCommands;
 import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.jobs.Files;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Client;
@@ -53,232 +51,231 @@ import java.util.stream.Collectors;
 /**
  * jobs subcommands
  */
-@Command(description = "List and manage Jobs.")
-public class Jobs extends AppCommand implements HasSubCommands {
+@CommandLine.Command(
+        name = "jobs",
+        description = "List and manage Jobs.",
+        subcommands = {
+                Files.class
+        })
+public class Jobs extends BaseCommand {
 
     public static final String UUID_REMOVE = "remove";
     public static final String UUID_PRESERVE = "preserve";
 
-    public Jobs(final RdApp client) {
-        super(client);
+
+    @Data
+    class Purge {
+        @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
+        boolean confirm;
+
+        @CommandLine.Option(names = {"--batch", "-b"}, description = "Batch size if there are many IDs")
+        Integer batchSize;
+
+
+        @CommandLine.Option(names = {"--max", "-m"}, description = "Maximum number of jobs to delete")
+        Integer max;
+
     }
 
-
-    @Override
-    public List<Object> getSubCommands() {
-        return Collections.singletonList(
-                new Files(getRdApp())
-        );
-    }
-
-    @CommandLineInterface(application = "purge") interface Purge extends JobPurgeOptions, ListOpts {
-        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
-        boolean isConfirm();
-
-        @Option(longName = "batch", shortName = "b", description = "Batch size if there are many IDs")
-        Integer getBatchSize();
-        boolean isBatchSize();
-
-        @Option(longName = "max", shortName = "m", description = "Maximum number of jobs to delete")
-        Integer getMax();
-        boolean isMax();
-    }
-
-    @Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
-                           "before deleting from the server. " +
-                           "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
-                           "required.")
-    public boolean purge(Purge options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Delete jobs matching the query parameters. Optionally save the definitions to a file " +
+            "before deleting from the server. " +
+            "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+            "required.")
+    public boolean purge(@CommandLine.Mixin Purge options,
+                         @CommandLine.Mixin JobOutputFormatOption jobOutputFormatOption,
+                         @CommandLine.Mixin JobFileOptions jobFileOptions,
+                         @CommandLine.Mixin JobListOptions jobListOptions) throws IOException, InputError {
 
         //if id,idlist specified, use directly
         //otherwise query for the list and assemble the ids
 
         List<String> ids = new ArrayList<>();
-        if (options.isIdlist()) {
-            ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
+        if (jobListOptions.isIdlist()) {
+            ids = Arrays.asList(jobListOptions.getIdlist().split("\\s*,\\s*"));
         } else {
-            if (!options.isJob() && !options.isGroup() && !options.isGroupExact() && !options.isJobExact()) {
+            if (!jobListOptions.isJob() && !jobListOptions.isGroup() && !jobListOptions.isGroupExact() && !jobListOptions.isJobExact()) {
                 throw new InputError("must specify -i, or -j/-g/-J/-G to specify jobs to delete.");
             }
-            String project = projectOrEnv(options);
-            List<JobItem> body = apiCall(api -> api.listJobs(
+            String project = getRdTool().projectOrEnv(jobListOptions);
+            List<JobItem> body = getRdTool().apiCall(api -> api.listJobs(
                     project,
-                    options.getJob(),
-                    options.getGroup(),
-                    options.getJobExact(),
-                    options.getGroupExact()
+                    jobListOptions.getJob(),
+                    jobListOptions.getGroup(),
+                    jobListOptions.getJobExact(),
+                    jobListOptions.getGroupExact()
             ));
             for (JobItem jobItem : body) {
                 ids.add(jobItem.getId());
             }
         }
 
-        if (options.isFile()) {
-            list(options, output);
+        if (jobFileOptions.isFile()) {
+            list(jobOutputFormatOption, jobFileOptions, jobListOptions);
         }
         int idsSize = ids.size();
-        int idsToDelete = options.isMax() ? Math.min(idsSize, options.getMax()) : idsSize;
+        int idsToDelete = options.getMax() != null ? Math.min(idsSize, options.getMax()) : idsSize;
         if (!options.isConfirm()) {
             //request confirmation
             if (null == System.console()) {
-                output.error("No user interaction available. Use --confirm to confirm purge without user interaction");
-                output.warning(String.format("Not deleting %d jobs", idsToDelete));
+                getRdOutput().error("No user interaction available. Use --confirm to confirm purge without user interaction");
+                getRdOutput().warning(String.format("Not deleting %d jobs", idsToDelete));
                 return false;
             }
             String s = System.console().readLine("Really delete %d Jobs? (y/N) ", idsToDelete);
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not deleting %d jobs", idsToDelete));
+                getRdOutput().warning(String.format("Not deleting %d jobs", idsToDelete));
                 return false;
             }
         }
-        int batch = options.isBatchSize() ? Math.min(idsToDelete, options.getBatchSize()) : idsToDelete;
-        int total=0;
+        int batch = options.getBatchSize() != null ? Math.min(idsToDelete, options.getBatchSize()) : idsToDelete;
+        int total = 0;
         for (int i = 0; i < idsToDelete; ) {
             int batchToUse = Math.min(batch, idsToDelete - total);
             final List<String> finalIds = new ArrayList<>(batchToUse);
             finalIds.addAll(ids.subList(i, i + batchToUse));
-            DeleteJobsResult deletedJobs = apiCall(api -> api.deleteJobsBulk(new BulkJobDelete(finalIds)));
-            if(!deletedJobs.isAllsuccessful()){
-                output.error(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
-                output.output(deletedJobs.getFailed().stream().map(DeleteJob::toBasicString).collect(Collectors.toList()));
+            DeleteJobsResult deletedJobs = getRdTool().apiCall(api -> api.deleteJobsBulk(new BulkJobDelete(finalIds)));
+            if (!deletedJobs.isAllsuccessful()) {
+                getRdOutput().error(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
+                getRdOutput().output(deletedJobs.getFailed().stream().map(DeleteJob::toBasicString).collect(Collectors.toList()));
                 return false;
             }
             total += finalIds.size();
             i += batchToUse;
         }
 
-        output.info(String.format("%d Jobs were deleted%n", total));
+        getRdOutput().info(String.format("%d Jobs were deleted%n", total));
         return true;
     }
 
-    @CommandLineInterface(application = "load") interface Load extends JobLoadOptions, VerboseOption {
-    }
-
-    @Command(description = "Load Job definitions from a file in XML or YAML format.")
-    public boolean load(Load options, CommandOutput output) throws IOException, InputError {
-        if (!options.isFile()) {
+    @CommandLine.Command(description = "Load Job definitions from a file in XML or YAML format.")
+    public boolean load(
+            @CommandLine.Mixin JobLoadOptions options,
+            @CommandLine.Mixin JobFileOptions fileOptions,
+            @CommandLine.Mixin ProjectNameOptions projectNameOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
+    ) throws IOException, InputError {
+        if (!fileOptions.isFile()) {
             throw new InputError("-f is required");
         }
-        File input = options.getFile();
+        File input = fileOptions.getFile();
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
 
         RequestBody requestBody = RequestBody.create(
-                "xml".equals(options.getFormat()) ? Client.MEDIA_TYPE_XML : Client.MEDIA_TYPE_YAML,
+                fileOptions.getFormat() == JobFileOptions.Format.xml ? Client.MEDIA_TYPE_XML : Client.MEDIA_TYPE_YAML,
                 input
         );
 
-        String project = projectOrEnv(options);
-        ImportResult importResult = apiCall(api -> api.loadJobs(
+        String project = getRdTool().projectOrEnv(projectNameOptions);
+        ImportResult importResult = getRdTool().apiCall(api -> api.loadJobs(
                 project,
                 requestBody,
-                options.getFormat(),
-                options.getDuplicate(),
+                fileOptions.getFormat().toString(),
+                options.getDuplicate().toString(),
                 options.isRemoveUuids() ? UUID_REMOVE : UUID_PRESERVE
         ));
 
         List<JobLoadItem> failed = importResult.getFailed();
 
-        printLoadResult(importResult.getSucceeded(), "Succeeded", output, options.isVerbose());
-        printLoadResult(importResult.getSkipped(), "Skipped", output, options.isVerbose());
-        printLoadResult(failed, "Failed", output, options.isVerbose());
+        printLoadResult(importResult.getSucceeded(), "Succeeded", getRdOutput(), verboseOption.isVerbose());
+        printLoadResult(importResult.getSkipped(), "Skipped", getRdOutput(), verboseOption.isVerbose());
+        printLoadResult(failed, "Failed", getRdOutput(), verboseOption.isVerbose());
 
         return failed == null || failed.isEmpty();
     }
 
-    private static void printLoadResult(
+    private void printLoadResult(
             final List<JobLoadItem> list,
             final String title,
             CommandOutput output, final boolean isVerbose
-    )
-    {
+    ) {
         if (null != list && !list.isEmpty()) {
-            output.info(String.format("%d Jobs %s:%n", list.size(), title));
+            getRdOutput().info(String.format("%d Jobs %s:%n", list.size(), title));
             if (isVerbose) {
-                output.output(list);
+                getRdOutput().output(list);
             } else {
-                output.output(list.stream().map(JobLoadItem::toBasicString).collect(Collectors.toList()));
+                getRdOutput().output(list.stream().map(JobLoadItem::toBasicString).collect(Collectors.toList()));
             }
         }
     }
 
-    interface JobResultOptions extends JobOutputFormatOption, VerboseOption {
+    ;
 
-    }
 
-    @CommandLineInterface(application = "list") interface ListOpts extends JobListOptions, JobFileOptions, JobResultOptions {
-    }
-
-    @Command(description = "List jobs found in a project, or download Job definitions (-f).")
-    public void list(ListOpts options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        if (options.isFile()) {
+    @CommandLine.Command(description = "List jobs found in a project, or download Job definitions (-f).")
+    public void list(
+            @CommandLine.Mixin JobOutputFormatOption jobOutputFormatOption,
+            @CommandLine.Mixin JobFileOptions jobFileOptions,
+            @CommandLine.Mixin JobListOptions jobListOptions
+    ) throws IOException, InputError {
+        String project = getRdTool().projectOrEnv(jobListOptions);
+        if (jobFileOptions.isFile()) {
             //write response to file instead of parsing it
             ResponseBody body;
-            if (options.isIdlist()) {
-                body = apiCall(api -> api.exportJobs(
+            if (jobListOptions.isIdlist()) {
+                body = getRdTool().apiCall(api -> api.exportJobs(
                         project,
-                        options.getIdlist(),
-                        options.getFormat()
+                        jobListOptions.getIdlist(),
+                        jobFileOptions.getFormat().toString()
                 ));
             } else {
-                body = apiCall(api -> api.exportJobs(
+                body = getRdTool().apiCall(api -> api.exportJobs(
                         project,
-                        options.getJob(),
-                        options.getGroup(),
-                        options.getJobExact(),
-                        options.getGroupExact(),
-                        options.getFormat()
+                        jobListOptions.getJob(),
+                        jobListOptions.getGroup(),
+                        jobListOptions.getJobExact(),
+                        jobListOptions.getGroupExact(),
+                        jobFileOptions.getFormat().toString()
                 ));
             }
-            if ((!"yaml".equals(options.getFormat()) ||
-                 !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
-                !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
+            if ((jobFileOptions.getFormat() != JobFileOptions.Format.yaml ||
+                    !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
+                    !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
 
                 throw new IllegalStateException("Unexpected response format: " + body.contentType());
             }
             InputStream inputStream = body.byteStream();
-            if ("-".equals(options.getFile().getName())) {
+            if ("-".equals(jobFileOptions.getFile().getName())) {
                 Util.copyStream(inputStream, System.out);
             } else {
-                try (FileOutputStream out = new FileOutputStream(options.getFile())) {
+                try (FileOutputStream out = new FileOutputStream(jobFileOptions.getFile())) {
                     long total = Util.copyStream(inputStream, out);
-                    if (!options.isOutputFormat()) {
-                        output.info(String.format(
+                    if (!jobOutputFormatOption.isOutputFormat()) {
+                        getRdOutput().info(String.format(
                                 "Wrote %d bytes of %s to file %s%n",
                                 total,
                                 body.contentType(),
-                                options.getFile()
+                                jobFileOptions.getFile()
                         ));
                     }
                 }
             }
         } else {
             List<JobItem> body;
-            if (options.isIdlist()) {
-                body = apiCall(api -> api.listJobs(project, options.getIdlist()));
+            if (jobListOptions.isIdlist()) {
+                body = getRdTool().apiCall(api -> api.listJobs(project, jobListOptions.getIdlist()));
             } else {
-                body = apiCall(api -> api.listJobs(
+                body = getRdTool().apiCall(api -> api.listJobs(
                         project,
-                        options.getJob(),
-                        options.getGroup(),
-                        options.getJobExact(),
-                        options.getGroupExact()
+                        jobListOptions.getJob(),
+                        jobListOptions.getGroup(),
+                        jobListOptions.getJobExact(),
+                        jobListOptions.getGroupExact()
                 ));
             }
-            if (!options.isOutputFormat()) {
-                output.info(String.format("%d Jobs in project %s%n", body.size(), project));
+            if (!jobOutputFormatOption.isOutputFormat()) {
+                getRdOutput().info(String.format("%d Jobs in project %s%n", body.size(), project));
             }
-            outputJobList(options, output, body);
+            outputJobList(jobOutputFormatOption, body);
         }
     }
 
-    private void outputJobList(final JobResultOptions options, final CommandOutput output, final List<JobItem> body) {
+    private void outputJobList(final JobOutputFormatOption options, final List<JobItem> body) {
         final Function<JobItem, ?> outformat;
         if (options.isVerbose()) {
-            output.output(body.stream().map(JobItem::toMap).collect(Collectors.toList()));
+            getRdOutput().output(body.stream().map(JobItem::toMap).collect(Collectors.toList()));
             return;
         }
         if (options.isOutputFormat()) {
@@ -287,118 +284,79 @@ public class Jobs extends AppCommand implements HasSubCommands {
             outformat = JobItem::toBasicString;
         }
 
-        output.output(body.stream().map(outformat).collect(Collectors.toList()));
+        getRdOutput().output(body.stream().map(outformat).collect(Collectors.toList()));
     }
 
-    @CommandLineInterface(application = "info") interface InfoOpts extends JobResultOptions {
 
-        @Option(shortName = "i", longName = "id", description = "Job ID")
-        String getId();
+    @CommandLine.Command(description = "Get info about a Job by ID (API v18)")
+    public void info(
+            @CommandLine.Option(names = {"-i", "--id"}, description = "Job ID", required = true) String id,
+            @CommandLine.Mixin JobOutputFormatOption outputFormatOption
+    ) throws IOException, InputError {
+        ScheduledJobItem body = getRdTool().apiCall(api -> api.getJobInfo(id));
+        outputJobList(outputFormatOption, Collections.singletonList(body));
     }
 
-    @CommandLineInterface(application = "forecast") interface ForecastOpts {
+    @CommandLine.Command(description = "Get Schedule Forecast for a Job by ID (API v31)")
+    public void forecast(
+            @CommandLine.Option(names = {"-i", "--id"}, description = "Job ID", required = false)
+            String id,
 
-        @Option(shortName = "i", longName = "id", description = "Job ID")
-        String getId();
+            @CommandLine.Option(names = {"-t", "--time"}, description = "Time ahead using number+unit. e.g. 1h (1 hour).\n " +
+                    "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
+            String time,
 
-        @Option(shortName = "t", longName = "time", description = "Time ahead using number+unit. e.g. 1h (1 hour).\n " +
-                "Use: h,n,s,d,w,m,y (hour,minute,second,day,week,month,year)")
-        String getTime();
-        boolean isTime();
-
-        @Option(shortName = "m", longName = "max", description = "Max number of results")
-        String getMax();
-        boolean isMax();
-
-    }
-
-    interface ToggleOpts extends JobIdentOptions {
-
-        @Option(shortName = "j",
-                longName = "job",
-                description = "Job job (group and name). Select a Job specified by Job name and group. eg: " +
-                              "'group/name'. Requires specifying the Project name.")
-        String getJob();
-
-        boolean isJob();
-
-        @Option(shortName = "i", longName = "id", description = "Select the Job with this IDENTIFIER")
-        String getId();
-
-        boolean isId();
-    }
-
-    @Command(description = "Get info about a Job by ID (API v18)")
-    public void info(InfoOpts options, CommandOutput output) throws IOException, InputError {
-        ScheduledJobItem body = apiCall(api -> api.getJobInfo(options.getId()));
-        outputJobList(options, output, Collections.singletonList(body));
-    }
-
-    @Command(description = "Get Schedule Forecast for a Job by ID (API v31)")
-    public void forecast(ForecastOpts options, CommandOutput output) throws IOException, InputError {
-        requireApiVersion("jobs forecast", 31);
-        ForecastJobItem body = apiCall(api -> api.getJobForecast(options.getId(), options.getTime(), options.getMax()));
-        output.output("Forecast:");
-        if(body.getFutureScheduledExecutions() != null){
-            output.output(body.getFutureScheduledExecutions());
+            @CommandLine.Option(names = {"-m", "--max"}, description = "Max number of results")
+            Integer max
+    ) throws IOException, InputError {
+        getRdTool().requireApiVersion("jobs forecast", 31);
+        ForecastJobItem body = getRdTool().apiCall(api -> api.getJobForecast(id, time, max));
+        getRdOutput().output("Forecast:");
+        if (body.getFutureScheduledExecutions() != null) {
+            getRdOutput().output(body.getFutureScheduledExecutions());
         }
-
-        return;
-
     }
 
-    @CommandLineInterface(application = "enable") interface EnableOpts extends ToggleOpts {
+
+    @CommandLine.Command(description = "Enable execution for a job")
+    public boolean enable(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobExecutionEnable, options, "Enabled Job %s");
     }
 
-    @Command(description = "Enable execution for a job")
-    public boolean enable(EnableOpts options, CommandOutput output) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobExecutionEnable, options, output, "Enabled Job %s");
+    @CommandLine.Command(description = "Disable execution for a job")
+    public boolean disable(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, "Disabled Job %s");
     }
 
-    @CommandLineInterface(application = "disable") interface DisableOpts extends ToggleOpts {
+
+    @CommandLine.Command(description = "Enable schedule for a job")
+    public boolean reschedule(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, "Enabled Schedule for Job %s");
     }
 
-    @Command(description = "Disable execution for a job")
-    public boolean disable(DisableOpts options, CommandOutput output) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, output, "Disabled Job %s");
-    }
-
-    @CommandLineInterface(application = "reschedule") interface EnableSchedOpts extends ToggleOpts {
-    }
-
-    @Command(description = "Enable schedule for a job")
-    public boolean reschedule(EnableSchedOpts options, CommandOutput output) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, output, "Enabled Schedule for Job %s");
-    }
-
-    @CommandLineInterface(application = "unschedule") interface DisableSchedOpts extends ToggleOpts {
-    }
-
-    @Command(description = "Disable schedule for a job")
-    public boolean unschedule(DisableSchedOpts options, CommandOutput output) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobScheduleDisable, options, output, "Disabled Schedule for Job %s");
+    @CommandLine.Command(description = "Disable schedule for a job")
+    public boolean unschedule(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobScheduleDisable, options, "Disabled Schedule for Job %s");
     }
 
     private boolean simpleJobApiCall(
             BiFunction<RundeckApi, String, Call<Simple>> func,
-            final ToggleOpts options,
-            final CommandOutput output,
+            final JobIdentOptions options,
             final String success
     )
-            throws InputError, IOException
-    {
+            throws InputError, IOException {
         String jobId = Run.getJobIdFromOpts(
                 options,
-                output,
-                this,
-                () -> projectOrEnv(options)
+                getRdOutput(),
+                getRdTool(),
+                () -> getRdTool().projectOrEnv(options)
         );
         if (null == jobId) {
             return false;
         }
-        Simple simple = apiCall(api -> func.apply(api, jobId));
+        Simple simple = getRdTool().apiCall(api -> func.apply(api, jobId));
         if (simple.isSuccess()) {
-            output.info(String.format(success, jobId));
+            getRdOutput().info(String.format(success, jobId));
         }
         return simple.isSuccess();
     }
@@ -439,13 +397,13 @@ public class Jobs extends AppCommand implements HasSubCommands {
             if (!options.isJob() && !options.isGroup() && !options.isGroupExact() && !options.isJobExact()) {
                 throw new InputError("must specify -i, or -j/-g/-J/-G to specify jobs to enable.");
             }
-            String project = projectOrEnv(options);
-            List<JobItem> body = apiCall(api -> api.listJobs(
-                project,
-                options.getJob(),
-                options.getGroup(),
-                options.getJobExact(),
-                options.getGroupExact()
+            String project = getRdTool().projectOrEnv(options);
+            List<JobItem> body = getRdTool().apiCall(api -> api.listJobs(
+                    project,
+                    options.getJob(),
+                    options.getGroup(),
+                    options.getJobExact(),
+                    options.getGroupExact()
             ));
             for (JobItem jobItem : body) {
                 ids.add(jobItem.getId());
@@ -456,192 +414,174 @@ public class Jobs extends AppCommand implements HasSubCommands {
     }
 
 
-    @CommandLineInterface(application = "enablebulk")
-    interface EnableBulk extends BulkJobActionOptions, VerboseOption {
-    }
-
-    @Command(description = "Enable execution for a set of jobs. " +
-        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
-        "required.")
-    public boolean enablebulk(EnableBulk options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Enable execution for a set of jobs. " +
+            "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+            "required.")
+    public boolean enablebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
         if (!options.isConfirm()) {
             //request confirmation
             if (null == System.console()) {
-                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
-                output.warning(String.format("Not enabling %d jobs", ids.size()));
+                getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
+                getRdOutput().warning(String.format("Not enabling %d jobs", ids.size()));
                 return false;
             }
             String s = System.console().readLine("Really enable %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not enabling %d jobs", ids.size()));
+                getRdOutput().warning(String.format("Not enabling %d jobs", ids.size()));
                 return false;
             }
         }
 
         final List<String> finalIds = ids;
 
-        BulkToggleJobExecutionResponse response = apiCall(api -> api.bulkEnableJobs(new IdList(finalIds)));
+        BulkToggleJobExecutionResponse response = getRdTool().apiCall(api -> api.bulkEnableJobs(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
-            output.info(String.format("%d Jobs were enabled%n", response.getRequestCount()));
-            if (options.isVerbose()) {
-                output.output(response.getSucceeded().stream()
-                    .map(BulkToggleJobExecutionResponse.Result::toString)
-                    .collect(Collectors.toList()));
+            getRdOutput().info(String.format("%d Jobs were enabled%n", response.getRequestCount()));
+            if (verboseOption.isVerbose()) {
+                getRdOutput().output(response.getSucceeded().stream()
+                        .map(BulkToggleJobExecutionResponse.Result::toString)
+                        .collect(Collectors.toList()));
             }
             return true;
         }
-        output.error(String.format("Failed to enable %d Jobs%n", response.getFailed().size()));
-        output.output(response.getFailed().stream()
-            .map(BulkToggleJobExecutionResponse.Result::toString)
-            .collect(Collectors.toList()));
+        getRdOutput().error(String.format("Failed to enable %d Jobs%n", response.getFailed().size()));
+        getRdOutput().output(response.getFailed().stream()
+                .map(BulkToggleJobExecutionResponse.Result::toString)
+                .collect(Collectors.toList()));
         return false;
     }
 
 
-    @CommandLineInterface(application = "disablebulk")
-    interface DisableBulk extends BulkJobActionOptions, VerboseOption {
-    }
-
-    @Command(description = "Disable execution for a set of jobs. " +
-        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
-        "required.")
-    public boolean disablebulk(DisableBulk options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Disable execution for a set of jobs. " +
+            "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+            "required.")
+    public boolean disablebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
         if (!options.isConfirm()) {
             //request confirmation
             if (null == System.console()) {
-                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
-                output.warning(String.format("Not disabling %d jobs", ids.size()));
+                getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
+                getRdOutput().warning(String.format("Not disabling %d jobs", ids.size()));
                 return false;
             }
             String s = System.console().readLine("Really disable %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not disabling %d jobs", ids.size()));
+                getRdOutput().warning(String.format("Not disabling %d jobs", ids.size()));
                 return false;
             }
         }
 
         final List<String> finalIds = ids;
 
-        BulkToggleJobExecutionResponse response = apiCall(api -> api.bulkDisableJobs(new IdList(finalIds)));
+        BulkToggleJobExecutionResponse response = getRdTool().apiCall(api -> api.bulkDisableJobs(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
-            output.info(String.format("%d Jobs were disabled%n", response.getRequestCount()));
-            if (options.isVerbose()) {
-                output.output(response.getSucceeded().stream()
-                    .map(BulkToggleJobExecutionResponse.Result::toString)
-                    .collect(Collectors.toList()));
+            getRdOutput().info(String.format("%d Jobs were disabled%n", response.getRequestCount()));
+            if (verboseOption.isVerbose()) {
+                getRdOutput().output(response.getSucceeded().stream()
+                        .map(BulkToggleJobExecutionResponse.Result::toString)
+                        .collect(Collectors.toList()));
             }
             return true;
         }
-        output.error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
-        output.output(response.getFailed().stream()
-            .map(BulkToggleJobExecutionResponse.Result::toString)
-            .collect(Collectors.toList()));
+        getRdOutput().error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
+        getRdOutput().output(response.getFailed().stream()
+                .map(BulkToggleJobExecutionResponse.Result::toString)
+                .collect(Collectors.toList()));
         return false;
     }
 
 
-    @CommandLineInterface(application = "reschedulebulk")
-    interface RescheduleBulk extends BulkJobActionOptions, VerboseOption {
-    }
-
-
-    @Command(description = "Enable schedule for a set of jobs. " +
-        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
-        "required.")
-    public boolean reschedulebulk(RescheduleBulk options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Enable schedule for a set of jobs. " +
+            "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+            "required.")
+    public boolean reschedulebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
         if (!options.isConfirm()) {
             //request confirmation
             if (null == System.console()) {
-                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
-                output.warning(String.format("Not rescheduling %d jobs", ids.size()));
+                getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
+                getRdOutput().warning(String.format("Not rescheduling %d jobs", ids.size()));
                 return false;
             }
             String s = System.console().readLine("Really reschedule %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not rescheduling %d jobs", ids.size()));
+                getRdOutput().warning(String.format("Not rescheduling %d jobs", ids.size()));
                 return false;
             }
         }
 
         final List<String> finalIds = ids;
 
-        BulkToggleJobScheduleResponse response = apiCall(api -> api.bulkEnableJobSchedule(new IdList(finalIds)));
+        BulkToggleJobScheduleResponse response = getRdTool().apiCall(api -> api.bulkEnableJobSchedule(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
-            output.info(String.format("%d Jobs were rescheduled%n", response.getRequestCount()));
-            if (options.isVerbose()) {
-                output.output(response.getSucceeded().stream()
-                    .map(BulkToggleJobScheduleResponse.Result::toString)
-                    .collect(Collectors.toList()));
+            getRdOutput().info(String.format("%d Jobs were rescheduled%n", response.getRequestCount()));
+            if (verboseOption.isVerbose()) {
+                getRdOutput().output(response.getSucceeded().stream()
+                        .map(BulkToggleJobScheduleResponse.Result::toString)
+                        .collect(Collectors.toList()));
             }
             return true;
         }
-        output.error(String.format("Failed to reschedule %d Jobs%n", response.getFailed().size()));
-        output.output(response.getFailed().stream()
-            .map(BulkToggleJobScheduleResponse.Result::toString)
-            .collect(Collectors.toList()));
+        getRdOutput().error(String.format("Failed to reschedule %d Jobs%n", response.getFailed().size()));
+        getRdOutput().output(response.getFailed().stream()
+                .map(BulkToggleJobScheduleResponse.Result::toString)
+                .collect(Collectors.toList()));
         return false;
     }
 
 
-    @CommandLineInterface(application = "unschedulebulk")
-    interface UnscheduleBulk extends BulkJobActionOptions, VerboseOption {
-    }
-
-
-    @Command(description = "Disable schedule for a set of jobs. " +
-        "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
-        "required.")
-    public boolean unschedulebulk(UnscheduleBulk options, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Disable schedule for a set of jobs. " +
+            "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
+            "required.")
+    public boolean unschedulebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
         if (!options.isConfirm()) {
             //request confirmation
             if (null == System.console()) {
-                output.error("No user interaction available. Use --confirm to confirm request without user interaction");
-                output.warning(String.format("Not unscheduling %d jobs", ids.size()));
+                getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
+                getRdOutput().warning(String.format("Not unscheduling %d jobs", ids.size()));
                 return false;
             }
             String s = System.console().readLine("Really unschedule %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not unscheduling %d jobs", ids.size()));
+                getRdOutput().warning(String.format("Not unscheduling %d jobs", ids.size()));
                 return false;
             }
         }
 
         final List<String> finalIds = ids;
 
-        BulkToggleJobScheduleResponse response = apiCall(api -> api.bulkDisableJobSchedule(new IdList(finalIds)));
+        BulkToggleJobScheduleResponse response = getRdTool().apiCall(api -> api.bulkDisableJobSchedule(new IdList(finalIds)));
 
         if (response.isAllsuccessful()) {
-            output.info(String.format("%d Jobs were unsheduled%n", response.getRequestCount()));
-            if (options.isVerbose()) {
-                output.output(response.getSucceeded().stream()
-                    .map(BulkToggleJobScheduleResponse.Result::toString)
-                    .collect(Collectors.toList()));
+            getRdOutput().info(String.format("%d Jobs were unsheduled%n", response.getRequestCount()));
+            if (verboseOption.isVerbose()) {
+                getRdOutput().output(response.getSucceeded().stream()
+                        .map(BulkToggleJobScheduleResponse.Result::toString)
+                        .collect(Collectors.toList()));
             }
             return true;
         }
-        output.error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
-        output.output(response.getFailed().stream()
-            .map(BulkToggleJobScheduleResponse.Result::toString)
-            .collect(Collectors.toList()));
+        getRdOutput().error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
+        getRdOutput().output(response.getFailed().stream()
+                .map(BulkToggleJobScheduleResponse.Result::toString)
+                .collect(Collectors.toList()));
         return false;
     }
 

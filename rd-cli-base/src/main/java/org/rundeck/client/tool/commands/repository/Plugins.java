@@ -18,45 +18,39 @@ package org.rundeck.client.tool.commands.repository;
 import lombok.Setter;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.repository.RepositoryArtifacts;
+import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdOutput;
 import org.rundeck.client.tool.extension.RdTool;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.HasSubCommands;
+import picocli.CommandLine;
+
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
-@Command(description = "Manage Rundeck plugins")
+@CommandLine.Command(name = "plugins", description = "Manage Rundeck plugins", subcommands = {
+        UploadPlugin.class,
+        InstallPlugin.class,
+        UninstallPlugin.class
+})
 public class Plugins
-        implements RdCommandExtension, HasSubCommands
-{
+        extends BaseCommand {
 
-    @Setter private RdTool rdTool;
 
-    @Override
-    public List<Object> getSubCommands() {
-        return Arrays.asList(
-                rdTool.initExtension(new UploadPlugin()),
-                rdTool.initExtension(new InstallPlugin()),
-                rdTool.initExtension(new UninstallPlugin())
-        );
-    }
-
-    @Command(isDefault = true, description = "List plugins")
-    public void list(CommandOutput output) throws InputError, IOException {
-        List<RepositoryArtifacts> repos = rdTool.apiCall(RundeckApi::listPlugins);
+    @CommandLine.Command(name = "list", description = "List plugins")
+    public void list() throws InputError, IOException {
+        List<RepositoryArtifacts> repos = getRdTool().apiCall(RundeckApi::listPlugins);
         repos.forEach(repo -> {
-            output.output("==" + repo.getRepositoryName()+ " Repository==");
+            getRdOutput().output("==" + repo.getRepositoryName() + " Repository==");
             repo.getResults().forEach(plugin -> {
-                if(plugin.getInstallId() != null && !plugin.getInstallId().isEmpty()) {
+                if (plugin.getInstallId() != null && !plugin.getInstallId().isEmpty()) {
                     String updateable = "";
                     if (plugin.isUpdatable()) {
                         updateable = " (Updatable to " + plugin.getCurrentVersion() + ")";
                     }
-                    output.output(String.format(
+                    getRdOutput().output(String.format(
                             "%s : %s : %s (%sinstalled) %s",
                             plugin.getInstallId(),
                             plugin.getName(),

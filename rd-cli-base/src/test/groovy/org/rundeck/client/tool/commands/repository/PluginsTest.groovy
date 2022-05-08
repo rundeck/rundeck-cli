@@ -18,16 +18,12 @@ package org.rundeck.client.tool.commands.repository
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.repository.Artifact
 import org.rundeck.client.api.model.repository.RepositoryArtifacts
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
-import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.Client
-import org.rundeck.client.util.ServiceClient
-import org.rundeck.toolbelt.CommandOutput
-import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
-
 
 class PluginsTest extends Specification {
     def "List"() {
@@ -42,14 +38,14 @@ class PluginsTest extends Specification {
 
             Plugins plugins = new Plugins()
             plugins.rdTool = rdtool
-            def out = Mock(CommandOutput)
+            plugins.rdOutput = Mock(CommandOutput)
 
         when:
-            plugins.list(out)
+            plugins.list()
 
         then:
             1 * api.listPlugins() >> Calls.response(listRepoResponse())
-            out.output('1b7dc3be7836 : JNotify (installed)\nbcf8885df1e8 : Scripter (not installed)')
+            1*plugins.rdOutput.output('1b7dc3be7836 : JNotify (installed)\nbcf8885df1e8 : Scripter (not installed)')
 
     }
 

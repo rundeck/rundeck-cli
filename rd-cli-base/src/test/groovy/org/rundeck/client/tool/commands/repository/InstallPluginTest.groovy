@@ -17,10 +17,10 @@ package org.rundeck.client.tool.commands.repository
 
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.repository.ArtifactActionMessage
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.Client
-import org.rundeck.toolbelt.CommandOutput
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -30,26 +30,26 @@ class InstallPluginTest extends Specification {
     def "Install"() {
         given:
         def api = Mock(RundeckApi)
-        def opts = Mock(InstallPlugin.InstallPluginOption) {
-            getRepoName() >> "private"
-            getPluginId() >> 'bcf8885df1e8'
-        }
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, null, null, 26, false, null)
+        def out = Mock(CommandOutput)
         def rdapp = Mock(RdApp) {
             getClient() >> client
+            getOutput() >> out
         }
         def rdtool = new MockRdTool(client: client, rdApp: rdapp)
 
         InstallPlugin installCmd = new InstallPlugin()
-        installCmd.rdTool=rdtool
-        def out = Mock(CommandOutput)
+        installCmd.rdTool = rdtool
+        installCmd.rdOutput = out
+        installCmd.repoName = 'private'
+        installCmd.pluginId = 'bcf8885df1e8'
 
         when:
-        installCmd.install(opts,out)
+        installCmd.install(opts, out)
 
         then:
-        1 * api.installPlugin("private",'bcf8885df1e8') >> Calls.response(new ArtifactActionMessage(msg:"Plugin Installed"))
-        out.output('Plugin Installed')
+        1 * api.installPlugin("private", 'bcf8885df1e8') >> Calls.response(new ArtifactActionMessage(msg: "Plugin Installed"))
+        1 * out.output('Plugin Installed')
     }
 }

@@ -16,7 +16,9 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Unparsed;
+
+import lombok.Data;
+import picocli.CommandLine;
 
 import java.util.List;
 
@@ -24,10 +26,11 @@ import java.util.List;
  * @author greg
  * @since 2/2/17
  */
-public interface UnparsedConfigOptions {
+@Data
+public class UnparsedConfigOptions {
 
-    @Unparsed(name = "-- --configkey=value",
-              defaultValue = {},
-              description = "A set of config properties for the project, in the form --key=value")
-    List<String> config();
+    @CommandLine.Parameters(paramLabel = "--configkey=value",
+
+            description = "A set of config properties for the project, in the form --key=value")
+    List<String> config;
 }
