@@ -28,24 +28,30 @@ import spock.lang.Specification
 class PluginsTest extends Specification {
     def "List"() {
         given:
-            def api = Mock(RundeckApi)
-            def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-            def client = new Client(api, retrofit, null, null, 26, true, null)
-            def rdapp = Mock(RdApp) {
-                getClient() >> client
-            }
-            def rdtool = new MockRdTool(client: client, rdApp: rdapp)
+        def api = Mock(RundeckApi)
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 26, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+        }
+        def rdtool = new MockRdTool(client: client, rdApp: rdapp)
 
-            Plugins plugins = new Plugins()
-            plugins.rdTool = rdtool
-            plugins.rdOutput = Mock(CommandOutput)
+        Plugins plugins = new Plugins()
+        plugins.rdTool = rdtool
+
+        def output = Mock(CommandOutput)
+        plugins.rdOutput = output
 
         when:
-            plugins.list()
+        plugins.list()
 
         then:
-            1 * api.listPlugins() >> Calls.response(listRepoResponse())
-            1*plugins.rdOutput.output('1b7dc3be7836 : JNotify (installed)\nbcf8885df1e8 : Scripter (not installed)')
+        1 * api.listPlugins() >> {
+            Calls.response(listRepoResponse())
+        }
+        1 * output.output('==private Repository==')
+        1 * output.output('1b7dc3be7836 : JNotify : 1.2 (installed) ')
+        1 * output.output('bcf8885df1e8 : Scripter : 1.3 (not installed) ')
 
     }
 
@@ -53,8 +59,9 @@ class PluginsTest extends Specification {
         def list = []
         RepositoryArtifacts ra = new RepositoryArtifacts()
         ra.repositoryName = "private"
-        ra.results = [new Artifact(id:"1b7dc3be7836",name: "JNotify",installed: true),
-                      new Artifact(id:"bcf8885df1e8",name: "Scripter",installed: false)]
+        ra.results = [new Artifact(id:"1b7dc3be7836",installId:"1b7dc3be7836",name: "JNotify",installed: true,installedVersion:'1.2'),
+                      new Artifact(id:"bcf8885df1e8",installId:"bcf8885df1e8",name: "Scripter",installed: false,currentVersion: '1.3')]
+        list.add(ra)
         return list
     }
 

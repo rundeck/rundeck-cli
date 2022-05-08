@@ -46,7 +46,7 @@ class InstallPluginTest extends Specification {
         installCmd.pluginId = 'bcf8885df1e8'
 
         when:
-        installCmd.install(opts, out)
+        installCmd.call()
 
         then:
         1 * api.installPlugin("private", 'bcf8885df1e8') >> Calls.response(new ArtifactActionMessage(msg: "Plugin Installed"))
