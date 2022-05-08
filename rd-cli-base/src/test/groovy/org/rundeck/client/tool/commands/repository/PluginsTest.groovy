@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands.repository
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.repository.Artifact
 import org.rundeck.client.api.model.repository.RepositoryArtifacts
+import org.rundeck.client.testing.MockRdTool
 import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
