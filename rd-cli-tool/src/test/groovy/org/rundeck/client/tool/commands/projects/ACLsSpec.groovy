@@ -4,6 +4,10 @@ package org.rundeck.client.tool.commands.projects
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RequestFailed
 import org.rundeck.client.api.RundeckApi
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
+import org.rundeck.client.tool.commands.RdToolImpl
+import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.RdClientConfig
 import org.rundeck.client.tool.Main
 import org.rundeck.client.tool.RdApp
@@ -31,6 +35,19 @@ class ACLsSpec extends Specification {
         }
     }
 
+    private RdTool setupMock(RundeckApi api, int apiVersion = 18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
+
     def "upload validates acl"() {
         given:
 
@@ -40,23 +57,25 @@ class ACLsSpec extends Specification {
                 .addConverterFactory(JacksonConverterFactory.create())
                 .baseUrl('http://example.com/fake/').build()
         def out = Mock(CommandOutput)
-        def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
+        def client = new Client(api, retrofit, null, null, 18, true, null)
 
-        def appConfig = Mock(RdClientConfig)
-
-        def hasclient = Mock(RdApp) {
+        def rdapp = Mock(RdApp) {
             getClient() >> client
-            getAppConfig() >> appConfig
+            getAppConfig() >> Mock(RdClientConfig)
         }
-        def opts = Mock(ACLs.Put) {
-            getProject() >> 'aproject'
-            getName() >> 'test.aclpolicy'
-            getFile() >> tempFile
-        }
-        def acls = new ACLs(hasclient)
+        def rdTool = new RdToolImpl(rdapp)
+
+        def acls = new ACLs()
+        acls.rdOutput = out
+        acls.rdTool = rdTool
+        acls.projectNameOptions.project = 'aproject'
+        def fileOptions = new ACLs.ACLFileOptions()
+        fileOptions.file = tempFile
+        def nameOptions = new ACLs.ACLNameOptions()
+        nameOptions.name = 'test.aclpolicy'
 
         when:
-        def result = acls.upload(opts, out)
+        def result = acls.upload(nameOptions, fileOptions)
 
         then:
 
@@ -64,10 +83,10 @@ class ACLsSpec extends Specification {
         1 * api.updateAclPolicy('aproject', 'test.aclpolicy', _) >>
                 Calls.response(
                         Response.error(400, ResponseBody.create(
-                                Client.MEDIA_TYPE_JSON,
                                 '{"valid":false,"policies":[{"policy":"blah.aclpolicy[1]","errors":["Error parsing ' +
                                         'the policy document: Policy contains invalid keys: [blah], allowed keys: ' +
-                                        '[by, id, for, context, description]"]}]}'
+                                        '[by, id, for, context, description]"]}]}',
+                                Client.MEDIA_TYPE_JSON
                         )
                         )
                 )

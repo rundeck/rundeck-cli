@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
 @CommandLine.Command(description = "Manage Project ACLs", name = "acls")
 public class ACLs extends BaseCommand {
     @CommandLine.Mixin
-    ProjectNameOptions projectNameOptions;
+    ProjectNameOptions projectNameOptions = new ProjectNameOptions();
 
     private String getProjectName() throws InputError {
         return getRdTool().projectOrEnv(projectNameOptions);
@@ -173,8 +173,8 @@ public class ACLs extends BaseCommand {
         }
 
         RequestBody requestBody = RequestBody.create(
-                Client.MEDIA_TYPE_YAML,
-                input
+                input,
+                Client.MEDIA_TYPE_YAML
         );
         ServiceClient.WithErrorResponse<ACLPolicy> execute = rdTool.apiWithErrorResponseDowngradable(
 
