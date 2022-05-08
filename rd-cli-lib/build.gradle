@@ -25,5 +25,8 @@ dependencies {
     testImplementation libs.bundles.test
 }
 
+test {
+    useJUnitPlatform()
+}
 
 apply from: "${rootDir}/gradle/publishing.gradle"

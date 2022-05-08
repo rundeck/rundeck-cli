@@ -22,3 +22,7 @@ dependencies {
     testImplementation libs.okhttpMockwebserver
     testImplementation libs.bundles.test
 }
+
+test {
+    useJUnitPlatform()
+}

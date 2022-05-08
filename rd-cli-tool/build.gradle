@@ -191,3 +191,7 @@ buildRpm.dependsOn shadowDistZip
 assemble.dependsOn buildRpm, buildDeb
 
 apply from: "${rootDir}/gradle/publishing.gradle"
+
+test {
+    useJUnitPlatform()
+}
