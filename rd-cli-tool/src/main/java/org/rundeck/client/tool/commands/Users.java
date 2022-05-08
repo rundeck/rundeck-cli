@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
 public class Users extends BaseCommand {
 
     @CommandLine.Mixin
-    UserFormatOption opts;
+    UserFormatOption opts=new UserFormatOption();
 
 
     @CommandLine.Command(description = "Get information of the same user or from another if 'user' is specified.")
