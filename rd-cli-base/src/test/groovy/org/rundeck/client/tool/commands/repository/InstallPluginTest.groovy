@@ -17,9 +17,9 @@ package org.rundeck.client.tool.commands.repository
 
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.repository.ArtifactActionMessage
+import org.rundeck.client.testing.MockRdTool
 import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
-import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.Client
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
