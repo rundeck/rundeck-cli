@@ -64,7 +64,7 @@ public class Jobs extends BaseCommand {
 
 
     @Data
-    class Purge {
+    public static class Purge {
         @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
         boolean confirm;
 

@@ -97,8 +97,6 @@ public class Tokens extends BaseCommand {
         @CommandLine.Option(names = {"--user", "-u"}, description = "user name", required = true)
         private String user;
 
-        @CommandLine.Option(names = {"--verbose", "-v"}, description = "show full tokens")
-        private boolean verbose;
     }
 
     @CommandLine.Command(description = "List tokens for a user")

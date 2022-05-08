@@ -51,7 +51,6 @@ public class Adhoc extends BaseCommand implements Callable<Boolean> {
     @CommandLine.Mixin
     NodeFilterOptions nodeFilterOptions;
 
-    @CommandLine.Command()
     public Boolean call() throws IOException, InputError {
         AdhocResponse adhocResponse;
 

@@ -49,7 +49,7 @@ public class QueryOptions
           description = "Job executions only")
   private boolean job;
 
-  @CommandLine.Option(names = {"-i", "--jobids"},
+  @CommandLine.Option(names = { "--jobids"},
           description = "Job ID list to include")
   private List<String> jobIdList;
 

@@ -20,7 +20,7 @@ import lombok.Data;
 import picocli.CommandLine;
 
 @Data
-public class JobOutputFormatOption extends ExecutionOutputFormatOption {
+public class JobOutputFormatOption extends VerboseOption implements OutputFormat {
 
     @CommandLine.Option(names = {"-%", "--outformat"},
             description = "Output format specifier for job data. You can use \"%key\" where key is one of:" +
