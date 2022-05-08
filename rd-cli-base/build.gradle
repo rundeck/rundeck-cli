@@ -21,6 +21,7 @@ dependencies {
     testImplementation libs.retrofitMock
     testImplementation libs.okhttpMockwebserver
     testImplementation libs.bundles.test
+    testImplementation project(":rd-testing")
 }
 
 test {

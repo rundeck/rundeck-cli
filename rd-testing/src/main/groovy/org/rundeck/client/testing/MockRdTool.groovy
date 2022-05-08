@@ -1,4 +1,4 @@
-package org.rundeck.client.tool.commands.repository
+package org.rundeck.client.testing
 
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.tool.InputError
@@ -54,11 +54,11 @@ class MockRdTool implements RdTool {
 
     @Override
     String projectOrEnv(final ProjectInput options) throws InputError {
-        return null
+        return options.project
     }
 
     @Override
     void requireApiVersion(final String description, final int min) throws InputError {
-        apiVersionCheck(description, min, getClient().getApiVersion())
+        RdTool.apiVersionCheck(description, min, getClient().getApiVersion())
     }
 }
