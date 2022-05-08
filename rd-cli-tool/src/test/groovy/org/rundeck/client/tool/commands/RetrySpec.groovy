@@ -20,12 +20,15 @@ import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobFileUploadResult
 import org.rundeck.client.api.model.JobRun
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.InputError
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.tool.options.FollowOptions
 import org.rundeck.client.tool.options.RetryBaseOptions
 import org.rundeck.client.util.Client
-
-
+import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -33,35 +36,47 @@ import spock.lang.Unroll
 
 
 class RetrySpec extends Specification {
+
+    private RdTool setupMock(RundeckApi api, int apiVersion = 18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
     def "run argstring supports -opt @path and -opt@ path"() {
         given:
         def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api,24)
+        def out = Mock(CommandOutput)
+        Retry command = new Retry()
+        command.rdTool = rdTool
+        command.rdOutput = out
         def testfile1 = File.createTempFile("upload1", "test")
         def testfile2 = File.createTempFile("upload2", "test")
 
 
-        def opts = Mock(RetryBaseOptions) {
-            isId() >> true
-            getId() >> 'jobid1'
-            getEid() >> 'eid'
-            getCommandString() >> [
-                    "-opt1",
-                    "val1",
-                    "-opt2",
-                    "@$testfile1.absolutePath",
-                    "-opt3@",
-                    testfile2.absolutePath
-            ].collect { it.toString() }
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 24, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Retry retry = new Retry(hasclient)
-        def out = Mock(CommandOutput)
+        command.followOptions = new FollowOptions()
+        command.options = new RetryBaseOptions()
+        command.options.id = 'jobid1'
+        command.options.eid = 'eid'
+        command.options.commandString = [
+                "-opt1",
+                "val1",
+                "-opt2",
+                "@$testfile1.absolutePath",
+                "-opt3@",
+                testfile2.absolutePath
+        ].collect { it.toString() }
+
+
         when:
-        def result = retry.retry(opts, out)
+        def result = command.call()
 
         then:
         1 * api.uploadJobOptionFile('jobid1', 'opt2', testfile1.name, _) >> Calls.response(
@@ -80,32 +95,31 @@ class RetrySpec extends Specification {
     def "error on api version below 24"() {
         given:
         def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api,23)
+        def out = Mock(CommandOutput)
+        Retry command = new Retry()
+        command.rdTool = rdTool
+        command.rdOutput = out
         def testfile1 = File.createTempFile("upload1", "test")
         def testfile2 = File.createTempFile("upload2", "test")
 
 
-        def opts = Mock(RetryBaseOptions) {
-            isId() >> true
-            getId() >> 'jobid1'
-            getEid() >> 'eid'
-            getCommandString() >> [
-                    "-opt1",
-                    "val1",
-                    "-opt2",
-                    "@$testfile1.absolutePath",
-                    "-opt3@",
-                    testfile2.absolutePath
-            ].collect { it.toString() }
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 23, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Retry retry = new Retry(hasclient)
-        def out = Mock(CommandOutput)
+        command.followOptions = new FollowOptions()
+        command.options = new RetryBaseOptions()
+        command.options.id = 'jobid1'
+        command.options.eid = 'eid'
+        command.options.commandString = [
+                "-opt1",
+                "val1",
+                "-opt2",
+                "@$testfile1.absolutePath",
+                "-opt3@",
+                testfile2.absolutePath
+        ].collect { it.toString() }
+
+
         when:
-        def result = retry.retry(opts, out)
+        def result = command.call()
 
         then:
         0 * api._(*_)
