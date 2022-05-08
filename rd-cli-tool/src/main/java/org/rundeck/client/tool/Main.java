@@ -91,7 +91,7 @@ public class Main {
     public static void main(String[] args) {
         int result = -1;
         try (Rd rd = createRd()) {
-            CommandLine commandLine = new CommandLine(new Main(), new CmdFactory(new AppCommand(rd)));
+            CommandLine commandLine = new CommandLine(new Main(), new CmdFactory(new RdToolImpl(rd)));
             loadCommands(rd).forEach(commandLine::addSubcommand);
             try {
 
@@ -266,7 +266,7 @@ public class Main {
 
     static List<Object> loadCommands(final Rd rd) {
         List<Object> base = new ArrayList<>();
-        AppCommand commandTool = new AppCommand(rd);
+        RdToolImpl commandTool = new RdToolImpl(rd);
         List<RdCommandExtension> extensions = ExtensionLoaderUtil.list();
         extensions.forEach(commandTool::initExtension);
         base.addAll(extensions);

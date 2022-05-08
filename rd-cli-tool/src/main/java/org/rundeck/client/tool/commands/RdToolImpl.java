@@ -39,12 +39,12 @@ import static org.rundeck.client.tool.ProjectInput.PROJECT_NAME_PATTERN;
 /**
  * Base type for commands in Rd todo: rename
  */
-public class AppCommand
+public class RdToolImpl
         implements RdTool
 {
     @Getter private final RdApp rdApp;
 
-    public AppCommand(final RdApp rdApp) {
+    public RdToolImpl(final RdApp rdApp) {
         this.rdApp = rdApp;
     }
 
