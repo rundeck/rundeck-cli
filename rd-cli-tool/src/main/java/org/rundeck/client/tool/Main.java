@@ -290,6 +290,7 @@ public class Main {
             rd.getOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
+        rd.setOutput(builder.finalOutput());
         return builder;
     }
 
