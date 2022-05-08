@@ -3,7 +3,13 @@ package org.rundeck.client.tool.commands
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.AdhocResponse
 import org.rundeck.client.api.model.Execution
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.options.AdhocBaseOptions
+import org.rundeck.client.tool.options.ExecutionOutputFormatOption
+import org.rundeck.client.tool.options.FollowOptions
+import org.rundeck.client.tool.options.NodeFilterOptions
 import org.rundeck.client.util.Client
 import org.rundeck.client.util.RdClientConfig
 
@@ -16,6 +22,7 @@ class AdhocSpec extends Specification {
     @Unroll
     def "run adhoc scriptFile with script interpreter"() {
 
+        given: "interpreter extension and quoted options"
         def tempFile = File.createTempFile('script', '.sh')
         def scriptUrl = new URL('http://example.com')
         def api = Mock(RundeckApi)
@@ -26,35 +33,38 @@ class AdhocSpec extends Specification {
             getClient() >> client
             getAppConfig() >> Mock(RdClientConfig)
         }
-        Adhoc adhoc = new Adhoc(hasclient)
-        def out = Mock(CommandOutput)
+        Adhoc adhoc = new Adhoc()
+        adhoc.nodeFilterOptions = new NodeFilterOptions()
+        adhoc.followOptions = new FollowOptions()
+        adhoc.outputFormatOption = new ExecutionOutputFormatOption()
 
-        given: "interpreter extension and quoted options"
-            def options = Mock(Adhoc.AdhocOptions) {
-                getProject() >> 'aproject'
-                getScriptInterpreter() >> interpreter
-                isScriptInterpreter() >> (interpreter != null)
-                getFileExtension() >> fileExtension
-                isFileExtension() >> (fileExtension != null)
-                isArgsQuoted() >> argsQuoted
-                getScriptFile() >> (!url ? tempFile : null)
-                isScriptFile() >> (!url)
-                getUrl() >> (url ? scriptUrl : null)
-                isUrl() >> url
-            }
+        def rdtool = new MockRdTool(client: client, rdApp: hasclient)
+        adhoc.rdTool = rdtool
+        def out = Mock(CommandOutput)
+        adhoc.rdOutput = out
+
+        adhoc.options = new AdhocBaseOptions()
+        adhoc.options.with {
+            it.project = 'aproject'
+            it.scriptInterpreter = interpreter
+            it.fileExtension = fileExtension
+            it.argsQuoted = argsQuoted
+            it.scriptFile = (!url ? tempFile : null)
+            it.url = (url ? scriptUrl : null)
+        }
         when: "we run adhoc script file"
-            adhoc.adhoc(options, out)
+        adhoc.call()
         then: "api call has correct values"
-            1 * api."${url ? 'runUrl' : 'runScript'}"(
-                    'aproject',
-                    (url ? scriptUrl : _),
-                    0,
-                    false,
-                    null,
-                    interpreter,
-                    argsQuoted,
-                    fileExtension,
-                    null
+        1 * api."${url ? 'runUrl' : 'runScript'}"(
+                'aproject',
+                (url ? scriptUrl : _),
+                1,
+                false,
+                null,
+                interpreter,
+                argsQuoted,
+                fileExtension,
+                null
             ) >> Calls.response(new AdhocResponse(message: 'ok', execution: new Execution(id: '123')))
             1 * api.getExecution('123') >> Calls.response(new Execution(id: '123', description: 'asdf'))
             0 * api._(*_)
