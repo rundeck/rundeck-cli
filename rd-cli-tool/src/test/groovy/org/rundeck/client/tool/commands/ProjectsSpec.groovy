@@ -18,9 +18,19 @@ package org.rundeck.client.tool.commands
 
 
 import org.rundeck.client.api.RundeckApi
+import org.rundeck.client.api.model.KeyStorageItem
 import org.rundeck.client.api.model.ProjectItem
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.commands.projects.Configure
+import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.tool.options.ProjectListFormatOptions
+import org.rundeck.client.tool.options.ProjectNameOptions
+import org.rundeck.client.tool.options.UnparsedConfigOptions
+import org.rundeck.client.tool.options.VerboseOption
 import org.rundeck.client.util.Client
+import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -31,24 +41,31 @@ import spock.lang.Specification
  */
 class ProjectsSpec extends Specification {
 
+    private RdTool setupMock(RundeckApi api, int apiVersion=18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
     def "create does not require config"() {
         given:
 
         def api = Mock(RundeckApi)
-        def opts = Mock(Projects.Create) {
-            getProject() >> 'testProject'
-        }
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Projects projects = new Projects(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Projects command = new Projects()
+        command.rdTool=rdTool
+        command.rdOutput=out
+
+
 
         when:
-        projects.create(opts, out)
+        command.create(new ProjectNameOptions(project: 'testProject'),new Configure.ConfigFileOptions(),new UnparsedConfigOptions())
 
         then:
         1 * api.createProject(_) >>
@@ -57,23 +74,19 @@ class ProjectsSpec extends Specification {
     }
     def "projects list outformat"() {
         given:
-
         def api = Mock(RundeckApi)
-        def opts = Mock(Projects.ProjectListOpts) {
-            getOutputFormat() >> outFormat
-            isOutputFormat() >> (outFormat != null)
-        }
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Projects projects = new Projects(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Projects command = new Projects()
+        command.rdTool=rdTool
+        command.rdOutput=out
+
+        command.verboseOption=new VerboseOption()
+        command.formatOptions=new ProjectListFormatOptions()
+        command.formatOptions.outputFormat=outFormat
 
         when:
-        projects.list(opts, out)
+        command.list()
 
         then:
         1 * api.listProjects() >>
