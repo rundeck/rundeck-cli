@@ -44,6 +44,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import static org.rundeck.client.RundeckClient.*;
 
@@ -54,6 +56,7 @@ import static org.rundeck.client.RundeckClient.*;
 @CommandLine.Command(
         name = "rd",
         version = "Version: " + org.rundeck.client.Version.VERSION,
+        mixinStandardHelpOptions = true,
         subcommands = {
                 Adhoc.class,
                 Jobs.class,
@@ -84,6 +87,8 @@ public class Main {
     public static final String RD_EXT_DISABLED = "RD_EXT_DISABLED";
     public static final String RD_EXT_DIR = "RD_EXT_DIR";
 
+    @CommandLine.Spec
+    CommandLine.Model.CommandSpec spec;
     public static final String
             USER_AGENT =
             RundeckClient.Builder.getUserAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
@@ -91,8 +96,15 @@ public class Main {
     public static void main(String[] args) {
         int result = -1;
         try (Rd rd = createRd()) {
-            CommandLine commandLine = new CommandLine(new Main(), new CmdFactory(new RdToolImpl(rd)));
-            loadCommands(rd).forEach(commandLine::addSubcommand);
+            RdToolImpl rd1 = new RdToolImpl(rd);
+            CommandLine commandLine = new CommandLine(new Main(), new CmdFactory(rd1));
+            commandLine.getHelpSectionMap().put(
+                    CommandLine.Model.UsageMessageSpec.SECTION_KEY_HEADER_HEADING,
+                    help -> loadBanner("rd-banner.txt", Collections.singletonMap("$version$", org.rundeck.client.Version.VERSION)
+                    )
+            );
+
+            loadCommands(rd, rd1).forEach(commandLine::addSubcommand);
             try {
 
                 result = commandLine.execute(args);
@@ -122,6 +134,29 @@ public class Main {
         return rd;
     }
 
+    static String loadBanner(String resource, Map<String, String> replacements) {
+        InputStream resourceAsStream = Main.class.getClassLoader().getResourceAsStream(resource);
+        if (null != resourceAsStream) {
+            try {
+                String result;
+                try (BufferedReader is = new BufferedReader(new InputStreamReader(resourceAsStream))) {
+                    result = is.lines().collect(Collectors.joining("\n"));
+                }
+                if (replacements != null && !replacements.isEmpty()) {
+                    for (String s : replacements.keySet()) {
+                        String val = replacements.get(s);
+                        result = result.replaceAll(s, Matcher.quoteReplacement(val));
+                    }
+                }
+                return CommandLine.Help.Ansi.AUTO.string(result);
+            } catch (IOException e) {
+
+            }
+        }
+        return null;
+    }
+
+    ;
 
     private static ConfigSource buildConfig() {
         return new ConfigBase(new MultiConfigValues(new Env(), new SysProps()));
@@ -264,9 +299,8 @@ public class Main {
         }
     }
 
-    static List<Object> loadCommands(final Rd rd) {
+    static List<Object> loadCommands(final Rd rd, RdToolImpl commandTool) {
         List<Object> base = new ArrayList<>();
-        RdToolImpl commandTool = new RdToolImpl(rd);
         List<RdCommandExtension> extensions = ExtensionLoaderUtil.list();
         extensions.forEach(commandTool::initExtension);
         base.addAll(extensions);
