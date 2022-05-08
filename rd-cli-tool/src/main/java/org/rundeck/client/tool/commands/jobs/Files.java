@@ -29,8 +29,6 @@ import org.rundeck.client.api.model.JobFileItem;
 import org.rundeck.client.api.model.JobFileItemList;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.Paging;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.PagingResultOptions;
 import org.rundeck.client.util.Client;
 
