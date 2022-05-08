@@ -104,7 +104,7 @@ set -e
 # Source user's config file
 RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
 test -f $RD_CONF && . $RD_CONF
-export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext}
+export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/extv2}
 '''
     )
     def setJ11AddOpens=appendConfigData.curry(
