@@ -19,6 +19,7 @@ package org.rundeck.client.tool.commands.projects;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.extension.BaseCommand;
@@ -55,12 +56,12 @@ public class SCM extends BaseCommand implements ProjectInput {
             required = true
 //            pattern = "^(import|export)$"
     )
-    @Getter
+    @Getter @Setter
     private String integration;
     @CommandLine.Option(names = {"--project", "-p"},
             description = "Project name"
     )
-    @Getter
+    @Getter @Setter
     private String project;
 
     @CommandLine.Spec
@@ -71,7 +72,7 @@ public class SCM extends BaseCommand implements ProjectInput {
             throw new CommandLine.ParameterException(spec.commandLine(), "--integration/-i must be one of: " + INTEGRATIONS);
         }
         if (null != getProject()) {
-            ProjectRequiredNameOptions.validateProjectName(getProject(), spec.commandLine());
+            ProjectRequiredNameOptions.validateProjectName(getProject(), spec);
         }
         return getRdTool().projectOrEnv(this);
     }
