@@ -55,12 +55,13 @@ public class Run extends BaseCommand implements Callable<Boolean> {
 
 
     @CommandLine.Mixin
-    RunBaseOptions options;
+    RunBaseOptions options = new RunBaseOptions();
     @CommandLine.Mixin
-    FollowOptions followOptions;
+    FollowOptions followOptions = new FollowOptions();
     @CommandLine.Mixin
-    NodeFilterOptions nodeFilterOptions;
-    @CommandLine.Mixin ExecutionOutputFormatOption outputFormatOption;
+    NodeFilterOptions nodeFilterOptions = new NodeFilterOptions();
+    @CommandLine.Mixin
+    ExecutionOutputFormatOption outputFormatOption = new ExecutionOutputFormatOption();
 
     public Boolean call() throws IOException, InputError {
         options.validate();
