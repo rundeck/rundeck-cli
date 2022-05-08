@@ -52,4 +52,8 @@ dependencies {
 }
 
 
+test {
+    useJUnitPlatform()
+}
+
 apply from: "${rootDir}/gradle/publishing.gradle"
