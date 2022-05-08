@@ -1,5 +1,7 @@
 package org.rundeck.client.tool.commands
 
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.InputError
 
 
@@ -11,7 +13,9 @@ import okio.Buffer
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.KeyStorageItem
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.Client
+import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.mock.Calls
@@ -154,29 +158,36 @@ class KeysSpec extends Specification {
         KeyStorageItem.KeyFileType.publicKey  | true
     }
 
+    private RdTool setupMock(RundeckApi api, int apiVersion=18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
     @Unroll
     def "create password from file"() {
         given:
         File testfile = File.createTempFile('KeysSpec', '.test')
         testfile.text = input
-
         def api = Mock(RundeckApi)
-        def opts = Mock(Keys.Upload) {
-            getPath() >> new Keys.Path('keys/test1')
-            getType() >> KeyStorageItem.KeyFileType.password
-            getFile() >> testfile
-            isFile() >> true
-        }
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Keys keys = new Keys(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Keys command = new Keys()
+        command.rdTool=rdTool
+        command.rdOutput=out
+        command.path= new Keys.Path('keys/test1')
+
+        def opts = new Keys.Upload()
+        opts.type= KeyStorageItem.KeyFileType.password
+        opts.file= testfile
         when:
-        keys.create(opts, out)
+        command.create(opts)
 
         then:
         1 * api.createKeyStorage('test1', {
@@ -202,14 +213,6 @@ class KeysSpec extends Specification {
         given:
         File testfile = File.createTempFile('KeysSpec', '.test')
         testfile.text = input
-
-        def opts = Mock(Keys.Upload) {
-            getPath() >> new Keys.Path('keys/test1')
-            getType() >> KeyStorageItem.KeyFileType.password
-            getFile() >> testfile
-            isFile() >> true
-        }
-
         MockWebServer server = new MockWebServer()
         server.enqueue(
                 new MockResponse().
@@ -230,14 +233,19 @@ class KeysSpec extends Specification {
                 addConverterFactory(JacksonConverterFactory.create()).
                 build()
         def api = retrofit.create(RundeckApi)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Keys keys = new Keys(hasclient)
+        Keys command = new Keys()
+        command.rdTool=rdTool
+        command.rdOutput=out
+        command.path= new Keys.Path('keys/test1')
+
+        def opts = new Keys.Upload()
+        opts.type= KeyStorageItem.KeyFileType.password
+        opts.file= testfile
+
         when:
-        keys.create(opts, out)
+        command.create(opts)
 
         then:
         RecordedRequest request1 = server.takeRequest()
@@ -265,20 +273,16 @@ class KeysSpec extends Specification {
     def "list all"() {
         given:
         def api = Mock(RundeckApi)
-        def opts = Mock(Keys.ListArg) {
-            getPath() >> new Keys.Path(input?:"")
-
-        }
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Keys keys = new Keys(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Keys command = new Keys()
+        command.rdTool=rdTool
+        command.rdOutput=out
+        command.path= new Keys.Path(input?:"")
+
+
         when:
-        keys.list(opts, out)
+        command.list()
 
         then:
         1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem())
