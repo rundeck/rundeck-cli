@@ -38,6 +38,6 @@ public class ProjectNameOptions implements ProjectInput {
     }
 
     void validate() {
-        ProjectRequiredNameOptions.validateProjectName(getProject(), spec.commandLine());
+        ProjectRequiredNameOptions.validateProjectName(getProject(), spec);
     }
 }

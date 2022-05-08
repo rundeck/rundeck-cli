@@ -40,14 +40,14 @@ public class ProjectRequiredNameOptions implements ProjectInput {
     private String project;
 
     void validate() {
-        validateProjectName(getProject(), spec.commandLine());
+        validateProjectName(getProject(), spec);
     }
 
-    public static void validateProjectName(String project, CommandLine commandLine) {
+    public static void validateProjectName(String project, CommandLine.Model.CommandSpec spec) {
         Pattern pat = Pattern.compile(PROJECT_NAME_PATTERN);
         if (!pat.matcher(project).matches()) {
             throw new CommandLine.ParameterException(
-                    commandLine,
+                    spec.commandLine(),
                     "Invalid option: --project/-p does not match: " + PROJECT_NAME_PATTERN
             );
         }

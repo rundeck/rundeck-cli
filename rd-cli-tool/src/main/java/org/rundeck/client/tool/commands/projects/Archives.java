@@ -65,7 +65,7 @@ public class Archives extends BaseCommand implements ProjectInput {
 
     String validate() throws InputError {
         if (null != getProject()) {
-            ProjectRequiredNameOptions.validateProjectName(getProject(), spec.commandLine());
+            ProjectRequiredNameOptions.validateProjectName(getProject(), spec);
         }
         return getRdTool().projectOrEnv(this);
     }
