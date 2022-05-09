@@ -1,3 +1,10 @@
+## Unreleased
+
+* Add cluster execution mode toggle #380
+* Emit error if api version used isn't sufficient for project archive parameters #407
+* Many dependency updates
+* #394
+
 ## 1.3.11
 
 * Fix: empty content type causes exception
