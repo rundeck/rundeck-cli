@@ -70,11 +70,17 @@ Check OWASP scan for dependencies
 
     ./gradlew dependencyCheckAggregate -Porg.gradle.dependency.verification.console=verbose --dependency-verification lenient
 
-## Install
+## Install Locally
 
 Install to local path rd-cli-tool/build/install/rd/bin/rd
 
 	./gradlew :rd-cli-tool:installDist
+
+## Local Run
+
+Run local installation at path rd-cli-tool/build/install/rd/bin/rd
+
+	./rd-cli-tool/build/install/rd/bin/rd "${@}"
 
 ## Release
 
