@@ -164,7 +164,7 @@ def getAxionVersion = {
 def getPreviousTag = {
     def rules = axionContext.rules
     def curVersion = getAxionVersion()
-    rules.tag.serialize(rules.tag, curVersion.previousVersion.toString())
+    rules.tag.serialize.apply(rules.tag, curVersion.previousVersion.toString())
 }
 
 task previousVersion(){
