@@ -13,14 +13,13 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class RdBuilder {
-    private Map<Class<? extends Throwable>, ErrorHandler> errorHandlers = new HashMap<>();
+    private final Map<Class<? extends Throwable>, ErrorHandler> errorHandlers = new HashMap<>();
 
-    private ChannelOutput.Builder channels;
+    private final ChannelOutput.Builder channels;
     private CommandOutput commandOutput;
-    private OutputFormatter baseFormatter;
     private OutputFormatter formatter;
 
-    private ANSIColorOutputBuilder ansiBuilder = new ANSIColorOutputBuilder().sink(new SystemOutput());
+    private final ANSIColorOutputBuilder ansiBuilder = new ANSIColorOutputBuilder().sink(new SystemOutput());
 
     public RdBuilder() {
         channels = ChannelOutput.builder();
@@ -71,7 +70,7 @@ public class RdBuilder {
         if (null == commandOutput) {
             commandOutput = defaultOutput();
         }
-        baseFormatter = defaultBaseFormatter();
+        OutputFormatter baseFormatter = defaultBaseFormatter();
         channels.fallback(commandOutput);
         ChannelOutput channel = channels.build();
         if (null == builtOutput) {
@@ -98,7 +97,7 @@ public class RdBuilder {
 
     private static class ANSIColorOutputBuilder {
         private SystemOutput sink;
-        private Map<String, String> config = new HashMap<>(DEFAULT_COLORS);
+        private final Map<String, String> config = new HashMap<>(DEFAULT_COLORS);
 
         public ANSIColorOutputBuilder info(String color) {
             config.put("info", color);
@@ -132,8 +131,8 @@ public class RdBuilder {
     }
 
     private static class ANSIColorOutput implements CommandOutput, OutputFormatter {
-        private SystemOutput sink;
-        private Map<String, String> config;
+        private final SystemOutput sink;
+        private final Map<String, String> config;
 
         public ANSIColorOutput(SystemOutput sink, Map<String, String> config) {
             this.sink = sink;
