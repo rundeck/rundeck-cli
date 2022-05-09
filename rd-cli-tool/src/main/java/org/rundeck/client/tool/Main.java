@@ -688,7 +688,7 @@ public class Main {
                     kind = CommandLine.Help.Ansi.AUTO.string("@|green Good luck.|@");
                     break;
                 case 3:
-                    kind = CommandLine.Help.Ansi.AUTO.string("@|orange Great luck.|@");
+                    kind = CommandLine.Help.Ansi.AUTO.string("@|fg(215) Great luck.|@");
                     break;
                 default:
                     kind = "Big trouble.";
