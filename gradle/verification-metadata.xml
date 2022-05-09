@@ -46,7 +46,10 @@
             <trusting group="org.apache.commons" name="commons-text" version="1.8"/>
          </trusted-key>
          <trusted-key id="2e3a1affe42b5f53af19f780bcf4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
-         <trusted-key id="31327da0c35ea6b88b9d4648f192529298c4c654" group="org.rundeck.cli-toolbelt"/>
+         <trusted-key id="31327da0c35ea6b88b9d4648f192529298c4c654">
+            <trusting group="org.rundeck"/>
+            <trusting group="org.rundeck.cli-toolbelt"/>
+         </trusted-key>
          <trusted-key id="31fae244a81d64507b47182e1b2718089ce964b8" group="com.thoughtworks.qdox" name="qdox" version="1.12.1"/>
          <trusted-key id="34441e504a937f43eb0daef96a65176a0fb1cd0b" group="org.codehaus.groovy"/>
          <trusted-key id="34d6ff19930adf43ac127792a50569c7ca7fa1f0">
