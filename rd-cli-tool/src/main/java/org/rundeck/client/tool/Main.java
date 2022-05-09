@@ -676,9 +676,8 @@ public class Main {
     }
 
     @CommandLine.Command(name = "pond", hidden = true)
-    public static class Something {
-        @CommandLine.Command(name = "pond", hidden = true)
-        public void pond() {
+    public static class Something implements Runnable{
+        public void run() {
             int i = new Random().nextInt(4);
             String kind;
             switch (i) {
