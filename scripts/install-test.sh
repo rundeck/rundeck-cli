@@ -15,7 +15,7 @@ test_basic() {
   docker run "$TAG" rd pond 2>&1 | grep 'For your reference'
   ret=$?
   if [ $ret -ne 0 ]; then
-    echo "test_basic failed with: $ret"
+    echo "test_basic failed with: $ret for $TAG"
   fi
   set -e
   test $ret -eq 0
@@ -27,7 +27,7 @@ test_ext() {
   docker run -e RD_DEBUG=1 "$TAG" rd version 2>&1 | grep "Including extension: $EXT"
   ret=$?
   if [ $ret -ne 0 ]; then
-    echo "test_ext failed with: $ret"
+    echo "test_ext failed with: $ret for $TAG and $EXT"
   fi
   set -e
   test $ret -eq 0
