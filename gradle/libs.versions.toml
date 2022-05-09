@@ -18,6 +18,8 @@ owasp = "7.1.0.1"
 jacksondb = "2.13.2.2"
 picocli = "4.6.3"
 snakeYaml = "1.30"
+#used for authz lib integration
+rundeck = "4.2.0-20220509"
 
 [libraries]
 
@@ -47,11 +49,16 @@ toolbeltCli = { module = "org.rundeck.cli-toolbelt:toolbelt-jewelcli", version.r
 jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksondb" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
 
+rundeckAuthzCore = { module = "org.rundeck:rundeck-authz-core", version.ref = "rundeck" }
+rundeckAuthzApi = { module = "org.rundeck:rundeck-authz-api", version.ref = "rundeck" }
+rundeckAuthzYaml = { module = "org.rundeck:rundeck-authz-yaml", version.ref = "rundeck" }
+
 [bundles]
 
 retrofit = ["retrofitCore", "retrofitJackson", "retrofitJaxb", "okhttpLogging", "okhttpUrlconnection", "jaxb"]
 test = ["junit", "groovy", "spock"]
 toolbelt = ["toolbelt", "toolbeltYaml", "toolbeltJackson", "toolbeltCli"]
+rundeckAuthz = ["rundeckAuthzCore", "rundeckAuthzApi", "rundeckAuthzYaml"]
 
 [plugins]
 

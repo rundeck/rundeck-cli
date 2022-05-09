@@ -19,4 +19,5 @@ include 'rd-cli-lib'
 include 'rd-cli-base'
 include 'rd-cli-enterprise'
 include 'rd-testing'
+include 'rd-cli-acl'
 
