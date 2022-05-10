@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 public class JsonFormatter extends BaseDataOutputFormatter {
-    ObjectMapper mapper;
+    final ObjectMapper mapper;
 
     public JsonFormatter() {
         super();

@@ -18,8 +18,6 @@ package org.rundeck.client.tool.commands;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Getter;
-import lombok.Setter;
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;

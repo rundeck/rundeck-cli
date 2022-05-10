@@ -15,8 +15,6 @@
  */
 package org.rundeck.client.tool.commands.repository;
 
-import lombok.Getter;
-import lombok.Setter;
 import lombok.Setter;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;

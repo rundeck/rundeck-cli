@@ -31,8 +31,8 @@ import picocli.CommandLine;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 
 /**
@@ -132,7 +132,7 @@ public class Adhoc extends BaseCommand implements Callable<Boolean> {
                     outputFormatOption,
                     getRdOutput(),
                     getRdTool().getAppConfig(),
-                    Collections.singletonList(execution).stream()
+                    Stream.of(execution)
             );
         }
 

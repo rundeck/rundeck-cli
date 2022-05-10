@@ -17,21 +17,16 @@
 package org.rundeck.client.tool.commands;
 
 
-import lombok.Getter;
-import lombok.Setter;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.ProjectNode;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.options.NodeFilterOptions;
 import org.rundeck.client.tool.options.NodeOutputFormatOption;
 import org.rundeck.client.tool.options.ProjectNameOptions;
-import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.client.util.Format;
 import picocli.CommandLine;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;

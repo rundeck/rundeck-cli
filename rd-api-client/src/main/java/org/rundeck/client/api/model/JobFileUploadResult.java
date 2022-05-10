@@ -20,7 +20,6 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.rundeck.client.util.DataOutput;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**

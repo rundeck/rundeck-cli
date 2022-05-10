@@ -31,9 +31,7 @@ public class RepositoryResponseHandler {
 
         if(response.isError400()) {
             ArtifactActionMessage err = mapper.readValue(response.getErrorBody().repeatBody().bytes(), ArtifactActionMessage.class);
-            err.getErrors().forEach(error -> {
-                output.error(error.getMsg());
-            });
+            err.getErrors().forEach(error -> output.error(error.getMsg()));
         } else if(response.getResponse().code() == 403) {
             output.error("Server returned a 403. Either you don't have access to the API or the repository feature is not enabled.");
         } else if(response.getResponse().code() == 404) {

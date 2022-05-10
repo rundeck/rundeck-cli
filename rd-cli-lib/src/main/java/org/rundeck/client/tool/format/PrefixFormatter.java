@@ -4,8 +4,8 @@ import java.util.regex.Pattern;
 import static org.rundeck.client.tool.format.NiceFormatter.NL;
 
 public class PrefixFormatter implements OutputFormatter {
-    String prefix;
-    OutputFormatter base;
+    final String prefix;
+    final OutputFormatter base;
     private boolean truncateFinalNewline = true;
 
     public PrefixFormatter(final String prefix) {

@@ -19,8 +19,6 @@ package org.rundeck.client.tool.commands;
 import org.rundeck.client.api.model.ExecRetry;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobFileUploadResult;
-import org.rundeck.client.api.model.JobRun;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.jobs.Files;
 import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.options.FollowOptions;

@@ -19,15 +19,12 @@ package org.rundeck.client.tool.commands;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.SystemInfo;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.system.ACLs;
 import org.rundeck.client.tool.commands.system.Mode;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * system subcommands

@@ -7,8 +7,8 @@ import org.rundeck.client.tool.CommandOutput;
  * Can format output objects
  */
 public class FormattedOutput implements CommandOutput {
-    CommandOutput delegate;
-    OutputFormatter formatter;
+    final CommandOutput delegate;
+    final OutputFormatter formatter;
 
     public FormattedOutput(
             final CommandOutput output,

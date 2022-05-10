@@ -29,7 +29,7 @@ public class JobLoadItem extends JobItem {
 
     private String error;
 
-    @XmlElement(required = false)
+    @XmlElement()
     public String getError() {
         return error;
     }

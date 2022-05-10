@@ -155,14 +155,12 @@ public class Main {
                     }
                 }
                 return CommandLine.Help.Ansi.AUTO.string(result);
-            } catch (IOException e) {
+            } catch (IOException ignored) {
 
             }
         }
         return null;
     }
-
-    ;
 
     private static ConfigSource buildConfig() {
         return new ConfigBase(new MultiConfigValues(new Env(), new SysProps()));
@@ -312,14 +310,12 @@ public class Main {
         base.addAll(extensions);
 
         if (rd.getDebugLevel() > 0) {
-            extensions.forEach(ext -> {
-                rd.getOutput().warning("# Including extension: " + ext.getClass().getName());
-            });
+            extensions.forEach(ext -> rd.getOutput().warning("# Including extension: " + ext.getClass().getName()));
         }
         return base;
     }
 
-    public static RdBuilder setup(final Rd rd, RdBuilder builder) {
+    public static void setup(final Rd rd, RdBuilder builder) {
 
         builder.printStackTrace(rd.getDebugLevel() > 0);
         setupFormat(builder, rd);
@@ -331,7 +327,6 @@ public class Main {
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
         rd.setOutput(builder.finalOutput());
-        return builder;
     }
 
     static class Rd extends ConfigBase implements RdApp, RdClientConfig, Closeable {

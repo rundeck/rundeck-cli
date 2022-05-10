@@ -27,7 +27,6 @@ import org.rundeck.client.util.Format;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.ApiToken;
 import org.rundeck.client.api.model.CreateToken;
-import org.rundeck.client.tool.RdApp;
 
 import java.io.IOException;
 import java.util.List;

@@ -19,11 +19,7 @@ package org.rundeck.client.tool.options;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Getter;
-import lombok.Setter;
 import picocli.CommandLine;
-
-import org.rundeck.client.api.model.DateInfo;
 
 import java.util.List;
 

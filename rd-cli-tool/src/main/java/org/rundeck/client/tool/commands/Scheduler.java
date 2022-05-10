@@ -26,7 +26,6 @@ import org.rundeck.client.tool.options.VerboseOption;
 
 
 import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.RdApp;
 
 import java.io.IOException;
 import java.util.List;

@@ -17,7 +17,6 @@
 package org.rundeck.client.api.model.scheduler;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 
 import java.util.List;
 

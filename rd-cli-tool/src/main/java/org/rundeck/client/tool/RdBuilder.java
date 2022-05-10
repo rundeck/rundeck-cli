@@ -9,8 +9,6 @@ import picocli.CommandLine;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
 
 public class RdBuilder {
     private final Map<Class<? extends Throwable>, ErrorHandler> errorHandlers = new HashMap<>();
@@ -87,7 +85,7 @@ public class RdBuilder {
         return this;
     }
 
-    static Map<String, String> DEFAULT_COLORS = new HashMap<>();
+    static final Map<String, String> DEFAULT_COLORS = new HashMap<>();
 
     static {
         DEFAULT_COLORS.put("info", "green");

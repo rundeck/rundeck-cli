@@ -26,7 +26,6 @@ import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.metrics.EndpointListResult;
 import org.rundeck.client.api.model.metrics.HealthCheckStatus;
 import org.rundeck.client.api.model.metrics.MetricsData;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.VerboseOption;
 
 
@@ -131,13 +130,6 @@ public class Metrics extends BaseCommand {
       }
     }
   }
-
-  // rd metrics ping
-
-//  @CommandLineInterface(application = "ping")
-//  interface PingOptions {
-//
-//  }
 
   @CommandLine.Command(description = "Returns a simple response.")
   public void ping() throws IOException, InputError {

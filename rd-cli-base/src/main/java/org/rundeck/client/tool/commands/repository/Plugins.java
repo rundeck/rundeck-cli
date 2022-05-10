@@ -15,15 +15,10 @@
  */
 package org.rundeck.client.tool.commands.repository;
 
-import lombok.Setter;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.repository.RepositoryArtifacts;
-import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.extension.BaseCommand;
-import org.rundeck.client.tool.extension.RdCommandExtension;
-import org.rundeck.client.tool.extension.RdOutput;
-import org.rundeck.client.tool.extension.RdTool;
 import picocli.CommandLine;
 
 

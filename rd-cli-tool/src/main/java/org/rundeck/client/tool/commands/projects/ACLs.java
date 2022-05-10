@@ -53,6 +53,7 @@ import java.util.stream.Collectors;
 @CommandLine.Command(description = "Manage Project ACLs", name = "acls")
 public class ACLs extends BaseCommand {
     @CommandLine.Mixin
+    final
     ProjectNameOptions projectNameOptions = new ProjectNameOptions();
 
     private String getProjectName() throws InputError {

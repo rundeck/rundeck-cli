@@ -32,7 +32,7 @@ public class ChannelOutput implements CommandOutput {
     }
 
     public static class Builder {
-        ChannelOutput build;
+        final ChannelOutput build;
 
         public Builder() {
             build = new ChannelOutput();

@@ -247,7 +247,7 @@ public class Acl
 
     static class Username
             implements Principal {
-        String name;
+        final String name;
 
         public Username(final String name) {
             this.name = name;
@@ -261,7 +261,7 @@ public class Acl
 
     static class Group
             implements Principal {
-        String name;
+        final String name;
 
         public Group(final String name) {
             this.name = name;
@@ -275,7 +275,7 @@ public class Acl
 
     static class Urn
             implements Principal {
-        String name;
+        final String name;
 
         public Urn(final String name) {
             this.name = name;
@@ -288,7 +288,7 @@ public class Acl
     }
 
     @CommandLine.Command(description = "List ACL Policies",mixinStandardHelpOptions = true)
-    public void list(@CommandLine.Mixin AclOptions opts) throws InputError {
+    public void list(@CommandLine.Mixin AclOptions opts)  {
 
         final RuleEvaluator authorization = createAuthorization(opts);
         Subject subject = createSubject(opts);
@@ -477,7 +477,7 @@ public class Acl
     }
 
     @CommandLine.Command(description = "Test ACL Policies")
-    public boolean test(@CommandLine.Mixin TestOptions opts) throws InputError {
+    public boolean test(@CommandLine.Mixin TestOptions opts)  {
         if (!applyArgValidate(opts)) {
             return false;
         }
@@ -566,7 +566,7 @@ public class Acl
     }
 
     @CommandLine.Command(description = "Create ACL Policies")
-    public void create(@CommandLine.Mixin AclCreateOptions opts) throws InputError, IOException {
+    public void create(@CommandLine.Mixin AclCreateOptions opts) throws IOException {
         List<AuthRequest> reqs = new ArrayList<>();
         if (opts.isFile() || opts.isStdin()) {
             reqs = readRequests(opts);
@@ -955,12 +955,8 @@ public class Acl
         return request;
     }
 
-    private static Map<String, Object> toStringObjMap(Map<String, String> resourceTypeRule) {
-        return new HashMap<>(resourceTypeRule);
-    }
 
     private boolean parseAttrsMap(final AclCreateOptions opts, final Map<String, String> attrsMap) {
-        String key = null;
         boolean help = opts.getAttributes().size() < 1;
         for (String attribute : opts.getAttributes()) {
             if (attribute.indexOf("=") > 0) {
@@ -1020,11 +1016,10 @@ public class Acl
         final Map<String, String> resourceMap;
         HashMap<String, String> res = new HashMap<>();
         int nx = opts.getAppStorage().lastIndexOf("/");
+        res.put("path", opts.getAppStorage());
         if (nx >= 0) {
-            res.put("path", opts.getAppStorage());
             res.put("name", opts.getAppStorage().substring(nx + 1));
         } else {
-            res.put("path", opts.getAppStorage());
             res.put("name", opts.getAppStorage());
         }
         resourceMap = AuthorizationUtil.resource(AuthConstants.TYPE_STORAGE, res);
@@ -1161,6 +1156,7 @@ public class Acl
                     }
 
                     AuthRequest request = new AuthRequest();
+                    //noinspection HttpUrlsUsage
                     boolean isAppContext = env.equals(
                             AuthorizationUtil.URI_BASE +
                                     "application:rundeck"
@@ -1186,7 +1182,6 @@ public class Acl
     }
 
     private Subject createSubject(final Map<String, String> subjMap) {
-        String user;
         if (null == subjMap.get("Username")) {
             return null;
         }
@@ -1228,7 +1223,6 @@ public class Acl
     }
 
     private ParsePart parseString(String name, String line) {
-        Map<String, String> resourceMap = new HashMap<>();
         int v = line.indexOf(name + "<");
         if (v < 0 || v > line.length() - (name.length() + 1)) {
             return null;

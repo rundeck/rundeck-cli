@@ -27,9 +27,7 @@ import org.rundeck.client.api.model.RoleList;
 
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.RundeckApi;
-import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.User;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 
@@ -45,6 +43,7 @@ import java.util.stream.Collectors;
 public class Users extends BaseCommand {
 
     @CommandLine.Mixin
+    final
     UserFormatOption opts=new UserFormatOption();
 
 

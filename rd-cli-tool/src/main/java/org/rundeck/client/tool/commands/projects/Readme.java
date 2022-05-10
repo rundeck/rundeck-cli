@@ -16,7 +16,6 @@
 
 package org.rundeck.client.tool.commands.projects;
 
-import lombok.Getter;
 import lombok.Setter;
 import lombok.Getter;
 import org.rundeck.client.tool.ProjectInput;

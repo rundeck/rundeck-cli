@@ -19,8 +19,6 @@ package org.rundeck.client.tool.commands.projects;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Getter;
-import lombok.Setter;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.extension.BaseCommand;
@@ -39,7 +37,6 @@ import org.rundeck.client.util.ServiceClient;
 import retrofit2.Response;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;

@@ -15,11 +15,9 @@
  */
 package org.rundeck.client.tool.commands.repository;
 
-import lombok.Setter;
 import okhttp3.RequestBody;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.extension.BaseCommand;
-import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.util.Client;
 import picocli.CommandLine;
 
