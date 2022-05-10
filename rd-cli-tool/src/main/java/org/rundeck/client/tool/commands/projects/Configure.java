@@ -57,7 +57,7 @@ public class Configure extends BaseCommand {
         }
     }
 
-    public static enum InputFileFormat {
+    public enum InputFileFormat {
         properties,
         json,
         yaml
@@ -102,9 +102,7 @@ public class Configure extends BaseCommand {
             InputFileFormat format = opts.getFileFormat();
             if (null == format) {
                 format = InputFileFormat.properties;
-                if (input.getName().endsWith(".properties")) {
-                    format = InputFileFormat.properties;
-                } else if (input.getName().endsWith(".json")) {
+                if (input.getName().endsWith(".json")) {
                     format = InputFileFormat.json;
                 } else if (input.getName().endsWith(".yaml") || input.getName().endsWith(".yml")) {
                     format = InputFileFormat.yaml;

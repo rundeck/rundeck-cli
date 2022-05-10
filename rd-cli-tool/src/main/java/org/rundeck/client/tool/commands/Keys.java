@@ -35,6 +35,8 @@ import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -261,7 +263,7 @@ public class Keys extends BaseCommand {
                 buffer.mark();
                 try (
                         InputStreamReader read = new InputStreamReader(
-                                new FileInputStream(input),
+                                Files.newInputStream(input.toPath()),
                                 options.isCharset() ? Charset.forName(options.getCharset()) : Charset.defaultCharset()
                         )
                 ) {
@@ -284,7 +286,7 @@ public class Keys extends BaseCommand {
                     throw new IllegalStateException("No content found in file: " + input);
                 }
 
-                ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(buffer);
+                ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(buffer);
                 requestBody = RequestBody.create(
                         contentType,
                         Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())
@@ -297,7 +299,7 @@ public class Keys extends BaseCommand {
             }
         } else {
             char[] chars = System.console().readPassword("Enter password: ");
-            ByteBuffer byteBuffer = Charset.forName("UTF-8").encode(CharBuffer.wrap(chars));
+            ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars));
             requestBody = RequestBody.create(
                     contentType,
                     Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())

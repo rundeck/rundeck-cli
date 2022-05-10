@@ -32,7 +32,7 @@ public class RunBaseOptions extends JobIdentOptions  {
             defaultValue = "info")
     private Loglevel loglevel;
 
-    public static enum Loglevel {
+    public enum Loglevel {
         debug,
         verbose,
         info,

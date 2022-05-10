@@ -210,7 +210,7 @@ public class Jobs extends BaseCommand {
         }
     }
 
-    ;
+
 
 
     @CommandLine.Command(description = "List jobs found in a project, or download Job definitions (-f).")

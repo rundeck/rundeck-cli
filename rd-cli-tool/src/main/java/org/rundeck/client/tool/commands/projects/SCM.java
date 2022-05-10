@@ -411,7 +411,7 @@ public class SCM extends BaseCommand implements ProjectInput {
      * Check for validation info from resposne
      *
      * @param name     action name for error messages
-     * @param colorize
+     * @param colorize true to colorize output
      */
     private static boolean hasValidationError(
             CommandOutput output,

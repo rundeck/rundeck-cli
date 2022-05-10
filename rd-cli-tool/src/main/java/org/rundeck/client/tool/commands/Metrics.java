@@ -152,7 +152,7 @@ public class Metrics extends BaseCommand {
    * @return A formatted string with the current local time. Such as "[2007-12-03T10:15:30] ".
    */
   private String printTimestamp() {
-    return "[" + LocalDateTime.now().toString() + "] ";
+    return "[" + LocalDateTime.now() + "] ";
   }
 
 

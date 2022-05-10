@@ -126,7 +126,7 @@ public class Tokens extends BaseCommand {
      * Formatter for displaying output tokens
      *
      * @param toMap function to convert to map
-     * @param reveal
+     * @param reveal true to show token value
      * @param v19     true if v19 or later
      * @return formatter for token output
      */
