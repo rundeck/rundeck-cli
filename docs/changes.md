@@ -4,6 +4,11 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.4.1
+
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.4.0...v1.4.1)
+
 ## 1.4.0
 
 * Add cluster execution mode toggle [Issue #380](https://github.com/rundeck/rundeck-cli/issues/380)
