@@ -140,8 +140,8 @@ public class Executions extends BaseCommand {
      * @param max max lines
      * @param out output
      *
-     * @param formatter
-     * @param waitFunc
+     * @param formatter formatter
+     * @param waitFunc function for waiting, return false to halt
      * @return true if successful
      *
      */
@@ -226,7 +226,7 @@ public class Executions extends BaseCommand {
 
         Execution execution = apiCall(api -> api.getExecution(options.getId()));
 
-        outputExecutionList(outputFormatOption, getRdOutput(), getRdTool().getAppConfig(), Collections.singletonList(execution).stream());
+        outputExecutionList(outputFormatOption, getRdOutput(), getRdTool().getAppConfig(), Stream.of(execution));
     }
 
 
@@ -674,15 +674,16 @@ public class Executions extends BaseCommand {
 
             // Raw XML
             if ("XML".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
-                ResponseBody response = apiCall(api -> api.executionMetricsXML(
+                try(ResponseBody response = apiCall(api -> api.executionMetricsXML(
                         options.getProject(),
                         query,
                         options.getJobIdList(),
                         options.getExcludeJobIdList(),
                         options.getJobList(),
                         options.getExcludeJobList()
-                ));
-                getRdOutput().output(response.string());
+                ))) {
+                    getRdOutput().output(response.string());
+                }
                 return;
             }
 
@@ -703,14 +704,15 @@ public class Executions extends BaseCommand {
 
             // Raw XML
             if ("XML".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
-                ResponseBody response = apiCall(api -> api.executionMetricsXML(
+                try(ResponseBody response = apiCall(api -> api.executionMetricsXML(
                         query,
                         options.getJobIdList(),
                         options.getExcludeJobIdList(),
                         options.getJobList(),
                         options.getExcludeJobList()
-                ));
-                getRdOutput().output(response.string());
+                ))) {
+                    getRdOutput().output(response.string());
+                }
                 return;
             }
 

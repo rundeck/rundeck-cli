@@ -120,15 +120,15 @@ public class Metrics extends BaseCommand {
   @CommandLine.Command(description = "Print system threads status information.")
   public void threads(@CommandLine.Mixin VerboseOption options) throws IOException, InputError {
 
-    ResponseBody response = apiCall(RundeckApi::getThreadMetrics);
-
-    getRdOutput().info("System threads status: ");
-    if (options.isVerbose()) {
-      getRdOutput().output(response.string());
-    } else {
-      getRdOutput().output(Stream.of(response.string().split("\n"))
-              .filter(s -> s.matches("^\\S+.*"))
-              .collect(Collectors.joining("\n")));
+    try(ResponseBody response = apiCall(RundeckApi::getThreadMetrics)) {
+      getRdOutput().info("System threads status: ");
+      if (options.isVerbose()) {
+        getRdOutput().output(response.string());
+      } else {
+        getRdOutput().output(Stream.of(response.string().split("\n"))
+                .filter(s -> s.matches("^\\S+.*"))
+                .collect(Collectors.joining("\n")));
+      }
     }
   }
 
