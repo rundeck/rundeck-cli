@@ -126,8 +126,8 @@ public class SCM extends BaseCommand implements ProjectInput {
          * body containing the file
          */
         RequestBody requestBody = RequestBody.create(
-                Client.MEDIA_TYPE_JSON,
-                fileOptions.getFile()
+                fileOptions.getFile(),
+                Client.MEDIA_TYPE_JSON
         );
 
         //get response to handle 400 validation error

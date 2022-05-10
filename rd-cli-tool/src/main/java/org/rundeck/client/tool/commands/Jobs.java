@@ -173,8 +173,8 @@ public class Jobs extends BaseCommand {
         }
 
         RequestBody requestBody = RequestBody.create(
-                fileOptions.getFormat() == JobFileOptions.Format.xml ? Client.MEDIA_TYPE_XML : Client.MEDIA_TYPE_YAML,
-                input
+                input,
+                fileOptions.getFormat() == JobFileOptions.Format.xml ? Client.MEDIA_TYPE_XML : Client.MEDIA_TYPE_YAML
         );
 
         String project = getRdTool().projectOrEnv(projectNameOptions);

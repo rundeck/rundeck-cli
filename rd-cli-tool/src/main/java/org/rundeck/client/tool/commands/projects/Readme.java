@@ -97,13 +97,13 @@ public class Readme extends BaseCommand implements ProjectInput {
         RequestBody requestBody;
         if (options.isFile()) {
             requestBody = RequestBody.create(
-                    MediaType.parse("text/plain"),
-                    options.getFile()
+                    options.getFile(),
+                    MediaType.parse("text/plain")
             );
         } else {
             requestBody = RequestBody.create(
-                    MediaType.parse("text/plain"),
-                    options.getText()
+                    options.getText(),
+                    MediaType.parse("text/plain")
             );
         }
         String project = validate();

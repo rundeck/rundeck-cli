@@ -119,7 +119,7 @@ public class Archives extends BaseCommand implements ProjectInput {
         if ((opts.isIncludeNodeSources()) && getRdTool().getClient().getApiVersion() < 38) {
             throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
-        RequestBody body = RequestBody.create(Client.MEDIA_TYPE_ZIP, input);
+        RequestBody body = RequestBody.create(input, Client.MEDIA_TYPE_ZIP);
 
         String project = validate();
         ProjectImportStatus status = apiCall(api -> api.importProjectArchive(

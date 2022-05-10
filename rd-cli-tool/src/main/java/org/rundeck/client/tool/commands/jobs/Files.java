@@ -183,7 +183,7 @@ public class Files extends BaseCommand {
         if (invalidInputFile(input)) {
             throw new IOException("Can't read file: " + input);
         }
-        RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
+        RequestBody requestBody = RequestBody.create(input, Client.MEDIA_TYPE_OCTET_STREAM);
         return rdTool.apiCallDowngradable(
                 api -> api.uploadJobOptionFile(
                         jobId,
