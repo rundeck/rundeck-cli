@@ -115,9 +115,9 @@ scmVersion {
             def changelog = changelogFile
             def changes = file('docs/changes.md')
             def changest = file('docs/_changes.md')
-            def prevTag = getPreviousTag()
+            def previousTag = context.rules.tag.serialize.apply(context.rules.tag, context.previousVersion.toString())
             def newtext = genChangelog(
-                    prevTag,
+                    previousTag,
                     githubUrl,
                     context.currentVersion,
                     context.previousVersion,
