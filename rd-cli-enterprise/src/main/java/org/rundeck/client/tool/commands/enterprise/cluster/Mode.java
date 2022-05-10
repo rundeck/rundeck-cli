@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.util.function.BiFunction;
 
 @Command()
-@SubCommand(path = {"cluster"}, descriptions = {"Manage Rundeck Enterprise Cluster"})
+@SubCommand(path = {"cluster","mode"}, descriptions = {"Manage Rundeck Enterprise Cluster","Change Execution Mode of Cluster Members"})
 public class Mode extends BaseExtension {
 
     interface QuietOption {
