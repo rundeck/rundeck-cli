@@ -308,7 +308,7 @@ public class Jobs extends BaseCommand {
 
     @CommandLine.Command(description = "Get Schedule Forecast for a Job by ID (API v31)")
     public void forecast(
-            @CommandLine.Option(names = {"-i", "--id"}, description = "Job ID", required = false)
+            @CommandLine.Option(names = {"-i", "--id"}, description = "Job ID", required = true)
             String id,
 
             @CommandLine.Option(names = {"-t", "--time"}, description = "Time ahead using number+unit. e.g. 1h (1 hour).\n " +
