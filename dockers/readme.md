@@ -16,7 +16,7 @@ Build the docker image
 	...
 	Successfully built d0ed26db360e
 
-Run the built docker image with env vars expected by the `travis-sign-rpm.sh` script:
+Run the built docker image with env vars expected by the `scripts/sign-packages.sh` script:
 
 	$ docker run -v $PWD:/data \
 		-e SIGNING_KEYID=xyz \
