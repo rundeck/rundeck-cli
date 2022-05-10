@@ -68,8 +68,8 @@ public class Adhoc extends BaseCommand implements Callable<Boolean> {
                 }
 
                 scriptFileBody = RequestBody.create(
-                        MediaType.parse("application/octet-stream"),
-                        input
+                        input,
+                        MediaType.parse("application/octet-stream")
                 );
                 filename = input.getName();
             } else {
@@ -77,9 +77,8 @@ public class Adhoc extends BaseCommand implements Callable<Boolean> {
                 long bytes = Util.copyStream(System.in, byteArrayOutputStream);
 
                 scriptFileBody = RequestBody.create(
-                        MediaType.parse("application/octet-stream"),
-                        byteArrayOutputStream.toByteArray()
-
+                        byteArrayOutputStream.toByteArray(),
+                        MediaType.parse("application/octet-stream")
                 );
                 filename = "script.sh";
             }

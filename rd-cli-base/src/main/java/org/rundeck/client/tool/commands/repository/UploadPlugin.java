@@ -39,7 +39,7 @@ public class UploadPlugin extends BaseCommand implements Callable<Boolean> {
         File binary = new File(binaryPath);
         if (!binary.exists())
             throw new IOException(String.format("Unable to find specified file: %s", binaryPath));
-        RequestBody fileUpload = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, binary);
+        RequestBody fileUpload = RequestBody.create(binary, Client.MEDIA_TYPE_OCTET_STREAM);
 
         RepositoryResponseHandler.handle(getRdTool().apiWithErrorResponse(api -> api.uploadPlugin(repoName, fileUpload)), getRdOutput());
         return true;
