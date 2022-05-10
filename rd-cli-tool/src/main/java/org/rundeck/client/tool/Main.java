@@ -103,13 +103,19 @@ public class Main {
                     help -> loadBanner("rd-banner.txt", Collections.singletonMap("$version$", org.rundeck.client.Version.VERSION)
                     )
             );
+            commandLine.setExecutionExceptionHandler((Exception ex, CommandLine cl, CommandLine.ParseResult parseResult) -> {
+                if (ex instanceof InputError) {
+                    return cl.getParameterExceptionHandler().handleParseException(
+                            new CommandLine.ParameterException(cl, ex.getMessage(), ex),
+                            args
+                    );
+                }
+                throw ex;
+            });
 
             loadCommands(rd, rd1).forEach(commandLine::addSubcommand);
             try {
-
                 result = commandLine.execute(args);
-//            }catch (InputError error){
-//                throw new CommandLine.ParameterException(commandLine, error.getMessage(), error);
             } catch (RequestFailed failure) {
                 rd.getOutput().error(failure.getMessage());
                 if (rd.getDebugLevel() > 0) {
