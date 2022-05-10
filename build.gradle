@@ -99,7 +99,7 @@ $logs
 
 """
         return changelog.text.replaceAll(
-                ~/(?s)^(## unreleased(.*))?(## ${prevVersion}.*)$/,
+                ~/(?si)^(## unreleased(.*))?(## ${prevVersion}.*)$/,
                 Matcher.quoteReplacement(text) + '$3'
         )
     }
@@ -107,10 +107,6 @@ $logs
 }
 
 scmVersion {
-    tag {
-        prefix = 'v'
-        versionSeparator = ''
-    }
     hooks {
         pre 'fileUpdate', [file       : 'docs/_config.yml',
                            pattern    : { v, c -> /app_version: [^\s]+/ },
@@ -119,8 +115,9 @@ scmVersion {
             def changelog = changelogFile
             def changes = file('docs/changes.md')
             def changest = file('docs/_changes.md')
+            def prevTag = getPreviousTag()
             def newtext = genChangelog(
-                    "v${context.previousVersion}",
+                    prevTag,
                     githubUrl,
                     context.currentVersion,
                     context.previousVersion,
