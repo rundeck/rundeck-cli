@@ -27,10 +27,11 @@ main() {
     if isgpg2; then
         echo "gpg v2 detected"
         sign_rpms_gpg2
+        sign_debs_gpg2
     else
         echo "gpg v2 not detected"
         sign_rpms
+        sign_debs
     fi
-    sign_debs
 }
 main
