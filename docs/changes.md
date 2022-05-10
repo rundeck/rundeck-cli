@@ -4,9 +4,20 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 1.4.0
+
+* Add cluster execution mode toggle [Issue #380](https://github.com/rundeck/rundeck-cli/issues/380)
+* Emit error if api version used isn't sufficient for project archive parameters [Issue #407](https://github.com/rundeck/rundeck-cli/issues/407)
+* Many dependency updates
+* [Issue #394](https://github.com/rundeck/rundeck-cli/issues/394)
+* Fix: Add arguments for project import till API 38
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.11...v1.4.0)
+
 ## 1.3.11
 
 * Fix: empty content type causes exception
+* Add Enterprise License APIs [#375](https://github.com/rundeck/rundeck-cli/pull/375) (for RD4.0 APIv41, yet to be released)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.10...v1.3.11)
 

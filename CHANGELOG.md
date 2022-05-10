@@ -1,9 +1,12 @@
-## Unreleased
+## 1.4.0
 
-* Add cluster execution mode toggle #380
-* Emit error if api version used isn't sufficient for project archive parameters #407
+* Add cluster execution mode toggle [Issue #380](https://github.com/rundeck/rundeck-cli/issues/380)
+* Emit error if api version used isn't sufficient for project archive parameters [Issue #407](https://github.com/rundeck/rundeck-cli/issues/407)
 * Many dependency updates
-* #394
+* [Issue #394](https://github.com/rundeck/rundeck-cli/issues/394)
+* Fix: Add arguments for project import till API 38
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.3.11...v1.4.0)
 
 ## 1.3.11
 
