@@ -18,7 +18,6 @@ package org.rundeck.client.ext.acl;
 import com.dtolabs.rundeck.core.authorization.*;
 import com.dtolabs.rundeck.core.authorization.providers.Policies;
 import com.dtolabs.rundeck.core.authorization.providers.YamlProvider;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.rundeck.client.tool.InputError;

@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.*;
@@ -263,7 +264,7 @@ public class Executions extends BaseCommand {
     }
 
 
-    @Data
+    @Getter @Setter
     static class QueryCmd extends QueryOptions {
 
         @CommandLine.Option(names = {"--noninteractive"},
@@ -473,7 +474,7 @@ public class Executions extends BaseCommand {
 
 
     // Delete All executions for job command.
-    @Data
+    @Getter @Setter
     static class DeleteAllExecCmd {
         @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
         private boolean confirm;
@@ -512,7 +513,7 @@ public class Executions extends BaseCommand {
     // End Delete all executions.
 
 
-    @Data
+    @Getter @Setter
     static class BulkDeleteCmd extends QueryCmd {
         @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
         private boolean confirm;
@@ -629,7 +630,7 @@ public class Executions extends BaseCommand {
         };
     }
 
-    @Data
+    @Getter @Setter
     static class MetricsCmd extends QueryOptions implements OutputFormat {
 
         @CommandLine.Option(

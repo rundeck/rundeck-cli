@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.commands.projects;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
@@ -93,19 +94,19 @@ public class ACLs extends BaseCommand {
                 .collect(Collectors.toList()));
     }
 
-    @Data
+    @Getter @Setter
     public static class ACLNameOptions {
         @CommandLine.Option(names = {"-n", "--name"}, description = "name of the aclpolicy file")
         String name;
     }
 
-    @Data
+    @Getter @Setter
     public static class ACLNameRequiredOptions {
         @CommandLine.Option(names = {"-n", "--name"}, description = "name of the aclpolicy file", required = true)
         String name;
     }
 
-    @Data
+    @Getter @Setter
     public static class ACLFileOptions {
         @CommandLine.Option(names = {"-f", "--file"}, description = "ACLPolicy file to upload", required = true)
         File file;

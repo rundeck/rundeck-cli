@@ -16,14 +16,15 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.ProjectInput;
 import picocli.CommandLine;
 
 /**
  * Optional Project name options
  */
-@Data
+@Getter @Setter
 public class ProjectNameOptions implements ProjectInput {
     @CommandLine.Spec
     private CommandLine.Model.CommandSpec spec; // injected by picocli

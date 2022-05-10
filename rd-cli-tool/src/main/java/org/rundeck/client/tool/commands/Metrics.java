@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
 import okhttp3.ResponseBody;
@@ -66,7 +67,7 @@ public class Metrics extends BaseCommand {
 
   // rd metrics healthcheck
 
-  @Data
+  @Getter @Setter
   static class HealthCheckOptions {
     @CommandLine.Option(names = {"-u", "--unhealthy"},
             description = "Show only checks with unhealthy status.")
@@ -157,7 +158,7 @@ public class Metrics extends BaseCommand {
 
   // rd metrics data
 
-  @Data
+  @Getter @Setter
   static class MetricsDataOptions {
 
     @CommandLine.Option(names = {"-s", "--summary"},

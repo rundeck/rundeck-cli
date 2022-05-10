@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.commands;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
 import org.rundeck.client.tool.InputError;
@@ -91,7 +92,7 @@ public class Projects extends BaseCommand {
         getRdOutput().output(body.stream().map(outformat).collect(Collectors.toList()));
     }
 
-    @Data
+    @Getter @Setter
     static class ProjectDelete extends ProjectNameOptions {
         @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
         boolean confirm;

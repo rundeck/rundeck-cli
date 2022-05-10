@@ -1,7 +1,8 @@
 package org.rundeck.client.tool.commands.system;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ExecutionMode;
 import org.rundeck.client.api.model.SystemInfo;
@@ -24,7 +25,7 @@ import java.util.function.Function;
 public class Mode extends BaseCommand {
 
 
-    @Data
+    @Getter @Setter
     static
     class ModeInfo {
 

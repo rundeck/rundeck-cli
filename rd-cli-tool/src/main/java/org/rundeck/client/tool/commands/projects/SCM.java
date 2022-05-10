@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Getter;
 import lombok.Setter;
 import org.rundeck.client.tool.CommandOutput;
@@ -103,13 +104,13 @@ public class SCM extends BaseCommand implements ProjectInput {
         }
     }
 
-    @Data
+    @Getter @Setter
     static class TypeOptions {
         @CommandLine.Option(names = {"--type", "-t"}, description = "Plugin type", required = true)
         private String type;
     }
 
-    @Data
+    @Getter @Setter
     static class FileOptions {
         @CommandLine.Option(names = {"--file", "-f"}, description = "Config file (json format)", required = true)
         private File file;
@@ -232,7 +233,7 @@ public class SCM extends BaseCommand implements ProjectInput {
         getRdOutput().output(result.fields.stream().map(ScmInputField::asMap).collect(Collectors.toList()));
     }
 
-    @Data
+    @Getter @Setter
     public static class ActionInputsOptions {
         @CommandLine.Option(names = {"--action", "-a"}, description = "Action ID", required = true)
         private String action;
@@ -263,7 +264,7 @@ public class SCM extends BaseCommand implements ProjectInput {
         }
     }
 
-    @Data
+    @Getter @Setter
     public static class ActionPerformOptions extends ActionInputsOptions {
         @CommandLine.Option(names = {"--field", "-f"}, description = "Field input values, space separated key=value list")
         private List<String> fields;

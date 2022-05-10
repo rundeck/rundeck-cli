@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
 import org.rundeck.client.api.model.scheduler.*;
@@ -38,7 +39,7 @@ import java.util.stream.Collectors;
 public class Scheduler extends BaseCommand {
 
 
-  @Data
+  @Getter @Setter
   static class SchedulerJobs {
 
     @CommandLine.Option(names = {"-u", "--uuid"},
@@ -64,7 +65,7 @@ public class Scheduler extends BaseCommand {
   }
 
 
-  @Data
+  @Getter @Setter
   static class Takeover extends VerboseOption {
 
     @CommandLine.Option(names = {"-u", "--uuid"},

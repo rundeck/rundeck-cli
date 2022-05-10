@@ -16,7 +16,7 @@
 
 package org.rundeck.client.tool.commands.projects;
 
-import lombok.Data;
+import lombok.Setter;
 import lombok.Getter;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
@@ -70,7 +70,7 @@ public class Archives extends BaseCommand implements ProjectInput {
         return getRdTool().projectOrEnv(this);
     }
 
-    @Data
+    @Getter @Setter
     static class ArchiveImportOpts {
         @CommandLine.Option(names = {"-r"}, description = "Remove Job UUIDs in imported jobs. Default: preserve job UUIDs.")
         boolean remove;
@@ -159,7 +159,7 @@ public class Archives extends BaseCommand implements ProjectInput {
     }
 
 
-    @Data
+    @Getter @Setter
     static class ArchiveExportOpts {
 
         @CommandLine.Option(

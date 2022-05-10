@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.commands;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Getter;
 import lombok.Setter;
 import okhttp3.MediaType;
@@ -135,7 +136,7 @@ public class Keys extends BaseCommand {
         return path;
     }
 
-    @Data
+    @Getter @Setter
     static class GetOpts {
 
         @CommandLine.Option(names = {"-f", "--file"},
@@ -191,7 +192,7 @@ public class Keys extends BaseCommand {
         getRdOutput().info(String.format("Deleted: %s", path));
     }
 
-    @Data
+    @Getter @Setter
     static class Upload {
 
 

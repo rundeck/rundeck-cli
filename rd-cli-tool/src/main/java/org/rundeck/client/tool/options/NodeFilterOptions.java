@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.List;
  * @author greg
  * @since 11/30/16
  */
-@Data
+@Getter @Setter
 public class NodeFilterOptions {
     @CommandLine.Option(names = {"-F", "--filter"}, description = "A node filter string")
     private String filter;

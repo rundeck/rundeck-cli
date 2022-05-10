@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
@@ -88,7 +89,7 @@ public class Users extends BaseCommand {
         }
     }
 
-    @Data
+    @Getter @Setter
     static class Edit extends LoginNameOption {
         @CommandLine.Option(names = {"-e", "--email"}, description = "user email")
         private String email;

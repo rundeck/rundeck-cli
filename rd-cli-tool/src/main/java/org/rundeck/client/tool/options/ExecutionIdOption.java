@@ -16,13 +16,14 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 
 /**
  * ID for execution
  */
-@Data
+@Getter @Setter
 public class ExecutionIdOption {
 
     @CommandLine.Option(names = {"-e", "--eid"}, description = "Execution ID", required = true)

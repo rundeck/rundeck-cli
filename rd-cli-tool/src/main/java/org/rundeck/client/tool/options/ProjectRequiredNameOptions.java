@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 import org.rundeck.client.tool.ProjectInput;
 
@@ -28,7 +29,7 @@ import java.util.regex.Pattern;
  * @author greg
  * @since 4/10/17
  */
-@Data
+@Getter @Setter
 public class ProjectRequiredNameOptions implements ProjectInput {
     @CommandLine.Spec
     private CommandLine.Model.CommandSpec spec; // injected by picocli

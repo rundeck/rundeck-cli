@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.options;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Getter;
 import lombok.Setter;
 import picocli.CommandLine;
@@ -26,7 +27,7 @@ import org.rundeck.client.api.model.DateInfo;
 
 import java.util.List;
 
-@Data
+@Getter @Setter
 public class RetryBaseOptions extends JobIdentOptions implements  OutputFormat {
     @CommandLine.Option(names = {"-l", "--loglevel"},
             description = "Run the command using the specified LEVEL. LEVEL can be verbose, info, warning, error.",

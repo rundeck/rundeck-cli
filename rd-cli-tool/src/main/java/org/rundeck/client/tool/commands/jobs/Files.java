@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands.jobs;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
 import org.rundeck.client.tool.extension.RdTool;
@@ -52,7 +53,7 @@ public class Files extends BaseCommand {
         getRdOutput().output(jobFileItem);
     }
 
-    @Data
+    @Getter @Setter
     static class FileListOpts extends PagingResultOptions {
         @CommandLine.Option(names = {"-j", "--jobid"}, description = "Job ID")
         String jobId;
@@ -123,7 +124,7 @@ public class Files extends BaseCommand {
         }
     }
 
-    @Data
+    @Getter @Setter
     static class FileUploadOpts {
 
         @CommandLine.Option(names = {"-i", "--id"}, description = "Job ID", required = true)

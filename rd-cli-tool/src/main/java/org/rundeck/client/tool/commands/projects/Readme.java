@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.commands.projects;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.Getter;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.extension.BaseCommand;
@@ -70,7 +71,7 @@ public class Readme extends BaseCommand implements ProjectInput {
     }
 
 
-    @Data
+    @Getter @Setter
     public static class SetOptions {
         @CommandLine.Option(names = {"-f", "--file"}, description = "Path to a file to read for readme/motd contents.")
         File file;

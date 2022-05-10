@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.commands;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
@@ -63,7 +64,7 @@ public class Jobs extends BaseCommand {
     public static final String UUID_PRESERVE = "preserve";
 
 
-    @Data
+    @Getter @Setter
     public static class Purge {
         @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
         boolean confirm;

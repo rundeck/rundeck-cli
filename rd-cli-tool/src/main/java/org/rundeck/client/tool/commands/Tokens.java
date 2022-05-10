@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.commands;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
 import org.rundeck.client.tool.options.TokenFormatOption;
@@ -41,7 +42,7 @@ import java.util.stream.Collectors;
 public class Tokens extends BaseCommand {
 
 
-    @Data
+    @Getter @Setter
     static class CreateOptions extends TokenFormatOption {
         @CommandLine.Option(names = {"--user", "-u"}, description = "user name", required = true)
         String user;
@@ -92,7 +93,7 @@ public class Tokens extends BaseCommand {
         return apiToken;
     }
 
-    @Data
+    @Getter @Setter
     static class ListOptions extends TokenFormatOption {
         @CommandLine.Option(names = {"--user", "-u"}, description = "user name", required = true)
         private String user;
@@ -147,7 +148,7 @@ public class Tokens extends BaseCommand {
         }
     }
 
-    @Data
+    @Getter @Setter
     static class RevealOption extends TokenFormatOption {
         @CommandLine.Option(names = {"--id", "-id"}, description = "Token ID")
         private String id;

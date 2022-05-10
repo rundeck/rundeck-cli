@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands;
 
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.ProjectNode;
 import org.rundeck.client.tool.RdApp;

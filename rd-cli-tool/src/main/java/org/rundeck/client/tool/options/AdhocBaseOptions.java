@@ -16,14 +16,15 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-@Data
+@Getter @Setter
 public class AdhocBaseOptions extends ProjectNameOptions {
 
 

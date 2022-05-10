@@ -16,14 +16,15 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 
 /**
  * @author greg
  * @since 11/22/16
  */
-@Data
+@Getter @Setter
 public class NodeOutputFormatOption extends VerboseOption implements OutputFormat {
 
     @CommandLine.Option(names = {"-%", "--outformat"},

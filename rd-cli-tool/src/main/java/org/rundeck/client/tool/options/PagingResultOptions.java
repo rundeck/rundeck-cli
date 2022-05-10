@@ -16,14 +16,15 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 
 /**
  * @author greg
  * @since 3/2/17
  */
-@Data
+@Getter @Setter
 public class PagingResultOptions {
 
     @CommandLine.Option(names = {"-m", "--max"}, description = "Maximum number of results to retrieve at once.")

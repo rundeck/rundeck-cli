@@ -17,7 +17,8 @@
 package org.rundeck.client.tool.commands.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.api.model.ProjectConfig;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.extension.BaseCommand;
@@ -62,7 +63,7 @@ public class Configure extends BaseCommand {
         yaml
     }
 
-    @Data
+    @Getter @Setter
     public static class ConfigFileOptions {
         @CommandLine.Option(names = {"-f", "--file"},
                 description = "Input file for project configuration. Can be a .properties, .json or .yaml file. " +
@@ -186,7 +187,7 @@ public class Configure extends BaseCommand {
         }
     }
 
-    @Data
+    @Getter @Setter
     static class ConfigureDeleteOpts extends
             ProjectNameOptions {
 

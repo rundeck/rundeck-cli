@@ -16,10 +16,11 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 
-@Data
+@Getter @Setter
 public class FollowOptions extends RunOptions {
 
     @CommandLine.Option(names = {"-q", "--quiet"}, description = "Echo no output. Combine with -f/--follow to wait silently until the execution completes. Useful for non-interactive scripts.")

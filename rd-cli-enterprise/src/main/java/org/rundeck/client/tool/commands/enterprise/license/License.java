@@ -1,6 +1,7 @@
 package org.rundeck.client.tool.commands.enterprise.license;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 import org.rundeck.client.tool.commands.enterprise.BaseExtension;
 import org.rundeck.client.tool.commands.enterprise.api.EnterpriseApi;
@@ -25,7 +26,7 @@ public class License
     @CommandLine.Option(names = {"-v", "--verbose"}, description = "Show verbose output")
     boolean verbose;
 
-    @Data
+    @Getter @Setter
     static class StatusOpts {
 
         @CommandLine.Option(names = {"-s",

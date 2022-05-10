@@ -16,13 +16,14 @@
 
 package org.rundeck.client.tool.options;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import picocli.CommandLine;
 
 /**
  * login name for user
  */
-@Data
+@Getter @Setter
 public class LoginNameOption {
 
     @CommandLine.Option(names = {"-u", "--user"}, description = "user login")
