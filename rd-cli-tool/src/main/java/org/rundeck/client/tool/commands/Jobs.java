@@ -222,15 +222,15 @@ public class Jobs extends BaseCommand {
         String project = getRdTool().projectOrEnv(jobListOptions);
         if (jobFileOptions.isFile()) {
             //write response to file instead of parsing it
-            ResponseBody body;
+            ResponseBody body1;
             if (jobListOptions.isIdlist()) {
-                body = getRdTool().apiCall(api -> api.exportJobs(
+                body1 = getRdTool().apiCall(api -> api.exportJobs(
                         project,
                         jobListOptions.getIdlist(),
                         jobFileOptions.getFormat().toString()
                 ));
             } else {
-                body = getRdTool().apiCall(api -> api.exportJobs(
+                body1 = getRdTool().apiCall(api -> api.exportJobs(
                         project,
                         jobListOptions.getJob(),
                         jobListOptions.getGroup(),
@@ -239,25 +239,27 @@ public class Jobs extends BaseCommand {
                         jobFileOptions.getFormat().toString()
                 ));
             }
-            if ((jobFileOptions.getFormat() != JobFileOptions.Format.yaml ||
-                    !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
-                    !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
+            try (ResponseBody body = body1) {
+                if ((jobFileOptions.getFormat() != JobFileOptions.Format.yaml ||
+                        !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
+                        !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
 
-                throw new IllegalStateException("Unexpected response format: " + body.contentType());
-            }
-            InputStream inputStream = body.byteStream();
-            if ("-".equals(jobFileOptions.getFile().getName())) {
-                Util.copyStream(inputStream, System.out);
-            } else {
-                try (FileOutputStream out = new FileOutputStream(jobFileOptions.getFile())) {
-                    long total = Util.copyStream(inputStream, out);
-                    if (!jobOutputFormatOption.isOutputFormat()) {
-                        getRdOutput().info(String.format(
-                                "Wrote %d bytes of %s to file %s%n",
-                                total,
-                                body.contentType(),
-                                jobFileOptions.getFile()
-                        ));
+                    throw new IllegalStateException("Unexpected response format: " + body.contentType());
+                }
+                InputStream inputStream = body.byteStream();
+                if ("-".equals(jobFileOptions.getFile().getName())) {
+                    Util.copyStream(inputStream, System.out);
+                } else {
+                    try (FileOutputStream out = new FileOutputStream(jobFileOptions.getFile())) {
+                        long total = Util.copyStream(inputStream, out);
+                        if (!jobOutputFormatOption.isOutputFormat()) {
+                            getRdOutput().info(String.format(
+                                    "Wrote %d bytes of %s to file %s%n",
+                                    total,
+                                    body.contentType(),
+                                    jobFileOptions.getFile()
+                            ));
+                        }
                     }
                 }
             }
