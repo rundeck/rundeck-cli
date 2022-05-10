@@ -288,21 +288,21 @@ public class Keys extends BaseCommand {
 
                 ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(buffer);
                 requestBody = RequestBody.create(
-                        contentType,
-                        Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())
+                        Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit()),
+                        contentType
                 );
             } else {
                 requestBody = RequestBody.create(
-                        contentType,
-                        input
+                        input,
+                        contentType
                 );
             }
         } else {
             char[] chars = System.console().readPassword("Enter password: ");
             ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(CharBuffer.wrap(chars));
             requestBody = RequestBody.create(
-                    contentType,
-                    Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit())
+                    Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit()),
+                    contentType
             );
         }
         return requestBody;
