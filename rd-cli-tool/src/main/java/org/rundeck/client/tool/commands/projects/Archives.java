@@ -48,30 +48,26 @@ import java.util.function.BooleanSupplier;
  */
 
 @CommandLine.Command(description = "Project Archives import and export", name = "archives")
-public class Archives extends BaseCommand implements ProjectInput {
+public class Archives extends BaseCommand  {
 
-
-    @CommandLine.Option(names = {"-f"}, description = "Output file path", required = true)
-    @Getter
-    private File file;
-    @CommandLine.Option(names = {"--project", "-p"},
-            description = "Project name"
-    )
-    @Getter
-    private String project;
+    @Getter @Setter static class BaseOptions extends ProjectRequiredNameOptions{
+        @CommandLine.Option(names = {"-f"}, description = "Output file path", required = true)
+        @Getter
+        private File file;
+    }
 
     @CommandLine.Spec
     private CommandLine.Model.CommandSpec spec; // injected by picocli
 
-    String validate() throws InputError {
-        if (null != getProject()) {
-            ProjectRequiredNameOptions.validateProjectName(getProject(), spec);
+    String validate(ProjectInput opts) throws InputError {
+        if (null != opts.getProject()) {
+            ProjectRequiredNameOptions.validateProjectName(opts.getProject(), spec);
         }
-        return getRdTool().projectOrEnv(this);
+        return getRdTool().projectOrEnv(opts);
     }
 
     @Getter @Setter
-    static class ArchiveImportOpts {
+    static class ArchiveImportOpts extends BaseOptions{
         @CommandLine.Option(names = {"-r"}, description = "Remove Job UUIDs in imported jobs. Default: preserve job UUIDs.")
         boolean remove;
 
@@ -108,8 +104,7 @@ public class Archives extends BaseCommand implements ProjectInput {
 
     @CommandLine.Command(description = "Import a project archive", name = "import")
     public boolean importArchive(@CommandLine.Mixin ArchiveImportOpts opts) throws InputError, IOException {
-        validate();
-        File input = getFile();
+        File input = opts.getFile();
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
@@ -121,7 +116,7 @@ public class Archives extends BaseCommand implements ProjectInput {
         }
         RequestBody body = RequestBody.create(input, Client.MEDIA_TYPE_ZIP);
 
-        String project = validate();
+        String project = validate(opts);
         ProjectImportStatus status = apiCall(api -> api.importProjectArchive(
                 project,
                 opts.isRemove() ? "remove" : "preserve",
@@ -160,7 +155,7 @@ public class Archives extends BaseCommand implements ProjectInput {
 
 
     @Getter @Setter
-    static class ArchiveExportOpts {
+    static class ArchiveExportOpts extends BaseOptions {
 
         @CommandLine.Option(
                 names = {"--execids", "-e"},
@@ -207,7 +202,7 @@ public class Archives extends BaseCommand implements ProjectInput {
         if (!opts.isIncludeFlags()) {
             includeFlags.add(Flags.all);
         }
-        String project = validate();
+        String project = validate(opts);
         if (!apiv19) {
             if (opts.isIncludeFlags() && includeFlags.size() > 1) {
                 throw new InputError("Cannot use --include: " + includeFlags + " with API < 19");
@@ -226,7 +221,7 @@ public class Archives extends BaseCommand implements ProjectInput {
             receiveArchiveFile(
                     getRdOutput(),
                     apiCall(api -> api.exportProject(project, opts.getExecutionIds())),
-                    getFile()
+                    opts.getFile()
             );
             return true;
         }
@@ -257,7 +252,7 @@ public class Archives extends BaseCommand implements ProjectInput {
             ));
         }
 
-        return loopStatus(getRdTool().getClient(), status, project, getFile(), getRdOutput(), () -> {
+        return loopStatus(getRdTool().getClient(), status, project, opts.getFile(), getRdOutput(), () -> {
             try {
                 Thread.sleep(2000);
                 return true;
