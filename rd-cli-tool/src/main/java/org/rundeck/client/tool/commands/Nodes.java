@@ -39,17 +39,14 @@ import java.util.stream.Collectors;
 @CommandLine.Command(description = "List node resources.", name = "nodes")
 public class Nodes extends BaseCommand {
 
-
-    @CommandLine.Mixin
-    ProjectNameOptions options;
-    @CommandLine.Mixin
-    NodeOutputFormatOption nodeOutputFormatOption;
-    @CommandLine.Mixin
-    NodeFilterOptions nodeFilterOptions;
-
     @CommandLine.Command(description = "List all nodes for a project.  You can use the -F/--filter to specify a node filter, or " +
             "simply add the filter on the end of the command")
-    public void list() throws IOException, InputError {
+    public void list(@CommandLine.Mixin
+                     ProjectNameOptions options,
+                     @CommandLine.Mixin
+                     NodeOutputFormatOption nodeOutputFormatOption,
+                     @CommandLine.Mixin
+                     NodeFilterOptions nodeFilterOptions) throws IOException, InputError {
         String project = getRdTool().projectOrEnv(options);
         Map<String, ProjectNode> body = apiCall(api -> api.listNodes(project, nodeFilterOptions.filterString()));
         if (!nodeOutputFormatOption.isOutputFormat()) {
