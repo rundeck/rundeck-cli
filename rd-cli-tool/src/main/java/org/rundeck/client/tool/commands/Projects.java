@@ -48,33 +48,39 @@ import java.util.stream.Collectors;
                 Archives.class
         })
 public class Projects extends BaseCommand {
-    @CommandLine.Mixin
-    ProjectListFormatOptions formatOptions;
-    @CommandLine.Mixin
-    VerboseOption verboseOption;
+
 
     @CommandLine.Command(description = "List all projects.")
-    public void list() throws IOException, InputError {
+    public void list(
+            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
+    ) throws IOException, InputError {
         List<ProjectItem> body = apiCall(RundeckApi::listProjects);
         if (formatOptions.getOutputFormat() == null) {
             getRdOutput().info(String.format("%d Projects:%n", body.size()));
         }
 
-        outputProjectList(body, ProjectItem::getName, ProjectItem::toMap);
+        outputProjectList(body, formatOptions, verboseOption, ProjectItem::getName, ProjectItem::toMap);
     }
 
     @CommandLine.Command(
             description = "Get info about a project. Use -v/--verbose to output all available config data, or use " +
-                    "-%/--outformat for selective data.")
-    public void info(@CommandLine.Mixin ProjectNameOptions opts) throws IOException, InputError {
+                    "-%%/--outformat for selective data.")
+    public void info(
+            @CommandLine.Mixin ProjectNameOptions opts,
+            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
+    ) throws IOException, InputError {
         String project = getRdTool().projectOrEnv(opts);
         ProjectItem body = apiCall(api -> api.getProjectInfo(project));
 
-        outputProjectList(Collections.singletonList(body), ProjectItem::toBasicMap, ProjectItem::toMap);
+        outputProjectList(Collections.singletonList(body), formatOptions, verboseOption, ProjectItem::toBasicMap, ProjectItem::toMap);
     }
 
     private void outputProjectList(
             final List<ProjectItem> body,
+            ProjectListFormatOptions formatOptions,
+            VerboseOption verboseOption,
             final Function<ProjectItem, Object> basicOutput,
             final Function<ProjectItem, Map<Object, Object>> verboseOutput
     ) {
@@ -100,7 +106,11 @@ public class Projects extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Delete a project")
-    public boolean delete(@CommandLine.Mixin ProjectDelete options) throws IOException, InputError {
+    public boolean delete(
+            @CommandLine.Mixin ProjectDelete options,
+            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
+    ) throws IOException, InputError {
         String project = getRdTool().projectOrEnv(options);
         if (!options.isConfirm()) {
             //request confirmation
@@ -126,7 +136,9 @@ public class Projects extends BaseCommand {
     public void create(
             @CommandLine.Mixin ProjectNameOptions nameOptions,
             @CommandLine.Mixin Configure.ConfigFileOptions configFileOptions,
-            @CommandLine.Mixin UnparsedConfigOptions options
+            @CommandLine.Mixin UnparsedConfigOptions options,
+            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
     ) throws IOException, InputError {
 
         Map<String, String> config = Configure.loadConfig(configFileOptions, options, false);
