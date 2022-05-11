@@ -99,7 +99,7 @@ $logs
 
 """
         return changelog.text.replaceAll(
-                ~/(?s)^(## unreleased(.*))?(## ${prevVersion}.*)$/,
+                ~/(?si)^(## unreleased(.*))?(## ${prevVersion}.*)$/,
                 Matcher.quoteReplacement(text) + '$3'
         )
     }
@@ -107,10 +107,6 @@ $logs
 }
 
 scmVersion {
-    tag {
-        prefix = 'v'
-        versionSeparator = ''
-    }
     hooks {
         pre 'fileUpdate', [file       : 'docs/_config.yml',
                            pattern    : { v, c -> /app_version: [^\s]+/ },
@@ -119,8 +115,9 @@ scmVersion {
             def changelog = changelogFile
             def changes = file('docs/changes.md')
             def changest = file('docs/_changes.md')
+            def previousTag = context.rules.tag.serialize.apply(context.rules.tag, context.previousVersion.toString())
             def newtext = genChangelog(
-                    "v${context.previousVersion}",
+                    previousTag,
                     githubUrl,
                     context.currentVersion,
                     context.previousVersion,
@@ -164,7 +161,7 @@ def getAxionVersion = {
 def getPreviousTag = {
     def rules = axionContext.rules
     def curVersion = getAxionVersion()
-    rules.tag.serialize(rules.tag, curVersion.previousVersion.toString())
+    rules.tag.serialize.apply(rules.tag, curVersion.previousVersion.toString())
 }
 
 task previousVersion(){
