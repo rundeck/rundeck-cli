@@ -110,20 +110,21 @@ public class Main {
                             args
                     );
                 }
+                if (ex instanceof RequestFailed) {
+                    rd.getOutput().error(ex.getMessage());
+                    if (rd.getDebugLevel() > 0) {
+                        StringWriter sb = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sb));
+                        rd.getOutput().error(sb.toString());
+                    }
+                    return 2;
+                }
                 throw ex;
             });
 
             loadCommands(rd, rd1).forEach(commandLine::addSubcommand);
-            try {
-                result = commandLine.execute(args);
-            } catch (RequestFailed failure) {
-                rd.getOutput().error(failure.getMessage());
-                if (rd.getDebugLevel() > 0) {
-                    StringWriter sb = new StringWriter();
-                    failure.printStackTrace(new PrintWriter(sb));
-                    rd.getOutput().error(sb.toString());
-                }
-            }
+
+            result = commandLine.execute(args);
         } catch (IOException e) {
             e.printStackTrace();
         }
