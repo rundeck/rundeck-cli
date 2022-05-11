@@ -46,7 +46,7 @@ public class Files extends BaseCommand {
 
     @CommandLine.Command(description = "Get info about a Job input option file (API v19)")
     public void info(
-            @CommandLine.Option(names = {"-i", "--id"}, description = "File ID")
+            @CommandLine.Option(paramLabel = "id", names = {"-i", "--id"}, description = "File ID", required = true)
             String id
     ) throws IOException, InputError {
         JobFileItem jobFileItem = apiCall(api -> api.getJobFileInfo(id));
