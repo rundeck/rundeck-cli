@@ -21,9 +21,11 @@ import lombok.Getter;
 import lombok.Setter;
 import org.rundeck.client.api.model.ProjectConfig;
 import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.tool.options.ProjectNameOptions;
+import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
 import org.rundeck.client.tool.options.UnparsedConfigOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
@@ -43,10 +45,20 @@ import java.util.*;
 @CommandLine.Command(description = "Manage Project configuration", name = "configure")
 public class Configure extends BaseCommand {
 
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec; // injected by picocli
+
+    String validate(ProjectInput opts) throws InputError {
+        if (null != opts.getProject()) {
+            ProjectRequiredNameOptions.validateProjectName(opts.getProject(), spec);
+        }
+        return getRdTool().projectOrEnv(opts);
+    }
 
     @CommandLine.Command(description = "Get all configuration properties for a project. (Supports RD_FORMAT=properties env var)")
     public void get(@CommandLine.Mixin ProjectNameOptions opts) throws IOException, InputError {
-        ProjectConfig config = apiCall(api -> api.getProjectConfiguration(opts.getProject()));
+        String project = validate(opts);
+        ProjectConfig config = apiCall(api -> api.getProjectConfiguration(project));
 
         if ("properties".equals(getRdTool().getAppConfig().getString("RD_FORMAT", null))) {
             Properties properties = new Properties();
@@ -86,9 +98,10 @@ public class Configure extends BaseCommand {
                     @CommandLine.Mixin UnparsedConfigOptions unparsedConfigOptions,
                     @CommandLine.Mixin ProjectNameOptions opts) throws IOException, InputError {
 
+        String project = validate(opts);
         Map<String, String> config = loadConfig(configFileOptions, unparsedConfigOptions, true);
         apiCall(api -> api.setProjectConfiguration(
-                opts.getProject(),
+                project,
                 new ProjectConfig(config)
         ));
     }
@@ -176,11 +189,12 @@ public class Configure extends BaseCommand {
     public void update(@CommandLine.Mixin ConfigFileOptions configFileOptions,
                        @CommandLine.Mixin UnparsedConfigOptions unparsedConfigOptions,
                        @CommandLine.Mixin ProjectNameOptions opts) throws IOException, InputError {
+        String project = validate(opts);
         Map<String, String> config = loadConfig(configFileOptions, unparsedConfigOptions, true);
         getRdOutput().info(String.format("Updating %d configuration properties...", config.size()));
         for (String s : config.keySet()) {
             ProjectConfig body = new ProjectConfig(Collections.singletonMap("value", config.get(s)));
-            ProjectConfig result = apiCall(api -> api.setProjectConfigurationKey(opts.getProject(), s, body));
+            ProjectConfig result = apiCall(api -> api.setProjectConfigurationKey(project, s, body));
             getRdOutput().info("Updated value: " + result.getConfig());
         }
     }
@@ -197,6 +211,7 @@ public class Configure extends BaseCommand {
     @CommandLine.Command(description = "Remove configuration properties for a project.",
             showEndOfOptionsDelimiterInUsageHelp = true)
     public void delete(@CommandLine.Mixin ConfigureDeleteOpts opts) throws IOException, InputError {
+        String project = validate(opts);
         List<String> removeKeys = opts.getConfig();
 
         if (removeKeys.size() < 1) {
@@ -204,7 +219,7 @@ public class Configure extends BaseCommand {
         }
         getRdOutput().info(String.format("Removing %d configuration properties...", removeKeys.size()));
         for (String s : removeKeys) {
-            Void result = apiCall(api -> api.deleteProjectConfigurationKey(opts.getProject(), s));
+            Void result = apiCall(api -> api.deleteProjectConfigurationKey(project, s));
             getRdOutput().info("Removed key: " + s);
 
         }
