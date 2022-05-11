@@ -304,16 +304,14 @@ public class Main {
         }
     }
 
-    static List<Object> loadCommands(final Rd rd, RdToolImpl commandTool) {
-        List<Object> base = new ArrayList<>();
+    static List<RdCommandExtension> loadCommands(final Rd rd, RdToolImpl commandTool) {
         List<RdCommandExtension> extensions = ExtensionLoaderUtil.list();
         extensions.forEach(commandTool::initExtension);
-        base.addAll(extensions);
 
         if (rd.getDebugLevel() > 0) {
             extensions.forEach(ext -> rd.getOutput().warning("# Including extension: " + ext.getClass().getName()));
         }
-        return base;
+        return extensions;
     }
 
     public static void setup(final Rd rd, RdBuilder builder) {
