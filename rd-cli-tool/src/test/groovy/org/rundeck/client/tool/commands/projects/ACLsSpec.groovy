@@ -8,6 +8,7 @@ import org.rundeck.client.testing.MockRdTool
 import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.commands.RdToolImpl
 import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.tool.options.ProjectRequiredNameOptions
 import org.rundeck.client.util.RdClientConfig
 import org.rundeck.client.tool.Main
 import org.rundeck.client.tool.RdApp
@@ -70,12 +71,13 @@ class ACLsSpec extends Specification {
         acls.rdTool = rdTool
         def fileOptions = new ACLs.ACLFileOptions()
         fileOptions.file = tempFile
-        def nameOptions = new ACLs.ACLNameOptions()
+        def nameOptions = new ACLs.ACLNameRequiredOptions()
         nameOptions.name = 'test.aclpolicy'
-        nameOptions.projectNameOptions.project = 'aproject'
+        def projectNameOptions = new ProjectRequiredNameOptions()
+        projectNameOptions.project = 'aproject'
 
         when:
-        def result = acls.upload(nameOptions, fileOptions)
+        def result = acls.update(nameOptions, fileOptions, projectNameOptions)
 
         then:
 

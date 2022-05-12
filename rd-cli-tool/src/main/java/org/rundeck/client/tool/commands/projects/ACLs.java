@@ -124,8 +124,15 @@ public class ACLs extends BaseCommand {
     }
 
 
+    @CommandLine.Command(description = "Upload a project ACL definition. [@|red DEPRECATED|@: use @|bold rd projects acls update|@]", hidden = true)
+    @Deprecated
+    public void upload(@CommandLine.Mixin ACLNameRequiredOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions, @CommandLine.Mixin ProjectRequiredNameOptions projectNameOptions) throws IOException, InputError {
+        getRdOutput().warning("rd projects acls upload command is deprecated, use: rd projects acls update");
+        update(nameOptions, fileOptions, projectNameOptions);
+    }
+
     @CommandLine.Command(description = "Upload a project ACL definition")
-    public void upload(@CommandLine.Mixin ACLNameOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions, @CommandLine.Mixin ProjectRequiredNameOptions projectNameOptions) throws IOException, InputError {
+    public void update(@CommandLine.Mixin ACLNameRequiredOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions, @CommandLine.Mixin ProjectRequiredNameOptions projectNameOptions) throws IOException, InputError {
         String project = getProjectName(projectNameOptions);
         ACLPolicy aclPolicy = performACLModify(
                 fileOptions,
