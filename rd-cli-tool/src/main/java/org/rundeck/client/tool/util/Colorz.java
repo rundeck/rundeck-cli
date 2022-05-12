@@ -46,13 +46,7 @@ public class Colorz {
                 System.arraycopy(colors, 1, subcolors, 0, subcolors.length);
             }
             result.put(
-                    keyColor != null
-                            ? CommandLine.Help.Ansi.AUTO.string(
-                            "@|" + keyColor +
-                                    k.toString()
-                                    + "|@"
-                    )
-                            : k,
+                    keyColor != null ? CommandLine.Help.Ansi.AUTO.string("@|" + keyColor + " " + k.toString() + "|@") : k,
 
                     value instanceof Map && subcolors != null
                     ? colorizeMapRecurse(
