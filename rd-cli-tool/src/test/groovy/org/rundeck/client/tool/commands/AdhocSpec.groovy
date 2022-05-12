@@ -9,7 +9,7 @@ import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.options.AdhocBaseOptions
 import org.rundeck.client.tool.options.ExecutionOutputFormatOption
 import org.rundeck.client.tool.options.FollowOptions
-import org.rundeck.client.tool.options.NodeFilterOptions
+import org.rundeck.client.tool.options.NodeFilterBaseOptions
 import org.rundeck.client.util.Client
 import org.rundeck.client.util.RdClientConfig
 
@@ -34,7 +34,7 @@ class AdhocSpec extends Specification {
             getAppConfig() >> Mock(RdClientConfig)
         }
         Adhoc adhoc = new Adhoc()
-        adhoc.nodeFilterOptions = new NodeFilterOptions()
+        adhoc.nodeFilterOptions = new NodeFilterBaseOptions()
         adhoc.followOptions = new FollowOptions()
         adhoc.outputFormatOption = new ExecutionOutputFormatOption()
 

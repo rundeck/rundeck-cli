@@ -27,13 +27,7 @@ import java.util.List;
  * @since 11/30/16
  */
 @Getter @Setter
-public class NodeFilterOptions {
-    @CommandLine.Option(names = {"-F", "--filter"}, description = "A node filter string")
-    private String filter;
-
-    public boolean isFilter() {
-        return filter != null;
-    }
+public class NodeFilterOptions extends NodeFilterBaseOptions{
 
     @CommandLine.Parameters(paramLabel = "NODE FILTER", description = "Node filter")
     List<String> filterTokens;

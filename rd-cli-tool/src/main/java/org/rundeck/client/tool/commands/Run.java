@@ -44,7 +44,8 @@ import java.util.stream.Stream;
  * run subcommand
  */
 @CommandLine.Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
-        "@path\" or \"-opt@ path\".", name = "run")
+        "@path\" or \"-opt@ path\".", name = "run",
+        showEndOfOptionsDelimiterInUsageHelp = true)
 public class Run extends BaseCommand implements Callable<Boolean> {
 
     public static final int SEC_MS = 1000;
@@ -62,7 +63,7 @@ public class Run extends BaseCommand implements Callable<Boolean> {
     FollowOptions followOptions = new FollowOptions();
     @CommandLine.Mixin
     final
-    NodeFilterOptions nodeFilterOptions = new NodeFilterOptions();
+    NodeFilterBaseOptions nodeFilterOptions = new NodeFilterBaseOptions();
     @CommandLine.Mixin
     final
     ExecutionOutputFormatOption outputFormatOption = new ExecutionOutputFormatOption();

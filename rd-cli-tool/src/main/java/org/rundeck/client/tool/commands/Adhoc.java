@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  * adhoc subcommands
  */
 
-@CommandLine.Command(description = "Run adhoc command or script on matching nodes.", name = "adhoc")
+@CommandLine.Command(description = "Run adhoc command or script on matching nodes.", name = "adhoc", showEndOfOptionsDelimiterInUsageHelp = true)
 public class Adhoc extends BaseCommand implements Callable<Boolean> {
 
     @CommandLine.Mixin
@@ -49,7 +49,7 @@ public class Adhoc extends BaseCommand implements Callable<Boolean> {
     @CommandLine.Mixin
     FollowOptions followOptions;
     @CommandLine.Mixin
-    NodeFilterOptions nodeFilterOptions;
+    NodeFilterBaseOptions nodeFilterOptions;
 
     public Boolean call() throws IOException, InputError {
         AdhocResponse adhocResponse;
