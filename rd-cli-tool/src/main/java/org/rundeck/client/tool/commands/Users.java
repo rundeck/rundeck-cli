@@ -42,13 +42,9 @@ import java.util.stream.Collectors;
 @CommandLine.Command(description = "Manage user information.", name = "users")
 public class Users extends BaseCommand {
 
-    @CommandLine.Mixin
-    final
-    UserFormatOption opts=new UserFormatOption();
-
 
     @CommandLine.Command(description = "Get information of the same user or from another if 'user' is specified.")
-    public void info(@CommandLine.Mixin LoginNameOption nameOption) throws IOException, InputError {
+    public void info(@CommandLine.Mixin LoginNameOption nameOption, @CommandLine.Mixin final UserFormatOption opts) throws IOException, InputError {
         getRdTool().requireApiVersion("users info", 21);
         User user = apiCall(api -> {
             if (nameOption.isLogin()) {
@@ -59,19 +55,19 @@ public class Users extends BaseCommand {
 
         });
 
-        outputUserInfo(user);
+        outputUserInfo(user, opts);
     }
 
-    private void outputUserInfo(final User user) {
+    private void outputUserInfo(final User user, OutputFormat format) {
         final Function<User, ?> outformat;
         CommandOutput output = getRdOutput();
-        if (opts.isVerbose()) {
+        if (format.isVerbose()) {
             output.output(user.toMap());
             return;
         }
         output.info("User profile:");
-        if (opts.isOutputFormat()) {
-            outformat = Format.formatter(opts.getOutputFormat(), User::toMap, "%", "");
+        if (format.isOutputFormat()) {
+            outformat = Format.formatter(format.getOutputFormat(), User::toMap, "%", "");
             output.output(outformat.apply(user));
         } else {
 
@@ -113,7 +109,7 @@ public class Users extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Edit information of the same user or another if 'user' is specified.")
-    public void edit(@CommandLine.Mixin Edit opts) throws IOException, InputError {
+    public void edit(@CommandLine.Mixin Edit opts, @CommandLine.Mixin final UserFormatOption formatOption) throws IOException, InputError {
         getRdTool().requireApiVersion("users edit", 21);
         User u = new User();
         if (opts.isEmail()) {
@@ -135,21 +131,21 @@ public class Users extends BaseCommand {
 
         });
 
-        outputUserInfo(user);
+        outputUserInfo(user, formatOption);
     }
 
 
     @CommandLine.Command(description = "Get the list of users.")
-    public void list() throws IOException, InputError {
+    public void list(@CommandLine.Mixin final UserFormatOption formatOption) throws IOException, InputError {
         getRdTool().requireApiVersion("users list", 21);
         List<User> users = apiCall(RundeckApi::listUsers);
         final Function<User, ?> outformat;
-        if (opts.isVerbose()) {
+        if (formatOption.isVerbose()) {
             getRdOutput().output(users.stream().map(User::toMap).collect(Collectors.toList()));
             return;
         }
-        if (opts.isOutputFormat()) {
-            outformat = Format.formatter(opts.getOutputFormat(), User::toMap, "%", "");
+        if (formatOption.isOutputFormat()) {
+            outformat = Format.formatter(formatOption.getOutputFormat(), User::toMap, "%", "");
         } else {
             outformat = User::toBasicString;
         }
