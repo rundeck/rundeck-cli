@@ -62,13 +62,6 @@ public class Acl
             return dir != null;
         }
 
-        @CommandLine.Option(names = {"--configdir"})
-        private File configDir;
-
-        boolean isConfigDir() {
-            return configDir != null;
-        }
-
         @CommandLine.Option(names = {"-g"}, description = "Subject Groups names to validate (test command) or for by: " +
                 "clause (create command). Accepts multiple values.")
         private List<String> groups;
@@ -581,9 +574,6 @@ public class Acl
 
     @CommandLine.Command(description = "Validate ACL Policies")
     public boolean validate(@CommandLine.Mixin AclOptions opts) {
-        if (null == opts.getFile() && null == opts.getDir() && null != opts.getConfigDir()) {
-            log("Using configured Rundeck etc dir: " + opts.getConfigDir());
-        }
         final Validation validation = validatePolicies(opts);
         reportValidation(validation);
         log("The validation " + (validation.isValid() ? "passed" : "failed"));
@@ -1081,12 +1071,6 @@ public class Acl
                 throw new CommandLine.ParameterException(spec.commandLine(),"File: " + opts.getDir() + ", does not exist or is not a directory");
             }
             validation = YamlProvider.validate(YamlProvider.asSources(opts.getDir()), validationSet);
-        } else if (null != opts.getConfigDir()) {
-            File directory = opts.getConfigDir();
-            if (!directory.isDirectory()) {
-                throw new CommandLine.ParameterException(spec.commandLine(),"File: " + directory + ", does not exist or is not a directory");
-            }
-            validation = YamlProvider.validate(YamlProvider.asSources(directory), validationSet);
         } else {
             throw new CommandLine.ParameterException(spec.commandLine(),"-f or -d are required");
         }
@@ -1377,14 +1361,6 @@ public class Acl
                 throw new RuntimeException("File: " + options.getDir() + ", does not exist or is not a directory");
             }
             policies = Policies.load(options.getDir());
-        } else if (options.isConfigDir()) {
-            log("Using configured Rundeck etc dir: " + options.getConfigDir());
-            if (!options.getConfigDir().isDirectory()) {
-                throw new RuntimeException("File: "
-                        + options.getConfigDir()
-                        + ", does not exist or is not a directory");
-            }
-            policies = Policies.load(options.getConfigDir());
         } else {
             throw new CommandLine.ParameterException(spec.commandLine(), String.format(
                     "One of %s or %s are required",
