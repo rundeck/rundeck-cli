@@ -44,14 +44,20 @@ public class ACLs extends BaseCommand {
 
 
     @CommandLine.Command(description = "get a system ACL definition")
-    public void get(@CommandLine.Mixin ACLNameOptions options) throws IOException, InputError {
+    public void get(@CommandLine.Mixin ACLNameRequiredOptions options) throws IOException, InputError {
         ACLPolicy aclPolicy = apiCall(api -> api.getSystemAclPolicy(options.getName()));
         outputPolicyResult(getRdOutput(), aclPolicy);
     }
 
+    @CommandLine.Command(description = "Update an existing system ACL definition. [@|red DEPRECATED|@: use @|bold update|@]", hidden = true)
+    public void upload(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions)
+            throws IOException, InputError {
+        getRdOutput().warning("rd system acls upload command is deprecated, use: rd system acls update");
+        update(aclNameOptions, aclFileOptions);
+    }
 
-    @CommandLine.Command(description = "Upload a system ACL definition")
-    public void upload(@CommandLine.Mixin ACLNameOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions)
+    @CommandLine.Command(description = "Update an existing system ACL definition")
+    public void update(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions)
             throws IOException, InputError {
         ACLPolicy aclPolicy = performACLModify(
                 aclFileOptions,
@@ -64,7 +70,7 @@ public class ACLs extends BaseCommand {
 
 
     @CommandLine.Command(description = "Create a system ACL definition")
-    public void create(@CommandLine.Mixin ACLNameOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions) throws IOException, InputError {
+    public void create(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions) throws IOException, InputError {
         ACLPolicy aclPolicy = performACLModify(
                 aclFileOptions,
                 (RequestBody body, RundeckApi api) -> api.createSystemAclPolicy(aclNameOptions.getName(), body),
@@ -76,7 +82,7 @@ public class ACLs extends BaseCommand {
 
 
     @CommandLine.Command(description = "Delete a system ACL definition")
-    public void delete(@CommandLine.Mixin ACLNameOptions aclNameOptions) throws IOException, InputError {
+    public void delete(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions) throws IOException, InputError {
         apiCall(api -> api.deleteSystemAclPolicy(aclNameOptions.getName()));
         getRdOutput().output(String.format("Deleted System ACL Policy: %s", aclNameOptions.getName()));
     }

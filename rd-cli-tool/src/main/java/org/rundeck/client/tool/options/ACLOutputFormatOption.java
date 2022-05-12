@@ -21,9 +21,6 @@ import lombok.Setter;
 import picocli.CommandLine;
 @Getter @Setter
 public class ACLOutputFormatOption  extends VerboseOption{
-    @CommandLine.Mixin
-    final
-    ProjectNameOptions projectNameOptions = new ProjectNameOptions();
 
     @CommandLine.Option(names={"-%","--outformat"},
             description = "Output format specifier for ACL info. You can use \"%%key\" where key is one of:" +

@@ -31,6 +31,7 @@ import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.tool.options.ACLOutputFormatOption;
 import org.rundeck.client.tool.options.ProjectNameOptions;
+import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
 import org.rundeck.client.tool.util.Colorz;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.Format;
@@ -59,8 +60,8 @@ public class ACLs extends BaseCommand {
     }
 
     @CommandLine.Command(description = "list project acls")
-    public void list(@CommandLine.Mixin ACLOutputFormatOption outputOptions) throws IOException, InputError {
-        String project = getProjectName(outputOptions.getProjectNameOptions());
+    public void list(@CommandLine.Mixin ACLOutputFormatOption outputOptions, @CommandLine.Mixin ProjectRequiredNameOptions projectRequiredNameOptions) throws IOException, InputError {
+        String project = getProjectName(projectRequiredNameOptions);
         ACLPolicyItem items = apiCall(api -> api.listAcls(project));
         outputListResult(outputOptions, getRdOutput(), items, String.format("project %s", project));
     }
@@ -95,18 +96,12 @@ public class ACLs extends BaseCommand {
 
     @Getter @Setter
     public static class ACLNameOptions {
-        @CommandLine.Mixin
-        final
-        ProjectNameOptions projectNameOptions = new ProjectNameOptions();
         @CommandLine.Option(names = {"-n", "--name"}, description = "name of the aclpolicy file")
         String name;
     }
 
     @Getter @Setter
     public static class ACLNameRequiredOptions {
-        @CommandLine.Mixin
-        final
-        ProjectNameOptions projectNameOptions = new ProjectNameOptions();
         @CommandLine.Option(names = {"-n", "--name"}, description = "name of the aclpolicy file", required = true)
         String name;
     }
@@ -118,8 +113,8 @@ public class ACLs extends BaseCommand {
     }
 
     @CommandLine.Command(description = "get a project ACL definition")
-    public void get(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions) throws IOException, InputError {
-        String project = getProjectName(aclNameOptions.getProjectNameOptions());
+    public void get(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions, @CommandLine.Mixin ProjectRequiredNameOptions projectNameOptions) throws IOException, InputError {
+        String project = getProjectName(projectNameOptions);
         ACLPolicy aclPolicy = apiCall(api -> api.getAclPolicy(project, aclNameOptions.name));
         outputPolicyResult(getRdOutput(), aclPolicy);
     }
@@ -130,8 +125,8 @@ public class ACLs extends BaseCommand {
 
 
     @CommandLine.Command(description = "Upload a project ACL definition")
-    public void upload(@CommandLine.Mixin ACLNameOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions) throws IOException, InputError {
-        String project = getProjectName(nameOptions.getProjectNameOptions());
+    public void upload(@CommandLine.Mixin ACLNameOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions, @CommandLine.Mixin ProjectRequiredNameOptions projectNameOptions) throws IOException, InputError {
+        String project = getProjectName(projectNameOptions);
         ACLPolicy aclPolicy = performACLModify(
                 fileOptions,
                 (RequestBody body, RundeckApi api) -> api.updateAclPolicy(project, nameOptions.getName(), body),
@@ -142,8 +137,8 @@ public class ACLs extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Create a project ACL definition")
-    public void create(@CommandLine.Mixin ACLNameRequiredOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions) throws IOException, InputError {
-        String project = getProjectName(nameOptions.getProjectNameOptions());
+    public void create(@CommandLine.Mixin ACLNameRequiredOptions nameOptions, @CommandLine.Mixin ACLFileOptions fileOptions, @CommandLine.Mixin ProjectRequiredNameOptions projectNameOptions) throws IOException, InputError {
+        String project = getProjectName(projectNameOptions);
         ACLPolicy aclPolicy = performACLModify(
                 fileOptions,
                 (RequestBody body, RundeckApi api) -> api.createAclPolicy(project, nameOptions.getName(), body),
@@ -234,8 +229,8 @@ public class ACLs extends BaseCommand {
 
 
     @CommandLine.Command(description = "Delete a project ACL definition")
-    public void delete(@CommandLine.Mixin ACLNameRequiredOptions options) throws IOException, InputError {
-        String project = getProjectName(options.getProjectNameOptions());
+    public void delete(@CommandLine.Mixin ACLNameRequiredOptions options, @CommandLine.Mixin ProjectRequiredNameOptions projectRequiredNameOptions) throws IOException, InputError {
+        String project = getProjectName(projectRequiredNameOptions);
         apiCall(api -> api.deleteAclPolicy(project, options.getName()));
         getRdOutput().info(String.format("Deleted ACL Policy for %s: %s", project, options.getName()));
     }
