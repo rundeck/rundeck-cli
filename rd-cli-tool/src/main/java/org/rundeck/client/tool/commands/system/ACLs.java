@@ -49,7 +49,8 @@ public class ACLs extends BaseCommand {
         outputPolicyResult(getRdOutput(), aclPolicy);
     }
 
-    @CommandLine.Command(description = "Update an existing system ACL definition. [@|red DEPRECATED|@: use @|bold update|@]", hidden = true)
+    @CommandLine.Command(description = "Update an existing system ACL definition. [@|red DEPRECATED|@: use @|bold rd system acls update|@]", hidden = true)
+    @Deprecated
     public void upload(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions)
             throws IOException, InputError {
         getRdOutput().warning("rd system acls upload command is deprecated, use: rd system acls update");
