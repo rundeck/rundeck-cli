@@ -19,6 +19,8 @@ package org.rundeck.client.tool.commands;
 import lombok.Getter;
 import lombok.Setter;
 import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.OutputFormat;
+import org.rundeck.client.tool.options.VerboseOption;
 import picocli.CommandLine;
 import org.rundeck.client.tool.options.TokenFormatOption;
 import org.rundeck.client.util.Format;
@@ -55,6 +57,7 @@ public class Tokens extends BaseCommand {
         }
 
         @CommandLine.Option(names = {"--roles", "-r"},
+                arity = "1..*",
                 description = "List of roles to set for the token, space separated (api v19+)")
         List<String> roles;
 
@@ -82,7 +85,7 @@ public class Tokens extends BaseCommand {
             }
             apiToken = apiCall(api -> api.createToken(options.getUser()));
         }
-        getRdOutput().info("API Token created:");
+        getRdOutput().info(String.format("API Token created: %s", apiToken.getId()));
 
         getRdOutput().output(
                 formatTokenOutput(v19, options, ApiToken::toMap, true)
@@ -131,7 +134,7 @@ public class Tokens extends BaseCommand {
      */
     private Function<? super ApiToken, ?> formatTokenOutput(
             final boolean v19,
-            TokenFormatOption options,
+            OutputFormat options,
             Function<ApiToken, Map<?, ?>> toMap,
             final boolean reveal
     )
@@ -147,30 +150,62 @@ public class Tokens extends BaseCommand {
         }
     }
 
-    @Getter @Setter
-    static class RevealOption extends TokenFormatOption {
-        @CommandLine.Option(names = {"--id", "-id"}, description = "Token ID")
+    @Getter
+    @Setter
+    static class RevealOption extends VerboseOption implements OutputFormat {
+        @CommandLine.Option(names = {"--id", "-i"}, description = "Token ID", required = true)
         private String id;
+
+        @CommandLine.Option(names = {"-%", "--outformat"},
+                description = "Output format specifier for Token info. You can use \"%%key\" where key is one of: " +
+                        "token, id, user, creator, roles, expiration, expired. E.g. \"%%id:%%token\"")
+        private String outputFormat;
     }
 
-    @CommandLine.Command(description = "Reveal token value for an ID (API v19+)")
-    public void reveal(RevealOption options) throws IOException, InputError {
+    @CommandLine.Command(description = "Reveal token value for an ID (API v19+) [@|red DEPRECATED|@: use @|bold rd tokens info|@]", hidden = true)
+    public void reveal(@CommandLine.Mixin RevealOption options) throws IOException, InputError {
+        getRdOutput().info("@|faint rd tokens reveal is deprecated, use: rd tokens info|@");
+        getInfo(options, true);
+    }
+
+    @CommandLine.Command(description = "Get token info for an ID (API v19+)")
+    public void info(@CommandLine.Mixin RevealOption options) throws IOException, InputError {
+        getInfo(options, false);
+    }
+
+    private void getInfo(@CommandLine.Mixin RevealOption options, boolean reveal) throws IOException, InputError {
         ApiToken token = apiCall(api -> api.getToken(options.getId()));
         getRdOutput().info(String.format("API Token %s:", options.getId()));
         getRdOutput().output(
-                formatTokenOutput(true, options, ApiToken::toMap, true)
+                formatTokenOutput(true, options, ApiToken::toMap, reveal)
                         .apply(token)
         );
     }
 
-    public interface DeleteOptions {
-        @CommandLine.Option(names = {"--token", "-t"}, description = "API token")
-        String getToken();
+    @Getter
+    @Setter
+    static class DeleteOptions {
+        @CommandLine.Option(names = {"--token", "-t"}, description = "API token [deprecated, use --id]", hidden = true)
+        private String token;
+
+        @CommandLine.Option(names = {"--id", "-i"}, description = "Token ID")
+        private String id;
     }
 
     @CommandLine.Command(description = "Delete a token")
-    public void delete(DeleteOptions options) throws IOException, InputError {
-        Void aVoid = apiCall(api -> api.deleteToken(options.getToken()));
+    public void delete(@CommandLine.Mixin DeleteOptions options) throws IOException, InputError {
+        String tokenId = options.getId();
+        if (tokenId == null) {
+            tokenId = options.getToken();
+            if (tokenId != null) {
+                getRdOutput().warning("--token is deprecated use --id");
+            }
+        }
+        if (tokenId == null) {
+            throw new InputError("Missing required option: '--id=<id>'");
+        }
+        final String id = tokenId;
+        Void aVoid = apiCall(api -> api.deleteToken(id));
         getRdOutput().info("Token deleted.");
     }
 }
