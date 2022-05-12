@@ -48,7 +48,7 @@ public class Acl
 
     @Getter @Setter
     static class AclOptions {
-        @CommandLine.Option(names = {"-f"}, description = "File path. Load the specified aclpolicy file.")
+        @CommandLine.Option(names = {"-f", "--file"}, description = "File path. Load the specified aclpolicy file.")
         private File file;
 
         boolean isFile() {
@@ -62,7 +62,9 @@ public class Acl
             return dir != null;
         }
 
-        @CommandLine.Option(names = {"-g"}, description = "Subject Groups names to validate (test command) or for by: " +
+        @CommandLine.Option(names = {"-g", "--groups"},
+                arity = "1..*",
+                description = "Subject Groups names to validate (test command) or for by: " +
                 "clause (create command). Accepts multiple values.")
         private List<String> groups;
 
@@ -71,7 +73,7 @@ public class Acl
         }
 
 
-        @CommandLine.Option(names = {"-p"}, description = "Name of project, used in project context or for application resource.")
+        @CommandLine.Option(names = {"-p", "--project"}, description = "Name of project, used in project context or for application resource.")
         private String project;
 
         boolean isProject() {
@@ -93,7 +95,7 @@ public class Acl
             return appStorage != null;
         }
 
-        @CommandLine.Option(names = {"-j"}, description = "Job group/name. (project context)")
+        @CommandLine.Option(names = {"-j", "--job"}, description = "Job group/name. (project context)")
         private String job;
 
         boolean isJob() {
@@ -107,14 +109,16 @@ public class Acl
             return jobUUID != null;
         }
 
-        @CommandLine.Option(names = {"-n"}, description = "Node name. (project context)")
+        @CommandLine.Option(names = {"-n", "--node"}, description = "Node name. (project context)")
         private String node;
 
         boolean isNode() {
             return node != null;
         }
 
-        @CommandLine.Option(names = {"-t"}, description = "Node tags. If specified, the resource match will be defined using " +
+        @CommandLine.Option(names = {"-t", "--tags"},
+                arity = "1..*",
+                description = "Node tags. If specified, the resource match will be defined using " +
                 "'contains'. (project context). Accepts multiple values.")
         private List<String> tags;
 
@@ -122,7 +126,7 @@ public class Acl
             return notEmpty(tags);
         }
 
-        @CommandLine.Option(names = {"-u"}, description = "Subject User names to validate (test command) or for by: " +
+        @CommandLine.Option(names = {"-u", "--user"}, description = "Subject User names to validate (test command) or for by: " +
                 "clause (create command).")
         private String user;
 
@@ -130,7 +134,7 @@ public class Acl
             return user != null;
         }
 
-        @CommandLine.Option(names = {"-v"}, description = "Verbose output.")
+        @CommandLine.Option(names = {"-v", "--verbose"}, description = "Verbose output.")
         private boolean verbose;
     }
 
@@ -141,7 +145,7 @@ public class Acl
                 description = "Read file or stdin for audit log data. (create command)")
         private boolean stdin;
 
-        @CommandLine.Option(names = {"-c"}, description = "Context: either 'project' or 'application'.")
+        @CommandLine.Option(names = {"-c", "--context"}, description = "Context: ${COMPLETION-CANDIDATES}.")
         private Context context;
 
         boolean isContext() {
@@ -166,6 +170,7 @@ public class Acl
         }
 
         @CommandLine.Option(names = {"-b", "--attrs"},
+                arity = "1..*",
                 description = "Attributes for the resource. A sequence of key=value pairs, multiple pairs " +
                         "can follow with a space. Use a value of '?' to see suggestions.")
         private List<String> attributes;
@@ -175,6 +180,7 @@ public class Acl
         }
 
         @CommandLine.Option(names = {"-a", "--allow"},
+                arity = "1..*",
                 description = "Actions to test are allowed (test command) or to allow (create command). Accepts "
                         + "multiple values.")
         private List<String> allowAction;
@@ -184,6 +190,7 @@ public class Acl
         }
 
         @CommandLine.Option(names = {"-D", "--deny"},
+                arity = "1..*",
                 description = "Actions to test are denied (test command) or to deny (create command). Accepts "
                         + "multiple values.")
         private List<String> denyAction;
@@ -192,7 +199,7 @@ public class Acl
             return notEmpty(denyAction);
         }
 
-        @CommandLine.Option(names = {"-r"}, description = "Match the resource using regular expressions. (create command).")
+        @CommandLine.Option(names = {"-r", "--regex"}, description = "Match the resource using regular expressions. (create command).")
         private boolean regex;
     }
 
