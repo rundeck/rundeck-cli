@@ -53,7 +53,7 @@ public class ACLs extends BaseCommand {
     @Deprecated
     public void upload(@CommandLine.Mixin ACLNameRequiredOptions aclNameOptions, @CommandLine.Mixin ACLFileOptions aclFileOptions)
             throws IOException, InputError {
-        getRdOutput().warning("rd system acls upload command is deprecated, use: rd system acls update");
+        getRdOutput().info("@|faint rd system acls upload command is deprecated, use: rd system acls update|@");
         update(aclNameOptions, aclFileOptions);
     }
 
