@@ -78,15 +78,15 @@ class ProjectsSpec extends Specification {
         RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
         Projects command = new Projects()
-        command.rdTool=rdTool
-        command.rdOutput=out
+        command.rdTool = rdTool
+        command.rdOutput = out
 
-        command.verboseOption=new VerboseOption()
-        command.formatOptions=new ProjectListFormatOptions()
-        command.formatOptions.outputFormat=outFormat
+        def verbose = new VerboseOption()
+        def format = new ProjectListFormatOptions()
+        format.outputFormat = outFormat
 
         when:
-        command.list()
+        command.list(format, verbose)
 
         then:
         1 * api.listProjects() >>

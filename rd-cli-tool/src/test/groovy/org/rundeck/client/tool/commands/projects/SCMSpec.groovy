@@ -77,14 +77,15 @@ class SCMSpec extends Specification {
         scm.rdTool = rdTool
         scm.rdOutput = out
 
-        scm.project = 'aproject'
-        scm.integration = 'export'
 
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'export'
         def opts = new SCM.ActionPerformOptions()
         opts.action = 'project-commit'
 
         when:
-        def result = scm.perform(opts)
+        def result = scm.perform(baseopts, opts)
         then:
 
         1 * api.performScmAction('aproject', 'export', 'project-commit', _) >>
@@ -111,8 +112,9 @@ class SCMSpec extends Specification {
         scm.rdTool = rdTool
         scm.rdOutput = out
 
-        scm.project = 'aproject'
-        scm.integration = 'import'
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'import'
 
         def opts = new SCM.ActionPerformOptions()
         opts.action = 'import-all'
@@ -127,7 +129,7 @@ class SCMSpec extends Specification {
                 new ScmImportItem(itemId: 'd', tracked: false, deleted: true, job: new ScmJobItem(jobId: 'xjob')),
         ]
         when:
-        def result = scm.perform(opts)
+        def result = scm.perform(baseopts, opts)
         then:
 
         1 * api.getScmActionInputs('aproject', 'import', 'import-all') >>
@@ -161,8 +163,10 @@ class SCMSpec extends Specification {
         scm.rdTool = rdTool
         scm.rdOutput = out
 
-        scm.project = 'aproject'
-        scm.integration = 'export'
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'export'
+
 
         def opts = new SCM.ActionPerformOptions()
         opts.action = 'export-all'
@@ -175,7 +179,7 @@ class SCMSpec extends Specification {
                 new ScmExportItem(itemId: 'b', deleted: true),
         ]
         when:
-        def result = scm.perform(opts)
+        def result = scm.perform(baseopts, opts)
         then:
 
         1 * api.getScmActionInputs('aproject', 'export', 'export-all') >>
@@ -207,15 +211,17 @@ class SCMSpec extends Specification {
         scm.rdTool = rdTool
         scm.rdOutput = out
 
-        scm.project = 'aproject'
-        scm.integration = 'import'
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'import'
+
 
         def opts = new SCM.ActionPerformOptions()
         opts.action = 'import-all'
 
 
         when:
-        def result = scm.inputs(opts, new VerboseOption())
+        def result = scm.inputs(baseopts, opts, new VerboseOption())
 
         then:
 
@@ -287,12 +293,13 @@ class SCMSpec extends Specification {
         scm.rdTool = rdTool
         scm.rdOutput = out
 
-        scm.project = null
-        scm.integration = 'import'
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = null
+        baseopts.integration = 'import'
 
 
         when:
-        def result = scm.status()
+        def result = scm.status(baseopts)
 
         then:
         result

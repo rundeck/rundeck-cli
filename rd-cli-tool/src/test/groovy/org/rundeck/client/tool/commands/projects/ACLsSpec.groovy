@@ -68,11 +68,11 @@ class ACLsSpec extends Specification {
         def acls = new ACLs()
         acls.rdOutput = out
         acls.rdTool = rdTool
-        acls.projectNameOptions.project = 'aproject'
         def fileOptions = new ACLs.ACLFileOptions()
         fileOptions.file = tempFile
         def nameOptions = new ACLs.ACLNameOptions()
         nameOptions.name = 'test.aclpolicy'
+        nameOptions.projectNameOptions.project = 'aproject'
 
         when:
         def result = acls.upload(nameOptions, fileOptions)
