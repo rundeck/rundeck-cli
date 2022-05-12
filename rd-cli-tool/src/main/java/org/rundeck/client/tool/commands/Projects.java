@@ -136,9 +136,7 @@ public class Projects extends BaseCommand {
     public void create(
             @CommandLine.Mixin ProjectNameOptions nameOptions,
             @CommandLine.Mixin Configure.ConfigFileOptions configFileOptions,
-            @CommandLine.Mixin UnparsedConfigOptions options,
-            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
-            @CommandLine.Mixin VerboseOption verboseOption
+            @CommandLine.Mixin UnparsedConfigOptions options
     ) throws IOException, InputError {
 
         Map<String, String> config = Configure.loadConfig(configFileOptions, options, false);
