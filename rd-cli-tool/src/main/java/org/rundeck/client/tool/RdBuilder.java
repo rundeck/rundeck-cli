@@ -204,10 +204,14 @@ public class RdBuilder {
         }
 
         private String toAnsi(Object output, String color) {
-            if (color != null) {
-                return CommandLine.Help.Ansi.AUTO.string("@|" + color + " " + output + "|@");
+            String out = output.toString();
+            boolean hasColor = out.contains("@|") || out.contains("|@");
+            if (hasColor) {
+                return CommandLine.Help.Ansi.AUTO.string(out);
+            } else if (color != null) {
+                return CommandLine.Help.Ansi.AUTO.string(("@|" + color + " " + out + "|@"));
             } else {
-                return output.toString();
+                return out;
             }
         }
 
