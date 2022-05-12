@@ -98,6 +98,7 @@ public class Main {
         try (Rd rd = createRd()) {
             RdToolImpl rd1 = new RdToolImpl(rd);
             CommandLine commandLine = new CommandLine(new Main(), new CmdFactory(rd1));
+            commandLine.setExpandAtFiles(false);
             commandLine.getHelpSectionMap().put(
                     CommandLine.Model.UsageMessageSpec.SECTION_KEY_HEADER_HEADING,
                     help -> loadBanner("rd-banner.txt", Collections.singletonMap("$version$", org.rundeck.client.Version.VERSION)
