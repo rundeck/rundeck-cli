@@ -41,7 +41,7 @@ public class Mode extends BaseCommand {
     @CommandLine.Command(description =
             "Show execution mode\n" +
                     "When --testactive or --testpassive are used, the exit code will be 0 if the test is successful, 1 otherwise.")
-    public boolean info(@CommandLine.Mixin ModeInfo opts) throws IOException, InputError {
+    public int info(@CommandLine.Mixin ModeInfo opts) throws IOException, InputError {
         if (opts.isTestPassive() && opts.isTestActive()) {
             throw new InputError("--testactive and --testpassive cannot be combined");
         }
@@ -58,7 +58,7 @@ public class Mode extends BaseCommand {
             getRdOutput().info(message);
         }
         getRdOutput().output(executionMode);
-        return testpass;
+        return testpass ? 0 : 1;
     }
 
 
