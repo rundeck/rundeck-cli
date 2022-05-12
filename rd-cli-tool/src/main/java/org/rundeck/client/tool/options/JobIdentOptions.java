@@ -24,11 +24,11 @@ import picocli.CommandLine;
  * @author greg
  * @since 4/4/17
  */
-@Getter @Setter
-public class JobIdentOptions  extends ProjectNameOptions{
+@Getter
+@Setter
+public class JobIdentOptions extends ProjectNameOptions {
 
-    @CommandLine.Option(names = {"-j", "--job"},
-            description = "Job job (group and name). Run a Job specified by Job name and group. eg: 'group/name'.")
+    @CommandLine.Option(names = {"-j", "--job"}, description = "Job identified by name and group: 'group/name'. (Project name required)")
     String job;
 
     public boolean isJob() {

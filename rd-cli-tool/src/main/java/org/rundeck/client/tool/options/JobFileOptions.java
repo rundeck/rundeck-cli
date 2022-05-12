@@ -36,8 +36,7 @@ public class JobFileOptions {
 
     @CommandLine.Option(names = {"-F", "--format"},
             defaultValue = "xml",
-
-            description = "Format for the Job definition file, either xml or yaml")
+            description = "Format for the Job definition file: ${COMPLETION-CANDIDATES}")
     Format format;
 
     public enum Format {

@@ -100,7 +100,7 @@ public class Jobs extends BaseCommand {
 
         List<String> ids = new ArrayList<>();
         if (jobListOptions.isIdlist()) {
-            ids = Arrays.asList(jobListOptions.getIdlist().split("\\s*,\\s*"));
+            ids = jobListOptions.getIdlist();
         } else {
             if (!jobListOptions.isJob() && !jobListOptions.isGroup() && !jobListOptions.isGroupExact() && !jobListOptions.isJobExact()) {
                 throw new InputError("must specify -i, or -j/-g/-J/-G to specify jobs to delete.");
@@ -226,7 +226,7 @@ public class Jobs extends BaseCommand {
             if (jobListOptions.isIdlist()) {
                 body1 = getRdTool().apiCall(api -> api.exportJobs(
                         project,
-                        jobListOptions.getIdlist(),
+                        String.join(",", jobListOptions.getIdlist()),
                         jobFileOptions.getFormat().toString()
                 ));
             } else {
@@ -266,7 +266,7 @@ public class Jobs extends BaseCommand {
         } else {
             List<JobItem> body;
             if (jobListOptions.isIdlist()) {
-                body = getRdTool().apiCall(api -> api.listJobs(project, jobListOptions.getIdlist()));
+                body = getRdTool().apiCall(api -> api.listJobs(project, String.join(",", jobListOptions.getIdlist())));
             } else {
                 body = getRdTool().apiCall(api -> api.listJobs(
                         project,
@@ -402,7 +402,7 @@ public class Jobs extends BaseCommand {
 
         List<String> ids = new ArrayList<>();
         if (options.isIdlist()) {
-            ids = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
+            ids = options.getIdlist();
         }
         else {
             if (!options.isJob() && !options.isGroup() && !options.isGroupExact() && !options.isJobExact()) {

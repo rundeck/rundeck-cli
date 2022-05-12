@@ -25,8 +25,7 @@ public class JobLoadOptions {
 
     @CommandLine.Option(names = {"-d", "--duplicate"},
             defaultValue = "update",
-            description = "Behavior when uploading a Job matching a name+group that already exists, either: update, " +
-                    "skip, create")
+            description = "Behavior when uploading a Job matching a name+group that already exists: ${COMPLETION-CANDIDATES}")
     Duplication duplicate = Duplication.update;
 
     public enum Duplication {

@@ -20,6 +20,8 @@ import lombok.Getter;
 import lombok.Setter;
 import picocli.CommandLine;
 
+import java.util.List;
+
 @Getter @Setter
 public class JobListOptions extends ProjectNameOptions {
 
@@ -54,11 +56,13 @@ public class JobListOptions extends ProjectNameOptions {
         return groupExact != null;
     }
 
-    @CommandLine.Option(names = {"-i", "--idlist"}, description = "Comma separated list of Job IDs")
-    String idlist;
+    @CommandLine.Option(names = {"-i", "--idlist"}, description = "Comma separated list of Job IDs",
+            arity = "1..*",
+            split = "\\s*,\\s*")
+    List<String> idlist;
 
     public boolean isIdlist() {
-        return idlist != null;
+        return idlist != null && idlist.size() > 0;
     }
 
 }
