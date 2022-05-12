@@ -44,11 +44,6 @@ import java.util.concurrent.Callable;
         , name = "retry")
 public class Retry extends BaseCommand implements Callable<Boolean> {
 
-    public static final int SEC_MS = 1000;
-    public static final int MIN_MS = 60 * 1000;
-    public static final int HOUR_MS = 60 * 60 * 1000;
-    public static final int DAY_MS = 24 * 60 * 60 * 1000;
-    public static final int WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
 
     @CommandLine.Mixin
