@@ -36,8 +36,8 @@ public class RdBuilder {
         boolean handleError(Throwable throwable);
     }
 
-    public void formatter(OutputFormatter yamlFormatter) {
-
+    public void formatter(OutputFormatter formatter) {
+        this.formatter = formatter;
     }
 
     public ChannelOutput.Builder channels() {
