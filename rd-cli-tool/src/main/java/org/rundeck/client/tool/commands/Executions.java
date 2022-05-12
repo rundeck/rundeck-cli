@@ -264,8 +264,9 @@ public class Executions extends BaseCommand {
     }
 
 
-    @Getter @Setter
-    static class QueryCmd extends QueryOptions {
+    @Getter
+    @Setter
+    static class BaseQuery extends QueryOptions {
 
         @CommandLine.Option(names = {"--noninteractive"},
                 description = "Don't use interactive prompts to load more pages if there are more paged results (query command only)")
@@ -278,17 +279,29 @@ public class Executions extends BaseCommand {
 
     }
 
+    @Getter
+    @Setter
+    static class QueryCmd extends BaseQuery implements HasJobIdList {
+        @CommandLine.Option(
+                names = {"--jobids", "-i"},
+                arity = "1..*",
+                description = "Job ID list to include"
+        )
+        private List<String> jobIdList;
+
+    }
+
     @CommandLine.Command(description = "Query previous executions for a project.")
     public ExecutionList query(
             @CommandLine.Mixin QueryCmd options,
             @CommandLine.Mixin PagingResultOptions paging,
             @CommandLine.Mixin ExecutionOutputFormatOption outputFormatOption
     ) throws IOException, InputError {
-        return query(false, options, paging, outputFormatOption);
+        return query(false, options, options, paging, outputFormatOption);
     }
 
 
-    public ExecutionList query(boolean disableInteractive, QueryCmd options, PagingResultOptions paging, ExecutionOutputFormatOption outputFormatOption)
+    public ExecutionList query(boolean disableInteractive, HasJobIdList jobIdList, BaseQuery options, PagingResultOptions paging, ExecutionOutputFormatOption outputFormatOption)
             throws IOException, InputError {
         CommandOutput out = getRdOutput();
         int offset = paging.isOffset() ? paging.getOffset() : 0;
@@ -313,7 +326,7 @@ public class Executions extends BaseCommand {
                     .listExecutions(
                             project,
                             query,
-                            options.getJobIdList(),
+                            jobIdList.getJobIdList(),
                             options.getExcludeJobIdList(),
                             options.getJobList(),
                             options.getExcludeJobList()
@@ -512,9 +525,17 @@ public class Executions extends BaseCommand {
 
     // End Delete all executions.
 
+    static interface HasJobIdList {
+        List<String> getJobIdList();
 
-    @Getter @Setter
-    static class BulkDeleteCmd extends QueryCmd {
+        default boolean isJobIdList() {
+            return getJobIdList() != null && getJobIdList().size() > 0;
+        }
+    }
+
+    @Getter
+    @Setter
+    static class BulkDeleteCmd extends BaseQuery implements HasJobIdList {
         @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
         private boolean confirm;
 
@@ -524,6 +545,13 @@ public class Executions extends BaseCommand {
         public boolean isIdlist() {
             return idlist != null;
         }
+
+        @CommandLine.Option(
+                names = {"--jobids"},
+                arity = "1..*",
+                description = "Job ID list to include"
+        )
+        private List<String> jobIdList;
 
 
         @CommandLine.Option(names = {"-R", "--require"},
@@ -541,7 +569,7 @@ public class Executions extends BaseCommand {
         if (options.isIdlist()) {
             execIds = Arrays.asList(options.getIdlist().split("\\s*,\\s*"));
         } else {
-            ExecutionList executionList = query(true, options, paging, outputFormatOption);
+            ExecutionList executionList = query(true, options, options, paging, outputFormatOption);
 
             execIds = executionList.getExecutions()
                     .stream()
@@ -630,7 +658,8 @@ public class Executions extends BaseCommand {
         };
     }
 
-    @Getter @Setter
+    @Getter
+    @Setter
     static class MetricsCmd extends QueryOptions implements OutputFormat {
 
         @CommandLine.Option(
@@ -638,6 +667,15 @@ public class Executions extends BaseCommand {
                 description = "Get the result in raw xml. Note: cannot be combined with RD_FORMAT env variable.")
         private boolean rawXML;
 
+
+        @CommandLine.Option(names = {"--jobids", "-i"},
+                arity = "1..*",
+                description = "Job ID list to include")
+        private List<String> jobIdList;
+
+        public boolean isJobIdList() {
+            return jobIdList != null && jobIdList.size() > 0;
+        }
 
         @CommandLine.Option(names = {"-%", "--outformat"},
                 description =

@@ -50,15 +50,9 @@ public class QueryOptions
           description = "Job executions only")
   private boolean job;
 
-  @CommandLine.Option(names = { "--jobids"},
-          description = "Job ID list to include")
-  private List<String> jobIdList;
-
-  public boolean isJobIdList() {
-    return jobIdList != null && jobIdList.size() > 0;
-  }
 
   @CommandLine.Option(names = {"-j", "--jobs"},
+          arity = "1..*",
           description = "List of Full job group and name to include.")
   private List<String> jobList;
 
@@ -67,6 +61,7 @@ public class QueryOptions
   }
 
   @CommandLine.Option(names = {"-x", "--xjobids"},
+          arity = "1..*",
           description = "Job ID list to exclude")
   private List<String> excludeJobIdList;
 
@@ -75,6 +70,7 @@ public class QueryOptions
   }
 
   @CommandLine.Option(names = {"-X", "--xjobs"},
+          arity = "1..*",
           description = "List of Full job group and name to exclude.")
   private List<String> excludeJobList;
 
