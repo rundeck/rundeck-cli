@@ -35,7 +35,7 @@ import java.security.Principal;
 import java.util.*;
 import java.util.regex.Pattern;
 
-@CommandLine.Command(name = "acl", description = "Generate, Test, and Validate ACLPolicy files", mixinStandardHelpOptions = true)
+@CommandLine.Command(name = "acl", description = "Generate, Test, and Validate ACLPolicy files")
 public class Acl
         extends BaseCommand {
 
