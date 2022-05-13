@@ -24,6 +24,7 @@ import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.tool.options.LoginNameOption
+import org.rundeck.client.tool.options.UserFormatOption
 import org.rundeck.client.util.Client
 import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
@@ -60,7 +61,7 @@ class UsersSpec extends Specification {
         opts.login=username
 
         when:
-        command.info(opts)
+        command.info(opts, new UserFormatOption())
 
         then:
         sameUserEndpoint * api.getUserInfo() >>
@@ -96,7 +97,7 @@ class UsersSpec extends Specification {
 
 
         when:
-        command.edit(opts)
+        command.edit(opts, new UserFormatOption())
 
         then:
         sameUserEndpoint * api.editUserInfo(_) >>
@@ -134,7 +135,7 @@ class UsersSpec extends Specification {
         }
 
         when:
-        command.list()
+        command.list(new UserFormatOption())
 
         then:
         1 * api.listUsers() >>

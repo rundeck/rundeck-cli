@@ -181,11 +181,11 @@ class KeysSpec extends Specification {
         Keys command = new Keys()
         command.rdTool=rdTool
         command.rdOutput=out
-        command.path= new Keys.Path('keys/test1')
 
         def opts = new Keys.Upload()
         opts.type= KeyStorageItem.KeyFileType.password
         opts.file= testfile
+        opts.path= new Keys.Path('keys/test1')
         when:
         command.create(opts)
 
@@ -238,11 +238,11 @@ class KeysSpec extends Specification {
         Keys command = new Keys()
         command.rdTool=rdTool
         command.rdOutput=out
-        command.path= new Keys.Path('keys/test1')
 
         def opts = new Keys.Upload()
         opts.type= KeyStorageItem.KeyFileType.password
         opts.file= testfile
+        opts.path= new Keys.Path('keys/test1')
 
         when:
         command.create(opts)
@@ -278,11 +278,12 @@ class KeysSpec extends Specification {
         Keys command = new Keys()
         command.rdTool=rdTool
         command.rdOutput=out
-        command.path= new Keys.Path(input?:"")
+        def opts = new Keys.OptionalPath()
+        opts.path= new Keys.Path(input?:"")
 
 
         when:
-        command.list()
+        command.list(opts)
 
         then:
         1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem())
