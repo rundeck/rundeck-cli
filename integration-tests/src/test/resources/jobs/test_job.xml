@@ -1,0 +1,34 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='basicOption' />
+        <option name='fileOption' type='file' />
+        <option name='requiredOption' required='true' />
+      </options>
+    </context>
+    <defaultTab>nodes</defaultTab>
+    <description>a test job</description>
+    <executionEnabled>true</executionEnabled>
+    <id>51855ba0-374b-4318-a2a7-c2410c0d77fb</id>
+    <loglevel>INFO</loglevel>
+    <name>test job</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <schedules />
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <exec>echo ${option.basicOption}</exec>
+      </command>
+      <command>
+        <exec>echo ${option.requiredOption}</exec>
+      </command>
+      <command>
+        <exec>echo ${option.fileOption} filename ${file.fileOption.fileName} sha ${file.fileOption.sha}</exec>
+      </command>
+    </sequence>
+    <tags>tag1,tag2</tags>
+    <uuid>51855ba0-374b-4318-a2a7-c2410c0d77fb</uuid>
+  </job>
+</joblist>
