@@ -34,7 +34,7 @@ public class UninstallPlugin implements Callable<Boolean>, RdCommandExtension, R
     private CommandOutput rdOutput;
 
 
-    @CommandLine.Option(names = {"--id", "-i"}, description = "Id of the plugin you want to uninstall")
+    @CommandLine.Option(names = {"--id", "-i"}, description = "Id of the plugin you want to uninstall", required = true)
     String pluginId;
 
 

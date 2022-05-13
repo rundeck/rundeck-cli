@@ -33,9 +33,9 @@ public class InstallPlugin implements RdCommandExtension, RdOutput, Callable<Boo
 
     @Setter
     private CommandOutput rdOutput;
-    @CommandLine.Option(names = {"-r", "--repository"}, description = "Repository name that contains the plugin.")
+    @CommandLine.Option(names = {"-r", "--repository"}, description = "Repository name that contains the plugin.", required = true)
     String repoName;
-    @CommandLine.Option(names = {"--id", "-i"}, description = "Id of the plugin you want to install")
+    @CommandLine.Option(names = {"--id", "-i"}, description = "Id of the plugin you want to install", required = true)
     String pluginId;
     @CommandLine.Option(names = {"--version", "-v"}, description = "(Optional) Specific version of the plugin you want to install")
     String version;
