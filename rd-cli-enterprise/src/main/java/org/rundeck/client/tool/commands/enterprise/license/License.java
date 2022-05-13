@@ -23,11 +23,12 @@ public class License
         extends BaseExtension {
 
     public static final MediaType LICENSE_KEY_MEDIA_TYPE = MediaType.parse("application/x-rundeck-license");
-    @CommandLine.Option(names = {"-v", "--verbose"}, description = "Show verbose output")
-    boolean verbose;
 
-    @Getter @Setter
+    @Getter
+    @Setter
     static class StatusOpts {
+        @CommandLine.Option(names = {"-v", "--verbose"}, description = "Show verbose output")
+        private boolean verbose;
 
         @CommandLine.Option(names = {"-s",
                 "--status"},
@@ -71,7 +72,7 @@ public class License
             if (response.isShouldWarn()) {
                 getOutput().warning(response.getWarning());
             }
-            if (verbose) {
+            if (opts.isVerbose()) {
                 getOutput().output(response);
             }
         }
