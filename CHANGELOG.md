@@ -17,11 +17,13 @@
 
 ## 1.4.2
 
+(build and release updates)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.4.1...v1.4.2)
 
 ## 1.4.1
 
+(build and release updates)
 
 [Changes](https://github.com/rundeck/rundeck-cli/compare/v1.4.0...v1.4.1)
 
