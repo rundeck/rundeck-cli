@@ -19,7 +19,7 @@ jacksondb = "2.13.2.2"
 picocli = "4.6.3"
 snakeYaml = "1.30"
 #used for authz lib integration
-rundeck = "4.2.0-20220509"
+rundeck = "4.2.1-20220511"
 
 [libraries]
 
