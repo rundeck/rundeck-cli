@@ -61,10 +61,20 @@ subprojects{
 def unreleasedLog(prevVersion, changelog) {
     def m = changelog?.text =~ ~/(?si)^(## unreleased(.*))## ${prevVersion}.*$/
     if (m.find()) {
-        return m.group(2)?.split(/\n/).findAll { it }.collect { it.replaceAll(/^[\*-]\s*/, '') }
+        return m.group(2)?.split(/\n/).findAll { it }//.collect { it.replaceAll(/^[\*-]\s*/, '') }
     }
 }
+def getCommitLogs(String prevTag){
+    def diff = "${prevTag}..."
+    def serr = new StringBuilder(), sout = new StringBuilder()
+    def proc = ['git', 'log', '--no-merges','--pretty=format:%s', diff].execute()
+    proc.consumeProcessOutput(sout, serr)
+    proc.waitForOrKill(1000)
+    def logs= sout.toString().readLines()
 
+    def include = [~/.*[fF]ix(e[sd])? #\d+.*/, ~/^[fF]ix(e[sd])?:.*/, ~/^[lL]og:?.*/]
+    logs.findAll { t -> t && include.any { t ==~ it } }.collect{"* "+it}
+}
 /**
  * Generate partial or full changelog
  * @param prevTag
@@ -77,24 +87,19 @@ def unreleasedLog(prevVersion, changelog) {
  */
 def genChangelog(prevTag, baseUrl, curVersion, prevVersion, File changelog, full = false) {
     def diff = "${prevTag}..."
-    def serr = new StringBuilder(), sout = new StringBuilder()
-    def proc = ['git', 'log', '--no-merges','--pretty=format:%s', diff].execute()
-    proc.consumeProcessOutput(sout, serr)
-    proc.waitForOrKill(1000)
-    def logs = sout.toString().readLines()
-    def include = [~/.*[fF]ix(e[sd])? #\d+.*/, ~/^[fF]ix(e[sd])?:.*/, ~/^[lL]og:?.*/]
-
     def unrel = changelog ? unreleasedLog(prevVersion, changelog) ?: [] : []
 
-    unrel.addAll(logs.findAll { t -> t && include.any { t ==~ it } })
-    logs = unrel.
-            collect { '* ' + it.replaceAll(/^[lL]og:\s+/,'').replaceAll(/(#(\d+))/, "[Issue \$1]($baseUrl/issues/\$2)") }.
+    if(!project.findProperty("skipGitCommitLogs")){
+        unrel.addAll(getCommitLogs(prevTag))
+    }
+    def logs = unrel.
+            collect { it.replaceAll(/^[lL]og:\s+/,'').replaceAll(/(#(\d+))/, "[Issue \$1]($baseUrl/issues/\$2)") }.
             join('\n')
-    logs = logs ? logs + '\n' : ''
     if (full && changelog) {
         def text = """## ${curVersion}
 
 $logs
+
 [Changes]($baseUrl/compare/${diff}v${curVersion})
 
 """
