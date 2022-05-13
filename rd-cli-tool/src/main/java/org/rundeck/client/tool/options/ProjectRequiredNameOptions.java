@@ -16,17 +16,41 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 import org.rundeck.client.tool.ProjectInput;
+
+import java.util.regex.Pattern;
 
 /**
  * Required project name option
+ *
  * @author greg
  * @since 4/10/17
  */
-public interface ProjectRequiredNameOptions extends ProjectInput {
+@Getter @Setter
+public class ProjectRequiredNameOptions implements ProjectInput {
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec; // injected by picocli
+    @CommandLine.Option(
+            names = {"-p", "--project"},
+            description = "Project name",
+            required = true
+    )
+    private String project;
 
+    void validate() {
+        validateProjectName(getProject(), spec);
+    }
 
-    @Option(shortName = "p", longName = "project", description = "Project name", pattern = PROJECT_NAME_PATTERN)
-    String getProject();
+    public static void validateProjectName(String project, CommandLine.Model.CommandSpec spec) {
+        Pattern pat = Pattern.compile(PROJECT_NAME_PATTERN);
+        if (!pat.matcher(project).matches()) {
+            throw new CommandLine.ParameterException(
+                    spec.commandLine(),
+                    "Invalid option: --project/-p does not match: " + PROJECT_NAME_PATTERN
+            );
+        }
+    }
 }

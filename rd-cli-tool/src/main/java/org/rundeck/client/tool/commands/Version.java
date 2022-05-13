@@ -1,34 +1,38 @@
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
+import lombok.Setter;
 import org.rundeck.client.RundeckClient;
+import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.Main;
+import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdOutput;
+import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.tool.options.VerboseOption;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import picocli.CommandLine;
 
-@Command(synonyms = {"-V", "--version"}, description = "Print version information")
-public class Version {
+@CommandLine.Command(name = "version", description = "Print version information")
+public class Version implements Runnable, RdCommandExtension, RdOutput {
 
-    @CommandLineInterface(application = "version/--version/-V")
-    interface Options
-            extends VerboseOption
-    {
+    @Setter
+    RdTool rdTool;
+    @Setter
+    private CommandOutput rdOutput;
 
-    }
 
-    @Command(isSolo = true)
-    public void version(CommandOutput output, Options options) {
+    @CommandLine.Mixin()
+    VerboseOption options;
+
+    public void run() {
         if (options.isVerbose()) {
-            output.output("VERSION: " + org.rundeck.client.Version.VERSION);
-            output.output("GIT_COMMIT: " + org.rundeck.client.Version.GIT_COMMIT);
-            output.output("GIT_BRANCH: " + org.rundeck.client.Version.GIT_BRANCH);
-            output.output("GIT_DESCRIPTION: " + org.rundeck.client.Version.GIT_DESCRIPTION);
-            output.output("BUILD_DATE: " + org.rundeck.client.Version.BUILD_DATE);
-            output.output("API_VERS: " + RundeckClient.API_VERS);
-            output.output("USER_AGENT: " + Main.USER_AGENT);
+            rdOutput.output("VERSION: " + org.rundeck.client.Version.VERSION);
+            rdOutput.output("GIT_COMMIT: " + org.rundeck.client.Version.GIT_COMMIT);
+            rdOutput.output("GIT_BRANCH: " + org.rundeck.client.Version.GIT_BRANCH);
+            rdOutput.output("GIT_DESCRIPTION: " + org.rundeck.client.Version.GIT_DESCRIPTION);
+            rdOutput.output("BUILD_DATE: " + org.rundeck.client.Version.BUILD_DATE);
+            rdOutput.output("API_VERS: " + RundeckClient.API_VERS);
+            rdOutput.output("USER_AGENT: " + Main.USER_AGENT);
         } else {
-            output.output(org.rundeck.client.Version.VERSION);
+            rdOutput.output(org.rundeck.client.Version.VERSION);
         }
     }
 }

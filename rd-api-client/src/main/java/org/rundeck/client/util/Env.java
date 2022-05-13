@@ -28,8 +28,8 @@ public class Env
         this.getter = getter;
     }
 
-    static interface Getenv {
-        public String getenv(final String key);
+    interface Getenv {
+        String getenv(final String key);
     }
 
     public String get(final String key) {

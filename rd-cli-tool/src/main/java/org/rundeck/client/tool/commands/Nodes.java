@@ -16,21 +16,17 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Unparsed;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.ProjectNode;
-import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.options.NodeFilterOptions;
 import org.rundeck.client.tool.options.NodeOutputFormatOption;
 import org.rundeck.client.tool.options.ProjectNameOptions;
-import org.rundeck.client.tool.options.VerboseOption;
 import org.rundeck.client.util.Format;
+import picocli.CommandLine;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -40,52 +36,33 @@ import java.util.stream.Collectors;
  * @author greg
  * @since 11/22/16
  */
-@Command(description = "List node resources.")
-public class Nodes extends AppCommand {
-    public Nodes(final RdApp builder) {
-        super(builder);
-    }
+@CommandLine.Command(description = "List node resources.", name = "nodes")
+public class Nodes extends BaseCommand {
 
-    @CommandLineInterface(application = "list") interface ListOptions extends ProjectNameOptions,
-            VerboseOption,
-            NodeOutputFormatOption,
-            NodeFilterOptions
-    {
-
-        @Unparsed(name = "NODE FILTER", description = "Node filter")
-        List<String> getFilterTokens();
-
-        boolean isFilterTokens();
-    }
-
-    String filterString(ListOptions options) {
-        if (options.isFilter()) {
-            return options.getFilter();
-        } else if (options.isFilterTokens()) {
-            return String.join(" ", options.getFilterTokens());
-        }
-        return null;
-    }
-
-    @Command(description = "List all nodes for a project.  You can use the -F/--filter to specify a node filter, or " +
-                           "simply add the filter on the end of the command")
-    public void list(ListOptions options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
-        Map<String, ProjectNode> body = apiCall(api -> api.listNodes(project, filterString(options)));
-        if (!options.isOutputFormat()) {
-            output.info(String.format("%d Nodes%s in project %s:%n", body.size(),
-                                      options.isFilter() ? " matching filter" : "",
-                                      project
+    @CommandLine.Command(description = "List all nodes for a project.  You can use the -F/--filter to specify a node filter, or " +
+            "simply add the filter on the end of the command")
+    public void list(@CommandLine.Mixin
+                     ProjectNameOptions options,
+                     @CommandLine.Mixin
+                     NodeOutputFormatOption nodeOutputFormatOption,
+                     @CommandLine.Mixin
+                     NodeFilterOptions nodeFilterOptions) throws IOException, InputError {
+        String project = getRdTool().projectOrEnv(options);
+        Map<String, ProjectNode> body = apiCall(api -> api.listNodes(project, nodeFilterOptions.filterString()));
+        if (!nodeOutputFormatOption.isOutputFormat()) {
+            getRdOutput().info(String.format("%d Nodes%s in project %s:%n", body.size(),
+                    nodeFilterOptions.isFilter() ? " matching filter" : "",
+                    project
             ));
         }
         Function<ProjectNode, ?> field;
-        if (options.isOutputFormat()) {
-            field = Format.formatter(options.getOutputFormat(), ProjectNode::getAttributes, "%", "");
-        } else if (options.isVerbose()) {
+        if (nodeOutputFormatOption.isOutputFormat()) {
+            field = Format.formatter(nodeOutputFormatOption.getOutputFormat(), ProjectNode::getAttributes, "%", "");
+        } else if (nodeOutputFormatOption.isVerbose()) {
             field = ProjectNode::getAttributes;
         } else {
             field = ProjectNode::getName;
         }
-        output.output(body.values().stream().map(field).collect(Collectors.toList()));
+        getRdOutput().output(body.values().stream().map(field).collect(Collectors.toList()));
     }
 }

@@ -17,18 +17,19 @@
 package org.rundeck.client.tool.commands.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.OptionOrder;
-import com.lexicalscope.jewel.cli.Unparsed;
-import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.options.*;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.api.model.ProjectConfig;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.ProjectInput;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.OptionUtil;
+import org.rundeck.client.tool.options.ProjectNameOptions;
+import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
+import org.rundeck.client.tool.options.UnparsedConfigOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
+import picocli.CommandLine;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -41,69 +42,80 @@ import java.util.*;
  * @author greg
  * @since 2/2/17
  */
-@Command(description = "Manage Project configuration")
-public class Configure extends AppCommand {
-    public Configure(final RdApp rdApp) {
-        super(rdApp);
+@CommandLine.Command(description = "Manage Project configuration", name = "configure")
+public class Configure extends BaseCommand {
+
+    @CommandLine.Spec
+    private CommandLine.Model.CommandSpec spec; // injected by picocli
+
+    String validate(ProjectInput opts) throws InputError {
+        if (null != opts.getProject()) {
+            ProjectRequiredNameOptions.validateProjectName(opts.getProject(), spec);
+        }
+        return getRdTool().projectOrEnv(opts);
     }
 
-    @CommandLineInterface(application = "get", order = OptionOrder.DEFINITION) interface ConfigureGetOpts extends
-            ProjectNameOptions
-    {
+    @CommandLine.Command(description = "Get all configuration properties for a project. (Supports RD_FORMAT=properties env var)")
+    public void get(@CommandLine.Mixin ProjectNameOptions opts) throws IOException, InputError {
+        String project = validate(opts);
+        ProjectConfig config = apiCall(api -> api.getProjectConfiguration(project));
 
-
-    }
-
-    @Command(description = "Get all configuration properties for a project. (Supports RD_FORMAT=properties env var)")
-    public void get(ConfigureGetOpts opts, CommandOutput output) throws IOException, InputError {
-        ProjectConfig config = apiCall(api -> api.getProjectConfiguration(opts.getProject()));
-
-        if ("properties".equals(getAppConfig().getString("RD_FORMAT", null))) {
+        if ("properties".equals(getRdTool().getAppConfig().getString("RD_FORMAT", null))) {
             Properties properties = new Properties();
             properties.putAll(config.getConfig());
             properties.store(System.out, "rd");
         } else {
-            output.output(config.getConfig());
+            getRdOutput().output(config.getConfig());
         }
     }
 
-    public static enum InputFileFormat {
+    public enum InputFileFormat {
         properties,
         json,
         yaml
     }
 
-    @CommandLineInterface(application = "set", order = OptionOrder.DEFINITION) interface ConfigureSetOpts extends
-                                                                                                          ConfigInputOptions,
-            ProjectNameOptions
-    {
+    @Getter @Setter
+    public static class ConfigFileOptions {
+        @CommandLine.Option(names = {"-f", "--file"},
+                description = "Input file for project configuration. Can be a .properties, .json or .yaml file. " +
+                        "Format is determined by file extension or -F/--format")
+        File file;
 
+
+        @CommandLine.Option(names = {"-F", "--format"},
+                description = "Input file format. Can be [properties, json, yaml] (default: properties, unless " +
+                        "recognized in filename)")
+        Configure.InputFileFormat fileFormat;
 
     }
 
-    @Command(description = "Overwrite all configuration properties for a project. Any config keys not included will " +
-                           "be " +
-                           "removed.")
-    public void set(ConfigureSetOpts opts, CommandOutput output) throws IOException, InputError {
 
-        Map<String, String> config = loadConfig(opts, true);
-        ProjectConfig projectConfig = apiCall(api -> api.setProjectConfiguration(
-                opts.getProject(),
+    @CommandLine.Command(description = "Overwrite all configuration properties for a project. Any config keys not included will " +
+            "be " +
+            "removed.", showEndOfOptionsDelimiterInUsageHelp = true)
+    public void set(@CommandLine.Mixin ConfigFileOptions configFileOptions,
+                    @CommandLine.Mixin UnparsedConfigOptions unparsedConfigOptions,
+                    @CommandLine.Mixin ProjectNameOptions opts) throws IOException, InputError {
+
+        String project = validate(opts);
+        Map<String, String> config = loadConfig(configFileOptions, unparsedConfigOptions, true);
+        apiCall(api -> api.setProjectConfiguration(
+                project,
                 new ProjectConfig(config)
         ));
-
     }
 
-    public static Map<String, String> loadConfig(final ConfigInputOptions opts, final boolean requireInput) throws InputError, IOException {
+    public static Map<String, String> loadConfig(final ConfigFileOptions opts,
+                                                 UnparsedConfigOptions unparsedConfigOptions,
+                                                 final boolean requireInput) throws InputError, IOException {
         HashMap<String, String> inputConfig = new HashMap<>();
-        if (opts.isFile()) {
+        if (opts.getFile() != null) {
             File input = opts.getFile();
             InputFileFormat format = opts.getFileFormat();
             if (null == format) {
                 format = InputFileFormat.properties;
-                if (input.getName().endsWith(".properties")) {
-                    format = InputFileFormat.properties;
-                } else if (input.getName().endsWith(".json")) {
+                if (input.getName().endsWith(".json")) {
                     format = InputFileFormat.json;
                 } else if (input.getName().endsWith(".yaml") || input.getName().endsWith(".yml")) {
                     format = InputFileFormat.yaml;
@@ -158,8 +170,8 @@ public class Configure extends AppCommand {
                     break;
             }
         }
-        if (opts.config() != null && opts.config().size() > 0) {
-            Map<String, String> config = OptionUtil.parseKeyValueMap(opts.config());
+        if (unparsedConfigOptions.getConfig() != null && unparsedConfigOptions.getConfig().size() > 0) {
+            Map<String, String> config = OptionUtil.parseKeyValueMap(unparsedConfigOptions.getConfig());
             inputConfig.putAll(config);
         }
 
@@ -169,49 +181,46 @@ public class Configure extends AppCommand {
         return inputConfig;
     }
 
-    @CommandLineInterface(application = "update", order = OptionOrder.DEFINITION) interface ConfigureUpdateOpts extends
-            ConfigInputOptions,
-            ProjectNameOptions
-    {
 
-
-    }
-
-    @Command(description = "Modify configuration properties for a project. Only the specified keys will be updated. " +
-                           "Can provide input via a file (json, properties or yaml), or commandline. If both are " +
-                           "provided, the commandline values will override the loaded file values.")
-    public void update(ConfigureUpdateOpts opts, CommandOutput output) throws IOException, InputError {
-        Map<String, String> config = loadConfig(opts, true);
-        output.info(String.format("Updating %d configuration properties...", config.size()));
+    @CommandLine.Command(description = "Modify configuration properties for a project. Only the specified keys will be updated. " +
+            "Can provide input via a file (json, properties or yaml), or commandline. If both are " +
+            "provided, the commandline values will override the loaded file values.",
+            showEndOfOptionsDelimiterInUsageHelp = true)
+    public void update(@CommandLine.Mixin ConfigFileOptions configFileOptions,
+                       @CommandLine.Mixin UnparsedConfigOptions unparsedConfigOptions,
+                       @CommandLine.Mixin ProjectNameOptions opts) throws IOException, InputError {
+        String project = validate(opts);
+        Map<String, String> config = loadConfig(configFileOptions, unparsedConfigOptions, true);
+        getRdOutput().info(String.format("Updating %d configuration properties...", config.size()));
         for (String s : config.keySet()) {
             ProjectConfig body = new ProjectConfig(Collections.singletonMap("value", config.get(s)));
-            ProjectConfig result = apiCall(api -> api.setProjectConfigurationKey(opts.getProject(), s, body));
-            output.info("Updated value: " + result.getConfig());
+            ProjectConfig result = apiCall(api -> api.setProjectConfigurationKey(project, s, body));
+            getRdOutput().info("Updated value: " + result.getConfig());
         }
     }
 
-    @CommandLineInterface(application = "delete", order = OptionOrder.DEFINITION) interface ConfigureDeleteOpts extends
-            ProjectNameOptions
-    {
+    @Getter @Setter
+    static class ConfigureDeleteOpts extends
+            ProjectNameOptions {
 
-        @Unparsed(name = "-- key [key [key..]]",
-                  defaultValue = {},
-                  description = "A list of config keys to remove, space separated after a '--' separator. ")
-        List<String> config();
-
+        @CommandLine.Parameters(paramLabel = "key [key [key..]]",
+                description = "A list of config keys to remove, space separated after a '--' separator. ")
+        List<String> config;
     }
 
-    @Command(description = "Remove configuration properties for a project. All")
-    public void delete(ConfigureDeleteOpts opts, CommandOutput output) throws IOException, InputError {
-        List<String> removeKeys = opts.config();
+    @CommandLine.Command(description = "Remove configuration properties for a project.",
+            showEndOfOptionsDelimiterInUsageHelp = true)
+    public void delete(@CommandLine.Mixin ConfigureDeleteOpts opts) throws IOException, InputError {
+        String project = validate(opts);
+        List<String> removeKeys = opts.getConfig();
 
         if (removeKeys.size() < 1) {
             throw new InputError("use `-- key1 key2` to specify keys to delete");
         }
-        output.info(String.format("Removing %d configuration properties...", removeKeys.size()));
+        getRdOutput().info(String.format("Removing %d configuration properties...", removeKeys.size()));
         for (String s : removeKeys) {
-            Void result = apiCall(api -> api.deleteProjectConfigurationKey(opts.getProject(), s));
-            output.info("Removed key: " + s);
+            Void result = apiCall(api -> api.deleteProjectConfigurationKey(project, s));
+            getRdOutput().info("Removed key: " + s);
 
         }
     }

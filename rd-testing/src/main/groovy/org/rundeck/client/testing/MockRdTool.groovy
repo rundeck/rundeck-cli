@@ -1,10 +1,11 @@
-package org.rundeck.client.tool.commands.repository
+package org.rundeck.client.testing
 
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.tool.InputError
 import org.rundeck.client.tool.ProjectInput
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.extension.RdCommandExtension
+import org.rundeck.client.tool.extension.RdOutput
 import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.RdClientConfig
 import org.rundeck.client.util.ServiceClient
@@ -20,6 +21,9 @@ class MockRdTool implements RdTool {
     @Override
     def <T extends RdCommandExtension> T initExtension(final T extension) {
         extension.setRdTool(this)
+        if (extension instanceof RdOutput) {
+            ((RdOutput) extension).rdOutput = rdApp.output
+        }
         extension
     }
 
@@ -50,11 +54,11 @@ class MockRdTool implements RdTool {
 
     @Override
     String projectOrEnv(final ProjectInput options) throws InputError {
-        return null
+        return options.project
     }
 
     @Override
     void requireApiVersion(final String description, final int min) throws InputError {
-        apiVersionCheck(description, min, getClient().getApiVersion())
+        RdTool.apiVersionCheck(description, min, getClient().getApiVersion())
     }
 }

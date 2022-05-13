@@ -17,7 +17,7 @@ import spock.lang.Specification
  * @author greg
  * @since 10/19/17
  */
-class AppCommandSpec extends Specification {
+class RdToolImplSpec extends Specification {
     def "check error with api version downgrade"() {
         given:
 
@@ -39,7 +39,7 @@ class AppCommandSpec extends Specification {
             getClient() >> client
         }
 
-        def cmd = new AppCommand(app) {
+        def cmd = new RdToolImpl(app) {
 
         }
 
@@ -86,7 +86,7 @@ class AppCommandSpec extends Specification {
             getClient() >> client
         }
 
-        def cmd = new AppCommand(app) {
+        def cmd = new RdToolImpl(app) {
 
         }
 

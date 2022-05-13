@@ -16,44 +16,32 @@
 
 package org.rundeck.client.tool.commands;
 
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.HasSubCommands;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.SystemInfo;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.system.ACLs;
 import org.rundeck.client.tool.commands.system.Mode;
+import org.rundeck.client.tool.extension.BaseCommand;
+import picocli.CommandLine;
 
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * system subcommands
  */
-@Command(description = "View system information", value = "system")
-public class RDSystem extends AppCommand implements HasSubCommands {
-    public RDSystem(final RdApp client) {
-        super(client);
-    }
-
-    @Override
-    public List<Object> getSubCommands() {
-        return Arrays.asList(
-                new ACLs(getRdApp()),
-                new Mode(getRdApp())
-        );
-    }
+@CommandLine.Command(description = "View system information", name = "system",
+        subcommands = {
+                ACLs.class,
+                Mode.class
+        })
+public class RDSystem extends BaseCommand {
 
     /**
      * Read system info
      */
-    @Command(description = "Print system information and stats.")
-    public void info(CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "Print system information and stats.")
+    public void info() throws IOException, InputError {
         SystemInfo systemInfo = apiCall(RundeckApi::systemInfo);
-        output.output(systemInfo.system.toMap());
+        getRdOutput().output(systemInfo.system.toMap());
     }
-
 }

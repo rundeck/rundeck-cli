@@ -1,2 +1,2 @@
 org.rundeck.client.tool.commands.enterprise.license.License
-org.rundeck.client.tool.commands.enterprise.cluster.Mode
+org.rundeck.client.tool.commands.enterprise.cluster.Cluster

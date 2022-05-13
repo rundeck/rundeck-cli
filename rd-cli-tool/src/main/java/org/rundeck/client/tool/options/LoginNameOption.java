@@ -16,15 +16,20 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
 /**
  * login name for user
  */
-public interface LoginNameOption {
+@Getter @Setter
+public class LoginNameOption {
 
-    @Option(shortName = "u", longName = "user", description = "user login")
-    String getLogin();
+    @CommandLine.Option(names = {"-u", "--user"}, description = "user login")
+    private String login;
 
-    boolean isLogin();
+    public boolean isLogin() {
+        return login != null;
+    }
 }

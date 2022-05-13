@@ -16,10 +16,12 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
+@Getter @Setter
+public class RunOptions {
 
-public interface RunOptions {
-
-    @Option(shortName = "f", longName = "follow", description = "Follow execution output as it runs")
-    boolean isFollow();
+    @CommandLine.Option(names={"-f","--follow"}, description = "Follow execution output as it runs")
+    boolean follow;
 }

@@ -484,7 +484,7 @@ public class Client<T> implements ServiceClient<T> {
      * implements repeatable response body
      */
     static class RepeatResponse implements RepeatableResponse {
-        ResponseBody responseBody;
+        final ResponseBody responseBody;
         byte[] bufferedBody;
 
         public RepeatResponse(final ResponseBody responseBody) {
@@ -498,15 +498,15 @@ public class Client<T> implements ServiceClient<T> {
 
         public ResponseBody repeatBody() throws IOException {
             if (null != bufferedBody) {
-                return ResponseBody.create(this.responseBody.contentType(), bufferedBody);
+                return ResponseBody.create(bufferedBody,this.responseBody.contentType());
             }
 
             bufferedBody = responseBody.bytes();
-            return ResponseBody.create(this.responseBody.contentType(), bufferedBody);
+            return ResponseBody.create(bufferedBody, this.responseBody.contentType());
         }
     }
 
-    private RepeatableResponse repeatResponse(final Response<?> execute) throws IOException {
+    private RepeatableResponse repeatResponse(final Response<?> execute) {
         ResponseBody responseBody = execute.errorBody();
         return new RepeatResponse(responseBody);
     }

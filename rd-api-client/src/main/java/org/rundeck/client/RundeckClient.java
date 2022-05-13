@@ -80,7 +80,7 @@ public class RundeckClient {
         boolean allowVersionDowngrade;
         Client.Logger logger;
         private String userAgent = USER_AGENT;
-        private Class<A> api;
+        private final Class<A> api;
 
         Builder(Class<A> api) {
             this.api = api;
@@ -459,11 +459,11 @@ public class RundeckClient {
     )
     {
         if (null != value) {
-            List<String> collect = new ArrayList<>(Arrays.stream(value.split(", *"))
-                                                         .map(String::trim)
-                                                         .filter(s -> !"".equals(s))
-                                                         .map(String::toUpperCase)
-                                                         .collect(Collectors.toList()));
+            List<String> collect = Arrays.stream(value.split(", *"))
+                    .map(String::trim)
+                    .filter(s -> !"".equals(s))
+                    .map(String::toUpperCase)
+                    .collect(Collectors.toList());
 
             List<String> names = Collections.unmodifiableList(collect);
             SSLUtil.addAlternateSSLHostnameVerifier(

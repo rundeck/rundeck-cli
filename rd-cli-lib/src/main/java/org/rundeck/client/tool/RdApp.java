@@ -68,12 +68,12 @@ public interface RdApp {
     /**
      * @return output endpoint
      */
-    public CommandOutput getOutput();
+    CommandOutput getOutput();
 
     /**
      * Issue warning about api version downgrade
      * @param requested requested api version
      * @param supported supported api verson
      */
-    public void versionDowngradeWarning(int requested, int supported);
+    void versionDowngradeWarning(int requested, int supported);
 }

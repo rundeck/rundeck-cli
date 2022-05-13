@@ -20,9 +20,15 @@ import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.ExecutionList
 import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.Paging
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.tool.options.ExecutionOutputFormatOption
+import org.rundeck.client.tool.options.PagingResultOptions
+import org.rundeck.client.tool.options.ProjectNameOptions
 import org.rundeck.client.util.RdClientConfig
-import org.rundeck.toolbelt.CommandOutput
+
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
@@ -43,22 +49,20 @@ class ExecutionsSpec extends Specification {
 
         given:
         def api = Mock(RundeckApi)
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-            getAppConfig() >> Mock(RdClientConfig)
-        }
-        Executions command = new Executions(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
-        def options = Mock(Executions.BulkDeleteCmd) {
-            getProject() >> 'aproject'
-            require() >> reqd
+        Executions command = new Executions()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def options = new Executions.BulkDeleteCmd()
+        options.with {
+            it.project = 'aproject'
+            it.require = reqd
         }
 
         when:
-        def result = command.deletebulk(options, out)
+        def result = command.deletebulk(options, new PagingResultOptions(), new ExecutionOutputFormatOption())
         then:
         1 * api.listExecutions('aproject', [max: '20', offset: '0'], null, null, null, null) >> Calls.response(
                 new ExecutionList(paging: new Paging(offset: 0, max: 20, total: 0, count: 0), executions: [])
@@ -70,22 +74,32 @@ class ExecutionsSpec extends Specification {
         true  | false
         false | true
     }
+
+    private RdTool setupMock(RundeckApi api) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, 18, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
     def "output format allows job.* params"() {
         given:
         def api = Mock(RundeckApi)
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Executions command = new Executions(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
-        def options = Mock(Executions.ListCmd) {
-            getProject() >> 'aproject'
-            getOutputFormat() >> outFormat
-            isOutputFormat() >> true
-        }
+        Executions command = new Executions()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+
+        def options = new ExecutionOutputFormatOption()
+        options.outputFormat = outFormat
+
         def jobmap = [
                 id             : 'jobid',
                 name           : 'jobname',
@@ -97,7 +111,7 @@ class ExecutionsSpec extends Specification {
                 averageDuration: 123l
         ]
         when:
-        command.list(options, out)
+        command.list(options, new PagingResultOptions(), new ProjectNameOptions(project: 'aproject'))
 
         then:
         1 * api.runningExecutions('aproject', 0, 20) >> Calls.response(
@@ -294,25 +308,20 @@ class ExecutionsSpec extends Specification {
     def "executions query noninteractive --autopage behavior"() {
         given:
         def api = Mock(RundeckApi)
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-
-        def options = Mock(Executions.QueryCmd) {
-            getProject() >> 'aproject'
-            getMax() >> 1
-            isMax() >> true
-            isNonInteractive() >> true
-            isAutoLoadPages() >> autopage
-        }
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-            getAppConfig() >> Mock(RdClientConfig)
-        }
-        def command = new Executions(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Executions command = new Executions()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def options = new Executions.QueryCmd()
+        options.project='aproject'
+        options.nonInteractive=true
+        options.autoLoadPages=autopage
+
+
         when:
-        command.query(options, out)
+        command.query(options, new PagingResultOptions(max:1),new ExecutionOutputFormatOption())
 
         then:
         1 * api.listExecutions('aproject', [max: '1', offset: '0'], null, null, null, null) >> Calls.response(

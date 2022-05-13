@@ -17,10 +17,16 @@
 package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.RoleList
-import org.rundeck.toolbelt.CommandOutput
+
 import org.rundeck.client.api.RundeckApi
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.tool.options.LoginNameOption
+import org.rundeck.client.tool.options.UserFormatOption
 import org.rundeck.client.util.Client
+import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -29,25 +35,33 @@ import org.rundeck.client.api.model.User
 
 class UsersSpec extends Specification {
 
+    private RdTool setupMock(RundeckApi api, int apiVersion = 18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
     def "info correct endpoint redirect"() {
         given:
 
         def api = Mock(RundeckApi)
-        def opts = Mock(Users.Info) {
-            getLogin() >> username
-            isLogin() >> (username != null)
-        }
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 21, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Users users = new Users(hasclient)
+        RdTool rdTool = setupMock(api, 21)
         def out = Mock(CommandOutput)
+        Users command = new Users()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new LoginNameOption()
+        opts.login=username
 
         when:
-        users.info(opts,out)
+        command.info(opts, new UserFormatOption())
 
         then:
         sameUserEndpoint * api.getUserInfo() >>
@@ -70,25 +84,20 @@ class UsersSpec extends Specification {
 
     def "edit correct endpoint redirect"() {
         given:
-
         def api = Mock(RundeckApi)
-        def opts = Mock(Users.Edit) {
-            getLogin() >> username
-            isLogin() >> (username != null)
-            getEmail() >> 'test@email.com'
-            isEmail() >> true
-        }
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 21, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Users users = new Users(hasclient)
+        RdTool rdTool = setupMock(api, 21)
         def out = Mock(CommandOutput)
+        Users command = new Users()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new Users.Edit()
+        opts.login=username
+        opts.email='test@email.com'
+
 
         when:
-        users.edit(opts,out)
+        command.edit(opts, new UserFormatOption())
 
         then:
         sameUserEndpoint * api.editUserInfo(_) >>
@@ -111,29 +120,22 @@ class UsersSpec extends Specification {
 
     def "list correct execution"() {
         given:
-
         def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api, 21)
+        def out = Mock(CommandOutput)
+        Users command = new Users()
+        command.rdTool = rdTool
+        command.rdOutput = out
 
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 21, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Users users = new Users(hasclient)
-        def out = Mock(CommandOutput){
-            output(_) >>{msg->println(msg)}
-        }
         List<User> arr = new ArrayList<User>()
         if(userCount>0){
             (1..userCount).each{
                 arr.push(new User(login: 'login', email: 'test@email.com'))
             }
         }
-        def opt = Mock(Users.ListOption)
 
         when:
-        users.list(opt, out)
+        command.list(new UserFormatOption())
 
         then:
         1 * api.listUsers() >>
@@ -152,26 +154,21 @@ class UsersSpec extends Specification {
 
     }
 
-    def "list roles"() {
+    def "list roles apiv30"() {
         given:
-
         def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api, 30)
+        def out = Mock(CommandOutput)
+        Users command = new Users()
+        command.rdTool = rdTool
+        command.rdOutput = out
 
 
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 30, false, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Users users = new Users(hasclient)
-        def out = Mock(CommandOutput){
-            output(_) >>{msg->println(msg)}
-        }
         RoleList roleList = new RoleList();
         roleList.roles = Arrays.asList("admin","user");
 
         when:
-        users.roles(out)
+        command.roles()
 
         then:
         1 * api.listRoles() >>

@@ -2,14 +2,15 @@ package org.rundeck.client.api.model.executions;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.util.DataOutput;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Data
+@Getter @Setter
 public class MetricsResponse
         implements DataOutput
 {
@@ -27,7 +28,7 @@ public class MetricsResponse
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @Data
+    @Getter @Setter
     public static class Status
             implements DataOutput
     {

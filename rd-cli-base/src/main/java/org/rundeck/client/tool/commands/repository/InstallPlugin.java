@@ -15,43 +15,41 @@
  */
 package org.rundeck.client.tool.commands.repository;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
 import lombok.Setter;
+import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdOutput;
 import org.rundeck.client.tool.extension.RdTool;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import picocli.CommandLine;
 
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
-@Command(description = "Install a plugin from your plugin repository into your Rundeck instance",value="install")
-public class InstallPlugin implements RdCommandExtension {
-    @Setter private RdTool rdTool;
+@CommandLine.Command(description = "Install a plugin from your plugin repository into your Rundeck instance", name = "install")
+public class InstallPlugin implements RdCommandExtension, RdOutput, Callable<Boolean> {
+    @Setter
+    private RdTool rdTool;
 
-    @CommandLineInterface interface InstallPluginOption {
-        @Option(shortName = "r", longName = "repository", description = "Repository name that contains the plugin.")
-        String getRepoName();
-        @Option(longName = "id",shortName = "i",description = "Id of the plugin you want to install")
-        String getPluginId();
-        @Option(longName = "version", shortName = "v",description = "(Optional) Specific version of the plugin you want to install",defaultToNull = true)
-        String getVersion();
-    }
+    @Setter
+    private CommandOutput rdOutput;
+    @CommandLine.Option(names = {"-r", "--repository"}, description = "Repository name that contains the plugin.", required = true)
+    String repoName;
+    @CommandLine.Option(names = {"--id", "-i"}, description = "Id of the plugin you want to install", required = true)
+    String pluginId;
+    @CommandLine.Option(names = {"--version", "-v"}, description = "(Optional) Specific version of the plugin you want to install")
+    String version;
 
-    @Command(isDefault = true)
-    public void install(InstallPluginOption option, CommandOutput output) throws InputError, IOException {
-        String pluginId = option.getPluginId();
-
+    public Boolean call() throws InputError, IOException {
         RepositoryResponseHandler.handle(
                 rdTool.apiWithErrorResponse(api -> {
-            if(option.getVersion() != null) {
-                return api.installPlugin(option.getRepoName(),pluginId,option.getVersion());
-            } else {
-                return api.installPlugin(option.getRepoName(), pluginId);
-            }
-        }),output);
-
+                    if (version != null) {
+                        return api.installPlugin(repoName, pluginId, version);
+                    } else {
+                        return api.installPlugin(repoName, pluginId);
+                    }
+                }), rdOutput);
+        return true;
     }
 
 }

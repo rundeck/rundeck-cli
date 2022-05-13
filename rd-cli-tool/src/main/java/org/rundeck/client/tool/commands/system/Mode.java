@@ -1,17 +1,16 @@
 package org.rundeck.client.tool.commands.system;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.client.tool.InputError;
+
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ExecutionMode;
 import org.rundeck.client.api.model.SystemInfo;
 import org.rundeck.client.api.model.SystemMode;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
+import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.options.QuietOption;
+import picocli.CommandLine;
 import retrofit2.Call;
 
 import java.io.IOException;
@@ -22,29 +21,27 @@ import java.util.function.Function;
  * @since 8/14/17
  */
 
-@Command(description = "Manage Execution Mode")
-public class Mode extends AppCommand {
-    public Mode(final RdApp rdApp) {
-        super(rdApp);
-    }
+@CommandLine.Command(description = "Manage Execution Mode", name = "mode")
+public class Mode extends BaseCommand {
 
-    @CommandLineInterface(application = "info") interface ModeInfo {
 
-        @Option(shortName = "A",
-                longName = "testactive",
+    @Getter @Setter
+    static
+    class ModeInfo {
+
+        @CommandLine.Option(names = {"-A", "--testactive"},
                 description = "Test whether the execution mode is active: fail if not")
-        boolean isTestActive();
+        boolean testActive;
 
-        @Option(shortName = "P",
-                longName = "testpassive",
+        @CommandLine.Option(names = {"-P", "--testpassive"},
                 description = "Test whether the execution mode is passive: fail if not")
-        boolean isTestPassive();
+        boolean testPassive;
     }
 
-    @Command(description =
-                     "Show execution mode\n" +
-                     "When --testactive or --testpassive are used, the exit code will be 0 if the test is successful, 1 otherwise.")
-    public boolean info(ModeInfo opts, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description =
+            "Show execution mode\n" +
+                    "When --testactive or --testpassive are used, the exit code will be 0 if the test is successful, 1 otherwise.")
+    public int info(@CommandLine.Mixin ModeInfo opts) throws IOException, InputError {
         if (opts.isTestPassive() && opts.isTestActive()) {
             throw new InputError("--testactive and --testpassive cannot be combined");
         }
@@ -56,47 +53,39 @@ public class Mode extends AppCommand {
 
         if (opts.isTestActive() && !modeIsActive || opts.isTestPassive() && modeIsActive) {
             testpass = false;
-            output.warning(message);
+            getRdOutput().warning(message);
         } else {
-            output.info(message);
+            getRdOutput().info(message);
         }
-        output.output(executionMode);
-        return testpass;
+        getRdOutput().output(executionMode);
+        return testpass ? 0 : 1;
     }
 
-    @CommandLineInterface(application = "active") interface ModeActive extends QuietOption {
 
+    @CommandLine.Command(description = "Set execution mode Active")
+    public boolean active(@CommandLine.Mixin QuietOption opts) throws IOException, InputError {
+        return changeMode(opts, ExecutionMode.active, RundeckApi::executionModeEnable);
     }
 
-    @Command(description = "Set execution mode Active")
-    public boolean active(ModeActive opts, CommandOutput output) throws IOException, InputError {
-        return changeMode(opts, output, ExecutionMode.active, RundeckApi::executionModeEnable);
-    }
 
-    @CommandLineInterface(application = "passive") interface ModePassive extends QuietOption {
-
-    }
-
-    @Command(description = "Set execution mode Passive")
-    public boolean passive(ModePassive opts, CommandOutput output) throws IOException, InputError {
-        return changeMode(opts, output, ExecutionMode.passive, RundeckApi::executionModeDisable);
+    @CommandLine.Command(description = "Set execution mode Passive")
+    public boolean passive(@CommandLine.Mixin QuietOption opts) throws IOException, InputError {
+        return changeMode(opts, ExecutionMode.passive, RundeckApi::executionModeDisable);
     }
 
     boolean changeMode(
             final QuietOption opts,
-            final CommandOutput output,
             final ExecutionMode expected,
             final Function<RundeckApi, Call<SystemMode>> operation
     )
-            throws InputError, IOException
-    {
+            throws InputError, IOException {
         if (!opts.isQuiet()) {
-            output.info(String.format("Setting execution mode to %s...", expected));
+            getRdOutput().info(String.format("Setting execution mode to %s...", expected));
         }
         SystemMode mode = apiCall(operation);
         if (!opts.isQuiet()) {
-            output.info("Execution Mode is now:");
-            output.output(mode.getExecutionMode());
+            getRdOutput().info("Execution Mode is now:");
+            getRdOutput().output(mode.getExecutionMode());
         }
         return expected.equals(mode.getExecutionMode());
     }

@@ -54,7 +54,7 @@ public interface RdTool {
      * @throws InputError  on error
      * @throws IOException on error
      */
-    public <T> T apiCallDowngradable(
+    <T> T apiCallDowngradable(
             final Function<RundeckApi, Call<T>> func
     )
             throws InputError, IOException;
@@ -68,7 +68,7 @@ public interface RdTool {
      * @throws InputError  on error
      * @throws IOException on error
      */
-    public <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponseDowngradable(
+    <T> ServiceClient.WithErrorResponse<T> apiWithErrorResponseDowngradable(
             final Function<RundeckApi, Call<T>> func
     )
             throws InputError, IOException;
@@ -99,7 +99,7 @@ public interface RdTool {
      * @param currentVersion current version
      * @throws InputError if version is not met
      */
-    public static void apiVersionCheck(String description, int min, int currentVersion) throws InputError {
+    static void apiVersionCheck(String description, int min, int currentVersion) throws InputError {
         if (currentVersion < min) {
             throw new InputError(String.format(
                     "%s: requires API >= %d (current: %d)",

@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 
 public class ExtensionLoaderUtil {
-    private static ServiceLoader<RdCommandExtension>
+    private static final ServiceLoader<RdCommandExtension>
             extensionServiceLoader =
             ServiceLoader.load(RdCommandExtension.class);
 

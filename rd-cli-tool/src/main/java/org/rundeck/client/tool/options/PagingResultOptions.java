@@ -16,21 +16,28 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
 /**
  * @author greg
  * @since 3/2/17
  */
-public interface PagingResultOptions {
+@Getter @Setter
+public class PagingResultOptions {
 
-    @Option(shortName = "m", longName = "max", description = "Maximum number of results to retrieve at once.")
-    int getMax();
+    @CommandLine.Option(names = {"-m", "--max"}, description = "Maximum number of results to retrieve at once.")
+    private Integer max;
 
-    boolean isMax();
+    public boolean isMax() {
+        return max != null && max > 0;
+    }
 
-    @Option(shortName = "o", longName = "offset", description = "First result offset to receive.")
-    int getOffset();
+    @CommandLine.Option(names = {"-o", "--offset"}, description = "First result offset to receive.")
+    private Integer offset;
 
-    boolean isOffset();
+    public boolean isOffset() {
+        return offset != null && offset > 0;
+    }
 }

@@ -1,14 +1,15 @@
 package org.rundeck.client.tool.commands.enterprise.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.rundeck.client.util.DataOutput;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@Data
+@Getter @Setter
 public class LicenseStoreResponse
         implements DataOutput
 {

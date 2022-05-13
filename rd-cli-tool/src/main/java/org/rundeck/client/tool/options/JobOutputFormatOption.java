@@ -16,17 +16,17 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
-public interface JobOutputFormatOption {
+@Getter @Setter
+public class JobOutputFormatOption extends VerboseOption implements OutputFormat {
 
-    @Option(shortName = "%",
-            longName = "outformat",
-            description = "Output format specifier for job data. You can use \"%key\" where key is one of:" +
-                          "id, name, group, project, description, href, permalink, averageDuration. E.g. \"%id " +
-                          "%href\". For 'jobs info' additional keys: scheduled, scheduleEnabled, enabled, scheduler" +
-                          ".serverOwner, scheduler.serverNodeUUID.")
-    String getOutputFormat();
-
-    boolean isOutputFormat();
+    @CommandLine.Option(names = {"-%", "--outformat"},
+            description = "Output format specifier for job data. You can use \"%%key\" where key is one of:" +
+                    "id, name, group, project, description, href, permalink, averageDuration. E.g. \"%%id " +
+                    "%%href\". For 'jobs info' additional keys: scheduled, scheduleEnabled, enabled, scheduler" +
+                    ".serverOwner, scheduler.serverNodeUUID.")
+    String outputFormat;
 }

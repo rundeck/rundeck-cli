@@ -46,7 +46,10 @@
             <trusting group="org.apache.commons" name="commons-text" version="1.8"/>
          </trusted-key>
          <trusted-key id="2e3a1affe42b5f53af19f780bcf4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
-         <trusted-key id="31327da0c35ea6b88b9d4648f192529298c4c654" group="org.rundeck.cli-toolbelt"/>
+         <trusted-key id="31327da0c35ea6b88b9d4648f192529298c4c654">
+            <trusting group="org.rundeck"/>
+            <trusting group="org.rundeck.cli-toolbelt"/>
+         </trusted-key>
          <trusted-key id="31fae244a81d64507b47182e1b2718089ce964b8" group="com.thoughtworks.qdox" name="qdox" version="1.12.1"/>
          <trusted-key id="34441e504a937f43eb0daef96a65176a0fb1cd0b" group="org.codehaus.groovy"/>
          <trusted-key id="34d6ff19930adf43ac127792a50569c7ca7fa1f0">
@@ -119,6 +122,10 @@
          <trusted-key id="a6d6c97108b8585f91b158748671a8df71296252" group="^com[.]squareup($|([.].*))" regex="true"/>
          <trusted-key id="a7892505cf1a58076453e52d7999befba1039e8b" group="net.bytebuddy"/>
          <trusted-key id="a9f885a21ba0efb7d0991e6ccaf5ec5919fea27d" group="commons-digester" name="commons-digester" version="2.1"/>
+         <trusted-key id="aa417737bd805456db3cbdde6601e5c08dccbb96">
+            <trusting group="info.picocli" name="picocli" version="4.6.3"/>
+            <trusting group="info.picocli" name="picocli-codegen" version="4.6.3"/>
+         </trusted-key>
          <trusted-key id="aa70c7c433d501636392ec02153e7a3c2b4e5118" group="org.eclipse.ee4j" name="project"/>
          <trusted-key id="afcc4c7594d09e2182c60e0f7a01b0f236e5430f" group="com.google.code.gson"/>
          <trusted-key id="b41089a2da79b0fa5810252872385ff0af338d52" group="joda-time" name="joda-time" version="2.10.4"/>

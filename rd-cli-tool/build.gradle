@@ -60,15 +60,17 @@ dependencies {
     implementation project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-cli-base")
     implementation project(":rd-cli-enterprise")
 
-    implementation 'com.github.rundeck:rd-ext-acl:v0.1.2:all'
+    implementation project(":rd-cli-acl")
 
-    implementation libs.bundles.toolbelt
+    implementation libs.picocli
+    annotationProcessor libs.picocliCodegen
 
     testImplementation project(":rd-api-client")
 
     testImplementation libs.retrofitMock
     testImplementation libs.okhttpMockwebserver
     testImplementation libs.bundles.test
+    testImplementation project(":rd-testing")
 }
 shadowJar {
     mergeServiceFiles()
@@ -102,7 +104,7 @@ set -e
 # Source user's config file
 RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
 test -f $RD_CONF && . $RD_CONF
-export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/ext}
+export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/extv2}
 '''
     )
     def setJ11AddOpens=appendConfigData.curry(
@@ -190,3 +192,7 @@ buildRpm.dependsOn shadowDistZip
 assemble.dependsOn buildRpm, buildDeb
 
 apply from: "${rootDir}/gradle/publishing.gradle"
+
+test {
+    useJUnitPlatform()
+}

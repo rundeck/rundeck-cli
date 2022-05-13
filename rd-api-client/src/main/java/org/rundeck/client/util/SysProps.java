@@ -13,8 +13,8 @@ public class SysProps
         this.getter = getter;
     }
 
-    static interface GetProperty {
-        public String getProperty(String key, String defval);
+    interface GetProperty {
+        String getProperty(String key, String defval);
     }
 
     public String get(final String key) {

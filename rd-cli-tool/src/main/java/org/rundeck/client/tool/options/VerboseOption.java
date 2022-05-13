@@ -16,11 +16,15 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
-public interface VerboseOption {
+public class VerboseOption {
 
-    @Option(shortName = "v", longName = "verbose", description = "Extended verbose output")
-    boolean isVerbose();
+    @CommandLine.Option(names = {"-v", "--verbose"}, description = "Extended verbose output")
+    @Getter
+    @Setter
+    boolean verbose;
 
 }

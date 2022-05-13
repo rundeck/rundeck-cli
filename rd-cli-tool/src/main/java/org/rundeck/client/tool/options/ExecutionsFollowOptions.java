@@ -16,16 +16,22 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
-public interface ExecutionsFollowOptions extends BaseOptions, FollowOptions {
+@Getter @Setter
+public class ExecutionsFollowOptions extends FollowOptions {
 
-    @Option(shortName = "e", longName = "eid", description = "Execution ID")
-    String getId();
+    @CommandLine.Option(names = {"-e", "--eid"}, description = "Execution ID", required = true)
+    String id;
 
-    @Option(shortName = "%",
-            longName = "outformat",
-            description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
-                          "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
-    String getOutputFormat();
+    @CommandLine.Option(names = {"-%", "--outformat"},
+            description = "Output format specifier for execution logs. You can use \"%%key\" where key is one of:" +
+                    "time,level,log,user,command,node. E.g. \"%%user@%%node/%%level: %%log\"")
+    String outputFormat;
+
+    public boolean isOutputFormat() {
+        return outputFormat != null;
+    }
 }

@@ -16,15 +16,13 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.toolbelt.HasSubCommands;
+import lombok.Getter;
+import lombok.Setter;
+import org.rundeck.client.tool.extension.BaseCommand;
+import picocli.CommandLine;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.RundeckApi;
 import org.rundeck.client.api.model.ProjectItem;
-import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.commands.projects.*;
 import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
@@ -39,88 +37,81 @@ import java.util.stream.Collectors;
 /**
  * projects subcommands
  */
-@Command(description = "List and manage projects.")
-public class Projects extends AppCommand implements HasSubCommands {
-    public Projects(final RdApp client) {
-        super(client);
-    }
+@CommandLine.Command(
+        description = "List and manage projects.",
+        name = "projects",
+        subcommands = {
+                ACLs.class,
+                SCM.class,
+                Readme.class,
+                Configure.class,
+                Archives.class
+        })
+public class Projects extends BaseCommand {
 
-    @Override
-    public List<Object> getSubCommands() {
-        return Arrays.asList(
-                new ACLs(getRdApp()),
-                new SCM(getRdApp()),
-                new Readme(getRdApp()),
-                new Configure(getRdApp()),
-                new Archives(getRdApp())
-        );
-    }
 
-    interface ProjectResultOptions extends ProjectListFormatOptions, VerboseOption {
-
-    }
-
-    @CommandLineInterface(application = "list") interface ProjectListOpts extends ProjectResultOptions {
-
-    }
-
-    @Command(description = "List all projects.")
-    public void list(ProjectListOpts opts, CommandOutput output) throws IOException, InputError {
+    @CommandLine.Command(description = "List all projects.")
+    public void list(
+            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
+    ) throws IOException, InputError {
         List<ProjectItem> body = apiCall(RundeckApi::listProjects);
-        if (!opts.isOutputFormat()) {
-            output.info(String.format("%d Projects:%n", body.size()));
+        if (formatOptions.getOutputFormat() == null) {
+            getRdOutput().info(String.format("%d Projects:%n", body.size()));
         }
 
-        outputProjectList(opts, output, body, ProjectItem::getName, ProjectItem::toMap);
+        outputProjectList(body, formatOptions, verboseOption, ProjectItem::getName, ProjectItem::toMap);
     }
 
-    @CommandLineInterface(application = "info") interface ProjectInfoOpts extends ProjectResultOptions {
+    @CommandLine.Command(
+            description = "Get info about a project. Use -v/--verbose to output all available config data, or use " +
+                    "-%%/--outformat for selective data.")
+    public void info(
+            @CommandLine.Mixin ProjectNameOptions opts,
+            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
+    ) throws IOException, InputError {
+        String project = getRdTool().projectOrEnv(opts);
+        ProjectItem body = apiCall(api -> api.getProjectInfo(project));
 
-        @Option(shortName = "p", longName = "project", description = "Project name")
-        String getProject();
-
-    }
-
-    @Command(
-             description = "Get info about a project. Use -v/--verbose to output all available config data, or use " +
-                           "-%/--outformat for selective data.")
-    public void info(ProjectInfoOpts opts, CommandOutput output) throws IOException, InputError {
-        ProjectItem body = apiCall(api -> api.getProjectInfo(opts.getProject()));
-
-        outputProjectList(opts, output, Collections.singletonList(body), ProjectItem::toBasicMap, ProjectItem::toMap);
+        outputProjectList(Collections.singletonList(body), formatOptions, verboseOption, ProjectItem::toBasicMap, ProjectItem::toMap);
     }
 
     private void outputProjectList(
-            final ProjectResultOptions options,
-            final CommandOutput output,
             final List<ProjectItem> body,
+            ProjectListFormatOptions formatOptions,
+            VerboseOption verboseOption,
             final Function<ProjectItem, Object> basicOutput,
             final Function<ProjectItem, Map<Object, Object>> verboseOutput
-    )
-    {
+    ) {
         final Function<ProjectItem, ?> outformat;
-        if (options.isVerbose()) {
-            output.output(body.stream().map(verboseOutput).collect(Collectors.toList()));
+        if (verboseOption.isVerbose()) {
+            getRdOutput().output(body.stream().map(verboseOutput).collect(Collectors.toList()));
             return;
         }
-        if (options.isOutputFormat()) {
-            outformat = Format.formatter(options.getOutputFormat(), ProjectItem::toMap, "%", "");
+        if (formatOptions.getOutputFormat() != null) {
+            outformat = Format.formatter(formatOptions.getOutputFormat(), ProjectItem::toMap, "%", "");
         } else {
             outformat = basicOutput;
         }
 
-        output.output(body.stream().map(outformat).collect(Collectors.toList()));
+        getRdOutput().output(body.stream().map(outformat).collect(Collectors.toList()));
     }
 
-    @CommandLineInterface(application = "delete") interface ProjectDelete extends ProjectNameOptions {
-        @Option(longName = "confirm", shortName = "y", description = "Force confirmation of delete request.")
-        boolean isConfirm();
+    @Getter @Setter
+    static class ProjectDelete extends ProjectNameOptions {
+        @CommandLine.Option(names = {"--confirm", "-y"}, description = "Force confirmation of delete request.")
+        boolean confirm;
 
     }
 
-    @Command(description = "Delete a project")
-    public boolean delete(ProjectDelete options, CommandOutput output) throws IOException, InputError {
-        String project = projectOrEnv(options);
+    @CommandLine.Command(description = "Delete a project")
+    public boolean delete(
+            @CommandLine.Mixin ProjectDelete options,
+            @CommandLine.Mixin ProjectListFormatOptions formatOptions,
+            @CommandLine.Mixin VerboseOption verboseOption
+    ) throws IOException, InputError {
+        String project = getRdTool().projectOrEnv(options);
         if (!options.isConfirm()) {
             //request confirmation
             Console console = System.console();
@@ -128,35 +119,34 @@ public class Projects extends AppCommand implements HasSubCommands {
             if (null != console) {
                 s = console.readLine("Really delete project %s? (y/N) ", project);
             } else {
-                output.warning("No console input available, and --confirm/-y was not set.");
+                getRdOutput().warning("No console input available, and --confirm/-y was not set.");
             }
 
             if (!"y".equals(s)) {
-                output.warning(String.format("Not deleting project %s.", project));
+                getRdOutput().warning(String.format("Not deleting project %s.", project));
                 return false;
             }
         }
         apiCall(api -> api.deleteProject(project));
-        output.info(String.format("Project was deleted: %s%n", project));
+        getRdOutput().info(String.format("Project was deleted: %s%n", project));
         return true;
     }
 
-    @CommandLineInterface(application = "create")
-    interface Create extends ProjectCreateOptions, ConfigInputOptions {
+    @CommandLine.Command(description = "Create a project.")
+    public void create(
+            @CommandLine.Mixin ProjectNameOptions nameOptions,
+            @CommandLine.Mixin Configure.ConfigFileOptions configFileOptions,
+            @CommandLine.Mixin UnparsedConfigOptions options
+    ) throws IOException, InputError {
 
-    }
-
-    @Command(description = "Create a project.")
-    public void create(Create options, CommandOutput output) throws IOException, InputError {
-
-        Map<String, String> config = Configure.loadConfig(options, false);
+        Map<String, String> config = Configure.loadConfig(configFileOptions, options, false);
 
         ProjectItem project = new ProjectItem();
-        project.setName(projectOrEnv(options));
+        project.setName(getRdTool().projectOrEnv(nameOptions));
         project.setConfig(config);
 
         ProjectItem body = apiCall(api -> api.createProject(project));
-        output.info(String.format("Created project: \n\t%s%n", body.toBasicString()));
+        getRdOutput().info(String.format("Created project: \n\t%s%n", body.toBasicString()));
     }
 
 }

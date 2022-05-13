@@ -16,64 +16,75 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
-import com.lexicalscope.jewel.cli.Unparsed;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 import org.rundeck.client.api.model.DateInfo;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-@CommandLineInterface(application = "run")
-public interface RunBaseOptions extends JobIdentOptions, FollowOptions, OptionalProjectOptions, NodeFilterOptions, VerboseOption {
-    @Option(shortName = "l",
-            longName = "loglevel",
+@Getter @Setter
+public class RunBaseOptions extends JobIdentOptions  {
+    @CommandLine.Option(names = {"-l", "--loglevel"},
             description = "Run the command using the specified LEVEL. LEVEL can be debug, verbose, info, warning, error.",
-            defaultValue = {"info"},
-            pattern = "(debug|verbose|info|warning|error)")
-    String getLoglevel();
+            defaultValue = "info")
+    private Loglevel loglevel;
 
-    @Option(hidden = true, pattern = "(debug|verbose|info|warning|error)")
-    String getLogevel();
+    public enum Loglevel {
+        debug,
+        verbose,
+        info,
+        warning,
+        error
+    }
 
-    boolean isLogevel();
+    @CommandLine.Option(names = {"-u", "--user"}, description = "A username to run the job as, (runAs access required).")
+    private String user;
 
-    @Option(shortName = "u", longName = "user", description = "A username to run the job as, (runAs access required).")
-    String getUser();
+    public boolean isUser() {
+        return user != null;
+    }
 
-    boolean isUser();
-
-    @Option(shortName = "@",
-            longName = "at",
+    //XXX: test for picocli
+    @CommandLine.Option(names = {"-@", "--at"},
             description = "Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ssXX)")
-    DateInfo getRunAtDate();
+    private DateInfo runAtDate;
 
-    boolean isRunAtDate();
+    public boolean isRunAtDate() {
+        return runAtDate != null;
+    }
 
-    @Option(shortName = "d",
-            longName = "delay",
+    @CommandLine.Option(names = {"-d", "--delay"},
             description = "Run the job at a certain time from now. Format: ##[smhdwMY] where ## " +
-                          "is an integer and the units are seconds, minutes, hours, days, weeks, Months, Years. Can combine " +
-                          "units, e.g. \"2h30m\", \"20m30s\"",
-            pattern = "(\\d+[smhdwMY]\\s*)+")
-    String getRunDelay();
+                    "is an integer and the units are seconds, minutes, hours, days, weeks, Months, Years. Can combine " +
+                    "units, e.g. \"2h30m\", \"20m30s\""
+            )
+    private String runDelay;
+    public static Pattern RUN_DELAY_PATTERN = Pattern.compile("(\\d+[smhdwMY]\\s*)+");
 
-    boolean isRunDelay();
+    public boolean isRunDelay() {
+        return runDelay != null;
+    }
 
-    @Option(longName = "raw",
+    @CommandLine.Option(names = {"--raw"},
             description = "Treat option values as raw text, so that '-opt @value' is sent literally")
-    boolean isRawOptions();
+    private boolean rawOptions;
 
-    @Unparsed(name = "-- -OPT VAL -OPT2 VAL -OPTFILE @filepath -OPTFILE2@ filepath", description = "Job options")
-    List<String> getCommandString();
+    @CommandLine.Parameters(paramLabel = "-OPT VAL or -OPTFILE @filepath", description = "Job options")
+    private List<String> commandString;
 
-
-    @Option(shortName = "%",
-            longName = "outformat",
-            description =
-                    "Output format specifier for execution logs (follow mode) or Execution info (non-follow mode). You can use \"%key\" where key is one of:"
-                          + "\n\t\tFollow mode: time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\" "
-                          + "\n\t\tExecution info mode: id, project, description, argstring, permalink, href, status, job, job.*, user, serverUUID, dateStarted, dateEnded, successfulNodes, failedNodes. E.g. \"%id %href\"")
-    String getOutputFormat();
+    @CommandLine.Spec
+    CommandLine.Model.CommandSpec spec;
+    public void validate(){
+        if(isRunDelay()){
+            Matcher m=RUN_DELAY_PATTERN.matcher(getRunDelay());
+            if(!m.matches()){
+                throw new CommandLine.ParameterException(spec.commandLine(), "-d/--delay is not valid: " + getRunDelay() + ", must match: " + RUN_DELAY_PATTERN);
+            }
+        }
+    }
 
 }
 

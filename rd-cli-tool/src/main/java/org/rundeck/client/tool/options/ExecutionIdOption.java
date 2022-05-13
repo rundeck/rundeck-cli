@@ -16,13 +16,16 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
 /**
  * ID for execution
  */
-public interface ExecutionIdOption {
+@Getter @Setter
+public class ExecutionIdOption {
 
-    @Option(shortName = "e", longName = "eid", description = "Execution ID")
-    String getId();
+    @CommandLine.Option(names = {"-e", "--eid"}, description = "Execution ID", required = true)
+    private String id;
 }

@@ -16,64 +16,48 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
-import com.lexicalscope.jewel.cli.Unparsed;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
 import java.io.File;
 import java.net.URL;
 import java.util.List;
 
-public interface AdhocBaseOptions extends ProjectNameOptions, FollowOptions, NodeFilterOptions {
+@Getter @Setter
+public class AdhocBaseOptions extends ProjectNameOptions {
 
 
-    @Option(shortName = "C",
-            longName = "threadcount",
+    @CommandLine.Option(names = {"-C", "--threadcount"},
             description = "Execute using COUNT threads",
-            defaultValue = {"1"})
-    int getThreadcount();
+            defaultValue = "1")
+    int threadcount = 1;
 
-    boolean isThreadcount();
-
-    @Option(shortName = "K",
-            longName = "keepgoing",
+    @CommandLine.Option(names = {"-K", "--keepgoing"},
             description = "Keep going when an error occurs")
-    boolean isKeepgoing();
+    boolean keepgoing;
 
 
-    @Option(shortName = "s", longName = "script", description = "Dispatch specified script file")
-    File getScriptFile();
-
-    boolean isScriptFile();
+    @CommandLine.Option(names = {"-s", "--script"}, description = "Dispatch specified script file")
+    File scriptFile;
 
 
-    @Option(shortName = "u", longName = "url", description = "Download a URL and dispatch it as a script")
-    URL getUrl();
+    @CommandLine.Option(names = {"-u", "--url"}, description = "Download a URL and dispatch it as a script")
+    URL Url;
 
-    boolean isUrl();
+    @CommandLine.Option(names = {"-i", "--interpreter"}, description = "Script interpreter string")
+    String ScriptInterpreter;
 
-    @Option(shortName = "i", longName = "interpreter", description = "Script interpreter string")
-    String getScriptInterpreter();
+    @CommandLine.Option(names = {"-Q", "--quoted"}, description = "Use quoted args")
+    boolean argsQuoted;
 
-    boolean isScriptInterpreter();
+    @CommandLine.Option(names = {"-x", "--extension"}, description = "File extension to use for temporary script")
+    String FileExtension;
 
-    @Option(shortName = "Q", longName = "quoted", description = "Use quoted args")
-    boolean isArgsQuoted();
+    @CommandLine.Option(names = {"-S", "--stdin"}, description = "Execute input read from STDIN")
+    boolean stdin;
 
-    @Option(shortName = "x", longName = "extension", description = "File extension to use for temporary script")
-    String getFileExtension();
+    @CommandLine.Parameters(paramLabel = "COMMAND", description = "Dispatch specified command string")
+    List<String> CommandString;
 
-    boolean isFileExtension();
-
-    @Option(shortName = "S", longName = "stdin", description = "Execute input read from STDIN")
-    boolean isStdin();
-
-    @Unparsed(name = "-- COMMAND", description = "Dispatch specified command string")
-    List<String> getCommandString();
-
-
-    @Option(shortName = "%",
-            longName = "outformat",
-            description = "Output format specifier for execution logs. You can use \"%key\" where key is one of:" +
-                          "time,level,log,user,command,node. E.g. \"%user@%node/%level: %log\"")
-    String getOutputFormat();
 }

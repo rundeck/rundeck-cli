@@ -1,0 +1,18 @@
+plugins {
+    id 'groovy'
+}
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation(project(":rd-cli-lib"))
+    implementation libs.groovy
+    testImplementation libs.retrofitMock
+    testImplementation libs.okhttpMockwebserver
+    testImplementation libs.bundles.test
+}
+
+test {
+    useJUnitPlatform()
+}

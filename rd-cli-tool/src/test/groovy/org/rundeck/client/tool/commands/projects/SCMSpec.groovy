@@ -16,7 +16,7 @@
 
 package org.rundeck.client.tool.commands.projects
 
-import org.rundeck.toolbelt.CommandOutput
+
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ScmActionInputsResult
@@ -28,6 +28,11 @@ import org.rundeck.client.api.model.ScmInputField
 import org.rundeck.client.api.model.ScmJobItem
 import org.rundeck.client.api.model.ScmProjectStatusResult
 import org.rundeck.client.api.model.ScmSynchState
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
+import org.rundeck.client.tool.commands.RdToolImpl
+import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.tool.options.VerboseOption
 import org.rundeck.client.util.RdClientConfig
 import org.rundeck.client.tool.Main
 import org.rundeck.client.tool.RdApp
@@ -44,38 +49,51 @@ import spock.lang.Unroll
  * @since 1/11/17
  */
 class SCMSpec extends Specification {
-    def "perform with validation response"() {
-        given:
-        def api = Mock(RundeckApi)
 
+    private RdTool setupMock(RundeckApi api, int apiVersion = 18) {
         def retrofit = new Retrofit.Builder()
                 .addConverterFactory(JacksonConverterFactory.create())
                 .baseUrl('http://example.com/fake/').build()
         def out = Mock(CommandOutput)
-        def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
+        def client = new Client(api, retrofit, null, null, apiVersion, true, new Main.OutputLogger(out))
 
         def appConfig = Mock(RdClientConfig)
 
-        def hasclient = Mock(RdApp) {
+        def rdapp = Mock(RdApp) {
             getClient() >> client
             getAppConfig() >> appConfig
+            getOutput() >> out
         }
-        def scm = new SCM(hasclient)
+        def rdTool = new RdToolImpl(rdapp)
+        return rdTool
+    }
 
-        def opts = Mock(SCM.ActionPerformOptions) {
-            getProject() >> 'aproject'
-            getIntegration() >> 'export'
-            getAction() >> 'project-commit'
-        }
+    def "perform with validation response"() {
+        given:
+        def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
+
+
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'export'
+        def opts = new SCM.ActionPerformOptions()
+        opts.action = 'project-commit'
+
         when:
-        def result = scm.perform(opts, out)
+        def result = scm.perform(baseopts, opts)
         then:
 
         1 * api.performScmAction('aproject', 'export', 'project-commit', _) >>
                 Calls.response(
-                        Response.error(400, ResponseBody.create(Client.MEDIA_TYPE_JSON,
-                                                                '''{"message":"Some input values were not valid.",
-"nextAction":null,"success":false, "validationErrors":{"message":"required"}} '''
+                        Response.error(400, ResponseBody.create(
+                                '''{"message":"Some input values were not valid.",
+"nextAction":null,"success":false, "validationErrors":{"message":"required"}} ''',
+                                Client.MEDIA_TYPE_JSON
                         )
                         )
                 )
@@ -88,29 +106,22 @@ class SCMSpec extends Specification {
     def "perform import with include flags"() {
         given:
         def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
 
-        def retrofit = new Retrofit.Builder()
-                .addConverterFactory(JacksonConverterFactory.create())
-                .baseUrl('http://example.com/fake/').build()
-        def out = Mock(CommandOutput)
-        def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'import'
 
-        def appConfig = Mock(RdClientConfig)
+        def opts = new SCM.ActionPerformOptions()
+        opts.action = 'import-all'
+        opts.allItems = all
+        opts.allTrackedItems = tracked
+        opts.allUntrackedItems = untracked
 
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-            getAppConfig() >> appConfig
-        }
-        def scm = new SCM(hasclient)
-
-        def opts = Mock(SCM.ActionPerformOptions) {
-            getProject() >> 'aproject'
-            getIntegration() >> 'import'
-            getAction() >> 'import-all'
-            isAllItems() >> all
-            isAllTrackedItems() >> tracked
-            isAllUntrackedItems() >> untracked
-        }
         def items = [
                 new ScmImportItem(itemId: 'a', tracked: true),
                 new ScmImportItem(itemId: 'b', tracked: false),
@@ -118,7 +129,7 @@ class SCMSpec extends Specification {
                 new ScmImportItem(itemId: 'd', tracked: false, deleted: true, job: new ScmJobItem(jobId: 'xjob')),
         ]
         when:
-        def result = scm.perform(opts, out)
+        def result = scm.perform(baseopts, opts)
         then:
 
         1 * api.getScmActionInputs('aproject', 'import', 'import-all') >>
@@ -146,35 +157,29 @@ class SCMSpec extends Specification {
     def "perform export with include flags"() {
         given:
         def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
 
-        def retrofit = new Retrofit.Builder()
-                .addConverterFactory(JacksonConverterFactory.create())
-                .baseUrl('http://example.com/fake/').build()
-        def out = Mock(CommandOutput)
-        def client = new Client(api, retrofit, null, null, 18, true, new Main.OutputLogger(out))
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'export'
 
-        def appConfig = Mock(RdClientConfig)
 
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-            getAppConfig() >> appConfig
-        }
-        def scm = new SCM(hasclient)
+        def opts = new SCM.ActionPerformOptions()
+        opts.action = 'export-all'
+        opts.allItems = all
+        opts.allModifiedItems = modified
+        opts.allDeletedItems = deleted
 
-        def opts = Mock(SCM.ActionPerformOptions) {
-            getProject() >> 'aproject'
-            getIntegration() >> 'export'
-            getAction() >> 'export-all'
-            isAllItems() >> all
-            isAllModifiedItems() >> modified
-            isAllDeletedItems() >> deleted
-        }
         def items = [
                 new ScmExportItem(itemId: 'a', deleted: false),
                 new ScmExportItem(itemId: 'b', deleted: true),
         ]
         when:
-        def result = scm.perform(opts, out)
+        def result = scm.perform(baseopts, opts)
         then:
 
         1 * api.getScmActionInputs('aproject', 'export', 'export-all') >>
@@ -200,29 +205,23 @@ class SCMSpec extends Specification {
     def "command inputs for import with null job"() {
         given:
         def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
 
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'import'
 
-        def appConfig = Mock(RdClientConfig)
 
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-            getAppConfig() >> appConfig
-        }
-        def scm = new SCM(hasclient)
-
-        def out = Mock(CommandOutput)
-        def opts = Mock(SCM.ActionInputsOptions) {
-            getProject() >> 'aproject'
-            getIntegration() >> 'import'
-            getAction() >> 'import-all'
-        }
-
+        def opts = new SCM.ActionPerformOptions()
+        opts.action = 'import-all'
 
 
         when:
-        def result = scm.inputs(opts, out)
+        def result = scm.inputs(baseopts, opts, new VerboseOption())
 
         then:
 
@@ -287,31 +286,24 @@ class SCMSpec extends Specification {
     def "scm status use project from env var"() {
         given:
         def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def appConfig = rdTool.appConfig
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
 
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-
-        def appConfig = Mock(RdClientConfig)
-
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-            getAppConfig() >> appConfig
-        }
-        def scm = new SCM(hasclient)
-
-        def out = Mock(CommandOutput)
-        def opts = Mock(SCM.StatusOptions) {
-            getIntegration() >> 'import'
-        }
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = null
+        baseopts.integration = 'import'
 
 
         when:
-        def result = scm.status(opts, out)
+        def result = scm.status(baseopts)
 
         then:
         result
 
-        1 * opts.getProject() >> null
         1 * appConfig.require('RD_PROJECT', _) >> 'TestProject'
 
         1 * api.getScmProjectStatus('TestProject', 'import') >>

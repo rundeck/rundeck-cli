@@ -16,26 +16,25 @@
 
 package org.rundeck.client.tool.commands;
 
-import org.rundeck.client.tool.extension.RdTool;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
-import org.rundeck.client.tool.InputError;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.JobRun;
-import org.rundeck.client.tool.RdApp;
+import org.rundeck.client.tool.CommandOutput;
+import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.commands.jobs.Files;
-import org.rundeck.client.tool.options.JobIdentOptions;
-import org.rundeck.client.tool.options.RunBaseOptions;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.extension.RdTool;
+import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Format;
 import org.rundeck.client.util.Quoting;
+import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.*;
-import java.util.function.Function;
+import java.util.concurrent.Callable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -44,9 +43,10 @@ import java.util.stream.Stream;
 /**
  * run subcommand
  */
-@Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
-                       "@path\" or \"-opt@ path\".")
-public class Run extends AppCommand {
+@CommandLine.Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
+        "@path\" or \"-opt@ path\".", name = "run",
+        showEndOfOptionsDelimiterInUsageHelp = true)
+public class Run extends BaseCommand implements Callable<Boolean> {
 
     public static final int SEC_MS = 1000;
     public static final int MIN_MS = 60 * 1000;
@@ -54,13 +54,23 @@ public class Run extends AppCommand {
     public static final int DAY_MS = 24 * 60 * 60 * 1000;
     public static final int WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-    public Run(final RdApp client) {
-        super(client);
-    }
 
-    @Command(isDefault = true, isSolo = true)
-    public boolean run(RunBaseOptions options, CommandOutput out) throws IOException, InputError {
-        String jobId = getJobIdFromOpts(options, out, this, () -> projectOrEnv(options));
+    @CommandLine.Mixin
+    final
+    RunBaseOptions options = new RunBaseOptions();
+    @CommandLine.Mixin
+    final
+    FollowOptions followOptions = new FollowOptions();
+    @CommandLine.Mixin
+    final
+    NodeFilterBaseOptions nodeFilterOptions = new NodeFilterBaseOptions();
+    @CommandLine.Mixin
+    final
+    ExecutionOutputFormatOption outputFormatOption = new ExecutionOutputFormatOption();
+
+    public Boolean call() throws IOException, InputError {
+        options.validate();
+        String jobId = getJobIdFromOpts(options, getRdOutput(), getRdTool(), () -> getRdTool().projectOrEnv(options));
         if (null == jobId) {
             return false;
         }
@@ -68,17 +78,14 @@ public class Run extends AppCommand {
         Date runat = null;
 
         final String loglevel;
-        if (options.isLogevel()) {
-            out.warning("--logevel is [DEPRECATED: To be removed], use --loglevel");
-            loglevel = options.getLogevel().toUpperCase();
-        } else {
-            loglevel = null != options.getLoglevel() ? options.getLoglevel().toUpperCase() : null;
-        }
 
-        if (getClient().getApiVersion() >= 18) {
+        loglevel = null != options.getLoglevel() ? options.getLoglevel().toString().toUpperCase() : null;
+
+
+        if (getRdTool().getClient().getApiVersion() >= 18) {
             JobRun request = new JobRun();
             request.setLoglevel(loglevel);
-            request.setFilter(options.getFilter());
+            request.setFilter(nodeFilterOptions.getFilter());
             request.setAsUser(options.getUser());
             List<String> commandString = options.getCommandString();
             boolean rawOptions = options.isRawOptions();
@@ -119,12 +126,12 @@ public class Run extends AppCommand {
                                 key
                         ));
             }
-            if (fileinputs.size() > 0 && getClient().getApiVersion() < 19) {
-                out.warning(
+            if (fileinputs.size() > 0 && getRdTool().getClient().getApiVersion() < 19) {
+                getRdOutput().warning(
                         String.format(
                                 "APIv19 is required for option file inputs (using %d). The option values will be used" +
-                                " verbatim.",
-                                getClient().getApiVersion()
+                                        " verbatim.",
+                                getRdTool().getClient().getApiVersion()
                         ));
             } else if (fileinputs.size() > 0) {
                 for (String optionName : fileinputs.keySet()) {
@@ -136,14 +143,14 @@ public class Run extends AppCommand {
                 for (String optionName : fileinputs.keySet()) {
                     File file = fileinputs.get(optionName);
                     JobFileUploadResult jobFileUploadResult = Files.uploadFileForJob(
-                            this,
+                            getRdTool(),
                             file,
                             jobId,
                             optionName
                     );
                     String fileid = jobFileUploadResult.getFileIdForOption(optionName);
                     jobopts.put(optionName, fileid);
-                    out.info(String.format("File Upload OK (%s -> %s)", file, fileid));
+                    getRdOutput().info(String.format("File Upload OK (%s -> %s)", file, fileid));
                 }
             }
 
@@ -158,7 +165,7 @@ public class Run extends AppCommand {
             } else if (options.isRunDelay()) {
                 runat = parseDelayTime(options.getRunDelay());
                 request.setRunAtTime(runat);
-                out.info(String.format(
+                getRdOutput().info(String.format(
                         "Scheduling execution in %s, at: %s",
                         options.getRunDelay(),
                         Format.date(runat, "yyyy-MM-dd'T'HH:mm:ssXX")
@@ -170,25 +177,25 @@ public class Run extends AppCommand {
                     jobId,
                     Quoting.joinStringQuoted(options.getCommandString()),
                     loglevel,
-                    options.getFilter(),
+                    nodeFilterOptions.getFilter(),
                     options.getUser()
             ));
         }
         String started = runat != null ? "scheduled" : "started";
 
-        if(!options.isFollow()){
-            if (!options.isOutputFormat() && !options.isVerbose()) {
-                out.info(String.format("Execution %s%n", started));
+        if(!followOptions.isFollow()){
+            if (!outputFormatOption.isOutputFormat() && !outputFormatOption.isVerbose()) {
+                getRdOutput().info(String.format("Execution %s%n", started));
             }
-            Executions.outputExecutionList(options, out, getAppConfig(), Stream.<Execution>builder().add(execution).build());
+            Executions.outputExecutionList(outputFormatOption, getRdOutput(), getRdTool().getAppConfig(), Stream.<Execution>builder().add(execution).build());
         }else{
-            out.info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
+            getRdOutput().info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
         }
 
-        if (runat != null && options.isFollow()) {
+        if (runat != null && followOptions.isFollow()) {
             Date now = new Date();
             long diff = runat.getTime() - now.getTime();
-            out.info(String.format("Waiting until scheduled execution starts...(in %dms)", diff));
+            getRdOutput().info(String.format("Waiting until scheduled execution starts...(in %dms)", diff));
             while (now.compareTo(runat) < 0) {
                 try {
                     Thread.sleep(2000);
@@ -197,9 +204,9 @@ public class Run extends AppCommand {
                 }
                 now = new Date();
             }
-            out.info("Started.");
+            getRdOutput().info("Started.");
         }
-        return Executions.maybeFollow(this, options, execution.getId(), out);
+        return Executions.maybeFollow(getRdTool(), followOptions,outputFormatOption, execution.getId(), getRdOutput());
     }
 
     /**

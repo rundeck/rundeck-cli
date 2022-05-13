@@ -16,14 +16,16 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.rundeck.client.tool.extension.BaseCommand;
+import picocli.CommandLine;
 import org.rundeck.client.api.model.scheduler.*;
 import org.rundeck.client.tool.options.VerboseOption;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+
+
 import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.RdApp;
 
 import java.io.IOException;
 import java.util.List;
@@ -32,81 +34,80 @@ import java.util.stream.Collectors;
 /**
  * scheduler subcommands
  */
-@Command(description = "View scheduler information")
-public class Scheduler extends AppCommand {
-  public Scheduler(final RdApp client) {
-    super(client);
+@CommandLine.Command(description = "View scheduler information", name = "scheduler")
+public class Scheduler extends BaseCommand {
+
+
+  @Getter @Setter
+  static class SchedulerJobs {
+
+    @CommandLine.Option(names = {"-u", "--uuid"},
+            description = "Server UUID to query, or blank to select the target server")
+    private String uuid;
+
+    boolean isUuid() {
+      return uuid != null;
+    }
   }
 
-
-  @CommandLineInterface(application = "jobs")
-  interface SchedulerJobs {
-
-    @Option(shortName = "u",
-        longName = "uuid",
-        description = "Server UUID to query, or blank to select the target server")
-    String getUuid();
-
-    boolean isUuid();
-  }
-
-  @Command(description = "List jobs for the current target server, or a specified server.")
-  public void jobs(SchedulerJobs options, CommandOutput output) throws IOException, InputError {
+  @CommandLine.Command(description = "List jobs for the current target server, or a specified server.")
+  public void jobs(@CommandLine.Mixin SchedulerJobs options) throws IOException, InputError {
     List<ScheduledJobItem> jobInfo = apiCall(api -> {
       if (options.isUuid()) {
         return api.listSchedulerJobs(options.getUuid());
-      }
-      else {
+      } else {
         return api.listSchedulerJobs();
       }
 
     });
-    output.output(jobInfo.stream().map(ScheduledJobItem::toMap).collect(Collectors.toList()));
+    getRdOutput().output(jobInfo.stream().map(ScheduledJobItem::toMap).collect(Collectors.toList()));
   }
 
 
-  @CommandLineInterface(application = "takeover")
-  interface Takeover extends VerboseOption {
+  @Getter @Setter
+  static class Takeover extends VerboseOption {
 
-    @Option(shortName = "u",
-        longName = "uuid",
-        description = "Server UUID to take over.")
-    String getUuid();
+    @CommandLine.Option(names = {"-u", "--uuid"},
+            description = "Server UUID to take over.")
+    String uuid;
 
-    boolean isUuid();
+    boolean isUuid() {
+      return uuid != null;
+    }
 
-    @Option(shortName = "a",
-        longName = "all",
-        description = "Take over all jobs regardless of server UUID.")
-    boolean isAllServers();
+    @CommandLine.Option(names = {"-a", "--all"},
+            description = "Take over all jobs regardless of server UUID.")
+    boolean allServers;
 
-    @Option(shortName = "p",
-        longName = "project",
-        description = "Take over only jobs matching the given project name, in combination with --all/-a or --uuid/-u.")
-    String projectName();
+    @CommandLine.Option(names = {"-p", "--project"},
+            description = "Take over only jobs matching the given project name, in combination with --all/-a or --uuid/-u.")
+    String projectName;
 
-    boolean isProjectName();
+    boolean isProjectName() {
+      return projectName != null;
+    }
 
-    @Option(shortName = "j",
-        longName = "job",
-        description = "Job UUID to takeover only a single Job’s schedule.")
-    String getJobId();
+    @CommandLine.Option(names = {"-j", "--job"},
+            description = "Job UUID to takeover only a single Job’s schedule.")
+    String jobId;
 
-    boolean isJobId();
+    boolean isJobId() {
+      return jobId != null;
+    }
 
   }
 
-  @Command(description = "Tell a Rundeck server in cluster mode to claim all scheduled jobs from another cluster server. " +
-      "Use --job/-j to specify a job uuid, or alternatively use --uuid/-u, --all/-a, --project/-p to " +
-      "specify a server/project combination.")
-  public void takeover(Takeover options, CommandOutput output) throws IOException, InputError {
+  @CommandLine.Command(description = "Tell a Rundeck server in cluster mode to claim all scheduled jobs from another cluster server. " +
+          "Use --job/-j to specify a job uuid, or alternatively use --uuid/-u, --all/-a, --project/-p to " +
+          "specify a server/project combination.")
+  public void takeover(@CommandLine.Mixin Takeover options) throws IOException, InputError {
 
     SchedulerTakeover takeoverParams = new SchedulerTakeover();
 
     if (options.isJobId()) {
       // Takeover by job uuid.
       takeoverParams.setJob(new SchedulerTakeover.JobId()
-          .setId(options.getJobId())
+              .setId(options.getJobId())
       );
     }
 
@@ -125,40 +126,40 @@ public class Scheduler extends AppCommand {
       }
 
       if (options.isProjectName()) {
-        takeoverParams.setProject(options.projectName());
+        takeoverParams.setProject(options.getProjectName());
       }
     }
 
-//    output.info(takeoverParams.toString());
+//    getRdOutput().info(takeoverParams.toString());
     SchedulerTakeoverResult response = apiCall(api -> api.takeoverSchedule(takeoverParams));
 
-    // print output.
-    output.info(response.getMessage());
+    // print getRdOutput().
+    getRdOutput().info(response.getMessage());
 
-    if(response.getTakeoverSchedule() != null
-        && response.getTakeoverSchedule().getJobs() != null
-        && response.getTakeoverSchedule().getJobs().getFailed() != null
-        && response.getTakeoverSchedule().getJobs().getFailed().size() > 0) {
+    if (response.getTakeoverSchedule() != null
+            && response.getTakeoverSchedule().getJobs() != null
+            && response.getTakeoverSchedule().getJobs().getFailed() != null
+            && response.getTakeoverSchedule().getJobs().getFailed().size() > 0) {
 
-      output.error(String.format("Failed to takeover %d Jobs%n", response.getTakeoverSchedule().getJobs().getFailed().size()));
-      output.output(response.getTakeoverSchedule().getJobs().getFailed().stream()
-          .map(TakeoverJobItem::toString)
-          .collect(Collectors.toList()));
+      getRdOutput().error(String.format("Failed to takeover %d Jobs%n", response.getTakeoverSchedule().getJobs().getFailed().size()));
+      getRdOutput().output(response.getTakeoverSchedule().getJobs().getFailed().stream()
+              .map(TakeoverJobItem::toString)
+              .collect(Collectors.toList()));
     }
 
     if (options.isVerbose()) {
-      if(response.getTakeoverSchedule() != null
-          && response.getTakeoverSchedule().getJobs() != null
+      if (response.getTakeoverSchedule() != null
+              && response.getTakeoverSchedule().getJobs() != null
           && response.getTakeoverSchedule().getJobs().getSuccessful() != null
           && response.getTakeoverSchedule().getJobs().getSuccessful().size() > 0) {
 
-        output.info(String.format("Successfully taken over %d Jobs%n", response.getTakeoverSchedule().getJobs().getSuccessful().size()));
-        output.output(response.getTakeoverSchedule().getJobs().getSuccessful().stream()
-            .map(TakeoverJobItem::toString)
-            .collect(Collectors.toList()));
+        getRdOutput().info(String.format("Successfully taken over %d Jobs%n", response.getTakeoverSchedule().getJobs().getSuccessful().size()));
+        getRdOutput().output(response.getTakeoverSchedule().getJobs().getSuccessful().stream()
+                .map(TakeoverJobItem::toString)
+                .collect(Collectors.toList()));
       }
       else {
-        output.warning("* No jobs were taken over.");
+        getRdOutput().warning("* No jobs were taken over.");
       }
     }
   }

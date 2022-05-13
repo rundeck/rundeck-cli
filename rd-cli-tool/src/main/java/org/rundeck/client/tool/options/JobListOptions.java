@@ -16,34 +16,53 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
-public interface JobListOptions extends ProjectNameOptions {
+import java.util.List;
+
+@Getter @Setter
+public class JobListOptions extends ProjectNameOptions {
 
 
-    @Option(shortName = "j", longName = "job", description = "Job name filter")
-    String getJob();
+    @CommandLine.Option(names = {"-j", "--job"}, description = "Job name filter")
+    String job;
 
-    boolean isJob();
+    public boolean isJob() {
+        return job != null;
+    }
 
-    @Option(shortName = "g", longName = "group", description = "Job Group filter")
-    String getGroup();
 
-    boolean isGroup();
+    @CommandLine.Option(names = {"-g", "--group"}, description = "Job Group filter")
+    String group;
 
-    @Option(shortName = "J", longName = "jobxact", description = "Exact Job name")
-    String getJobExact();
+    public boolean isGroup() {
+        return group != null;
+    }
 
-    boolean isJobExact();
 
-    @Option(shortName = "G", longName = "groupxact", description = "Exact Job Group")
-    String getGroupExact();
+    @CommandLine.Option(names = {"-J", "--jobxact"}, description = "Exact Job name")
+    String jobExact;
 
-    boolean isGroupExact();
+    public boolean isJobExact() {
+        return jobExact != null;
+    }
 
-    @Option(shortName = "i", longName = "idlist", description = "Comma separated list of Job IDs")
-    String getIdlist();
+    @CommandLine.Option(names = {"-G", "--groupxact"}, description = "Exact Job Group")
+    String groupExact;
 
-    boolean isIdlist();
+    public boolean isGroupExact() {
+        return groupExact != null;
+    }
+
+    @CommandLine.Option(names = {"-i", "--idlist"}, description = "Comma separated list of Job IDs",
+            arity = "1..*",
+            split = "\\s*,\\s*")
+    List<String> idlist;
+
+    public boolean isIdlist() {
+        return idlist != null && idlist.size() > 0;
+    }
 
 }

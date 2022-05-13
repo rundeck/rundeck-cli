@@ -1310,7 +1310,7 @@ public interface RundeckApi {
     Call<ForecastJobItem> getJobForecast(
             @Path("jobid") String jobid,
             @Query("time") String time,
-            @Query("max") String max
+            @Query("max") Integer max
     );
 
 }

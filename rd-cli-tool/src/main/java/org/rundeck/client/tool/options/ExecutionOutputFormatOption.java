@@ -16,16 +16,16 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
-public interface ExecutionOutputFormatOption extends OutputFormat{
+@Getter @Setter
+public class ExecutionOutputFormatOption  extends VerboseOption implements OutputFormat{
 
-    @Option(shortName = "%",
-            longName = "outformat",
-            description = "Output format specifier for execution data. You can use \"%key\" where key is one of:" +
-                          "id, project, description, argstring, permalink, href, status, job, job.*, user, serverUUID, " +
-                          "dateStarted, dateEnded, successfulNodes, failedNodes, adhoc. E.g. \"%id %href\"")
-    String getOutputFormat();
-
-    boolean isOutputFormat();
+    @CommandLine.Option(names = {"-%", "--outformat"},
+            description = "Output format specifier for execution data. You can use \"%%key\" where key is one of:" +
+                    "id, project, description, argstring, permalink, href, status, job, job.*, user, serverUUID, " +
+                    "dateStarted, dateEnded, successfulNodes, failedNodes, adhoc. E.g. \"%%id %%href\"")
+    String outputFormat;
 }

@@ -16,7 +16,8 @@
 
 package org.rundeck.client.tool.util;
 
-import org.rundeck.toolbelt.ANSIColorOutput;
+
+import picocli.CommandLine;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,25 +33,20 @@ public class Colorz {
      */
     public static Map<?, ?> colorizeMapRecurse(
             Map<?, ?> data,
-            ANSIColorOutput.Color... colors
+            String... colors
     )
     {
         LinkedHashMap<Object, Object> result = new LinkedHashMap<>();
         data.keySet().forEach(k -> {
             final Object value = data.get(k);
-            ANSIColorOutput.Color keyColor = colors != null && colors.length > 0 ? colors[0] : null;
-            ANSIColorOutput.Color[] subcolors = null;
+            String keyColor = colors != null && colors.length > 0 ? colors[0] : null;
+            String[] subcolors = null;
             if (colors != null && colors.length > 1) {
-                subcolors = new ANSIColorOutput.Color[colors.length - 1];
+                subcolors = new String[colors.length - 1];
                 System.arraycopy(colors, 1, subcolors, 0, subcolors.length);
             }
             result.put(
-                    keyColor != null
-                    ? ANSIColorOutput.colorize(
-                            keyColor,
-                            k.toString()
-                    )
-                    : k,
+                    keyColor != null ? CommandLine.Help.Ansi.AUTO.string("@|" + keyColor + " " + k.toString() + "|@") : k,
 
                     value instanceof Map && subcolors != null
                     ? colorizeMapRecurse(

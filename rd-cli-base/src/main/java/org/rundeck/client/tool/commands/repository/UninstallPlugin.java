@@ -15,31 +15,33 @@
  */
 package org.rundeck.client.tool.commands.repository;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
 import lombok.Setter;
+import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdOutput;
 import org.rundeck.client.tool.extension.RdTool;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import picocli.CommandLine;
 
 import java.io.IOException;
+import java.util.concurrent.Callable;
 
-@Command(description = "Unistall a Rundeck plugin from your Rundeck instance",value = "uninstall")
-public class UninstallPlugin implements RdCommandExtension {
-   @Setter private RdTool rdTool;
+@CommandLine.Command(description = "Unistall a Rundeck plugin from your Rundeck instance", name = "uninstall")
+public class UninstallPlugin implements Callable<Boolean>, RdCommandExtension, RdOutput {
+    @Setter
+    private RdTool rdTool;
+    @Setter
+    private CommandOutput rdOutput;
 
-    @CommandLineInterface
-    interface UninstallPluginOption {
-        @Option(longName = "id", shortName = "i", description = "Id of the plugin you want to uninstall")
-        String getPluginId();
-    }
 
-    @Command(isDefault = true)
-    public void uninstall(UninstallPluginOption option, CommandOutput output) throws InputError, IOException {
-        String pluginId = option.getPluginId();
+    @CommandLine.Option(names = {"--id", "-i"}, description = "Id of the plugin you want to uninstall", required = true)
+    String pluginId;
+
+
+    public Boolean call() throws InputError, IOException {
         RepositoryResponseHandler.handle(
-                rdTool.apiWithErrorResponse(api -> api.uninstallPlugin(pluginId)),output);
+                rdTool.apiWithErrorResponse(api -> api.uninstallPlugin(pluginId)), rdOutput
+        );
+        return true;
     }
 }

@@ -16,15 +16,15 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
+@Getter @Setter
+public class ACLOutputFormatOption  extends VerboseOption{
 
-public interface ACLOutputFormatOption {
+    @CommandLine.Option(names={"-%","--outformat"},
+            description = "Output format specifier for ACL info. You can use \"%%key\" where key is one of:" +
+                          "name, type, href. E.g. \"%%name %%href\"")
+    String outputFormat;
 
-    @Option(shortName = "%",
-            longName = "outformat",
-            description = "Output format specifier for ACL info. You can use \"%key\" where key is one of:" +
-                          "name, type, href. E.g. \"%name %href\"")
-    String getOutputFormat();
-
-    boolean isOutputFormat();
 }

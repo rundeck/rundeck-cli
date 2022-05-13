@@ -16,17 +16,32 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
+
+import java.util.List;
 
 /**
  * @author greg
  * @since 11/30/16
  */
-public interface NodeFilterOptions {
+@Getter @Setter
+public class NodeFilterOptions extends NodeFilterBaseOptions{
 
-    @Option(shortName = "F", longName = "filter", description = "A node filter string")
-    String getFilter();
+    @CommandLine.Parameters(paramLabel = "NODE FILTER", description = "Node filter")
+    List<String> filterTokens;
 
-    boolean isFilter();
+    public boolean isFilterTokens() {
+        return filterTokens != null && !filterTokens.isEmpty();
+    }
 
+    public String filterString() {
+        if (isFilter()) {
+            return getFilter();
+        } else if (isFilterTokens()) {
+            return String.join(" ", getFilterTokens());
+        }
+        return null;
+    }
 }

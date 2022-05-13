@@ -38,6 +38,6 @@ public class ProjectImportStatus {
     public List<String> aclErrors;
 
     public boolean getResultSuccess() {
-        return null != successful ? successful : null != importStatus && "successful".equals(importStatus);
+        return null != successful ? successful : "successful".equals(importStatus);
     }
 }

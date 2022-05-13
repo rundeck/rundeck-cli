@@ -16,19 +16,20 @@
 
 package org.rundeck.client.tool.commands.jobs;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
-import com.lexicalscope.jewel.cli.Option;
+
+import lombok.Getter;
+import lombok.Setter;
+import org.rundeck.client.tool.extension.BaseCommand;
+import picocli.CommandLine;
 import org.rundeck.client.tool.extension.RdTool;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+
+
 import org.rundeck.client.tool.InputError;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.model.JobFileItem;
 import org.rundeck.client.api.model.JobFileItemList;
 import org.rundeck.client.api.model.JobFileUploadResult;
 import org.rundeck.client.api.model.Paging;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.commands.AppCommand;
 import org.rundeck.client.tool.options.PagingResultOptions;
 import org.rundeck.client.util.Client;
 
@@ -39,44 +40,43 @@ import java.io.IOException;
  * @author greg
  * @since 3/1/17
  */
-@Command(description = "List and manage File options for Jobs.")
-public class Files extends AppCommand {
+@CommandLine.Command(description = "List and manage File options for Jobs.", name = "files")
+public class Files extends BaseCommand {
 
-    public Files(final RdApp rdApp) {
-        super(rdApp);
+
+    @CommandLine.Command(description = "Get info about a Job input option file (API v19)")
+    public void info(
+            @CommandLine.Option(paramLabel = "id", names = {"-i", "--id"}, description = "File ID", required = true)
+            String id
+    ) throws IOException, InputError {
+        JobFileItem jobFileItem = apiCall(api -> api.getJobFileInfo(id));
+        getRdOutput().output(jobFileItem);
     }
 
+    @Getter @Setter
+    static class FileListOpts extends PagingResultOptions {
+        @CommandLine.Option(names = {"-j", "--jobid"}, description = "Job ID")
+        String jobId;
 
-    @CommandLineInterface(application = "info") interface FileInfoOpts {
+        boolean isJobId() {
+            return jobId != null;
+        }
 
-        @Option(shortName = "i", longName = "id", description = "File ID")
-        String getId();
-    }
+        @CommandLine.Option(names = {"-e", "--eid"}, description = "Execution ID")
+        String execId;
 
-    @Command(description = "Get info about a Job input option file (API v19)")
-    public void info(FileInfoOpts opts, CommandOutput out) throws IOException, InputError {
-        JobFileItem jobFileItem = apiCall(api -> api.getJobFileInfo(opts.getId()));
-        out.output(jobFileItem);
-    }
+        boolean isExecId() {
+            return execId != null;
+        }
 
-    @CommandLineInterface(application = "list") interface FileListOpts extends PagingResultOptions {
-        @Option(shortName = "j", longName = "jobid", description = "Job ID")
-        String getJobId();
-
-        boolean isJobId();
-
-        @Option(shortName = "e", longName = "eid", description = "Execution ID")
-        String getExecId();
-
-        boolean isExecId();
-
-        @Option(shortName = "s",
-                longName = "state",
+        @CommandLine.Option(names = {"-s", "--state"},
                 description = "File state filter for listing Files for a Job only. (default:temp), one of: temp," +
-                              "expired,deleted,retained.")
-        FileState getFileState();
+                        "expired,deleted,retained.")
+        FileState fileState;
 
-        boolean isFileState();
+        boolean isFileState() {
+            return fileState != null;
+        }
     }
 
     enum FileState {
@@ -86,8 +86,8 @@ public class Files extends AppCommand {
         retained
     }
 
-    @Command(description = "List files uploaded for a Job or Execution (API v19). Specify Job ID or Execution ID")
-    public void list(FileListOpts opts, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "List files uploaded for a Job or Execution (API v19). Specify Job ID or Execution ID")
+    public void list(@CommandLine.Mixin FileListOpts opts) throws IOException, InputError {
 
         if (!opts.isJobId() && !opts.isExecId() || opts.isExecId() && opts.isJobId()) {
             throw new InputError("One of -j/--jobid or -e/--eid is required");
@@ -113,36 +113,36 @@ public class Files extends AppCommand {
         Paging paging = result.getPaging();
 
         if (paging != null) {
-            out.info(paging);
+            getRdOutput().info(paging);
         }
 
-        out.output(result.asList());
+        getRdOutput().output(result.asList());
 
 
         if (paging != null && paging.hasMoreResults()) {
-            out.info(paging.moreResults("-o"));
+            getRdOutput().info(paging.moreResults("-o"));
         }
     }
 
-    @CommandLineInterface(application = "load") interface FileUploadOpts {
+    @Getter @Setter
+    static class FileUploadOpts {
 
-        @Option(shortName = "i", longName = "id", description = "Job ID")
-        String getId();
+        @CommandLine.Option(names = {"-i", "--id"}, description = "Job ID", required = true)
+        String id;
 
-        @Option(shortName = "o", longName = "option", description = "Option name")
-        String getOption();
+        @CommandLine.Option(names = {"-o", "--option"}, description = "Option name", required = true)
+        String option;
 
-        @Option(shortName = "f",
-                longName = "file",
+        @CommandLine.Option(names = {"-f", "--file"},
                 description =
                         "File path of the file to upload (load command) or destination for storing the jobs (list " +
-                        "command)")
-        File getFile();
+                                "command)", required = true)
+        File file;
     }
 
-    @Command(description = "Upload a file as input for a job option (API v19). Returns a unique key for the uploaded" +
-                           " file, which can be used as the option value when running the job.")
-    public boolean load(FileUploadOpts options, CommandOutput out) throws IOException, InputError {
+    @CommandLine.Command(description = "Upload a file as input for a job option (API v19). Returns a unique key for the uploaded" +
+            " file, which can be used as the option value when running the job.")
+    public boolean load(@CommandLine.Mixin FileUploadOpts options) throws IOException, InputError {
         File input = options.getFile();
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
@@ -150,7 +150,7 @@ public class Files extends AppCommand {
 
         String fileName = input.getName();
         JobFileUploadResult jobFileUploadResult = uploadFileForJob(
-                this,
+                getRdTool(),
                 input,
                 options.getId(),
                 options.getOption()
@@ -158,14 +158,14 @@ public class Files extends AppCommand {
 
         String fileid = jobFileUploadResult.getFileIdForOption(options.getOption());
         if (null != fileid) {
-            out.info("File " + fileName + " uploaded successfully for option " + options.getOption());
-            out.info("File key:");
-            out.output(fileid);
+            getRdOutput().info("File " + fileName + " uploaded successfully for option " + options.getOption());
+            getRdOutput().info("File key:");
+            getRdOutput().output(fileid);
             return true;
         } else {
-            out.error(String.format("Expected one option result for option %s, but saw: ", options.getOption()));
+            getRdOutput().error(String.format("Expected one option result for option %s, but saw: ", options.getOption()));
         }
-        out.output(jobFileUploadResult);
+        getRdOutput().output(jobFileUploadResult);
         return false;
     }
 
@@ -183,7 +183,7 @@ public class Files extends AppCommand {
         if (invalidInputFile(input)) {
             throw new IOException("Can't read file: " + input);
         }
-        RequestBody requestBody = RequestBody.create(Client.MEDIA_TYPE_OCTET_STREAM, input);
+        RequestBody requestBody = RequestBody.create(input, Client.MEDIA_TYPE_OCTET_STREAM);
         return rdTool.apiCallDowngradable(
                 api -> api.uploadJobOptionFile(
                         jobId,

@@ -16,24 +16,30 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
 /**
  * @author greg
  * @since 4/4/17
  */
-public interface JobIdentOptions extends OptionalProjectOptions {
+@Getter
+@Setter
+public class JobIdentOptions extends ProjectNameOptions {
 
-    @Option(shortName = "j",
-            longName = "job",
-            description = "Job job (group and name). Run a Job specified by Job name and group. eg: 'group/name'.")
-    String getJob();
+    @CommandLine.Option(names = {"-j", "--job"}, description = "Job identified by name and group: 'group/name'. (Project name required)")
+    String job;
 
-    boolean isJob();
+    public boolean isJob() {
+        return job != null;
+    }
 
-    @Option(shortName = "i", longName = "id", description = "Run the Job with this IDENTIFIER")
-    String getId();
+    @CommandLine.Option(names = {"-i", "--id"}, description = "Run the Job with this IDENTIFIER")
+    String id;
 
-    boolean isId();
+    public boolean isId() {
+        return id != null;
+    }
 
 }

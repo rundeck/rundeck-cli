@@ -16,30 +16,26 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
-public interface FollowOptions extends RunOptions, OutputFormat{
+@Getter @Setter
+public class FollowOptions extends RunOptions {
 
-    @Option(shortName = "q", longName = "quiet", description = "Echo no output. Combine with -f/--follow to wait silently until the execution completes. Useful for non-interactive scripts.")
-    boolean isQuiet();
+    @CommandLine.Option(names = {"-q", "--quiet"}, description = "Echo no output. Combine with -f/--follow to wait silently until the execution completes. Useful for non-interactive scripts.")
+    boolean quiet;
 
-    @Option(shortName = "r",
-            longName = "progress",
+    @CommandLine.Option(names = {"-r", "--progress"},
             description = "Do not echo log text, just an indicator that output is being received.")
-    boolean isProgress();
+    boolean progress;
 
-    @Option(shortName = "t", longName = "restart", description = "Restart from the beginning")
-    boolean isRestart();
+    @CommandLine.Option(names = {"-t", "--restart"}, description = "Restart from the beginning")
+    boolean restart;
 
-    @Option(shortName = "T",
-            longName = "tail",
-            defaultValue = {"1"},
+    @CommandLine.Option(names = {"-T", "--tail"},
+            defaultValue = "1",
             description = "Number of lines to tail from the end, default: 1")
-    long getTail();
+    long tail;
 
-    boolean isTail();
-
-    String getOutputFormat();
-
-    boolean isOutputFormat();
 }

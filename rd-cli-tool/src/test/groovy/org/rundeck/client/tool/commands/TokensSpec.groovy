@@ -1,6 +1,6 @@
 package org.rundeck.client.tool.commands
 
-import org.rundeck.toolbelt.CommandOutput
+
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
@@ -8,8 +8,12 @@ import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.ApiToken
 import org.rundeck.client.api.model.CreateToken
 import org.rundeck.client.api.model.DateInfo
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
 import org.rundeck.client.util.Client
+import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
 import retrofit2.mock.Calls
@@ -116,28 +120,37 @@ class TokensSpec extends Specification {
         server.shutdown()
     }
 
+    private RdTool setupMock(RundeckApi api, int apiVersion = 18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
     @Unroll
     def "create token api v18 has issue 2479? #issue2479"() {
 
         def api = Mock(RundeckApi)
-
-        def opts = Mock(Tokens.CreateOptions) {
-            getUser() >> "bob"
-            isUser() >> true
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Tokens tokens = new Tokens(hasclient)
+        RdTool rdTool = setupMock(api, 18)
         def out = Mock(CommandOutput)
+        Tokens command = new Tokens()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new Tokens.CreateOptions()
+        opts.user = 'bob'
+
         // https://github.com/rundeck/rundeck/issues/2479
         def resultToken = issue2479 ?
                 new ApiToken(user: 'bob', token: '123abc') :
                 new ApiToken(user: 'bob', id: '123abc')
         when:
-        def result = tokens.create(opts, out)
+        def result = command.create(opts)
 
         then:
         1 * api.createToken('bob') >> Calls.response(resultToken)
@@ -154,20 +167,16 @@ class TokensSpec extends Specification {
     def "create token api v19"() {
 
         def api = Mock(RundeckApi)
-
-        def opts = Mock(Tokens.CreateOptions) {
-            getUser() >> "bob"
-            isUser() >> true
-            getRoles() >> ['a', 'b']
-            isRoles() >> true
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 19, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Tokens tokens = new Tokens(hasclient)
+        RdTool rdTool = setupMock(api, 19)
         def out = Mock(CommandOutput)
+        Tokens command = new Tokens()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new Tokens.CreateOptions()
+        opts.user = 'bob'
+        opts.roles = ['a', 'b']
+
         // https://github.com/rundeck/rundeck/issues/2479
         def resultToken = new ApiToken(
                 user: 'bob',
@@ -179,7 +188,7 @@ class TokensSpec extends Specification {
                 creator: 'user3'
         )
         when:
-        def result = tokens.create(opts, out)
+        def result = command.create(opts)
 
         then:
         1 * api.createToken({
@@ -195,22 +204,17 @@ class TokensSpec extends Specification {
     def "create token outputformat"() {
 
         def api = Mock(RundeckApi)
-
-        def opts = Mock(Tokens.CreateOptions) {
-            getUser() >> "bob"
-            isUser() >> true
-            getRoles() >> ['a', 'b']
-            isRoles() >> true
-            isOutputFormat() >> true
-            getOutputFormat() >> format
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 19, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Tokens tokens = new Tokens(hasclient)
+        RdTool rdTool = setupMock(api, 19)
         def out = Mock(CommandOutput)
+        Tokens command = new Tokens()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new Tokens.CreateOptions()
+        opts.user = 'bob'
+        opts.roles = ['a', 'b']
+        opts.outputFormat = format
+
         // https://github.com/rundeck/rundeck/issues/2479
         def resultToken = new ApiToken(
                 user: 'bob',
@@ -222,7 +226,7 @@ class TokensSpec extends Specification {
                 creator: 'user3'
         )
         when:
-        def result = tokens.create(opts, out)
+        def result = command.create(opts)
 
         then:
         1 * api.createToken(

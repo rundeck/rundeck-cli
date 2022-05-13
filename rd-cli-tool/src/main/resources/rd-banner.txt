@@ -1,9 +1,9 @@
+- @|red RD|@ - Rundeck API Client Tool (v$version$) - @|cyan https://rundeck.github.io/rundeck-cli/|@
 
-- ${red}RD$$ - Rundeck API Client Tool (v@version@) - ${cyan}https://rundeck.github.io/rundeck-cli/$$
-${red}
-    ________________
+@|red     ________________
     ___  __ \__  __ \
     __  /_/ /_  / / /
     _  _, _/_  /_/ /
     /_/ |_| /_____/
-$$
+|@
+

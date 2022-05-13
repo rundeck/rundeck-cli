@@ -16,20 +16,26 @@
 
 package org.rundeck.client.tool.options;
 
-import com.lexicalscope.jewel.cli.Option;
+import lombok.Getter;
+import lombok.Setter;
+import picocli.CommandLine;
 
-public interface JobLoadOptions extends JobFileOptions, ProjectNameOptions {
+@Getter @Setter
+public class JobLoadOptions {
 
-    @Option(shortName = "d",
-            longName = "duplicate",
+    @CommandLine.Option(names = {"-d", "--duplicate"},
             defaultValue = "update",
-            pattern = "^(update|skip|create)$",
-            description = "Behavior when uploading a Job matching a name+group that already exists, either: update, " +
-                          "skip, create")
-    String getDuplicate();
+            description = "Behavior when uploading a Job matching a name+group that already exists: ${COMPLETION-CANDIDATES}")
+    Duplication duplicate = Duplication.update;
 
-    @Option(shortName = "r", longName = "remove-uuids", description = "Remove UUIDs when uploading")
-    boolean isRemoveUuids();
+    public enum Duplication {
+        update,
+        skip,
+        create
+    }
+
+    @CommandLine.Option(names = {"-r", "--remove-uuids"}, description = "Remove UUIDs when uploading")
+    boolean removeUuids;
 
 
 }

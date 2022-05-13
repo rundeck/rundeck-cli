@@ -17,9 +17,10 @@ package org.rundeck.client.tool.commands.repository
 
 import org.rundeck.client.api.RundeckApi
 import org.rundeck.client.api.model.repository.ArtifactActionMessage
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.util.Client
-import org.rundeck.toolbelt.CommandOutput
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -28,26 +29,28 @@ import spock.lang.Specification
 class UploadPluginTest extends Specification {
     def "Upload"() {
         given:
-        File bogusPlugin = File.createTempFile("bogus","plugin")
+        File bogusPlugin = File.createTempFile("bogus", "plugin")
         def api = Mock(RundeckApi)
-        def opts = Mock(UploadPlugin.UploadPluginOption) {
-            getRepoName() >> "private"
-            getBinaryPath() >> bogusPlugin.absolutePath
-        }
+
         def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
         def client = new Client(api, retrofit, null, null, 26, false, null)
+        def out = Mock(CommandOutput)
+
         def rdapp = Mock(RdApp) {
             getClient() >> client
+            getOutput() >> out
         }
         def rdtool = new MockRdTool(client: client, rdApp: rdapp)
         UploadPlugin uploadCmd = rdtool.initExtension(new UploadPlugin())
-        def out = Mock(CommandOutput)
+        uploadCmd.repoName = 'private'
+        uploadCmd.binaryPath = bogusPlugin.absolutePath
+
 
         when:
-        uploadCmd.upload(opts,out)
+        uploadCmd.call()
 
         then:
-        1 * api.uploadPlugin("private",_) >> Calls.response(new ArtifactActionMessage(msg:"Upload succeeded"))
-        out.output('Upload succeeded')
+        1 * api.uploadPlugin("private", _) >> Calls.response(new ArtifactActionMessage(msg: "Upload succeeded"))
+        1 * out.output('Upload succeeded')
     }
 }

@@ -22,6 +22,7 @@ import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.RdApp;
 import org.rundeck.client.tool.extension.RdCommandExtension;
+import org.rundeck.client.tool.extension.RdOutput;
 import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ConfigSource;
@@ -38,17 +39,20 @@ import static org.rundeck.client.tool.ProjectInput.PROJECT_NAME_PATTERN;
 /**
  * Base type for commands in Rd todo: rename
  */
-public class AppCommand
+public class RdToolImpl
         implements RdTool
 {
     @Getter private final RdApp rdApp;
 
-    public AppCommand(final RdApp rdApp) {
+    public RdToolImpl(final RdApp rdApp) {
         this.rdApp = rdApp;
     }
 
     public <T extends RdCommandExtension> T initExtension(final T extension) {
         extension.setRdTool(this);
+        if (extension instanceof RdOutput) {
+            ((RdOutput) extension).setRdOutput(rdApp.getOutput());
+        }
         return extension;
     }
 

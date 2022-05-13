@@ -1,0 +1,34 @@
+plugins {
+    id 'java-library'
+    id 'groovy'
+}
+
+dependencies {
+
+
+    compileOnly libs.lombok
+    annotationProcessor libs.lombok
+
+    implementation project(":rd-cli-lib"), project(":rd-api-client")
+
+    implementation(libs.bundles.rundeckAuthz) {
+        exclude(group: 'org.yaml', module: 'snakeyaml')
+    }
+
+    implementation libs.snakeYaml
+
+    implementation libs.picocli
+    annotationProcessor libs.picocliCodegen
+
+    testImplementation project(":rd-cli-lib"), project(":rd-api-client")
+
+    testImplementation libs.bundles.rundeckAuthz
+    testImplementation libs.retrofitMock
+    testImplementation libs.okhttpMockwebserver
+    testImplementation libs.bundles.test
+}
+
+test {
+    useJUnitPlatform()
+}
+

@@ -18,8 +18,10 @@ package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.model.Simple
 import org.rundeck.client.api.model.scheduler.ForecastJobItem
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.InputError
-import org.rundeck.toolbelt.CommandOutput
+
 
 import okhttp3.MediaType
 import okhttp3.ResponseBody
@@ -30,7 +32,17 @@ import org.rundeck.client.api.model.JobItem
 import org.rundeck.client.api.model.JobLoadItem
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem
 import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.tool.options.JobFileOptions
+import org.rundeck.client.tool.options.JobIdentOptions
+import org.rundeck.client.tool.options.JobListOptions
+import org.rundeck.client.tool.options.JobLoadOptions
+import org.rundeck.client.tool.options.JobOutputFormatOption
+import org.rundeck.client.tool.options.PagingResultOptions
+import org.rundeck.client.tool.options.ProjectNameOptions
+import org.rundeck.client.tool.options.VerboseOption
 import org.rundeck.client.util.Client
+import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
@@ -53,28 +65,36 @@ class JobsSpec extends Specification {
         }
     }
 
+    private RdTool setupMock(RundeckApi api, int apiVersion=18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
     def "job list with input parameters"() {
         given:
         def api = Mock(RundeckApi)
-
-        def opts = Mock(Jobs.ListOpts) {
-            isJob() >> true
-            isProject() >> true
-            getProject() >> 'ProjectName'
-            getJobExact() >> jobexact
-            getGroupExact() >> groupexact
-            getJob() >> job
-            getGroup() >> group
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 17, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobListOptions()
+        opts.project = 'ProjectName'
+        opts.jobExact = jobexact
+        opts.groupExact = groupexact
+        opts.setJob(job)
+        opts.setGroup(group)
+
         when:
-        jobs.list(opts, out)
+        command.list(new JobOutputFormatOption(), new JobFileOptions(), opts)
 
         then:
         1 * api.listJobs('ProjectName', job, group, jobexact, groupexact) >>
@@ -90,27 +110,26 @@ class JobsSpec extends Specification {
     def "job list write to file with input parameters"() {
         given:
         def api = Mock(RundeckApi)
-        def opts = Mock(Jobs.ListOpts) {
-            isJob() >> true
-            isProject() >> true
-            getProject() >> 'ProjectName'
-            getJobExact() >> jobexact
-            getGroupExact() >> groupexact
-            getJob() >> job
-            getGroup() >> group
-            isFile() >> true
-            getFormat() >> 'xml'
-            getFile() >> tempFile
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 17, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobListOptions()
+        opts.project = 'ProjectName'
+        opts.jobExact = jobexact
+        opts.groupExact = groupexact
+        opts.setJob(job)
+        opts.setGroup(group)
+
+
+        def fileOptions = new JobFileOptions(
+                format: JobFileOptions.Format.xml,
+                file: tempFile
+        )
         when:
-        jobs.list(opts, out)
+        command.list(new JobOutputFormatOption(), fileOptions, opts)
 
         then:
         1 * api.exportJobs('ProjectName', job, group, jobexact, groupexact, 'xml') >>
@@ -128,44 +147,27 @@ class JobsSpec extends Specification {
     @Unroll
     def "jobs #action behavior"() {
         given:
-        def api = Mock(RundeckApi)
         def deets = [
-                enable    : [
-                        opt : Jobs.EnableOpts,
-                        call: "jobExecutionEnable"
-                ],
-
-                disable   : [
-                        opt : Jobs.DisableOpts,
-                        call: "jobExecutionDisable"
-                ],
-
-                reschedule: [
-                        opt : Jobs.EnableSchedOpts,
-                        call: "jobScheduleEnable"
-                ],
-
-                unschedule: [
-                        opt : Jobs.DisableSchedOpts,
-                        call: "jobScheduleDisable"
-                ]
+                enable    : "jobExecutionEnable",
+                disable   : "jobExecutionDisable",
+                reschedule: "jobScheduleEnable",
+                unschedule: "jobScheduleDisable"
         ]
-        Class optClass = deets[action].opt
-        def apiCall = deets[action].call
-        def opts = Mock(optClass) {
-            isId() >> true
-            getId() >> '123'
-            getProject() >> 'testProj'
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 17, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        def apiCall = deets[action]
+
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobIdentOptions(
+                id: '123',
+                project: 'testProj'
+        )
         when:
-        jobs."$action"(opts, out)
+        command."$action"(opts)
 
         then:
         1 * api."$apiCall"('123') >> Calls.response(new Simple(success: true))
@@ -184,34 +186,28 @@ class JobsSpec extends Specification {
     def "job purge with job #job group #group jobexact #jobexact groupexact #groupexact"() {
         given:
         def api = Mock(RundeckApi)
-
-        def opts = Mock(Jobs.Purge) {
-            isJob() >> (job != null)
-            isGroup() >> (group != null)
-            isJobExact() >> (jobexact != null)
-            isGroupExact() >> (groupexact != null)
-            isProject() >> true
-            getProject() >> 'ProjectName'
-            getJobExact() >> jobexact
-            getGroupExact() >> groupexact
-            getJob() >> job
-            getGroup() >> group
-            isConfirm() >> true
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 17, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new Jobs.Purge()
+        opts.confirm = true
+        def listOpts = new JobListOptions()
+        listOpts.setJob(job)
+        listOpts.setGroup(group)
+        listOpts.setJobExact(jobexact)
+        listOpts.setGroupExact(groupexact)
+        listOpts.setProject 'ProjectName'
+
         when:
-        def result = jobs.purge(opts, out)
+        def result = command.purge(opts, new JobOutputFormatOption(), new JobFileOptions(), listOpts)
 
         then:
         1 * api.listJobs('ProjectName', job, group, jobexact, groupexact) >>
                 Calls.response([new JobItem(id: 'fakeid')])
-        1 * api.deleteJobsBulk({it.ids==['fakeid']}) >> Calls.response(new DeleteJobsResult(allsuccessful: true))
+        1 * api.deleteJobsBulk({ it.ids == ['fakeid'] }) >> Calls.response(new DeleteJobsResult(allsuccessful: true))
         0 * api._(*_)
         result
 
@@ -227,34 +223,32 @@ class JobsSpec extends Specification {
     @Unroll
     def "job purge with with batchsize"() {
         given:
-        def api = Mock(RundeckApi)
 
-        def opts = Mock(Jobs.Purge) {
-            getProject() >> 'ProjectName'
-            isJob() >> (job != null)
-            getJob() >> job
-            isConfirm() >> true
-            getBatchSize()>>batch
-            isBatchSize()>>(batch>0)
-            getMax()>>max
-            isMax()>>(max>0)
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 17, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
-        def iter=0
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new Jobs.Purge()
+        opts.batchSize = batch
+        opts.max = max
+        opts.confirm = true
+        def listOpts = new JobListOptions()
+        listOpts.setJob(job)
+        listOpts.setProject 'ProjectName'
+
+
+        def iter = 0
         when:
-        def result = jobs.purge(opts, out)
+        def result = command.purge(opts, new JobOutputFormatOption(), new JobFileOptions(), listOpts)
 
         then:
-            1 * api.listJobs('ProjectName', job, null, null, null) >> {
-                Calls.response((1..total).collect{new JobItem(id: "fakeid_$it")})
-            }
-        (expect.size()) * api.deleteJobsBulk({it.ids.size()==expect[iter++]}) >> {
+        1 * api.listJobs('ProjectName', job, null, null, null) >> {
+            Calls.response((1..total).collect { new JobItem(id: "fakeid_$it") })
+        }
+        (expect.size()) * api.deleteJobsBulk({ it.ids.size() == expect[iter++] }) >> {
             Calls.response(new DeleteJobsResult(allsuccessful: true))
         }
         0 * api._(*_)
@@ -296,24 +290,11 @@ class JobsSpec extends Specification {
         given:
         def api = Mock(RundeckApi)
 
-        def opts = Mock(Jobs.Purge) {
-            isJob() >> false
-            isGroup() >> false
-            isJobExact() >> false
-            isGroupExact() >> false
-            isProject() >> true
-            getProject() >> 'ProjectName'
-            isConfirm() >> true
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 17, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
-        def out = Mock(CommandOutput)
+        def opts = new Jobs.Purge()
+        opts.confirm = true
+        Jobs jobs = new Jobs()
         when:
-        jobs.purge(opts, out)
+        jobs.purge(opts, new JobOutputFormatOption(), new JobFileOptions(), new JobListOptions())
 
         then:
         InputError e = thrown()
@@ -324,23 +305,20 @@ class JobsSpec extends Specification {
     def "jobs info outformat"() {
         given:
 
-        def api = Mock(RundeckApi)
-        def opts = Mock(Jobs.InfoOpts) {
-            getId() >> "123"
-            getOutputFormat() >> outFormat
-            isOutputFormat() >> true
-        }
 
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 18, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobOutputFormatOption()
+        opts.outputFormat = outFormat
+
 
         when:
-        jobs.info(opts, out)
+        command.info('123', opts)
 
         then:
         1 * api.getJobInfo('123') >> Calls.response(new ScheduledJobItem(id: '123', href: 'monkey'))
@@ -354,23 +332,20 @@ class JobsSpec extends Specification {
 
     def "job load with errors produces output"() {
         given:
+        def opts = new JobFileOptions()
+        opts.format= JobFileOptions.Format.yaml
+        opts.file=tempFile
+
+
         def api = Mock(RundeckApi)
-        def opts = Mock(Jobs.Load) {
-            isProject() >> true
-            getProject() >> 'ProjectName'
-            getFormat() >> 'yaml'
-            isFile() >> true
-            getFile() >> tempFile
-        }
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 17, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        RdTool rdTool = setupMock(api)
         def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool=rdTool
+        command.rdOutput=out
+
         when:
-        jobs.load(opts, out)
+        command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption())
 
         then:
         1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
@@ -389,24 +364,18 @@ class JobsSpec extends Specification {
     def "job load with errors verbose output"() {
         given:
             def api = Mock(RundeckApi)
-            def opts = Mock(Jobs.Load) {
-                isProject() >> true
-                getProject() >> 'ProjectName'
-                getFormat() >> 'yaml'
-                isFile() >> true
-                getFile() >> tempFile
-                isVerbose() >> true
-            }
-            def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-            def client = new Client(api, retrofit, null, null, 17, true, null)
-            def hasclient = Mock(RdApp) {
-                getClient() >> client
-            }
-            Jobs jobs = new Jobs(hasclient)
+            RdTool rdTool = setupMock(api)
             def out = Mock(CommandOutput)
+            Jobs command = new Jobs()
+            command.rdTool=rdTool
+            command.rdOutput=out
+            def opts = new JobFileOptions()
+            opts.format= JobFileOptions.Format.yaml
+            opts.file=tempFile
+
             def resultItem = new JobLoadItem(error: 'Test Error', name: 'Job Name')
         when:
-            jobs.load(opts, out)
+            command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption(verbose: true))
 
         then:
             1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
@@ -420,30 +389,22 @@ class JobsSpec extends Specification {
 
     def "job forecast"() {
         given:
-
         def api = Mock(RundeckApi)
-        def opts = Mock(Jobs.ForecastOpts) {
-            getId() >> "123"
-            getTime() >> "1d"
-            isTime() >> true
-            getMax() >> "1"
-            isMax() >> true
-        }
-
-        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
-        def client = new Client(api, retrofit, null, null, 31, true, null)
-        def hasclient = Mock(RdApp) {
-            getClient() >> client
-        }
-        Jobs jobs = new Jobs(hasclient)
+        RdTool rdTool = setupMock(api,31)
         def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool=rdTool
+        command.rdOutput=out
+
+
         def date = new Date()
 
         when:
-        jobs.forecast(opts, out)
+        command.forecast('123','1d',1)
 
         then:
-        1 * api.getJobForecast('123','1d','1') >> Calls.response(new ForecastJobItem(futureScheduledExecutions: [date]))
+        1 * api.getJobForecast('123','1d',1) >> Calls.response(new ForecastJobItem(futureScheduledExecutions: [date]))
+        0 * api._(*_)
         1 * out.output('Forecast:')
         1 * out.output([date])
 

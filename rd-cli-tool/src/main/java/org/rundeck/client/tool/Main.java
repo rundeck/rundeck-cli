@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool;
 
+import org.jetbrains.annotations.NotNull;
 import org.rundeck.client.RundeckClient;
 import org.rundeck.client.api.RequestFailed;
 import org.rundeck.client.api.RundeckApi;
@@ -25,15 +26,13 @@ import org.rundeck.client.api.model.JobItem;
 import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.tool.extension.RdCommandExtension;
-import org.rundeck.client.tool.util.AdaptedToolbeltOutput;
+import org.rundeck.client.tool.extension.RdTool;
+import org.rundeck.client.tool.format.*;
 import org.rundeck.client.tool.util.ExtensionLoaderUtil;
 import org.rundeck.client.tool.util.Resources;
 import org.rundeck.client.util.*;
 import org.rundeck.client.util.DataOutput;
-import org.rundeck.toolbelt.*;
-import org.rundeck.toolbelt.format.json.jackson.JsonFormatter;
-import org.rundeck.toolbelt.format.yaml.snakeyaml.YamlFormatter;
-import org.rundeck.toolbelt.input.jewelcli.JewelInput;
+import picocli.CommandLine;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.nodes.Tag;
@@ -45,6 +44,8 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import static org.rundeck.client.RundeckClient.*;
 
@@ -52,6 +53,28 @@ import static org.rundeck.client.RundeckClient.*;
 /**
  * Entrypoint for commandline
  */
+@CommandLine.Command(
+        name = "rd",
+        version = "Version: " + org.rundeck.client.Version.VERSION,
+        mixinStandardHelpOptions = true,
+        subcommands = {
+                Adhoc.class,
+                Jobs.class,
+                Projects.class,
+                Executions.class,
+                Run.class,
+                Keys.class,
+                RDSystem.class,
+                Scheduler.class,
+                Tokens.class,
+                Nodes.class,
+                Users.class,
+                Main.Something.class,
+                Retry.class,
+                Metrics.class,
+                Version.class
+        }
+)
 public class Main {
     public static final String RD_USER = "RD_USER";
     public static final String RD_PASSWORD = "RD_PASSWORD";
@@ -64,32 +87,81 @@ public class Main {
     public static final String RD_EXT_DISABLED = "RD_EXT_DISABLED";
     public static final String RD_EXT_DIR = "RD_EXT_DIR";
 
+    @CommandLine.Spec
+    CommandLine.Model.CommandSpec spec;
     public static final String
             USER_AGENT =
             RundeckClient.Builder.getUserAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
 
-    public static void main(String[] args) throws CommandRunFailure {
-        boolean success = false;
-        ConfigSource config = buildConfig();
-        loadExtensionJars(config);
-        try (Rd rd = new Rd(config)) {
-            Tool tool = tool(rd);
-            try {
-                success = tool.runMain(args, false);
-            } catch (RequestFailed failure) {
-                rd.getOutput().error(failure.getMessage());
-                if (rd.getDebugLevel() > 0) {
-                    StringWriter sb = new StringWriter();
-                    failure.printStackTrace(new PrintWriter(sb));
-                    rd.getOutput().error(sb.toString());
+    public static void main(String[] args) {
+        int result = -1;
+        try (Rd rd = createRd()) {
+            RdToolImpl rd1 = new RdToolImpl(rd);
+            CommandLine commandLine = new CommandLine(new Main(), new CmdFactory(rd1));
+            commandLine.setExpandAtFiles(false);
+            commandLine.getHelpSectionMap().put(
+                    CommandLine.Model.UsageMessageSpec.SECTION_KEY_HEADER_HEADING,
+                    help -> loadBanner("rd-banner.txt", Collections.singletonMap("$version$", org.rundeck.client.Version.VERSION)
+                    )
+            );
+            commandLine.setExecutionExceptionHandler((Exception ex, CommandLine cl, CommandLine.ParseResult parseResult) -> {
+                if (ex instanceof InputError) {
+                    return cl.getParameterExceptionHandler().handleParseException(
+                            new CommandLine.ParameterException(cl, ex.getMessage(), ex),
+                            args
+                    );
                 }
-            }
+                if (ex instanceof RequestFailed) {
+                    rd.getOutput().error(ex.getMessage());
+                    if (rd.getDebugLevel() > 0) {
+                        StringWriter sb = new StringWriter();
+                        ex.printStackTrace(new PrintWriter(sb));
+                        rd.getOutput().error(sb.toString());
+                    }
+                    return 2;
+                }
+                throw ex;
+            });
+
+            loadCommands(rd, rd1).forEach(commandLine::addSubcommand);
+
+            result = commandLine.execute(args);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        if (!success) {
-            System.exit(2);
+        System.exit(result);
+    }
+
+    @NotNull
+    private static Rd createRd() {
+        ConfigSource config = buildConfig();
+        loadExtensionJars(config);
+        RdBuilder builder = new RdBuilder();
+        Rd rd = new Rd(config);
+        setup(rd, builder);
+        return rd;
+    }
+
+    static String loadBanner(String resource, Map<String, String> replacements) {
+        InputStream resourceAsStream = Main.class.getClassLoader().getResourceAsStream(resource);
+        if (null != resourceAsStream) {
+            try {
+                String result;
+                try (BufferedReader is = new BufferedReader(new InputStreamReader(resourceAsStream))) {
+                    result = is.lines().collect(Collectors.joining("\n"));
+                }
+                if (replacements != null && !replacements.isEmpty()) {
+                    for (String s : replacements.keySet()) {
+                        String val = replacements.get(s);
+                        result = result.replaceAll(s, Matcher.quoteReplacement(val));
+                    }
+                }
+                return CommandLine.Help.Ansi.AUTO.string(result);
+            } catch (IOException ignored) {
+
+            }
         }
+        return null;
     }
 
     private static ConfigSource buildConfig() {
@@ -131,7 +203,7 @@ public class Main {
         }
     }
 
-    private static void setupFormat(final ToolBelt belt, RdClientConfig config) {
+    private static void setupFormat(final RdBuilder belt, RdClientConfig config) {
         final String format = config.get(RD_FORMAT);
         if ("yaml".equalsIgnoreCase(format)) {
             configYamlFormat(belt, config);
@@ -145,7 +217,7 @@ public class Main {
         }
     }
 
-    private static void configNiceFormat(final ToolBelt belt) {
+    private static void configNiceFormat(final RdBuilder belt) {
         NiceFormatter formatter = new NiceFormatter(null) {
             @Override
             public String format(final Object o) {
@@ -171,19 +243,19 @@ public class Main {
         ));
     }
 
-    private static void configJsonFormat(final ToolBelt belt) {
+    private static void configJsonFormat(final RdBuilder belt) {
         belt.formatter(new JsonFormatter(DataOutputAsFormatable));
         belt.channels().infoEnabled(false);
         belt.channels().warningEnabled(false);
         belt.channels().errorEnabled(false);
     }
 
-    private static void configYamlFormat(final ToolBelt belt, final RdClientConfig config) {
+    private static void configYamlFormat(final RdBuilder belt, final RdClientConfig config) {
         DumperOptions dumperOptions = new DumperOptions();
         dumperOptions.setDefaultFlowStyle(
                 "BLOCK".equalsIgnoreCase(config.getString("RD_YAML_FLOW", "BLOCK")) ?
-                DumperOptions.FlowStyle.BLOCK :
-                DumperOptions.FlowStyle.FLOW
+                        DumperOptions.FlowStyle.BLOCK :
+                        DumperOptions.FlowStyle.FLOW
         );
         dumperOptions.setPrettyFlow(config.getBool("RD_YAML_PRETTY", true));
         Representer representer = new Representer();
@@ -214,68 +286,47 @@ public class Main {
         return Optional.empty();
     };
 
-    public static Tool tool(final Rd rd) {
-        List<Object> base = new ArrayList<>(Arrays.asList(
-                new Adhoc(rd),
-                new Jobs(rd),
-                new Projects(rd),
-                new Executions(rd),
-                new Run(rd),
-                new Keys(rd),
-                new RDSystem(rd),
-                new Scheduler(rd),
-                new Tokens(rd),
-                new Nodes(rd),
-                new Users(rd),
-                new Something(),
-                new Retry(rd),
-                new Metrics(rd),
-                new Version()
-        ));
-        AppCommand commandTool = new AppCommand(rd);
+    static class CmdFactory implements CommandLine.IFactory {
+        private final RdTool rd;
+        private final CommandLine.IFactory defaultFactory;
+
+        public CmdFactory(RdTool rd) {
+            this.rd = rd;
+            defaultFactory = CommandLine.defaultFactory();
+        }
+
+        @Override
+        public <K> K create(Class<K> cls) throws Exception {
+            K k = defaultFactory.create(cls);
+            if (k instanceof RdCommandExtension) {
+                rd.initExtension(((RdCommandExtension) k));
+            }
+            return k;
+        }
+    }
+
+    static List<RdCommandExtension> loadCommands(final Rd rd, RdToolImpl commandTool) {
         List<RdCommandExtension> extensions = ExtensionLoaderUtil.list();
-        extensions.forEach(ext -> ext.setRdTool(commandTool));
-        base.addAll(extensions);
+        extensions.forEach(commandTool::initExtension);
 
-        ToolBelt belt = ToolBelt.belt("rd")
-                                .defaultHelpCommands()
-                                .ansiColorOutput(rd.isAnsiEnabled())
-                                .add(base.toArray())
-                                .bannerResource("rd-banner.txt",Collections.singletonMap("@version@",org.rundeck.client.Version.VERSION))
-                                .commandInput(new JewelInput());
+        if (rd.getDebugLevel() > 0) {
+            extensions.forEach(ext -> rd.getOutput().warning("# Including extension: " + ext.getClass().getName()));
+        }
+        return extensions;
+    }
 
-        belt.printStackTrace(rd.getDebugLevel() > 0);
-        setupColor(belt, rd);
-        setupFormat(belt, rd);
+    public static void setup(final Rd rd, RdBuilder builder) {
+
+        builder.printStackTrace(rd.getDebugLevel() > 0);
+        setupFormat(builder, rd);
 
         boolean insecureSsl = rd.getBool(ENV_INSECURE_SSL, false);
         boolean insecureSslNoWarn = rd.getBool(ENV_INSECURE_SSL_NO_WARN, false);
-        if (insecureSsl && !insecureSslNoWarn ) {
-            belt.finalOutput().warning(
+        if (insecureSsl && !insecureSslNoWarn) {
+            rd.getOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
-        belt.handles(InputError.class,  (err, context) -> {
-            context.getOutput().warning(String.format(
-                    "Input error for [%s]: %s",
-                    context.getCommandsString(),
-                    err.getMessage()
-            ));
-            context.getOutput().warning(String.format(
-                    "You can use: \"%s %s\" to get help.",
-                    context.getCommandsString(),
-                    "-h"
-            ));
-            return true;
-        });
-        rd.setOutput(new AdaptedToolbeltOutput(belt.finalOutput()));
-
-        if (rd.getDebugLevel() > 0) {
-            extensions.forEach(ext -> {
-                rd.getOutput().warning("# Including extension: " + ext.getClass().getName());
-            });
-        }
-
-        return belt.buckle();
+        rd.setOutput(builder.finalOutput());
     }
 
     static class Rd extends ConfigBase implements RdApp, RdClientConfig, Closeable {
@@ -379,27 +430,6 @@ public class Main {
         @Override
         public void close() throws IOException {
             resources.close();
-        }
-    }
-
-    private static void setupColor(final ToolBelt belt, RdClientConfig config) {
-        if (config.isAnsiEnabled()) {
-            String info = config.get("RD_COLOR_INFO");
-            if (null != info) {
-                belt.ansiColor().info(info);
-            }
-            String output = config.get("RD_COLOR_OUTPUT");
-            if (null != output) {
-                belt.ansiColor().output(output);
-            }
-            String warn = config.get("RD_COLOR_WARN");
-            if (null != warn) {
-                belt.ansiColor().warning(warn);
-            }
-            String error = config.get("RD_COLOR_ERROR");
-            if (null != error) {
-                belt.ansiColor().error(error);
-            }
         }
     }
 
@@ -646,39 +676,34 @@ public class Main {
         }
     }
 
-    @Hidden
-    @Command("pond")
-    public static class Something {
-        @Command
-        public void pond(org.rundeck.toolbelt.CommandOutput out) {
+    @CommandLine.Command(name = "pond", hidden = true)
+    public static class Something implements Runnable{
+        public void run() {
             int i = new Random().nextInt(4);
-            ANSIColorOutput.ColorString kind;
+            String kind;
             switch (i) {
                 case 1:
-                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.BLUE, "A little luck.");
+                    kind = CommandLine.Help.Ansi.AUTO.string("@|blue A little luck.|@");
                     break;
                 case 2:
-                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.GREEN, "Good luck.");
+                    kind = CommandLine.Help.Ansi.AUTO.string("@|green Good luck.|@");
                     break;
                 case 3:
-                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.ORANGE, "Great luck.");
+                    kind = CommandLine.Help.Ansi.AUTO.string("@|fg(215) Great luck.|@");
                     break;
                 default:
-                    kind = ANSIColorOutput.colorize(ANSIColorOutput.Color.RESET, "Big trouble.");
+                    kind = "Big trouble.";
                     break;
             }
 
-            out.output("For your reference, today you will have:");
-            out.output(kind);
+            System.out.println("For your reference, today you will have:");
+            System.out.println(kind);
         }
     }
 
     private static class OutputLogger implements Client.Logger {
         final CommandOutput output;
 
-        public OutputLogger(final org.rundeck.toolbelt.CommandOutput output) {
-            this.output = new AdaptedToolbeltOutput(output);
-        }
         public OutputLogger(final CommandOutput output) {
             this.output = output;
         }

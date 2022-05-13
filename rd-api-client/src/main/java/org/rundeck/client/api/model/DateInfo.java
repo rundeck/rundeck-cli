@@ -40,7 +40,7 @@ public class DateInfo {
         this.date = date;
         try {
             unixtime = toDate().getTime();
-        } catch (ParseException e) {
+        } catch (ParseException ignored) {
         }
     }
 

@@ -16,55 +16,49 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.lexicalscope.jewel.cli.CommandLineInterface;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import org.rundeck.client.api.model.AdhocResponse;
 import org.rundeck.client.api.model.Execution;
 import org.rundeck.client.tool.InputError;
-import org.rundeck.client.tool.RdApp;
-import org.rundeck.client.tool.options.AdhocBaseOptions;
-import org.rundeck.client.tool.options.ExecutionResultOptions;
+import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.*;
 import org.rundeck.client.util.Quoting;
 import org.rundeck.client.util.Util;
-import org.rundeck.toolbelt.Command;
-import org.rundeck.toolbelt.CommandOutput;
+import picocli.CommandLine;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-
+import java.util.concurrent.Callable;
+import java.util.stream.Stream;
 
 
 /**
  * adhoc subcommands
  */
 
-@Command(description = "Run adhoc command or script on matching nodes.")
-public class Adhoc extends AppCommand {
-    static final String COMMAND = "adhoc";
+@CommandLine.Command(description = "Run adhoc command or script on matching nodes.", name = "adhoc", showEndOfOptionsDelimiterInUsageHelp = true)
+public class Adhoc extends BaseCommand implements Callable<Boolean> {
 
-    public Adhoc(final RdApp client) {
-        super(client);
-    }
+    @CommandLine.Mixin
+    AdhocBaseOptions options;
+    @CommandLine.Mixin
+    ExecutionOutputFormatOption outputFormatOption;
+    @CommandLine.Mixin
+    FollowOptions followOptions;
+    @CommandLine.Mixin
+    NodeFilterBaseOptions nodeFilterOptions;
 
-    @CommandLineInterface(application = COMMAND) interface AdhocOptions extends AdhocBaseOptions,
-        ExecutionResultOptions
-    {
-
-    }
-
-    @Command(isSolo = true, isDefault = true)
-    public boolean adhoc(AdhocOptions options, CommandOutput output) throws IOException, InputError {
+    public Boolean call() throws IOException, InputError {
         AdhocResponse adhocResponse;
 
-        String project = projectOrEnv(options);
-        if (options.isScriptFile() || options.isStdin()) {
+        String project = getRdTool().projectOrEnv(options);
+        if (options.getScriptFile() != null || options.isStdin()) {
             RequestBody scriptFileBody;
             String filename;
-            if (options.isScriptFile()) {
+            if (options.getScriptFile() != null) {
                 File input = options.getScriptFile();
                 if (!input.canRead() || !input.isFile()) {
                     throw new InputError(String.format(
@@ -74,8 +68,8 @@ public class Adhoc extends AppCommand {
                 }
 
                 scriptFileBody = RequestBody.create(
-                        MediaType.parse("application/octet-stream"),
-                        input
+                        input,
+                        MediaType.parse("application/octet-stream")
                 );
                 filename = input.getName();
             } else {
@@ -83,14 +77,13 @@ public class Adhoc extends AppCommand {
                 long bytes = Util.copyStream(System.in, byteArrayOutputStream);
 
                 scriptFileBody = RequestBody.create(
-                        MediaType.parse("application/octet-stream"),
-                        byteArrayOutputStream.toByteArray()
-
+                        byteArrayOutputStream.toByteArray(),
+                        MediaType.parse("application/octet-stream")
                 );
                 filename = "script.sh";
             }
 
-            adhocResponse = apiCall(api -> api.runScript(
+            adhocResponse = getRdTool().apiCall(api -> api.runScript(
                     project,
                     MultipartBody.Part.createFormData("scriptFile", filename, scriptFileBody),
                     options.getThreadcount(),
@@ -99,10 +92,10 @@ public class Adhoc extends AppCommand {
                     options.getScriptInterpreter(),
                     options.isArgsQuoted(),
                     options.getFileExtension(),
-                    options.getFilter()
+                    nodeFilterOptions.getFilter()
             ));
-        } else if (options.isUrl()) {
-            adhocResponse = apiCall(api -> api.runUrl(
+        } else if (options.getUrl() != null) {
+            adhocResponse = getRdTool().apiCall(api -> api.runUrl(
                     project,
                     options.getUrl(),
                     options.getThreadcount(),
@@ -111,36 +104,38 @@ public class Adhoc extends AppCommand {
                     options.getScriptInterpreter(),
                     options.isArgsQuoted(),
                     options.getFileExtension(),
-                    options.getFilter()
+                    nodeFilterOptions.getFilter()
             ));
         } else if (options.getCommandString() != null && options.getCommandString().size() > 0) {
             //command
-            adhocResponse = apiCall(api -> api.runCommand(
+            adhocResponse = getRdTool().apiCall(api -> api.runCommand(
                     project,
                     Quoting.joinStringQuoted(options.getCommandString()),
                     options.getThreadcount(),
                     options.isKeepgoing(),
-                    options.getFilter()
+                    nodeFilterOptions.getFilter()
             ));
         } else {
             throw new InputError("-s, -u, or -- command string, was expected");
         }
 
 
-        Execution execution = apiCall(api -> api.getExecution(adhocResponse.execution.getId()));
-        if (options.isFollow()) {
-            output.info("Started execution " + execution.toExtendedString(getAppConfig()));
+        Execution execution = getRdTool().apiCall(api -> api.getExecution(adhocResponse.execution.getId()));
+        if (followOptions.isFollow()) {
+            getRdOutput().info("Started execution " + execution.toExtendedString(getRdTool().getAppConfig()));
         } else {
-            if (!options.isOutputFormat()) {
-                output.info(adhocResponse.message);
+            if (outputFormatOption.getOutputFormat() == null) {
+                getRdOutput().info(adhocResponse.message);
             }
-            Executions.outputExecutionList(options, output,
-                                           getAppConfig(),
-                                           Collections.singletonList(execution).stream()
+            Executions.outputExecutionList(
+                    outputFormatOption,
+                    getRdOutput(),
+                    getRdTool().getAppConfig(),
+                    Stream.of(execution)
             );
         }
 
-        return Executions.maybeFollow(this, options, adhocResponse.execution.getId(), output);
+        return Executions.maybeFollow(getRdTool(), followOptions, outputFormatOption, adhocResponse.execution.getId(), getRdOutput());
     }
 
 }
