@@ -1,0 +1,18 @@
+- defaultTab: nodes
+  description: a test job2
+  executionEnabled: true
+  id: e0a0e5ba-8aa3-46cd-a4d9-fa06a81dc6ea
+  loglevel: INFO
+  name: test job2
+  nodeFilterEditable: false
+  plugins:
+    ExecutionLifecycle: {}
+  scheduleEnabled: true
+  schedules: []
+  sequence:
+    commands:
+    - exec: echo job name is ${job.name}
+    keepgoing: false
+    strategy: node-first
+  tags: tag3
+  uuid: e0a0e5ba-8aa3-46cd-a4d9-fa06a81dc6ea

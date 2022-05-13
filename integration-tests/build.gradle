@@ -1,0 +1,25 @@
+plugins {
+    id 'groovy'
+}
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation(project(":rd-api-client"))
+    testImplementation libs.groovy
+    testImplementation libs.bundles.retrofit
+    testImplementation libs.bundles.test
+    testImplementation libs.bundles.testcontainers
+}
+test {
+    //note: this is intentionally commented out
+    //to prevent running integration tests with normal `gradle check/test`
+    //useJUnitPlatform()
+}
+
+// Usage: gradlew integrationTest to perform integration tests
+task integrationTest(type: Test, description: 'Runs the integration tests', group: 'Verification') {
+    //enables all tests
+    useJUnitPlatform()
+}
