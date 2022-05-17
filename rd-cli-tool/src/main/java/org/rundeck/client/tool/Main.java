@@ -99,6 +99,11 @@ public class Main {
         try (Rd rd = createRd()) {
             RdToolImpl rd1 = new RdToolImpl(rd);
             CommandLine commandLine = new CommandLine(new Main(), new CmdFactory(rd1));
+            CommandLine.Help.ColorScheme colorScheme = new CommandLine.Help.ColorScheme.Builder(CommandLine.Help.defaultColorScheme(CommandLine.Help.Ansi.AUTO))
+                    .commands(CommandLine.Help.Ansi.Style.fg_white)
+                    .applySystemProperties() // optional: allow end users to customize
+                    .build();
+            commandLine.setColorScheme(colorScheme);
             commandLine.setExpandAtFiles(false);
             commandLine.getHelpSectionMap().put(
                     CommandLine.Model.UsageMessageSpec.SECTION_KEY_HEADER_HEADING,
