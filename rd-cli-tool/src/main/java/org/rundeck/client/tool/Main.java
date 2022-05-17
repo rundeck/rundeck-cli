@@ -45,6 +45,7 @@ import java.net.URLClassLoader;
 import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.rundeck.client.RundeckClient.*;
@@ -153,7 +154,7 @@ public class Main {
                 if (replacements != null && !replacements.isEmpty()) {
                     for (String s : replacements.keySet()) {
                         String val = replacements.get(s);
-                        result = result.replaceAll(s, Matcher.quoteReplacement(val));
+                        result = result.replaceAll(Pattern.quote(s), Matcher.quoteReplacement(val));
                     }
                 }
                 return CommandLine.Help.Ansi.AUTO.string(result);
