@@ -56,7 +56,7 @@ import static org.rundeck.client.RundeckClient.*;
  */
 @CommandLine.Command(
         name = "rd",
-        version = "Version: " + org.rundeck.client.Version.VERSION,
+        version = org.rundeck.client.Version.VERSION,
         mixinStandardHelpOptions = true,
         subcommands = {
                 Adhoc.class,
