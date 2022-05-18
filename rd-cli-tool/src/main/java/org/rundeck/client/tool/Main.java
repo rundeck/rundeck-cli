@@ -128,8 +128,7 @@ public class Main {
 
             commandLine.getHelpSectionMap().put(
                     CommandLine.Model.UsageMessageSpec.SECTION_KEY_HEADER_HEADING,
-                    help -> loadBanner("rd-banner.txt", Collections.singletonMap("$version$", org.rundeck.client.Version.VERSION)
-                    )
+                    help -> loadBanner("rd-banner.txt", Collections.singletonMap("$version$", org.rundeck.client.Version.VERSION))
             );
             commandLine.setExecutionExceptionHandler((Exception ex, CommandLine cl, CommandLine.ParseResult parseResult) -> {
                 if (ex instanceof InputError) {
