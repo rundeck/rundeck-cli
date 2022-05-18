@@ -105,6 +105,27 @@ public class Main {
                     .build();
             commandLine.setColorScheme(colorScheme);
             commandLine.setExpandAtFiles(false);
+            commandLine.setUsageHelpAutoWidth(true);
+            commandLine.setHelpFactory(new CommandLine.IHelpFactory() {
+                @Override
+                public CommandLine.Help create(CommandLine.Model.CommandSpec commandSpec, CommandLine.Help.ColorScheme colorScheme) {
+                    return new CommandLine.Help(commandSpec, colorScheme) {
+                        /**
+                         * Returns a sorted map of the subcommands.
+                         */
+                        @Override
+                        public Map<String, CommandLine.Help> subcommands() {
+                            return new TreeMap<>(super.subcommands());
+                        }
+
+                        @Override
+                        public String commandListHeading(Object... params) {
+                            return "\nAvailable commands:\n\n";
+                        }
+                    };
+                }
+            });
+
             commandLine.getHelpSectionMap().put(
                     CommandLine.Model.UsageMessageSpec.SECTION_KEY_HEADER_HEADING,
                     help -> loadBanner("rd-banner.txt", Collections.singletonMap("$version$", org.rundeck.client.Version.VERSION)
