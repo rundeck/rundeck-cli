@@ -39,9 +39,10 @@ import java.util.concurrent.Callable;
 /**
  * retry subcommand
  */
-@CommandLine.Command(description = "Run a Job based on a specific execution. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
-        "@path\" or \"-opt@ path\". If they aren't specified, the options are going to be overridden by the execution options"
-        , name = "retry")
+@CommandLine.Command(description = "Run a Job based on a specific execution.",
+        name = "retry",
+        showEndOfOptionsDelimiterInUsageHelp = true
+)
 public class Retry extends BaseCommand implements Callable<Boolean> {
 
 

@@ -58,7 +58,8 @@ public class RetryBaseOptions extends JobIdentOptions implements  OutputFormat {
             description = "Treat option values as raw text, so that '-opt @value' is sent literally")
     private boolean rawOptions;
 
-    @CommandLine.Parameters(paramLabel = "-OPT VAL or -OPTFILE @filepath", description = "Job options")
+    @CommandLine.Parameters(paramLabel = "-OPT VAL or -OPTFILE @filepath", description = "Job options as \"-opt value\". Upload files as \"-opt " +
+            "@path\" or \"-opt@ path\". If they aren't specified, the options are going to be overridden by the execution options")
     private List<String> commandString;
 
     @CommandLine.Option(names = {"-%", "--outformat"},

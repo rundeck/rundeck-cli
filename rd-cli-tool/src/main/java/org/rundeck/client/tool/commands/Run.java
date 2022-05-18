@@ -43,9 +43,11 @@ import java.util.stream.Stream;
 /**
  * run subcommand
  */
-@CommandLine.Command(description = "Run a Job. Specify option arguments after -- as \"-opt value\". Upload files as \"-opt " +
-        "@path\" or \"-opt@ path\".", name = "run",
-        showEndOfOptionsDelimiterInUsageHelp = true)
+@CommandLine.Command(
+        description = "Run a Job.",
+        name = "run",
+        showEndOfOptionsDelimiterInUsageHelp = true
+)
 public class Run extends BaseCommand implements Callable<Boolean> {
 
     public static final int SEC_MS = 1000;

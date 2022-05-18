@@ -64,8 +64,7 @@ public class Projects extends BaseCommand {
     }
 
     @CommandLine.Command(
-            description = "Get info about a project. Use -v/--verbose to output all available config data, or use " +
-                    "-%%/--outformat for selective data.")
+            description = "Get info about a project.")
     public void info(
             @CommandLine.Mixin ProjectNameOptions opts,
             @CommandLine.Mixin ProjectListFormatOptions formatOptions,

@@ -42,8 +42,7 @@ import java.util.stream.Collectors;
 /**
  * keys subcommands
  */
-@CommandLine.Command(description = "Manage Keys via the Key Storage Facility." +
-        "\nSpecify the path using -p/--path, or as the last argument to the command.", name = "keys")
+@CommandLine.Command(description = "Manage Keys via the Key Storage Facility.", name = "keys")
 
 public class Keys extends BaseCommand {
 
