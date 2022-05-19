@@ -73,10 +73,10 @@ jobs:
       run: bash scripts/rpm-upgrade.sh
     - name: Get Release Version
       id: get_version
-      run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet) && echo ::set-output name=VERSION::$VERSION
+      run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet --dependency-verification off) && echo ::set-output name=VERSION::$VERSION
     - name: Get RPM Version
       id: get_rpm_version
-      run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet | sed 's/-/./') && echo ::set-output name=VERSION::$VERSION
+      run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet --dependency-verification off | sed 's/-/./') && echo ::set-output name=VERSION::$VERSION
     - name: Upload zip
       uses: actions/upload-artifact@v3.0.0
       with:
