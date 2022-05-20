@@ -20,7 +20,7 @@ picocli = "4.6.3"
 snakeYaml = "1.30"
 #used for authz lib integration
 rundeck = "4.2.0-20220509"
-testcontainers = "1.17.1"
+testcontainers = "1.17.2"
 
 [libraries]
 
