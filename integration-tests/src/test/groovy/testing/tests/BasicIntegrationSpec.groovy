@@ -18,6 +18,7 @@ import spock.lang.Specification
 
 import java.nio.file.Files
 import java.nio.file.Path
+import java.time.Duration
 
 @Testcontainers
 class BasicIntegrationSpec extends Specification {
@@ -30,14 +31,14 @@ class BasicIntegrationSpec extends Specification {
                     Transferable.of('admin=letmeinplease,admin'),
                     '/var/lib/rundeck/etc/tokens.properties',
             )
-            .waitingFor(Wait.forHttp("/api/41/system/info").forStatusCode(403))
+            .waitingFor(Wait.forHttp("/api/41/system/info").forStatusCode(403).withStartupTimeout(Duration.ofMinutes(5)))
 //            .waitingFor(
 //                    Wait.forLogMessage(".*rundeckapp.Application - Started Application.*\\n", 1)
 //            )
             .withExposedPorts(4440)
 
     @Shared
-    Client<RundeckApi> client;
+    Client<RundeckApi> client
 
     static String PROJ_NAME = 'test'
     static String JOBFILE1 = 'jobs/test_job.xml'

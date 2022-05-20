@@ -45,6 +45,11 @@ jobs:
       run: chmod +x gradlew
     - name: Integration Test
       run: ./gradlew integrationTest --dependency-verification off
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: integration-test-report
+        path: integration-tests/build/reports/tests/integrationTest
   build:
 
     runs-on: ubuntu-latest
@@ -67,6 +72,11 @@ jobs:
       run: ./gradlew build --dependency-verification off
     - name: Integration tests
       run: ./gradlew integrationTest --dependency-verification off
+    - uses: actions/upload-artifact@v3
+      if: failure()
+      with:
+        name: integration-test-report
+        path: integration-tests/build/reports/tests/integrationTest
     - name: deb/rpm install test
       run: bash scripts/install-test.sh
     - name: rpm upgrade test
