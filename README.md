@@ -59,7 +59,8 @@ Build with lenient mode dependency verification
 
 Update dependency verification metadata and export any new keys.
 
-    ./gradlew --write-verification-metadata pgp,sha256 --refresh-keys --export-keys build
+    ./gradlew --write-verification-metadata sha256 --refresh-dependencies help
+    ./gradlew --write-verification-metadata pgp,sha256 --refresh-keys --export-keys --refresh-dependencies help
     rm gradle/verification-keyring.gpg
     git add gradle/verification-metadata.xml
     git add gradle/verification-keyring.keys
