@@ -1,8 +1,7 @@
-## Unreleased
+## 2.0.0
 
 *Note*: This release contains some under the hood changes, that may change the behavior.
 Please [log an issue](https://github.com/rundeck/rundeck-cli/issues) if you encounter any problems.
-
 * Refactored CLI framework to use [picocli](https://picocli.info/)
     * This was a major overhaul, but should be exactly compatible with rd 1.x
 * Updated dependencies.
@@ -11,6 +10,8 @@ Please [log an issue](https://github.com/rundeck/rundeck-cli/issues) if you enco
     * `rd system/projects acls`: `upload` subcommand replaced with `update`
     * `rd tokens`: `reveal` subcommand replaced with `info`
     * `rd tokens delete`: option `-t/--token` replaced with `-i/--id`
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v1.4.3...v2.0.0)
 
 ## 1.4.3
 
