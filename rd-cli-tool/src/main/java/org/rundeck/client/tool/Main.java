@@ -28,6 +28,7 @@ import org.rundeck.client.tool.commands.*;
 import org.rundeck.client.tool.extension.RdCommandExtension;
 import org.rundeck.client.tool.extension.RdTool;
 import org.rundeck.client.tool.format.*;
+import org.rundeck.client.tool.output.SystemOutput;
 import org.rundeck.client.tool.util.ExtensionLoaderUtil;
 import org.rundeck.client.tool.util.Resources;
 import org.rundeck.client.util.*;
@@ -348,17 +349,17 @@ public class Main {
 
         boolean insecureSsl = rd.getBool(ENV_INSECURE_SSL, false);
         boolean insecureSslNoWarn = rd.getBool(ENV_INSECURE_SSL_NO_WARN, false);
+        rd.setOutput(builder.finalOutput());
         if (insecureSsl && !insecureSslNoWarn) {
             rd.getOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
         }
-        rd.setOutput(builder.finalOutput());
     }
 
     static class Rd extends ConfigBase implements RdApp, RdClientConfig, Closeable {
         private final Resources resources = new Resources();
         Client<RundeckApi> client;
-        private CommandOutput output;
+        private CommandOutput output = new SystemOutput();
 
         public Rd(final ConfigValues src) {
             super(src);
