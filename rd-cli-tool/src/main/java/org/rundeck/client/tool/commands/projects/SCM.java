@@ -284,10 +284,10 @@ public class SCM extends BaseCommand {
 
     @Getter @Setter
     public static class ActionPerformOptions extends ActionInputsOptions {
-        @CommandLine.Option(names = {"--field", "-f"}, description = "Field input values, space separated key=value list")
+        @CommandLine.Option(names = {"--field", "-f"}, arity = "1..*", description = "Field input values, space separated key=value list")
         private List<String> fields;
 
-        @CommandLine.Option(names = {"--item", "-I"}, description = "Items to include, space separated list")
+        @CommandLine.Option(names = {"--item", "-I"}, arity = "1..*", description = "Items to include, space separated list")
         private List<String> item;
 
         @CommandLine.Option(names = {"-A", "--allitems"},
@@ -314,11 +314,12 @@ public class SCM extends BaseCommand {
                         "(import only)")
         boolean allUntrackedItems;
 
-        @CommandLine.Option(names = {"--job", "-j"}, description = "Job IDs to include, space separated list")
+        @CommandLine.Option(names = {"--job", "-j"}, arity = "1..*", description = "Job IDs to include, space separated list")
         List<String> job;
 
 
         @CommandLine.Option(names = {"--delete", "-d"},
+                arity = "1..*",
                 description = "Job IDs or Item Ids to delete, space separated list")
         List<String> delete;
 
