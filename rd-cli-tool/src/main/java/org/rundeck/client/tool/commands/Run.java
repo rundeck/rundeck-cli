@@ -48,13 +48,15 @@ import java.util.stream.Stream;
         name = "run",
         showEndOfOptionsDelimiterInUsageHelp = true
 )
-public class Run extends BaseCommand implements Callable<Boolean> {
+public class Run extends BaseCommand implements Callable<Integer> {
 
     public static final int SEC_MS = 1000;
     public static final int MIN_MS = 60 * 1000;
     public static final int HOUR_MS = 60 * 60 * 1000;
     public static final int DAY_MS = 24 * 60 * 60 * 1000;
     public static final int WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    public static final int RUN_FAILED_EXIT_CODE = 2;
+    public static final int RUN_SUCCEED_EXIT_CODE = 0;
 
 
     @CommandLine.Mixin
@@ -70,11 +72,11 @@ public class Run extends BaseCommand implements Callable<Boolean> {
     final
     ExecutionOutputFormatOption outputFormatOption = new ExecutionOutputFormatOption();
 
-    public Boolean call() throws IOException, InputError {
+    public Integer call() throws IOException, InputError {
         options.validate();
         String jobId = getJobIdFromOpts(options, getRdOutput(), getRdTool(), () -> getRdTool().projectOrEnv(options));
         if (null == jobId) {
-            return false;
+            throw new InputError("jobId is required");
         }
         Execution execution;
         Date runat = null;
@@ -208,7 +210,7 @@ public class Run extends BaseCommand implements Callable<Boolean> {
             }
             getRdOutput().info("Started.");
         }
-        return Executions.maybeFollow(getRdTool(), followOptions,outputFormatOption, execution.getId(), getRdOutput());
+        return Executions.maybeFollow(getRdTool(), followOptions, outputFormatOption, execution.getId(), getRdOutput()) ? RUN_SUCCEED_EXIT_CODE : RUN_FAILED_EXIT_CODE;
     }
 
     /**

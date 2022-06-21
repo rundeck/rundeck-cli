@@ -17,6 +17,7 @@
 package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.RundeckApi
+import org.rundeck.client.api.model.ExecOutput
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobFileUploadResult
 import org.rundeck.client.api.model.JobItem
@@ -50,6 +51,43 @@ class RunSpec extends Specification {
         rdTool
     }
 
+    def "run command -f exits #code when execution status is #status"() {
+
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api, 17)
+        def out = Mock(CommandOutput)
+        Run command = new Run()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        command.options.project = 'ProjectName'
+        command.options.job = 'a group/path/a job'
+        command.followOptions.follow = true
+        def output = new ExecOutput()
+        output.execCompleted = true
+        output.completed = true
+        output.entries = []
+        output.execState = status
+
+        when:
+        def result = command.call()
+
+        then:
+        1 * api.listJobs('ProjectName', null, null, 'a job', 'a group/path') >>
+                Calls.response([new JobItem(id: 'fakeid')])
+        1 * api.runJob('fakeid', null, null, null, null) >> Calls.response(new Execution(id: 123, description: ''))
+        1 * api.getOutput('123', 0, 0, 500, true) >> Calls.response(output)
+        0 * api._(*_)
+        result == code
+        where:
+        status      | code
+        'succeeded' | 0
+        'failed'    | 2
+        'aborted'   | 2
+        'other'     | 2
+    }
+
     def "run command -j queries for exact job name and group"() {
 
         given:
@@ -71,9 +109,10 @@ class RunSpec extends Specification {
                 Calls.response([new JobItem(id: 'fakeid')])
         1 * api.runJob('fakeid', null, null, null, null) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
-        result
+        result == 0
 
     }
+
     def "run command loglevel debug"() {
 
         given:
@@ -96,7 +135,7 @@ class RunSpec extends Specification {
                 Calls.response([new JobItem(id: 'fakeid')])
         1 * api.runJob('fakeid', null, seenlevel, null, null) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
-        result
+        result == 0
         where:
         inlevel                         | seenlevel
         RunBaseOptions.Loglevel.debug   | 'DEBUG'
@@ -131,7 +170,7 @@ class RunSpec extends Specification {
         1 * api.runJob('fakeid', null, 'DEBUG', null, null) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
         1 * out.output("123")
-        result
+        result == 0
 
     }
     @Unroll
@@ -192,7 +231,7 @@ class RunSpec extends Specification {
                 )
             ]
         })
-        result
+        result == 0
         where:
             hasJob | adhoc
             true | 'false'
@@ -240,7 +279,7 @@ class RunSpec extends Specification {
         }
         ) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
-        result
+        result == 0
     }
 
     def "run --raw argstring supports -opt@ path only"() {
@@ -282,6 +321,6 @@ class RunSpec extends Specification {
         }
         ) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
-        result
+        result == 0
     }
 }
