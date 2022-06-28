@@ -1,3 +1,7 @@
+## unreleased
+
+* Fix #446 exit code should not be 0 when run -f execution fails
+
 ## 2.0.0
 
 *Note*: This release contains some under the hood changes, that may change the behavior.
