@@ -1,6 +1,11 @@
-## unreleased
+## 2.0.1
 
-* Fix #446 exit code should not be 0 when run -f execution fails
+* Fix [Issue #446](https://github.com/rundeck/rundeck-cli/issues/446) exit code should not be 0 when run -f execution fails
+* Fix [Issue #458](https://github.com/rundeck/rundeck-cli/issues/458) space separated scm scm perform options not working
+* Fix [Issue #446](https://github.com/rundeck/rundeck-cli/issues/446) exit code should not be 0 when run -f execution fails
+* Fix [Issue #453](https://github.com/rundeck/rundeck-cli/issues/453) RD_INSECURE_SSL causes npe
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.0...v2.0.1)
 
 ## 2.0.0
 
