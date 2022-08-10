@@ -1,4 +1,4 @@
-ARG VERS=7
+ARG VERS=8
 FROM centos:$VERS
 ARG JDK=java-1.8.0-openjdk
 RUN yum -y update
