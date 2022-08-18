@@ -9,13 +9,13 @@ This is the official CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 [https://rundeck.github.io/rundeck-cli/](https://rundeck.github.io/rundeck-cli/)
 
 * [Changelog](https://rundeck.github.io/rundeck-cli/changes/)
-* [Install](https://rundeck.github.io/rundeck-cli/install)
-* [Configuration](https://rundeck.github.io/rundeck-cli/configuration)
-* [SSL Configuration](https://rundeck.github.io/rundeck-cli/configuration/ssl/)
-* [Commands](https://rundeck.github.io/rundeck-cli/commands)
-* [Scripting](https://rundeck.github.io/rundeck-cli/scripting)
-* [Java API Library](https://rundeck.github.io/rundeck-cli/javalib/)
-* [Extensions](https://rundeck.github.io/rundeck-cli/extensions/)
+* [Install](https://docs.rundeck.com/docs/rd-cli/install.html)
+* [Configuration](https://docs.rundeck.com/docs/rd-cli/configuration.html)
+* [SSL Configuration](https://docs.rundeck.com/docs/rd-cli/configuration.html#ssl-configuration)
+* [Commands](https://docs.rundeck.com/docs/rd-cli/commands.html)
+* [Scripting](https://docs.rundeck.com/docs/rd-cli/scripting.html)
+* [Java API Library](https://docs.rundeck.com/docs/rd-cli/javalib.html)
+* [Extensions](https://docs.rundeck.com/docs/rd-cli/extensions.html)
 
 ## Bundled Extensions
 
@@ -30,7 +30,7 @@ This is the official CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 
 [Github Releases](https://github.com/rundeck/rundeck-cli/releases)
 
-For apt and yum repos, see [Install](https://rundeck.github.io/rundeck-cli/install/)
+For apt and yum repos, see [Install](https://docs.rundeck.com/docs/rd-cli/install.html)
 
 # Howto
 
