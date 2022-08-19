@@ -51,13 +51,20 @@ public class Executions extends BaseCommand {
 
     private static final ObjectMapper JSON = new ObjectMapper();
 
+    @Getter
+    @Setter
+    static class KillOptions extends ExecutionIdOption{
+
+        @CommandLine.Option(names = {"-f", "--force"}, description = "Force Incomplete")
+        private boolean forceIncomplete;
+    }
 
     @CommandLine.Command(description = "Attempt to kill an execution by ID.")
-    public boolean kill(@CommandLine.Mixin ExecutionIdOption options) throws IOException, InputError {
+    public boolean kill(@CommandLine.Mixin KillOptions options) throws IOException, InputError {
         if (null == options.getId()) {
             throw new InputError("-e is required");
         }
-        AbortResult abortResult = apiCall(api -> api.abortExecution(options.getId()));
+        AbortResult abortResult = apiCall(api -> api.abortExecution(options.getId(), options.isForceIncomplete()));
         AbortResult.Reason abort = abortResult.abort;
         Execution execution = abortResult.execution;
         boolean failed = null != abort && "failed".equals(abort.status);
