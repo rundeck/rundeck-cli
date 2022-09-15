@@ -51,7 +51,7 @@ import java.util.function.BooleanSupplier;
 public class Archives extends BaseCommand  {
 
     @Getter @Setter static class BaseOptions extends ProjectRequiredNameOptions{
-        @CommandLine.Option(names = {"-f"}, description = "Output file path", required = true)
+        @CommandLine.Option(names = {"-f", "--file"}, description = "Output file path", required = true)
         @Getter
         private File file;
     }
