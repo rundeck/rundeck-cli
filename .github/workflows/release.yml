@@ -27,7 +27,7 @@ jobs:
             sudo apt-get -y install expect dpkg-sig
       - name: Sign RPM and Deb
         run: |
-          test -d $HOME/.gnupg || mkdir $HOME/.gnupg
+          test -d $HOME/.gnupg || ( mkdir $HOME/.gnupg && chmod go-rwx $HOME/.gnupg )
           GPG_PATH=$HOME/.gnupg scripts/sign-packages.sh $PWD/rd-cli-tool/build/distributions
         env:
           SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
