@@ -2,7 +2,6 @@
 #/ Sign the RPMs and Debs in the dist dir ...
 #/ usage: [dist dir]
 #/ define env vars:
-#/ USE_GPGV2=true if you are using gpg v2, otherwise v1 is assumed
 #/ SIGNING_KEYID=<id of signing key>
 #/ SIGNING_PASSWORD=<key password>
 #/ GPG_PATH=/path/to/.gnupg  (may be empty dir if you use SIGNING_KEY_B64)
