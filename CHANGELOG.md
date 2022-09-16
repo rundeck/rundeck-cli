@@ -1,3 +1,8 @@
+## unreleased
+
+* `rd projects archives`:  Add --file to ensure backward compatibility #473
+* Fix a signing issue for RPM artifacts #478
+
 ## 2.0.1
 
 * Fix [Issue #458](https://github.com/rundeck/rundeck-cli/issues/458) space separated scm scm perform options not working
