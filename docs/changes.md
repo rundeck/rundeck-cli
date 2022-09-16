@@ -4,6 +4,13 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 2.0.2
+
+* `rd projects archives`:  Add --file to ensure backward compatibility [Issue #473](https://github.com/rundeck/rundeck-cli/issues/473)
+* Fix a signing issue for RPM artifacts [Issue #478](https://github.com/rundeck/rundeck-cli/issues/478)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.1...v2.0.2)
+
 ## 2.0.1
 
 * Fix [Issue #458](https://github.com/rundeck/rundeck-cli/issues/458) space separated scm scm perform options not working
