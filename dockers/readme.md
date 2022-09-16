@@ -36,6 +36,12 @@ This will sign the `rd-cli-tool/build/distribution/*.rpm` files with a v3 signat
 
 This will sign the `rd-cli-tool/build/distribution/*.deb` files.
 
+### base64 key export
+
+(Note: use `base64 -b0` on mac, or `base64 -w0` on linux)
+
+    export GPG_KEY_B64=$(gpg --armor --export-secret-key mykey@company.com | base64 -b0)
+
 ## verify rpm
 
 Verify the signature of signed rpm. 
