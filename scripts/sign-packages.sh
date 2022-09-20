@@ -2,8 +2,8 @@
 #/ Sign the RPMs and Debs in the dist dir ...
 #/ usage: [dist dir]
 #/ define env vars:
-#/ SIGNING_KEYID=<id of signing key>
-#/ SIGNING_PASSWORD=<key password>
+#/ RUNDECK_SIGNING_KEYID=<id of signing key>
+#/ RUNDECK_SIGNING_PASSWORD=<key password>
 #/ GPG_PATH=/path/to/.gnupg  (may be empty dir if you use SIGNING_KEY_B64)
 #/ SIGNING_KEY_B64=<base64 encoded ascii-armored private gpg key> (optional)
 

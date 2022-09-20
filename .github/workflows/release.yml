@@ -31,8 +31,8 @@ jobs:
           GPG_PATH=$HOME/.gnupg scripts/sign-packages.sh $PWD/rd-cli-tool/build/distributions
         env:
           SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_KEYID: signing@rundeck.com
+          RUNDECK_SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          RUNDECK_SIGNING_KEYID: signing@rundeck.com
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
