@@ -471,8 +471,12 @@ public interface RundeckApi {
     Call<BulkExecutionDeleteResponse> deleteAllJobExecutions(@Path("id") String id);
 
     @Headers("Accept: application/json")
-    @GET("execution/{id}/abort")
+    @POST("execution/{id}/abort")
     Call<AbortResult> abortExecution(@Path("id") String id);
+
+    @Headers("Accept: application/json")
+    @POST("execution/{id}/abort")
+    Call<AbortResult> abortExecution(@Path("id") String id, @Query("forceIncomplete") Boolean forceIncomplete);
 
     @Headers("Accept: application/json")
     @GET("execution/{id}")
