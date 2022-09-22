@@ -1,3 +1,10 @@
+## 2.0.3
+
+* Fix [Issue #474](https://github.com/rundeck/rundeck-cli/issues/474) add --force option for execution abort
+* Fix: Add --file to ensure backward compatibility
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.2...v2.0.3)
+
 ## 2.0.2
 
 * Fix a signing issue for RPM artifacts [Issue #478](https://github.com/rundeck/rundeck-cli/issues/478)
