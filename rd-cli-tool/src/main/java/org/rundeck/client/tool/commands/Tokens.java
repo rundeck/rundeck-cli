@@ -58,7 +58,7 @@ public class Tokens extends BaseCommand {
 
         @CommandLine.Option(names = {"--roles", "-r"},
                 arity = "1..*",
-                description = "List of roles to set for the token, space separated (api v19+)")
+                description = "List of roles to set for the token, comma separated (api v41+)")
         List<String> roles;
 
         boolean isRoles() {
