@@ -1,9 +1,7 @@
 package org.rundeck.client.tool.commands.enterprise.api;
 
 import okhttp3.RequestBody;
-import org.rundeck.client.tool.commands.enterprise.api.model.EnterpriseModeResponse;
-import org.rundeck.client.tool.commands.enterprise.api.model.LicenseResponse;
-import org.rundeck.client.tool.commands.enterprise.api.model.LicenseStoreResponse;
+import org.rundeck.client.tool.commands.enterprise.api.model.*;
 import retrofit2.Call;
 import retrofit2.http.*;
 
@@ -24,4 +22,11 @@ public interface EnterpriseApi {
     @Headers("Accept: application/json")
     @POST("enterprise/cluster/executions/disable")
     Call<EnterpriseModeResponse> executionModeDisable(@Query("uuid") String uuid);
+    @Headers("Accept: application/json")
+    @GET("project/{project}/execution/{id}/resumeStatus")
+    Call<ResumeStatus> jobResumeStatus(@Path("project") String project, @Path("id") String executionId);
+
+    @Headers("Accept: application/json")
+    @POST("project/{project}/execution/{id}/resume")
+    Call<ResumeResponse> resumeExecution(@Path("project") String project, @Path("id") String executionId);
 }
