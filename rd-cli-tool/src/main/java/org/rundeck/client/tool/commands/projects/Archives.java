@@ -37,9 +37,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -51,7 +49,7 @@ import java.util.function.BooleanSupplier;
 public class Archives extends BaseCommand  {
 
     @Getter @Setter static class BaseOptions extends ProjectRequiredNameOptions{
-        @CommandLine.Option(names = {"-f", "--file"}, description = "Output file path", required = true)
+        @CommandLine.Option(names = {"-f", "--file"}, description = "Output/Import file path", required = true)
         @Getter
         private File file;
     }
@@ -100,6 +98,19 @@ public class Archives extends BaseCommand  {
                         "import errors are treated as failures.")
         boolean strict;
 
+
+        @CommandLine.Option(
+                names = {"--component", "-I"},
+                arity = "0..*",
+                description = "Enable named import components, such as project-tours (enterprise)")
+        Set<String> components;
+
+        @CommandLine.Option(
+                names = {"--options", "-O"},
+                arity = "0..*",
+                description = "Set options for enabled components, in the form name.key=value")
+        Map<String, String> componentOptions;
+
     }
 
     @CommandLine.Command(description = "Import a project archive", name = "import")
@@ -116,6 +127,17 @@ public class Archives extends BaseCommand  {
         }
         RequestBody body = RequestBody.create(input, Client.MEDIA_TYPE_ZIP);
 
+        Map<String, String> extraCompOpts = new HashMap<>();
+        if (opts.components != null && opts.components.size() > 0) {
+            for (String component : opts.components) {
+                extraCompOpts.put("importComponents." + component, "true");
+            }
+        }
+        if (opts.componentOptions != null && opts.componentOptions.size() > 0) {
+            for (Map.Entry<String, String> stringStringEntry : opts.componentOptions.entrySet()) {
+                extraCompOpts.put("importOpts." + stringStringEntry.getKey(), stringStringEntry.getValue());
+            }
+        }
         String project = validate(opts);
         ProjectImportStatus status = apiCall(api -> api.importProjectArchive(
                 project,
@@ -127,6 +149,7 @@ public class Archives extends BaseCommand  {
                 opts.isIncludeWebhooks(),
                 opts.isWhkRegenAuthTokens(),
                 opts.isIncludeNodeSources(),
+                extraCompOpts,
                 body
         ));
         boolean anyerror = false;

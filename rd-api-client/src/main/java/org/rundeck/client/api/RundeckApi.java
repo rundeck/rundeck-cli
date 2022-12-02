@@ -388,7 +388,7 @@ public interface RundeckApi {
     );
 
     /**
-     * Export project archive (&lt;=v18)
+     * Import project archive (&lt;=v18)
      *
      * @param project project
      *
@@ -406,6 +406,29 @@ public interface RundeckApi {
             @Query("importWebhooks") Boolean importWebhooks,
             @Query("whkRegenAuthTokens") Boolean whkRegenAuthTokens,
             @Query("importNodesSources") Boolean importNodesSources,
+            @Body RequestBody body
+    );
+
+    /**
+     * Import project archive (&lt;=v18)
+     *
+     * @param project project
+     *
+     * @return archive response
+     */
+    @Headers("Accept: application/json")
+    @PUT("project/{project}/import")
+    Call<ProjectImportStatus> importProjectArchive(
+            @Path("project") String project,
+            @Query("jobUuidOption") String jobUuidOption,
+            @Query("importExecutions") Boolean importExecutions,
+            @Query("importConfig") Boolean importConfig,
+            @Query("importACL") Boolean importACL,
+            @Query("importScm") Boolean importScm,
+            @Query("importWebhooks") Boolean importWebhooks,
+            @Query("whkRegenAuthTokens") Boolean whkRegenAuthTokens,
+            @Query("importNodesSources") Boolean importNodesSources,
+            @QueryMap Map<String,String> params,
             @Body RequestBody body
     );
 
