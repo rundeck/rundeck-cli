@@ -1,3 +1,8 @@
+## unreleased
+
+* Add component options to project archives import #482
+* Update groovy to 3.0.13 #447
+
 ## 2.0.3
 
 * Fix [Issue #474](https://github.com/rundeck/rundeck-cli/issues/474) add --force option for execution abort
