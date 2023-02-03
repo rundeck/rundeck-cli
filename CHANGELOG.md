@@ -1,7 +1,9 @@
-## unreleased
+## 2.0.4
 
-* Add component options to project archives import #482
-* Update groovy to 3.0.13 #447
+* Add component options to project archives import [Issue #482](https://github.com/rundeck/rundeck-cli/issues/482)
+* Update groovy to 3.0.13 [Issue #447](https://github.com/rundeck/rundeck-cli/issues/447)
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.3...v2.0.4)
 
 ## 2.0.3
 
