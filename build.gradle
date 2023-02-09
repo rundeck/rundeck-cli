@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-import java.util.regex.Matcher
-
 plugins {
     id 'base'
     alias(libs.plugins.owasp)
     alias(libs.plugins.axion)
     alias(libs.plugins.nexusPublish)
 }
+import java.util.regex.Matcher
+import pl.allegro.tech.build.axion.release.domain.VersionConfig
+import pl.allegro.tech.build.axion.release.infrastructure.di.VersionResolutionContext
+
 apply plugin: 'org.owasp.dependencycheck'
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
 ext.changelogFile = file("CHANGELOG.md")
@@ -128,7 +130,8 @@ def updateChangelogDocs() {
     }
 }
 
-task generateDocs(description: "Update docs/changes.md with contents from CHANGELOG.md") {
+tasks.register('generateDocs'){
+    description = "Update docs/changes.md with contents from CHANGELOG.md"
     doLast {
         updateChangelogDocs()
     }
@@ -168,14 +171,13 @@ allprojects {
     }
 }
 
-ext.axionContext=
-    pl.allegro.tech.build.axion.release.infrastructure.di.GradleAwareContext.create(project, project.scmVersion)
+ext.axionVersionConfig = project.objects.newInstance(VersionConfig,project.rootProject.layout.projectDirectory)
+ext.axionContext= VersionResolutionContext.create(ext.axionVersionConfig, project.rootProject.layout.projectDirectory)
 
 
 def getAxionVersion = {
-    def rules = axionContext.rules
-    axionContext.versionService()
-    scmVersion.versionService.currentVersion(
+    def rules = axionContext.rules()
+    axionContext.versionService().currentVersion(
         rules.version,
         rules.tag,
         rules.nextVersion
@@ -183,18 +185,18 @@ def getAxionVersion = {
 }
 
 def getPreviousTag = {
-    def rules = axionContext.rules
+    def rules = axionContext.rules()
     def curVersion = getAxionVersion()
     rules.tag.serialize.apply(rules.tag, curVersion.previousVersion.toString())
 }
 
-task previousVersion(){
+tasks.register('previousVersion'){
     doLast {
         println "Previous version: ${getAxionVersion().previousVersion}"
         println "Previous tag: ${getPreviousTag()}"
     }
 }
-task changeLog(){
+tasks.register('changeLog'){
     doLast {
         def version = getAxionVersion()
         def prevTag = getPreviousTag()
