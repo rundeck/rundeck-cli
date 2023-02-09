@@ -15,7 +15,7 @@ ospackage = "9.1.1"
 buildInfo = "0.9"
 buildConfig = "3.0.3"
 owasp = "7.1.0.1"
-jacksondb = "2.13.3"
+jacksonDatabind = "2.14.2"
 picocli = "4.6.3"
 snakeYaml = "1.31"
 #used for authz lib integration
@@ -47,7 +47,7 @@ toolbeltYaml = { module = "org.rundeck.cli-toolbelt:toolbelt-snakeyaml", version
 toolbeltJackson = { module = "org.rundeck.cli-toolbelt:toolbelt-json-jackson", version.ref = "toolbelt" }
 toolbeltCli = { module = "org.rundeck.cli-toolbelt:toolbelt-jewelcli", version.ref = "toolbelt" }
 
-jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksondb" }
+jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
 
 rundeckAuthzCore = { module = "org.rundeck:rundeck-authz-core", version.ref = "rundeck" }
