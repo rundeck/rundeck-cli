@@ -17,7 +17,7 @@ buildConfig = "3.0.3"
 owasp = "7.1.0.1"
 jacksonDatabind = "2.14.2"
 picocli = "4.6.3"
-snakeYaml = "1.31"
+snakeYaml = "1.33"
 #used for authz lib integration
 rundeck = "4.2.0-20220509"
 testcontainers = "1.17.2"
