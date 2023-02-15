@@ -102,7 +102,7 @@ public class Archives extends BaseCommand  {
         @CommandLine.Option(
                 names = {"--component", "-I"},
                 arity = "0..*",
-                description = "Enable named import components, such as project-tours (enterprise)")
+                description = "Enable named import components, such as tours-manager (enterprise). See <https://docs.rundeck.com/docs/api/rundeck-api.html#project-archive-import>")
         Set<String> components;
 
         @CommandLine.Option(
