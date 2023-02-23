@@ -1,0 +1,67 @@
+plugins {
+    id 'base'
+    id "org.ajoberstar.grgit" version "5.0.0"
+}
+configurations {
+    appJar
+}
+dependencies {
+    appJar project(path: ":rd-cli-tool", configuration: 'shadow')
+}
+
+project.ext.branch = grgit.branch.current().name
+project.ext.commit = grgit.head().id
+project.ext.gitdescribe = grgit.describe()
+
+tasks.register('dockerBuild', DockerBuild) {
+    def dockerRepo = "${dockerOrgName}/${dockerRepoName}"
+    dependsOn configurations.appJar
+    tags = [
+            "$dockerRepo:latest",
+            "$dockerRepo:$version"
+    ]
+
+    outputs.dir("$project.buildDir/app")
+    inputs.file "$project.projectDir/Dockerfile"
+}
+
+assemble.dependsOn dockerBuild
+
+
+class DockerBuild extends DefaultTask {
+    @Input
+    String[] tags
+
+    @TaskAction
+    def build() {
+        File appJar = project.configurations.appJar.files.first()
+
+        println "Building image tags $tags using ${appJar.name}"
+        project.copy {
+            from appJar
+            into "$project.buildDir/app"
+            rename appJar.name,'rd-cli.jar'
+        }
+
+        def args = [
+                "docker",
+                "build",
+                "--label=org.rundeck.cli.version=$project.version",
+                "--label=org.rundeck.cli.commit=$project.commit",
+                "--label=org.rundeck.cli.gitdescribe=$project.gitdescribe"
+        ]
+
+        tags.each {
+            args.add('-t=' + it)
+        }
+
+        args << '.'
+
+        println "exec: " + args
+        project.exec {
+            workingDir "./"
+            commandLine args
+        }
+    }
+}
+
