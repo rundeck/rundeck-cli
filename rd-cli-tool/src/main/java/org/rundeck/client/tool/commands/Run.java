@@ -161,7 +161,7 @@ public class Run extends BaseCommand implements Callable<Integer> {
             request.setOptions(jobopts);
             if (options.isRunAtDate()) {
                 try {
-                    runat = options.getRunAtDate().toDate("yyyy-MM-dd'T'HH:mm:ssXX");
+                    runat = options.getRunAtDate().toDate();
                     request.setRunAtTime(runat);
                 } catch (ParseException e) {
                     throw new InputError("-@/--at date format is not valid", e);

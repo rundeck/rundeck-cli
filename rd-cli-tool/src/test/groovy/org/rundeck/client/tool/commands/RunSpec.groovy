@@ -17,6 +17,7 @@
 package org.rundeck.client.tool.commands
 
 import org.rundeck.client.api.RundeckApi
+import org.rundeck.client.api.model.DateInfo
 import org.rundeck.client.api.model.ExecOutput
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.JobFileUploadResult
@@ -33,6 +34,9 @@ import retrofit2.Retrofit
 import retrofit2.mock.Calls
 import spock.lang.Specification
 import spock.lang.Unroll
+
+import java.text.SimpleDateFormat
+
 /**
  * @author greg
  * @since 12/13/16
@@ -110,6 +114,43 @@ class RunSpec extends Specification {
         1 * api.runJob('fakeid', null, null, null, null) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
         result == 0
+
+    }
+    def "run at time supports multiple formats"() {
+
+        given:
+        //round to seconds, since the date format does not include milliseconds
+        long millis = Math.floor(System.currentTimeMillis() / 1000L).toLong()
+        Date timeToRun = new Date((millis*1000L)+(3L*1000L*60L*24L))
+        String dateString = new SimpleDateFormat(dateFormat).format(timeToRun)
+
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api, 20)
+        def out = Mock(CommandOutput)
+        Run command = new Run()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        command.options.project = 'ProjectName'
+        command.options.job = 'a group/path/a job'
+        command.options.setRunAtDate(new DateInfo(dateString))
+
+        when:
+        def result = command.call()
+
+        then:
+        1 * api.listJobs('ProjectName', null, null, 'a job', 'a group/path') >>
+                Calls.response([new JobItem(id: 'fakeid')])
+        1 * api.runJob('fakeid', {
+            it.runAtTime==timeToRun
+        }) >> Calls.response(new Execution(id: 123, description: ''))
+        0 * api._(*_)
+        result == 0
+        where:
+        dateFormat    | _
+        DateInfo.ISO  | _
+        DateInfo.ISO1 | _
+        DateInfo.ISO2 | _
 
     }
 
