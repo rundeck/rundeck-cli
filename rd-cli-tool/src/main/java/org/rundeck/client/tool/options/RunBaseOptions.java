@@ -47,9 +47,17 @@ public class RunBaseOptions extends JobIdentOptions  {
         return user != null;
     }
 
-    //XXX: test for picocli
+
+    static class DateInfoConverter implements CommandLine.ITypeConverter<DateInfo> {
+        public DateInfo convert(String value) {
+            return new DateInfo(value);
+        }
+    }
+
     @CommandLine.Option(names = {"-@", "--at"},
-            description = "Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ssXX)")
+            description = "Run the job at the specified date/time. ISO8601 format (yyyy-MM-dd'T'HH:mm:ssXX)",
+            converter = DateInfoConverter.class
+    )
     private DateInfo runAtDate;
 
     public boolean isRunAtDate() {
