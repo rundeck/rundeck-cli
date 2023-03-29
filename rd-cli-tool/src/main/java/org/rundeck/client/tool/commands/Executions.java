@@ -48,9 +48,6 @@ import java.util.stream.Stream;
  */
 @CommandLine.Command(name = "executions", description = "List running executions, attach and follow their output, or kill them.")
 public class Executions extends BaseCommand {
-
-    private static final ObjectMapper JSON = new ObjectMapper();
-
     @Getter
     @Setter
     static class KillOptions extends ExecutionIdOption{
@@ -532,7 +529,7 @@ public class Executions extends BaseCommand {
 
     // End Delete all executions.
 
-    static interface HasJobIdList {
+    interface HasJobIdList {
         List<String> getJobIdList();
 
         default boolean isJobIdList() {
@@ -651,7 +648,7 @@ public class Executions extends BaseCommand {
     /**
      * @param millis wait time
      *
-     * @return wait function which returns false if interrupted, true otherwise
+     * @return wait function which returns false if interrupted true otherwise
      */
     private static BooleanSupplier waitUnlessInterrupt(final int millis) {
         return () -> {
