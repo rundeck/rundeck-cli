@@ -199,7 +199,7 @@ class ExecutionsSpec extends Specification {
 
     def "parse execution"() {
         given:
-        MockWebServer server = new MockWebServer();
+        MockWebServer server = new MockWebServer()
         server.enqueue(new MockResponse().setBody('''{
   "id": 5418,
   "href": "http://ecto1.local:4440/api/19/execution/5418",
@@ -233,7 +233,7 @@ class ExecutionsSpec extends Specification {
   ]
 }'''
         ).addHeader('content-type', 'application/json')
-        );
+        )
         server.start()
 
         def retrofit = new Retrofit.Builder().baseUrl(server.url('/api/19/')).
@@ -256,7 +256,7 @@ class ExecutionsSpec extends Specification {
 
     def "parse compacted log"() {
         given:
-        MockWebServer server = new MockWebServer();
+        MockWebServer server = new MockWebServer()
         server.enqueue(new MockResponse().setBody('''{
   "id": 5418,
   "compacted":true,
@@ -269,7 +269,7 @@ class ExecutionsSpec extends Specification {
   "serverUUID": "3425B691-7319-4EEE-8425-F053C628B4BA"
 }'''
         ).addHeader('content-type', 'application/json')
-        );
+        )
         server.start()
 
         def retrofit = new Retrofit.Builder().baseUrl(server.url('/api/19/')).
