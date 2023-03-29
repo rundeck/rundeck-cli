@@ -71,8 +71,8 @@ class ExecutionsSpec extends Specification {
 
         where:
         reqd  | expect
-        true  | false
-        false | true
+        true  | 2
+        false | 0
     }
 
     private RdTool setupMock(RundeckApi api) {

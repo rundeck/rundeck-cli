@@ -568,7 +568,7 @@ public class Executions extends BaseCommand {
 
     @CommandLine.Command(description = "Find and delete executions in a project. Use the query options to find and delete " +
             "executions, or specify executions with the `idlist` option.")
-    public boolean deletebulk(@CommandLine.Mixin BulkDeleteCmd options,
+    public int deletebulk(@CommandLine.Mixin BulkDeleteCmd options,
                               @CommandLine.Mixin PagingResultOptions paging,
                               @CommandLine.Mixin ExecutionOutputFormatOption outputFormatOption) throws IOException, InputError {
 
@@ -588,7 +588,7 @@ public class Executions extends BaseCommand {
                 } else {
                     getRdOutput().warning("No executions found to delete");
                 }
-                return !options.isRequire();
+                return options.isRequire()?2:0;
             }
         }
 
@@ -598,7 +598,7 @@ public class Executions extends BaseCommand {
 
             if (!"y".equals(s)) {
                 getRdOutput().warning("Not deleting executions.");
-                return false;
+                return 1;
             }
         }
         final List<String> finalExecIds = execIds;
@@ -613,7 +613,7 @@ public class Executions extends BaseCommand {
         }else{
             getRdOutput().info(String.format("Deleted %d executions.", result.getSuccessCount()));
         }
-        return result.isAllsuccessful();
+        return result.isAllsuccessful()?0:1;
     }
 
     public static boolean maybeFollow(
