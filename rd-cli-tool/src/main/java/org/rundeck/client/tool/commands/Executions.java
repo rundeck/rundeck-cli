@@ -16,7 +16,6 @@
 
 package org.rundeck.client.tool.commands;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.Setter;
 import okhttp3.ResponseBody;
