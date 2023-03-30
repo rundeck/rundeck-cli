@@ -43,7 +43,7 @@ import java.util.concurrent.Callable;
         name = "retry",
         showEndOfOptionsDelimiterInUsageHelp = true
 )
-public class Retry extends BaseCommand implements Callable<Boolean> {
+public class Retry extends BaseCommand implements Callable<Integer> {
 
 
 
@@ -52,12 +52,12 @@ public class Retry extends BaseCommand implements Callable<Boolean> {
     @CommandLine.Mixin
     FollowOptions followOptions;
 
-    public Boolean call() throws IOException, InputError {
+    public Integer call() throws IOException, InputError {
         getRdTool().requireApiVersion("retry", 24);
         String jobId = Run.getJobIdFromOpts(options, getRdOutput(), getRdTool(), () -> getRdTool().projectOrEnv(options));
         String execId = options.getEid();
         if (null == jobId) {
-            return false;
+            return 2;
         }
         Execution execution;
 
@@ -134,6 +134,6 @@ public class Retry extends BaseCommand implements Callable<Boolean> {
         String started = "started";
         getRdOutput().info(String.format("Execution %s: %s%n", started, execution.toBasicString()));
 
-        return Executions.maybeFollow(getRdTool(), followOptions, options, execution.getId(), getRdOutput());
+        return Executions.maybeFollow(getRdTool(), followOptions, options, execution.getId(), getRdOutput()) ? 0 : 1;
     }
 }

@@ -1,5 +1,7 @@
 package org.rundeck.client.tool.commands
 
+import okhttp3.MediaType
+import okhttp3.ResponseBody
 import org.rundeck.client.testing.MockRdTool
 import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.InputError
@@ -283,15 +285,125 @@ class KeysSpec extends Specification {
 
 
         when:
-        command.list(opts)
+        def result = command.list(opts)
 
         then:
-        1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem())
+        1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem(type: KeyStorageItem.KeyItemType.directory))
         0 * api._(*_)
+        result == 0
 
         where:
         input       | _
         null        | _
         'keys/'     | _
+    }
+
+    @Unroll
+    def "list path is not a directory"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Keys command = new Keys()
+        command.rdTool=rdTool
+        command.rdOutput=out
+        def opts = new Keys.OptionalPath()
+        opts.path= new Keys.Path(input?:"")
+
+
+        when:
+        def result = command.list(opts)
+
+        then:
+        1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem(type: KeyStorageItem.KeyItemType.file))
+        0 * api._(*_)
+        result == 2
+
+        where:
+        input        | _
+        'keys/afile' | _
+    }
+
+
+    @Unroll
+    def "get public key not file"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Keys command = new Keys()
+        command.rdTool=rdTool
+        command.rdOutput=out
+        def opts = new Keys.GetOpts()
+        opts.path= new Keys.Path(input?:"")
+
+
+        when:
+        def result = command.get(opts)
+
+        then:
+        1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem(type: KeyStorageItem.KeyItemType.directory))
+        0 * api._(*_)
+        result == 2
+
+        where:
+        input       | _
+        'keys/apath'     | _
+    }
+
+    @Unroll
+    def "get public key not public"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Keys command = new Keys()
+        command.rdTool=rdTool
+        command.rdOutput=out
+        def opts = new Keys.GetOpts()
+        opts.path= new Keys.Path(input?:"")
+
+
+        when:
+        def result = command.get(opts)
+
+        then:
+        1 * api.listKeyStorage(_) >> Calls.response(new KeyStorageItem(type: KeyStorageItem.KeyItemType.file, meta: ['Rundeck-key-type':fileType.toString()]))
+        0 * api._(*_)
+        result == 2
+
+        where:
+        input        | fileType
+        'keys/apath' | KeyStorageItem.KeyFileType.privateKey
+        'keys/apath' | KeyStorageItem.KeyFileType.password
+    }
+    @Unroll
+    def "get public key"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Keys command = new Keys()
+        command.rdTool=rdTool
+        command.rdOutput=out
+        def opts = new Keys.GetOpts()
+        opts.path= new Keys.Path(input?:"")
+
+
+        when:
+        def result = command.get(opts)
+
+        then:
+        1 * api.listKeyStorage('apath') >> Calls.response(new KeyStorageItem(type: KeyStorageItem.KeyItemType.file, meta: ['Rundeck-key-type':'public']))
+        1 * api.getPublicKey('apath') >> Calls.response(ResponseBody.create(
+                'somecontent',
+                Client.MEDIA_TYPE_GPG_KEYS
+        ))
+        0 * api._(*_)
+        result == 0
+
+        where:
+        input        | fileType
+        'keys/apath' | KeyStorageItem.KeyFileType.publicKey
     }
 }

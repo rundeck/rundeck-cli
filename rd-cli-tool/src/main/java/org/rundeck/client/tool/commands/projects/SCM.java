@@ -181,7 +181,7 @@ public class SCM extends BaseCommand {
 
 
     @CommandLine.Command(description = "Get SCM Status for a Project")
-    public boolean status(@CommandLine.Mixin BaseOpts opts) throws IOException, InputError {
+    public int status(@CommandLine.Mixin BaseOpts opts) throws IOException, InputError {
         String project = validate(opts);
         ScmProjectStatusResult result = apiCall(api -> api.getScmProjectStatus(
                 project,
@@ -190,7 +190,7 @@ public class SCM extends BaseCommand {
 
 
         getRdOutput().output(result.toMap());
-        return result.synchState == ScmSynchState.CLEAN;
+        return (result.synchState == ScmSynchState.CLEAN) ? 0 : 1;
     }
 
 
@@ -326,7 +326,7 @@ public class SCM extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Perform SCM action")
-    public boolean perform(
+    public int perform(
             @CommandLine.Mixin BaseOpts opts,
             @CommandLine.Mixin ActionPerformOptions options
     ) throws IOException, InputError {
@@ -398,12 +398,12 @@ public class SCM extends BaseCommand {
                 "Action " + options.getAction(),
                 getRdTool().getAppConfig().isAnsiEnabled()
         )) {
-            return false;
+            return 2;
         }
 
         //otherwise check other error codes and fail if necessary
         ScmActionResult result = getRdTool().getClient().checkError(response);
-        return outputScmActionResult(getRdOutput(), result, "Action " + options.getAction());
+        return outputScmActionResult(getRdOutput(), result, "Action " + options.getAction()) ? 0 : 1;
     }
 
     private ScmActionPerform performFromOptions(final ActionPerformOptions options) throws InputError {

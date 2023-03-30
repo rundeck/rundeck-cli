@@ -90,7 +90,7 @@ public class Jobs extends BaseCommand {
             "before deleting from the server. " +
             "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
             "required.")
-    public boolean purge(@CommandLine.Mixin Purge options,
+    public int purge(@CommandLine.Mixin Purge options,
                          @CommandLine.Mixin JobOutputFormatOption jobOutputFormatOption,
                          @CommandLine.Mixin JobFileOptions jobFileOptions,
                          @CommandLine.Mixin JobListOptions jobListOptions) throws IOException, InputError {
@@ -128,13 +128,13 @@ public class Jobs extends BaseCommand {
             if (null == System.console()) {
                 getRdOutput().error("No user interaction available. Use --confirm to confirm purge without user interaction");
                 getRdOutput().warning(String.format("Not deleting %d jobs", idsToDelete));
-                return false;
+                return 2;
             }
             String s = System.console().readLine("Really delete %d Jobs? (y/N) ", idsToDelete);
 
             if (!"y".equals(s)) {
                 getRdOutput().warning(String.format("Not deleting %d jobs", idsToDelete));
-                return false;
+                return 2;
             }
         }
         int batch = options.isBatchSize() ? Math.min(idsToDelete, options.getBatchSize()) : idsToDelete;
@@ -147,18 +147,18 @@ public class Jobs extends BaseCommand {
             if (!deletedJobs.isAllsuccessful()) {
                 getRdOutput().error(String.format("Failed to delete %d Jobs%n", deletedJobs.getFailed().size()));
                 getRdOutput().output(deletedJobs.getFailed().stream().map(DeleteJob::toBasicString).collect(Collectors.toList()));
-                return false;
+                return 1;
             }
             total += finalIds.size();
             i += batchToUse;
         }
 
         getRdOutput().info(String.format("%d Jobs were deleted%n", total));
-        return true;
+        return 0;
     }
 
     @CommandLine.Command(description = "Load Job definitions from a file in XML or YAML format.")
-    public boolean load(
+    public int load(
             @CommandLine.Mixin JobLoadOptions options,
             @CommandLine.Mixin JobFileOptions fileOptions,
             @CommandLine.Mixin ProjectNameOptions projectNameOptions,
@@ -192,7 +192,7 @@ public class Jobs extends BaseCommand {
         printLoadResult(importResult.getSkipped(), "Skipped", getRdOutput(), verboseOption.isVerbose());
         printLoadResult(failed, "Failed", getRdOutput(), verboseOption.isVerbose());
 
-        return failed == null || failed.isEmpty();
+        return (failed == null || failed.isEmpty()) ? 0 : 1;
     }
 
     private void printLoadResult(
@@ -330,24 +330,24 @@ public class Jobs extends BaseCommand {
 
 
     @CommandLine.Command(description = "Enable execution for a job")
-    public boolean enable(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobExecutionEnable, options, "Enabled Job %s");
+    public int enable(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobExecutionEnable, options, "Enabled Job %s") ? 0 : 1;
     }
 
     @CommandLine.Command(description = "Disable execution for a job")
-    public boolean disable(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, "Disabled Job %s");
+    public int disable(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobExecutionDisable, options, "Disabled Job %s") ? 0 : 1;
     }
 
 
     @CommandLine.Command(description = "Enable schedule for a job")
-    public boolean reschedule(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, "Enabled Schedule for Job %s");
+    public int reschedule(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobScheduleEnable, options, "Enabled Schedule for Job %s") ? 0 : 1;
     }
 
     @CommandLine.Command(description = "Disable schedule for a job")
-    public boolean unschedule(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
-        return simpleJobApiCall(RundeckApi::jobScheduleDisable, options, "Disabled Schedule for Job %s");
+    public int unschedule(@CommandLine.Mixin JobIdentOptions options) throws IOException, InputError {
+        return simpleJobApiCall(RundeckApi::jobScheduleDisable, options, "Disabled Schedule for Job %s") ? 0 : 1;
     }
 
     private boolean simpleJobApiCall(
@@ -428,7 +428,7 @@ public class Jobs extends BaseCommand {
     @CommandLine.Command(description = "Enable execution for a set of jobs. " +
             "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
             "required.")
-    public boolean enablebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
+    public int enablebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
@@ -437,13 +437,13 @@ public class Jobs extends BaseCommand {
             if (null == System.console()) {
                 getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
                 getRdOutput().warning(String.format("Not enabling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
             String s = System.console().readLine("Really enable %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
                 getRdOutput().warning(String.format("Not enabling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
         }
 
@@ -458,20 +458,20 @@ public class Jobs extends BaseCommand {
                         .map(BulkToggleJobExecutionResponse.Result::toString)
                         .collect(Collectors.toList()));
             }
-            return true;
+            return 0;
         }
         getRdOutput().error(String.format("Failed to enable %d Jobs%n", response.getFailed().size()));
         getRdOutput().output(response.getFailed().stream()
                 .map(BulkToggleJobExecutionResponse.Result::toString)
                 .collect(Collectors.toList()));
-        return false;
+        return 1;
     }
 
 
     @CommandLine.Command(description = "Disable execution for a set of jobs. " +
             "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
             "required.")
-    public boolean disablebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
+    public int disablebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
@@ -480,13 +480,13 @@ public class Jobs extends BaseCommand {
             if (null == System.console()) {
                 getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
                 getRdOutput().warning(String.format("Not disabling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
             String s = System.console().readLine("Really disable %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
                 getRdOutput().warning(String.format("Not disabling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
         }
 
@@ -501,20 +501,20 @@ public class Jobs extends BaseCommand {
                         .map(BulkToggleJobExecutionResponse.Result::toString)
                         .collect(Collectors.toList()));
             }
-            return true;
+            return 0;
         }
         getRdOutput().error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
         getRdOutput().output(response.getFailed().stream()
                 .map(BulkToggleJobExecutionResponse.Result::toString)
                 .collect(Collectors.toList()));
-        return false;
+        return 1;
     }
 
 
     @CommandLine.Command(description = "Enable schedule for a set of jobs. " +
             "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
             "required.")
-    public boolean reschedulebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
+    public int reschedulebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
@@ -523,13 +523,13 @@ public class Jobs extends BaseCommand {
             if (null == System.console()) {
                 getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
                 getRdOutput().warning(String.format("Not rescheduling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
             String s = System.console().readLine("Really reschedule %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
                 getRdOutput().warning(String.format("Not rescheduling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
         }
 
@@ -544,20 +544,20 @@ public class Jobs extends BaseCommand {
                         .map(BulkToggleJobScheduleResponse.Result::toString)
                         .collect(Collectors.toList()));
             }
-            return true;
+            return 0;
         }
         getRdOutput().error(String.format("Failed to reschedule %d Jobs%n", response.getFailed().size()));
         getRdOutput().output(response.getFailed().stream()
                 .map(BulkToggleJobScheduleResponse.Result::toString)
                 .collect(Collectors.toList()));
-        return false;
+        return 1;
     }
 
 
     @CommandLine.Command(description = "Disable schedule for a set of jobs. " +
             "--idlist/-i, or --job/-j or --group/-g or --jobxact/-J or --groupxact/-G Options are " +
             "required.")
-    public boolean unschedulebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
+    public int unschedulebulk(@CommandLine.Mixin BulkJobActionOptions options, @CommandLine.Mixin VerboseOption verboseOption) throws IOException, InputError {
 
         List<String> ids = getJobList(options);
 
@@ -566,13 +566,13 @@ public class Jobs extends BaseCommand {
             if (null == System.console()) {
                 getRdOutput().error("No user interaction available. Use --confirm to confirm request without user interaction");
                 getRdOutput().warning(String.format("Not unscheduling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
             String s = System.console().readLine("Really unschedule %d Jobs? (y/N) ", ids.size());
 
             if (!"y".equals(s)) {
                 getRdOutput().warning(String.format("Not unscheduling %d jobs", ids.size()));
-                return false;
+                return 2;
             }
         }
 
@@ -587,13 +587,13 @@ public class Jobs extends BaseCommand {
                         .map(BulkToggleJobScheduleResponse.Result::toString)
                         .collect(Collectors.toList()));
             }
-            return true;
+            return 0;
         }
         getRdOutput().error(String.format("Failed to disable %d Jobs%n", response.getFailed().size()));
         getRdOutput().output(response.getFailed().stream()
                 .map(BulkToggleJobScheduleResponse.Result::toString)
                 .collect(Collectors.toList()));
-        return false;
+        return 1;
     }
 
 

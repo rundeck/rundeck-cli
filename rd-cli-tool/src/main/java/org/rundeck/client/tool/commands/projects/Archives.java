@@ -114,7 +114,7 @@ public class Archives extends BaseCommand  {
     }
 
     @CommandLine.Command(description = "Import a project archive", name = "import")
-    public boolean importArchive(@CommandLine.Mixin ArchiveImportOpts opts) throws InputError, IOException {
+    public int importArchive(@CommandLine.Mixin ArchiveImportOpts opts) throws InputError, IOException {
         File input = opts.getFile();
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
@@ -173,7 +173,7 @@ public class Archives extends BaseCommand  {
             getRdOutput().error(status.aclErrors);
         }
 
-        return opts.isStrict() ? !anyerror : status.getResultSuccess();
+        return (opts.isStrict() ? !anyerror : status.getResultSuccess()) ? 0 : 1;
     }
 
 
@@ -215,7 +215,7 @@ public class Archives extends BaseCommand  {
     }
 
     @CommandLine.Command(description = "Export a project archive")
-    public boolean export(@CommandLine.Mixin ArchiveExportOpts opts) throws IOException, InputError {
+    public int export(@CommandLine.Mixin ArchiveExportOpts opts) throws IOException, InputError {
         if (opts.isIncludeFlags() && opts.isExecutionIds()) {
             throw new InputError("Cannot use --execids/-e with --include/-i");
         }
@@ -246,7 +246,7 @@ public class Archives extends BaseCommand  {
                     apiCall(api -> api.exportProject(project, opts.getExecutionIds())),
                     opts.getFile()
             );
-            return true;
+            return 0;
         }
         getRdOutput().info(String.format("Export Archive for project: %s", project));
         if (opts.isExecutionIds()) {
@@ -282,7 +282,7 @@ public class Archives extends BaseCommand  {
             } catch (InterruptedException e) {
                 return false;
             }
-        });
+        }) ? 0 : 2;
     }
 
     public static boolean loopStatus(

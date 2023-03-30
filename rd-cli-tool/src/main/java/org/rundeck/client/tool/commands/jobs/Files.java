@@ -142,7 +142,7 @@ public class Files extends BaseCommand {
 
     @CommandLine.Command(description = "Upload a file as input for a job option (API v19). Returns a unique key for the uploaded" +
             " file, which can be used as the option value when running the job.")
-    public boolean load(@CommandLine.Mixin FileUploadOpts options) throws IOException, InputError {
+    public int load(@CommandLine.Mixin FileUploadOpts options) throws IOException, InputError {
         File input = options.getFile();
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
@@ -161,12 +161,12 @@ public class Files extends BaseCommand {
             getRdOutput().info("File " + fileName + " uploaded successfully for option " + options.getOption());
             getRdOutput().info("File key:");
             getRdOutput().output(fileid);
-            return true;
+            return 0;
         } else {
             getRdOutput().error(String.format("Expected one option result for option %s, but saw: ", options.getOption()));
         }
         getRdOutput().output(jobFileUploadResult);
-        return false;
+        return 1;
     }
 
     /**

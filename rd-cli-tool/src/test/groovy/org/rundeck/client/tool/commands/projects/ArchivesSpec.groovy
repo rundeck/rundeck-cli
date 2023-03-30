@@ -74,7 +74,64 @@ class ArchivesSpec extends Specification {
                         'importOpts.test-comp.key'  : 'value',
                 ],
                 _
-        ) >> Calls.response(new ProjectImportStatus())
+        ) >> Calls.response(new ProjectImportStatus(successful: true))
         0 * api._(*_)
+        result == 0
+    }
+
+    def "import some failure has correct exit code"() {
+
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 18, true, null)
+
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new RdToolImpl(rdapp)
+
+        def sut = new Archives()
+        sut.rdOutput = out
+        sut.rdTool = rdTool
+        def opts = new Archives.ArchiveImportOpts()
+        opts.file = tempFile
+        opts.project = 'Aproj'
+        opts.strict = isstrict
+
+
+        when:
+        def result = sut.importArchive(opts)
+
+        then:
+        1 * api.importProjectArchive(
+                'Aproj',
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                _,
+                [:],
+                _
+        ) >> Calls.response(new ProjectImportStatus(resultsmap))
+        0 * api._(*_)
+        result == expectExit
+        where:
+        resultsmap                                     | isstrict | expectExit
+        [successful: true]                             | false    | 0
+        [successful: true, executionErrors: ['error']] | false    | 0
+        [successful: true, executionErrors: ['error']] | true     | 1
+        [successful: true, aclErrors: ['error']]       | false    | 0
+        [successful: true, aclErrors: ['error']]       | true     | 1
+        [successful: false]                            | false    | 1
+        [successful: false]                            | true     | 1
+
     }
 }

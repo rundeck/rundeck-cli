@@ -477,9 +477,9 @@ public class Acl
     }
 
     @CommandLine.Command(description = "Test ACL Policies")
-    public boolean test(@CommandLine.Mixin TestOptions opts)  {
+    public int test(@CommandLine.Mixin TestOptions opts)  {
         if (!applyArgValidate(opts)) {
-            return false;
+            return 2;
         }
         final RuleEvaluator authorization = createAuthorization(opts);
         AuthRequest authRequest = createAuthRequestFromArgs(opts);
@@ -562,7 +562,7 @@ public class Acl
             );
         }
         log("The test " + (testPassed ? "passed" : "failed"));
-        return testPassed;
+        return testPassed?0:2;
     }
 
     @CommandLine.Command(description = "Create ACL Policies")
@@ -580,11 +580,11 @@ public class Acl
     }
 
     @CommandLine.Command(description = "Validate ACL Policies")
-    public boolean validate(@CommandLine.Mixin AclOptions opts) {
+    public int validate(@CommandLine.Mixin AclOptions opts) {
         final Validation validation = validatePolicies(opts);
         reportValidation(validation);
         log("The validation " + (validation.isValid() ? "passed" : "failed"));
-        return validation.isValid();
+        return validation.isValid() ? 0 : 2;
     }
 
     private HashSet<Map<String, String>> resources(final Map<String, String> resourceMap) {
