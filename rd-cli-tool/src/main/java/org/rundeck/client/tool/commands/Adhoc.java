@@ -40,7 +40,7 @@ import java.util.stream.Stream;
  */
 
 @CommandLine.Command(description = "Run adhoc command or script on matching nodes.", name = "adhoc", showEndOfOptionsDelimiterInUsageHelp = true)
-public class Adhoc extends BaseCommand implements Callable<Boolean> {
+public class Adhoc extends BaseCommand implements Callable<Integer> {
 
     @CommandLine.Mixin
     AdhocBaseOptions options;
@@ -51,7 +51,7 @@ public class Adhoc extends BaseCommand implements Callable<Boolean> {
     @CommandLine.Mixin
     NodeFilterBaseOptions nodeFilterOptions;
 
-    public Boolean call() throws IOException, InputError {
+    public Integer call() throws IOException, InputError {
         AdhocResponse adhocResponse;
 
         String project = getRdTool().projectOrEnv(options);
@@ -135,7 +135,7 @@ public class Adhoc extends BaseCommand implements Callable<Boolean> {
             );
         }
 
-        return Executions.maybeFollow(getRdTool(), followOptions, outputFormatOption, adhocResponse.execution.getId(), getRdOutput());
+        return Executions.maybeFollow(getRdTool(), followOptions, outputFormatOption, adhocResponse.execution.getId(), getRdOutput()) ? 0 : 1;
     }
 
 }

@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(description = "Upload a Rundeck plugin to your plugin repository", name = "upload")
-public class UploadPlugin extends BaseCommand implements Callable<Boolean> {
+public class UploadPlugin extends BaseCommand implements Callable<Integer> {
 
     @CommandLine.Option(names = {"-r", "--repository"}, description = "Target name of repository to upload plugin into.", required = true)
     String repoName;
@@ -35,13 +35,13 @@ public class UploadPlugin extends BaseCommand implements Callable<Boolean> {
     String binaryPath;
 
 
-    public Boolean call() throws InputError, IOException {
+    public Integer call() throws InputError, IOException {
         File binary = new File(binaryPath);
         if (!binary.exists())
             throw new IOException(String.format("Unable to find specified file: %s", binaryPath));
         RequestBody fileUpload = RequestBody.create(binary, Client.MEDIA_TYPE_OCTET_STREAM);
 
         RepositoryResponseHandler.handle(getRdTool().apiWithErrorResponse(api -> api.uploadPlugin(repoName, fileUpload)), getRdOutput());
-        return true;
+        return 0;
     }
 }

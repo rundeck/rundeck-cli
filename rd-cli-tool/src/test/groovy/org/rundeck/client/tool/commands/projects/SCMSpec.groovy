@@ -195,6 +195,56 @@ class SCMSpec extends Specification {
                         new ScmActionResult(success: true)
                 )
         0 * api._(*_)
+        result==0
+
+        where:
+        all   | modified | deleted | expected | expectedDeleted
+        true  | false    | false   | ['a']    | ['b']
+        false | true     | false   | ['a']    | []
+        false | false    | true    | []       | ['b']
+    }
+    def "perform action failure"() {
+        given:
+        def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
+
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'export'
+
+
+        def opts = new SCM.ActionPerformOptions()
+        opts.action = 'export-all'
+        opts.allItems = all
+        opts.allModifiedItems = modified
+        opts.allDeletedItems = deleted
+
+        def items = [
+                new ScmExportItem(itemId: 'a', deleted: false),
+                new ScmExportItem(itemId: 'b', deleted: true),
+        ]
+        when:
+        def result = scm.perform(baseopts, opts)
+        then:
+
+        1 * api.getScmActionInputs('aproject', 'export', 'export-all') >>
+                Calls.response(
+                        new ScmActionInputsResult(integration: 'export', actionId: 'export-all', exportItems: items)
+                )
+
+        1 * api.performScmAction('aproject', 'export', 'export-all', { ScmActionPerform arg ->
+            arg.items == expected && arg.deleted == expectedDeleted
+        }
+        ) >>
+                Calls.response(
+                        new ScmActionResult(success: false)
+                )
+        0 * api._(*_)
+        result==1
 
         where:
         all   | modified | deleted | expected | expectedDeleted
@@ -302,7 +352,7 @@ class SCMSpec extends Specification {
         def result = scm.status(baseopts)
 
         then:
-        result
+        result==0
 
         1 * appConfig.require('RD_PROJECT', _) >> 'TestProject'
 
@@ -311,5 +361,34 @@ class SCMSpec extends Specification {
                         new ScmProjectStatusResult(actions: [], message: 'test', synchState: ScmSynchState.CLEAN)
                 )
         1 * out.output([message: 'test', actions: [], synchState: 'CLEAN'])
+    }
+    def "scm status not clean exit code"() {
+        given:
+        def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def appConfig = rdTool.appConfig
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
+
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = null
+        baseopts.integration = 'import'
+
+
+        when:
+        def result = scm.status(baseopts)
+
+        then:
+
+        1 * appConfig.require('RD_PROJECT', _) >> 'TestProject'
+
+        1 * api.getScmProjectStatus('TestProject', 'import') >>
+                Calls.response(
+                        new ScmProjectStatusResult(actions: [], message: 'test', synchState: ScmSynchState.IMPORT_NEEDED)
+                )
+
+        result==1
     }
 }

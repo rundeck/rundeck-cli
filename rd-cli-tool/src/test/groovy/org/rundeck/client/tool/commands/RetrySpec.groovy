@@ -90,7 +90,7 @@ class RetrySpec extends Specification {
         }
         ) >> Calls.response(new Execution(id: 123, description: ''))
         0 * api._(*_)
-        result
+        result==0
     }
     def "error on api version below 24"() {
         given:

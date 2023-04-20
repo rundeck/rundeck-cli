@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(description = "Unistall a Rundeck plugin from your Rundeck instance", name = "uninstall")
-public class UninstallPlugin implements Callable<Boolean>, RdCommandExtension, RdOutput {
+public class UninstallPlugin implements Callable<Integer>, RdCommandExtension, RdOutput {
     @Setter
     private RdTool rdTool;
     @Setter
@@ -38,10 +38,10 @@ public class UninstallPlugin implements Callable<Boolean>, RdCommandExtension, R
     String pluginId;
 
 
-    public Boolean call() throws InputError, IOException {
+    public Integer call() throws InputError, IOException {
         RepositoryResponseHandler.handle(
                 rdTool.apiWithErrorResponse(api -> api.uninstallPlugin(pluginId)), rdOutput
         );
-        return true;
+        return 0;
     }
 }

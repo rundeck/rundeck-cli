@@ -107,4 +107,27 @@ class ProjectsSpec extends Specification {
         '%name/%config'      | ['abc/{xyz=993}', 'def/']
         '%name/%config.xyz'  | ['abc/993', 'def/']
     }
+    def "projects delete"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Projects command = new Projects()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def verbose = new VerboseOption()
+        def format = new ProjectListFormatOptions()
+        def opts = new Projects.ProjectDelete()
+        opts.project='aproject'
+        opts.confirm = true
+
+        when:
+        def result=command.delete(opts,format, verbose)
+
+        then:
+        1 * api.deleteProject('aproject')>>Calls.response(null)
+        0 * api._(*_)
+        result == 0
+    }
 }

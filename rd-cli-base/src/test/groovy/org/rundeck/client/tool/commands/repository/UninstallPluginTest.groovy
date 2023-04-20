@@ -43,10 +43,11 @@ class UninstallPluginTest extends Specification {
 
 
         when:
-        uninstallCmd.call()
+        def result=uninstallCmd.call()
 
         then:
         1 * api.uninstallPlugin(_) >> Calls.response(new ArtifactActionMessage(msg: "Plugin Uninstalled"))
         1 * out.output('Plugin Uninstalled')
+        result==0
     }
 }

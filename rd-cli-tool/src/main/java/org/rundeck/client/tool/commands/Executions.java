@@ -56,7 +56,7 @@ public class Executions extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Attempt to kill an execution by ID.")
-    public boolean kill(@CommandLine.Mixin KillOptions options) throws IOException, InputError {
+    public int kill(@CommandLine.Mixin KillOptions options) throws IOException, InputError {
         if (null == options.getId()) {
             throw new InputError("-e is required");
         }
@@ -74,7 +74,7 @@ public class Executions extends BaseCommand {
         if (failed) {
             getRdOutput().warning(String.format("Kill request failed: %s", abort.reason));
         }
-        return !failed;
+        return !failed ? 0 : 1;
     }
 
 
@@ -87,7 +87,7 @@ public class Executions extends BaseCommand {
 
     @CommandLine.Command(description = "Follow the output of an execution. Restart from the beginning, or begin tailing as it " +
             "runs.")
-    public boolean follow(@CommandLine.Mixin ExecutionsFollowOptions options) throws IOException, InputError {
+    public int follow(@CommandLine.Mixin ExecutionsFollowOptions options) throws IOException, InputError {
 
         int max = 500;
 
@@ -111,7 +111,7 @@ public class Executions extends BaseCommand {
                 getRdOutput(),
                 options.isOutputFormat() ? Format.formatter(options.getOutputFormat(), ExecLog::toMap, "%", "") : null,
                 waitUnlessInterrupt(2000)
-        );
+        ) ? 0 : 1;
     }
 
 
@@ -500,15 +500,21 @@ public class Executions extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Delete all executions for a job.")
-    public boolean deleteall(@CommandLine.Mixin DeleteAllExecCmd options) throws IOException, InputError {
+    public int deleteall(@CommandLine.Mixin DeleteAllExecCmd options) throws IOException, InputError {
 
         if (!options.isConfirm()) {
             //request confirmation
-            String s = System.console().readLine("Really delete all executions for job %s? (y/N) ", options.getId());
+            if (!isInteractiveAvailable()) {
+                getRdOutput().error("No user interaction available. Use --confirm to confirm purge without user interaction");
+                getRdOutput().warning("Not deleting executions");
+                return 2;
+            }
+
+            String s = readInteractive("Really delete all executions for job %s? (y/N) ", options.getId());
 
             if (!"y".equals(s)) {
                 getRdOutput().warning("Not deleting executions.");
-                return false;
+                return 2;
             }
         }
 
@@ -522,7 +528,36 @@ public class Executions extends BaseCommand {
         } else {
             getRdOutput().info(String.format("Deleted %d executions.", result.getSuccessCount()));
         }
-        return result.isAllsuccessful();
+        return result.isAllsuccessful() ? 0 : 1;
+    }
+
+    static interface Interactive {
+        boolean isEnabled();
+
+        String readInteractive(String fmt, Object... args);
+    }
+
+    static class ConsoleInteractive implements Interactive {
+        @Override
+        public boolean isEnabled() {
+            return System.console() != null;
+        }
+
+        @Override
+        public String readInteractive(String fmt, Object... args) {
+            return System.console().readLine(fmt, args);
+        }
+    }
+
+    Interactive interactive = new ConsoleInteractive();
+
+    private String readInteractive(String fmt, Object... args) {
+
+        return interactive.readInteractive(fmt, args);
+    }
+
+    private boolean isInteractiveAvailable() {
+        return interactive.isEnabled();
     }
 
 
@@ -584,7 +619,7 @@ public class Executions extends BaseCommand {
                 } else {
                     getRdOutput().warning("No executions found to delete");
                 }
-                return options.isRequire()?2:0;
+                return options.isRequire() ? 2 : 0;
             }
         }
 
@@ -594,7 +629,7 @@ public class Executions extends BaseCommand {
 
             if (!"y".equals(s)) {
                 getRdOutput().warning("Not deleting executions.");
-                return 1;
+                return 2;
             }
         }
         final List<String> finalExecIds = execIds;

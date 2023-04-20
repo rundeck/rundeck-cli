@@ -105,7 +105,7 @@ public class Projects extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Delete a project")
-    public boolean delete(
+    public int delete(
             @CommandLine.Mixin ProjectDelete options,
             @CommandLine.Mixin ProjectListFormatOptions formatOptions,
             @CommandLine.Mixin VerboseOption verboseOption
@@ -123,12 +123,12 @@ public class Projects extends BaseCommand {
 
             if (!"y".equals(s)) {
                 getRdOutput().warning(String.format("Not deleting project %s.", project));
-                return false;
+                return 2;
             }
         }
         apiCall(api -> api.deleteProject(project));
         getRdOutput().info(String.format("Project was deleted: %s%n", project));
-        return true;
+        return 0;
     }
 
     @CommandLine.Command(description = "Create a project.")

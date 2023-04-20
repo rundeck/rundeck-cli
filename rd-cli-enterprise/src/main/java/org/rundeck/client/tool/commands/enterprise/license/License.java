@@ -50,7 +50,7 @@ public class License
     }
 
     @CommandLine.Command(description = "license status")
-    public boolean status(@CommandLine.Mixin StatusOpts opts) throws InputError, IOException {
+    public int status(@CommandLine.Mixin StatusOpts opts) throws InputError, IOException {
         RdTool.apiVersionCheck("license status", 41, getClient().getApiVersion());
         LicenseResponse response = getClient().apiCall(EnterpriseApi::verifyLicense);
 
@@ -85,9 +85,9 @@ public class License
                         opts.getRemaining()
                 ));
             }
-            return false;
+            return 1;
         }
-        return !opts.isStatus() || response.isActive();
+        return (!opts.isStatus() || response.isActive()) ? 0 : 1;
     }
 
 

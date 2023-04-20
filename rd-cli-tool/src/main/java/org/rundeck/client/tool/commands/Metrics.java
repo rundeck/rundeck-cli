@@ -79,7 +79,7 @@ public class Metrics extends BaseCommand {
   }
 
   @CommandLine.Command(description = "Print health check status information.")
-  public boolean healthcheck(@CommandLine.Mixin HealthCheckOptions options) throws IOException, InputError {
+  public int healthcheck(@CommandLine.Mixin HealthCheckOptions options) throws IOException, InputError {
 
     Map<String, HealthCheckStatus> healthCheckStatus = apiCall(RundeckApi::getHealthCheckMetrics);
 
@@ -111,7 +111,7 @@ public class Metrics extends BaseCommand {
       getRdOutput().warning("No results found.");
     }
 
-    return !options.isFailOnUnhealthy() || unhealthyList.size() == 0;
+    return (!options.isFailOnUnhealthy() || unhealthyList.size() == 0) ? 0 : 1;
   }
 
   // rd metrics threads

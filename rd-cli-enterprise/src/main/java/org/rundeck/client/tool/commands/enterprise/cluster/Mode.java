@@ -28,14 +28,14 @@ public class Mode extends BaseExtension {
     }
 
     @CommandLine.Command(description = "Set cluster member execution mode Active")
-    public boolean active(@CommandLine.Mixin Options options) throws IOException, InputError {
-        return changeMode(ExecutionMode.active, options, EnterpriseApi::executionModeEnable);
+    public int active(@CommandLine.Mixin Options options) throws IOException, InputError {
+        return changeMode(ExecutionMode.active, options, EnterpriseApi::executionModeEnable) ? 0 : 1;
     }
 
 
     @CommandLine.Command(description = "Set cluster member execution mode Passive")
-    public boolean passive(@CommandLine.Mixin Options options) throws IOException, InputError {
-        return changeMode(ExecutionMode.passive, options, EnterpriseApi::executionModeDisable);
+    public int passive(@CommandLine.Mixin Options options) throws IOException, InputError {
+        return changeMode(ExecutionMode.passive, options, EnterpriseApi::executionModeDisable) ? 0 : 1;
     }
 
     boolean changeMode(

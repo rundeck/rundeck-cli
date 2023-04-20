@@ -16,6 +16,8 @@
 
 package org.rundeck.client.tool.commands
 
+import org.rundeck.client.api.model.AbortResult
+import org.rundeck.client.api.model.BulkExecutionDeleteResponse
 import org.rundeck.client.api.model.Execution
 import org.rundeck.client.api.model.ExecutionList
 import org.rundeck.client.api.model.JobItem
@@ -355,5 +357,79 @@ class ExecutionsSpec extends Specification {
         autopage | page2
         true     | true
         false    | false
+    }
+
+    def "kill"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Executions command = new Executions()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def options = new Executions.KillOptions()
+        options.id='1'
+
+
+        when:
+        def result = command.kill(options)
+
+        then:
+        1 * api.abortExecution('1', false) >> Calls.response(
+                new AbortResult(
+                        abort: new AbortResult.Reason(status: status, reason: 'success'),
+                        execution: new Execution(id: '1', description: '')
+                )
+        )
+
+        0 * api._(*_)
+        result==expected
+        where:
+        status    | expected
+
+        'failed'  | 1
+        'success' | 0
+    }
+
+    def "deleteall"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Executions command = new Executions()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def options = new Executions.DeleteAllExecCmd()
+        options.id='jobid'
+        options.confirm = confirm
+        command.interactive = Mock(Executions.Interactive) {
+            _ * isEnabled() >> ienabled
+            _ * readInteractive(*_) >> iread
+        }
+
+
+        when:
+        def result = command.deleteall(options)
+
+        then:
+        (doesapi?1:0) * api.deleteAllJobExecutions('jobid') >> Calls.response(
+                new BulkExecutionDeleteResponse(
+                        allsuccessful:allsuccess,
+                        failures: allsuccess?[]:[new BulkExecutionDeleteResponse.DeleteFailure(id:'jobid',message:'amessage')]
+                )
+        )
+
+        0 * api._(*_)
+        result==expected
+        where:
+        confirm | ienabled | iread | doesapi | allsuccess || expected
+        false   | false    | 'y'   | false   | false      || 2
+        false   | true     | 'n'   | false   | false      || 2
+        false   | true     | 'y'   | true    | false      || 1
+        true    | false    | null  | true    | false      || 1
+        false   | true     | 'y'   | true    | true       || 0
+        true    | false    | null  | true    | true       || 0
     }
 }

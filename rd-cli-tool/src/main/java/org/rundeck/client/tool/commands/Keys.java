@@ -119,7 +119,7 @@ public class Keys extends BaseCommand {
 
     @CommandLine.Command(description = "List the keys and directories at a given path, or at the root by default.",
             aliases = {"ls"})
-    public boolean list(@CommandLine.Mixin OptionalPath opts) throws IOException, InputError {
+    public int list(@CommandLine.Mixin OptionalPath opts) throws IOException, InputError {
 
         KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(opts.getPath().keysPath()));
 
@@ -131,10 +131,10 @@ public class Keys extends BaseCommand {
                             .sorted()
                             .map(KeyStorageItem::toBasicString)
                             .collect(Collectors.toList()));
-            return true;
+            return 0;
         } else {
             getRdOutput().error(String.format("Path is not a directory: %s", opts.getPath()));
-            return false;
+            return 2;
         }
     }
 
@@ -177,13 +177,13 @@ public class Keys extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Get the contents of a public key")
-    public boolean get(@CommandLine.Mixin GetOpts options) throws IOException, InputError {
+    public int get(@CommandLine.Mixin GetOpts options) throws IOException, InputError {
         validateRequired(options);
         KeyStorageItem keyStorageItem = apiCall(api -> api.listKeyStorage(options.getPath().keysPath()));
 
         if (keyStorageItem.getType() != KeyStorageItem.KeyItemType.file) {
             getRdOutput().error(String.format("Requested path (%s) is not a file", options.getPath()));
-            return false;
+            return 2;
         }
         if (keyStorageItem.getFileType() != KeyStorageItem.KeyFileType.publicKey) {
             getRdOutput().error(String.format(
@@ -191,7 +191,7 @@ public class Keys extends BaseCommand {
                     options.getPath(),
                     keyStorageItem.getFileType()
             ));
-            return false;
+            return 2;
         }
         try (ResponseBody body = apiCall(api -> api.getPublicKey(options.getPath().keysPath()))) {
             if (!ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_GPG_KEYS)) {
@@ -213,7 +213,7 @@ public class Keys extends BaseCommand {
                 Util.copyStream(inputStream, System.out);
             }
         }
-        return true;
+        return 0;
     }
 
 

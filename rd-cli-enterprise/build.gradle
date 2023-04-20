@@ -14,7 +14,7 @@ dependencies {
     implementation libs.picocli
     annotationProcessor libs.picocliCodegen
 
-    testImplementation project(":rd-cli-lib"), project(":rd-api-client")
+    testImplementation project(":rd-cli-lib"), project(":rd-api-client"), project(":rd-testing")
 
     testImplementation libs.retrofitMock
     testImplementation libs.okhttpMockwebserver

@@ -63,14 +63,14 @@ public class Mode extends BaseCommand {
 
 
     @CommandLine.Command(description = "Set execution mode Active")
-    public boolean active(@CommandLine.Mixin QuietOption opts) throws IOException, InputError {
-        return changeMode(opts, ExecutionMode.active, RundeckApi::executionModeEnable);
+    public int active(@CommandLine.Mixin QuietOption opts) throws IOException, InputError {
+        return changeMode(opts, ExecutionMode.active, RundeckApi::executionModeEnable) ? 0 : 1;
     }
 
 
     @CommandLine.Command(description = "Set execution mode Passive")
-    public boolean passive(@CommandLine.Mixin QuietOption opts) throws IOException, InputError {
-        return changeMode(opts, ExecutionMode.passive, RundeckApi::executionModeDisable);
+    public int passive(@CommandLine.Mixin QuietOption opts) throws IOException, InputError {
+        return changeMode(opts, ExecutionMode.passive, RundeckApi::executionModeDisable) ? 0 : 1;
     }
 
     boolean changeMode(

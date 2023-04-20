@@ -16,12 +16,23 @@
 
 package org.rundeck.client.tool.commands
 
+import okhttp3.RequestBody
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
 import okhttp3.mockwebserver.RecordedRequest
+import okio.Buffer
 import org.rundeck.client.api.RundeckApi
+import org.rundeck.client.api.model.KeyStorageItem
+import org.rundeck.client.api.model.metrics.HealthCheckStatus
+import org.rundeck.client.testing.MockRdTool
+import org.rundeck.client.tool.CommandOutput
+import org.rundeck.client.tool.RdApp
+import org.rundeck.client.tool.extension.RdTool
+import org.rundeck.client.util.Client
+import org.rundeck.client.util.RdClientConfig
 import retrofit2.Retrofit
 import retrofit2.converter.jackson.JacksonConverterFactory
+import retrofit2.mock.Calls
 import spock.lang.Specification
 
 /**
@@ -374,5 +385,45 @@ class MetricsSpec extends Specification {
         body.timers."rundeck.services.AuthorizationService.getSystemAuthorization".duration_units == "seconds"
         server.shutdown()
     }
+
+    def "healthcheck"(){
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Metrics command = new Metrics()
+        command.rdTool=rdTool
+        command.rdOutput=out
+
+        def opts = new Metrics.HealthCheckOptions()
+        opts.failOnUnhealthy=failonunhealthy
+        def response = new HashMap<String, HealthCheckStatus>()
+        response.put('test',new HealthCheckStatus(healthy: allhealthy))
+        when:
+        def result=command.healthcheck(opts)
+
+        then:
+        1 * api.getHealthCheckMetrics() >> Calls.response(response)
+        0 * api._(*_)
+        result==expect
+        where:
+        allhealthy | failonunhealthy | expect
+        true       | false           | 0
+        false      | false           | 0
+        true       | true            | 0
+        false      | true            | 1
+    }
+    private RdTool setupMock(RundeckApi api, int apiVersion=18) {
+        def retrofit = new Retrofit.Builder().baseUrl('http://example.com/fake/').build()
+        def client = new Client(api, retrofit, null, null, apiVersion, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new MockRdTool(client: client, rdApp: rdapp)
+        rdTool.appConfig = Mock(RdClientConfig)
+        rdTool
+    }
+
 
 }

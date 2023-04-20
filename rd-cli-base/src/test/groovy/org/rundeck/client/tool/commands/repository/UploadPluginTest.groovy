@@ -47,10 +47,11 @@ class UploadPluginTest extends Specification {
 
 
         when:
-        uploadCmd.call()
+        def result = uploadCmd.call()
 
         then:
         1 * api.uploadPlugin("private", _) >> Calls.response(new ArtifactActionMessage(msg: "Upload succeeded"))
         1 * out.output('Upload succeeded')
+        result == 0
     }
 }

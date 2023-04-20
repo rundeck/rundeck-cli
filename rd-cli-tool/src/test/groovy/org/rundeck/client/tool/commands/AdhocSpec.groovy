@@ -53,7 +53,7 @@ class AdhocSpec extends Specification {
             it.url = (url ? scriptUrl : null)
         }
         when: "we run adhoc script file"
-        adhoc.call()
+        def result = adhoc.call()
         then: "api call has correct values"
         1 * api."${url ? 'runUrl' : 'runScript'}"(
                 'aproject',
@@ -68,6 +68,7 @@ class AdhocSpec extends Specification {
             ) >> Calls.response(new AdhocResponse(message: 'ok', execution: new Execution(id: '123')))
             1 * api.getExecution('123') >> Calls.response(new Execution(id: '123', description: 'asdf'))
             0 * api._(*_)
+            result == 0
 
         cleanup:
             tempFile.delete()

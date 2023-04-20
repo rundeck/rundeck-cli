@@ -27,7 +27,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @CommandLine.Command(description = "Install a plugin from your plugin repository into your Rundeck instance", name = "install")
-public class InstallPlugin implements RdCommandExtension, RdOutput, Callable<Boolean> {
+public class InstallPlugin implements RdCommandExtension, RdOutput, Callable<Integer> {
     @Setter
     private RdTool rdTool;
 
@@ -40,7 +40,7 @@ public class InstallPlugin implements RdCommandExtension, RdOutput, Callable<Boo
     @CommandLine.Option(names = {"--version", "-v"}, description = "(Optional) Specific version of the plugin you want to install")
     String version;
 
-    public Boolean call() throws InputError, IOException {
+    public Integer call() throws InputError, IOException {
         RepositoryResponseHandler.handle(
                 rdTool.apiWithErrorResponse(api -> {
                     if (version != null) {
@@ -49,7 +49,7 @@ public class InstallPlugin implements RdCommandExtension, RdOutput, Callable<Boo
                         return api.installPlugin(repoName, pluginId);
                     }
                 }), rdOutput);
-        return true;
+        return 0;
     }
 
 }
