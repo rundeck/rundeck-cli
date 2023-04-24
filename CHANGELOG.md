@@ -1,3 +1,13 @@
+## 2.0.5
+
+* fix: incorrect exit codes for command failure
+* fix [Issue #468](https://github.com/rundeck/rundeck-cli/issues/468) executions deletebulk --require exit code when 0 results
+* log: extend `run --at/-@` timezone parsing format support
+* Fix: run --at/-@ argument should work
+* log: Upgrade jackson databind to 2.14.2
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.4...v2.0.5)
+
 ## 2.0.4
 
 * Add component options to project archives import [Issue #482](https://github.com/rundeck/rundeck-cli/issues/482)
