@@ -2,7 +2,6 @@
 
 retrofit = "2.9.0"
 okhttp = "4.9.3"
-toolbelt = "0.2.29"
 lombok = "1.18.26"
 jaxb = "2.3.8"
 junit = "4.13.2"
@@ -42,11 +41,6 @@ junit = { module = "junit:junit", version.ref = "junit" }
 groovy = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
 
-toolbelt = { module = "org.rundeck.cli-toolbelt:toolbelt", version.ref = "toolbelt" }
-toolbeltYaml = { module = "org.rundeck.cli-toolbelt:toolbelt-snakeyaml", version.ref = "toolbelt" }
-toolbeltJackson = { module = "org.rundeck.cli-toolbelt:toolbelt-json-jackson", version.ref = "toolbelt" }
-toolbeltCli = { module = "org.rundeck.cli-toolbelt:toolbelt-jewelcli", version.ref = "toolbelt" }
-
 jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
 snakeYaml = { module = "org.yaml:snakeyaml", version.ref = "snakeYaml" }
 
@@ -62,7 +56,6 @@ testcontainersSpock = { module = "org.testcontainers:spock", version.ref = "test
 retrofit = ["retrofitCore", "retrofitJackson", "retrofitJaxb", "okhttpLogging", "okhttpUrlconnection", "jaxb"]
 test = ["junit", "groovy", "spock"]
 testcontainers = ["testcontainers", "testcontainersSpock"]
-toolbelt = ["toolbelt", "toolbeltYaml", "toolbeltJackson", "toolbeltCli"]
 rundeckAuthz = ["rundeckAuthzCore", "rundeckAuthzApi", "rundeckAuthzYaml"]
 
 [plugins]
