@@ -187,7 +187,7 @@ public class Metrics extends BaseCommand {
 
 
   @CommandLine.Command(description = "Prints the metrics data.")
-  public void data(MetricsDataOptions options) throws IOException, InputError {
+  public void data(@CommandLine.Mixin MetricsDataOptions options) throws IOException, InputError {
 
     MetricsData metricsData = apiCall(RundeckApi::getMetricsData);
 
