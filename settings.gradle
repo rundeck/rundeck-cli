@@ -21,4 +21,4 @@ include 'rd-cli-enterprise'
 include 'rd-testing'
 include 'rd-cli-acl'
 include 'integration-tests'
-
+include 'docker'
