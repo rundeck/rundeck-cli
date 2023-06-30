@@ -27,6 +27,7 @@ import org.rundeck.client.tool.options.OptionUtil;
 import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
 import org.rundeck.client.tool.options.UnparsedConfigOptions;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.SafeConstructor;
 import picocli.CommandLine;
@@ -157,7 +158,7 @@ public class Configure extends BaseCommand {
                     inputConfig.putAll(map);
                     break;
                 case yaml:
-                    Yaml yaml = new Yaml(new SafeConstructor());
+                    Yaml yaml = new Yaml(new SafeConstructor(new LoaderOptions()));
                     try (FileInputStream fis = new FileInputStream(input)) {
                         Object load = yaml.load(fis);
                         if (load instanceof Map) {
