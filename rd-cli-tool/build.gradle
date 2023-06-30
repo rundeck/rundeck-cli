@@ -105,13 +105,8 @@ set -e
 RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
 test -f $RD_CONF && . $RD_CONF
 export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/extv2}
-'''
-    )
-    def setJ11AddOpens=appendConfigData.curry(
-        '^APP_ARGS=.*$',
-        '''
-if $JAVACMD --add-opens 2>&1 | grep 'requires modules' >/dev/null; then
-  JAVA_OPTS="$JAVA_OPTS --add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
+if [ ! -z "$(java --add-opens 2>&1 | grep 'requires modules')" ]; then
+  export JAVA_OPTS="$JAVA_OPTS --add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
 fi
 '''
     )
@@ -126,7 +121,6 @@ fi
                         .readLines()
                         .collect(setE)
                         .collect(setClasspath)
-                        .collect(setJ11AddOpens)
                         .join('\n')
     }
 
