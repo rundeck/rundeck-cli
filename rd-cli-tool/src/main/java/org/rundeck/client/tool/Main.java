@@ -285,7 +285,7 @@ public class Main {
                         DumperOptions.FlowStyle.FLOW
         );
         dumperOptions.setPrettyFlow(config.getBool("RD_YAML_PRETTY", true));
-        Representer representer = new Representer();
+        Representer representer = new Representer(dumperOptions);
         representer.addClassTag(JobItem.class, Tag.MAP);
         representer.addClassTag(ScheduledJobItem.class, Tag.MAP);
         representer.addClassTag(DateInfo.class, Tag.MAP);
