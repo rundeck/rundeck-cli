@@ -507,7 +507,6 @@ public class RundeckClient {
      *
      * @param baseUrl
      *
-     * @return
      */
     private static String normalizeUrlPath(String baseUrl) {
         if (!baseUrl.matches(".*/$")) {

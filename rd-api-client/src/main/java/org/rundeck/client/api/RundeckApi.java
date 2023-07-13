@@ -65,7 +65,6 @@ public interface RundeckApi {
     /**
      * new api
      * @param jobid
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("job/{jobid}/info")
@@ -78,7 +77,6 @@ public interface RundeckApi {
      *
      * @param fileid
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("jobs/file/{fileid}")
@@ -92,7 +90,6 @@ public interface RundeckApi {
      * @param jobid     job id
      * @param fileState file state
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("job/{jobid}/input/files")
@@ -108,7 +105,6 @@ public interface RundeckApi {
      *
      * @param jobid job id
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("job/{jobid}/input/files")
@@ -123,7 +119,6 @@ public interface RundeckApi {
      *
      * @param execid execution id
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("execution/{execid}/input/files")
@@ -147,7 +142,6 @@ public interface RundeckApi {
      *
      * @param jobid
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @POST("job/{jobid}/execution/enable")
@@ -160,7 +154,6 @@ public interface RundeckApi {
      *
      * @param jobid
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @POST("job/{jobid}/execution/disable")
@@ -173,7 +166,6 @@ public interface RundeckApi {
      *
      * @param jobid
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @POST("job/{jobid}/schedule/enable")
@@ -186,7 +178,6 @@ public interface RundeckApi {
      *
      * @param jobid
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @POST("job/{jobid}/schedule/disable")
@@ -327,7 +318,6 @@ public interface RundeckApi {
      * @param readmes
      * @param acls
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("project/{project}/export/async")
@@ -348,7 +338,6 @@ public interface RundeckApi {
      * @param project
      * @param ids     option execution IDs, or null for all contents
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("project/{project}/export/async")
@@ -363,7 +352,6 @@ public interface RundeckApi {
      * @param project
      * @param token
      *
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("project/{project}/export/status/{token}")
@@ -378,7 +366,6 @@ public interface RundeckApi {
      * @param project
      * @param token
      *
-     * @return
      */
     @Headers("Accept: application/zip")
     @GET("project/{project}/export/download/{token}")
@@ -459,7 +446,6 @@ public interface RundeckApi {
      * @param xjobIdListFilter
      * @param jobListFilter
      * @param excludeJobListFilters
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("project/{project}/executions")
@@ -477,7 +463,6 @@ public interface RundeckApi {
      *
      * @param delete
      *
-     * @return
      */
     @Json
     @Headers("Accept: application/json")
@@ -537,7 +522,6 @@ public interface RundeckApi {
      * @param lastmod
      * @param maxlines
      * @param compacted
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("execution/{id}/output")
@@ -1255,7 +1239,6 @@ public interface RundeckApi {
      * @param xjobIdListFilter
      * @param jobListFilter
      * @param excludeJobListFilters
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("project/{project}/executions/metrics")
@@ -1275,7 +1258,6 @@ public interface RundeckApi {
      * @param xjobIdListFilter
      * @param jobListFilter
      * @param excludeJobListFilters
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("executions/metrics")
@@ -1295,7 +1277,6 @@ public interface RundeckApi {
      * @param xjobIdListFilter
      * @param jobListFilter
      * @param excludeJobListFilters
-     * @return
      */
     @Headers("Accept: application/xml")
     @GET("project/{project}/executions/metrics")
@@ -1315,7 +1296,6 @@ public interface RundeckApi {
      * @param xjobIdListFilter
      * @param jobListFilter
      * @param excludeJobListFilters
-     * @return
      */
     @Headers("Accept: application/xml")
     @GET("executions/metrics")
@@ -1330,7 +1310,6 @@ public interface RundeckApi {
     /**
      * Forecast
      * @param jobid
-     * @return
      */
     @Headers("Accept: application/json")
     @GET("job/{jobid}/forecast")
