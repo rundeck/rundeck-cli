@@ -1,8 +1,11 @@
-## unreleased
+## 2.0.6
 
 * dependency updates
-* fix java 11 warnings #509
-* #511
+* fix java 11 warnings [Issue #509](https://github.com/rundeck/rundeck-cli/issues/509)
+* [Issue #511](https://github.com/rundeck/rundeck-cli/issues/511)
+* Fix: metrics data command
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.5...v2.0.6)
 
 ## 2.0.5
 
