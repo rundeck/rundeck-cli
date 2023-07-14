@@ -1,3 +1,9 @@
+## unreleased
+
+* dependency updates
+* fix java 11 warnings #509
+* #511
+
 ## 2.0.5
 
 * fix: incorrect exit codes for command failure
