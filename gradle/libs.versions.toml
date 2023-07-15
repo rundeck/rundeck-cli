@@ -14,7 +14,7 @@ ospackage = "9.1.1"
 buildInfo = "0.9"
 buildConfig = "3.0.3"
 owasp = "7.1.0.1"
-jacksonDatabind = "2.15.0"
+jacksonDatabind = "2.15.2"
 picocli = "4.6.3"
 snakeYaml = "2.0"
 #used for authz lib integration
