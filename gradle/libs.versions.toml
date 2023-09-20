@@ -2,7 +2,7 @@
 
 retrofit = "2.9.0"
 okhttp = "4.11.0"
-lombok = "1.18.26"
+lombok = "1.18.30"
 jaxb = "2.3.8"
 junit = "4.13.2"
 groovy = "3.0.15"
