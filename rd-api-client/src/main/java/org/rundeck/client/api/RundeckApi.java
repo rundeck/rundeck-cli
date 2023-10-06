@@ -203,13 +203,11 @@ public interface RundeckApi {
             @Query("format") String format
     );
 
-    @Xml
-    @Headers("Accept: application/xml")
+    @Headers("Accept: application/json")
     @POST("project/{project}/jobs/import")
     Call<ImportResult> loadJobs(@Path("project") String project, @Body RequestBody body);
 
-    @Xml
-    @Headers("Accept: application/xml")
+    @Headers("Accept: application/json")
     @POST("project/{project}/jobs/import")
     Call<ImportResult> loadJobs(
             @Path("project") String project,
@@ -1262,44 +1260,6 @@ public interface RundeckApi {
     @Headers("Accept: application/json")
     @GET("executions/metrics")
     Call<MetricsResponse> executionMetrics(
-        @QueryMap Map<String, String> options,
-        @Query("jobIdListFilter") List<String> jobIdListFilter,
-        @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
-        @Query("jobListFilter") List<String> jobListFilter,
-        @Query("excludeJobListFilter") List<String> excludeJobListFilters
-    );
-
-    /**
-     * Get stats on a project-wide query of executions, with all query parameters available, in XML format.
-     * @param project
-     * @param options
-     * @param jobIdListFilter
-     * @param xjobIdListFilter
-     * @param jobListFilter
-     * @param excludeJobListFilters
-     */
-    @Headers("Accept: application/xml")
-    @GET("project/{project}/executions/metrics")
-    Call<ResponseBody> executionMetricsXML(
-        @Path("project") String project,
-        @QueryMap Map<String, String> options,
-        @Query("jobIdListFilter") List<String> jobIdListFilter,
-        @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,
-        @Query("jobListFilter") List<String> jobListFilter,
-        @Query("excludeJobListFilter") List<String> excludeJobListFilters
-    );
-
-   /**
-     * Get stats on a system-wide query of executions, with all query parameters available, in XML format.
-     * @param options
-     * @param jobIdListFilter
-     * @param xjobIdListFilter
-     * @param jobListFilter
-     * @param excludeJobListFilters
-     */
-    @Headers("Accept: application/xml")
-    @GET("executions/metrics")
-    Call<ResponseBody> executionMetricsXML(
         @QueryMap Map<String, String> options,
         @Query("jobIdListFilter") List<String> jobIdListFilter,
         @Query("excludeJobIdListFilter") List<String> xjobIdListFilter,

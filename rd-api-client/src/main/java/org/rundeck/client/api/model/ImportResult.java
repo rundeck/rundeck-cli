@@ -17,46 +17,16 @@
 package org.rundeck.client.api.model;
 
 
+import lombok.Data;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
 
-@XmlRootElement()
+@Data
 public class ImportResult {
     private List<JobLoadItem> succeeded;
     private List<JobLoadItem> failed;
     private List<JobLoadItem> skipped;
-
-    @XmlElementWrapper
-    @XmlElement(name = "job")
-    public List<JobLoadItem> getSucceeded() {
-        return succeeded;
-    }
-
-    public void setSucceeded(List<JobLoadItem> succeeded) {
-        this.succeeded = succeeded;
-    }
-
-    @XmlElementWrapper
-    @XmlElement(name = "job")
-    public List<JobLoadItem> getFailed() {
-        return failed;
-    }
-
-    public void setFailed(List<JobLoadItem> failed) {
-        this.failed = failed;
-    }
-
-    @XmlElementWrapper
-    @XmlElement(name = "job")
-    public List<JobLoadItem> getSkipped() {
-        return skipped;
-    }
-
-    public void setSkipped(List<JobLoadItem> skipped) {
-        this.skipped = skipped;
-    }
-
-
 }

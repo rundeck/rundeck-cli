@@ -700,12 +700,6 @@ public class Executions extends BaseCommand {
     @Setter
     static class MetricsCmd extends QueryOptions implements OutputFormat {
 
-        @CommandLine.Option(
-                names = {"--xml"},
-                description = "Get the result in raw xml. Note: cannot be combined with RD_FORMAT env variable.")
-        private boolean rawXML;
-
-
         @CommandLine.Option(names = {"--jobids", "-i"},
                 arity = "1..*",
                 description = "Job ID list to include")
@@ -736,33 +730,12 @@ public class Executions extends BaseCommand {
     public void metrics(@CommandLine.Mixin MetricsCmd options) throws IOException, InputError {
         getRdTool().requireApiVersion("metrics", 29);
 
-        // Check parameters.
-        if (!"xml".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", "xml")) && options.isRawXML()) {
-            throw new InputError("You cannot use RD_FORMAT env var with --xml");
-        }
-
         Map<String, String> query = createQueryParams(options, null, null);
 
         MetricsResponse result;
 
         // Case project wire.
         if (options.isProject()) {
-
-            // Raw XML
-            if ("XML".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
-                try(ResponseBody response = apiCall(api -> api.executionMetricsXML(
-                        options.getProject(),
-                        query,
-                        options.getJobIdList(),
-                        options.getExcludeJobIdList(),
-                        options.getJobList(),
-                        options.getExcludeJobList()
-                ))) {
-                    getRdOutput().output(response.string());
-                }
-                return;
-            }
-
             // Get response.
             result = apiCall(api -> api.executionMetrics(
                     options.getProject(),
@@ -777,20 +750,6 @@ public class Executions extends BaseCommand {
 
         // Case system-wide
         else {
-
-            // Raw XML
-            if ("XML".equalsIgnoreCase(getRdTool().getAppConfig().getString("RD_FORMAT", null)) || options.isRawXML()) {
-                try(ResponseBody response = apiCall(api -> api.executionMetricsXML(
-                        query,
-                        options.getJobIdList(),
-                        options.getExcludeJobIdList(),
-                        options.getJobList(),
-                        options.getExcludeJobList()
-                ))) {
-                    getRdOutput().output(response.string());
-                }
-                return;
-            }
 
             // Get raw Json.
             result = apiCall(api -> api.executionMetrics(
