@@ -246,8 +246,7 @@ public class RundeckClient {
             cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
             builder.cookieJar(new JavaNetCookieJar(cookieManager));
 
-
-            String postUrl = parse
+            String postUrl = HttpUrl.parse(appBaseUrl)
                     .newBuilder()
                     .addPathSegment(
                             System.getProperty(

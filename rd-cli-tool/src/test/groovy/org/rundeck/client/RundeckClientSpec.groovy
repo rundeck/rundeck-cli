@@ -16,6 +16,7 @@
 
 package org.rundeck.client
 
+import org.rundeck.client.util.FormAuthInterceptor
 import spock.lang.Specification
 
 /**
@@ -48,6 +49,30 @@ class RundeckClientSpec extends Specification {
         proto   | _
         'http'  | _
         'https' | _
+    }
+
+    def "password auth with API vers has correct auth url"() {
+        given:
+        def root = 'https://example.com'
+        when:
+
+        def builder = RundeckClient.builder().
+                baseUrl(root + basePath).
+                passwordAuth('user1', 'pass1')
+
+        then:
+        builder.okhttp.interceptors().size() == 1
+        def formAuth = builder.okhttp.interceptors().get(0)
+        formAuth instanceof FormAuthInterceptor
+        formAuth.baseUrl == (root + expectedBase)
+        formAuth.j_security_url == (root + expectedSecurity)
+
+        where:
+        basePath          | expectedBase | expectedSecurity
+        "/"               | "/"          | "/j_security_check"
+        "/api/19"         | "/"          | "/j_security_check"
+        "/context"        | "/context/"  | "/context/j_security_check"
+        "/context/api/19" | "/context/"  | "/context/j_security_check"
     }
 
     def "create token valid"() {
