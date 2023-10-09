@@ -31,7 +31,6 @@ import org.rundeck.client.api.model.scheduler.ScheduledJobItem;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeover;
 import org.rundeck.client.api.model.scheduler.SchedulerTakeoverResult;
 import org.rundeck.client.util.Json;
-import org.rundeck.client.util.Xml;
 import retrofit2.Call;
 import retrofit2.http.*;
 
