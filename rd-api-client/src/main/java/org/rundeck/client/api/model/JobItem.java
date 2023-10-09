@@ -17,17 +17,15 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Data;
 import org.rundeck.client.util.DataOutput;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-@XmlRootElement()
 public class JobItem implements DataOutput {
     private String id;
     private String name;
@@ -36,70 +34,7 @@ public class JobItem implements DataOutput {
     private String description;
     private String href;
     private String permalink;
-
     private Long averageDuration;
-
-    @XmlElement()
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    @XmlElement()
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @XmlElement()
-    public String getGroup() {
-        return group;
-    }
-
-    public void setGroup(String group) {
-        this.group = group;
-    }
-
-    @XmlElement
-    public String getProject() {
-        return project;
-    }
-
-    public void setProject(String project) {
-        this.project = project;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    @XmlAttribute()
-    public String getHref() {
-        return href;
-    }
-
-    public void setHref(String href) {
-        this.href = href;
-    }
-
-    @XmlElement()
-    public String getPermalink() {
-        return permalink;
-    }
-
-    public void setPermalink(String permalink) {
-        this.permalink = permalink;
-    }
 
     @Override
     public String toString() {
@@ -138,14 +73,5 @@ public class JobItem implements DataOutput {
 
     public String toBasicString() {
         return String.format("%s %s%s", id, group != null ? group + "/" : "", name != null ? name : "");
-    }
-
-    @XmlAttribute()
-    public Long getAverageDuration() {
-        return averageDuration;
-    }
-
-    public void setAverageDuration(Long averageDuration) {
-        this.averageDuration = averageDuration;
     }
 }

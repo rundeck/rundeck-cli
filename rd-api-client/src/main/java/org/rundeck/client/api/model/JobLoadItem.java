@@ -17,26 +17,17 @@
 package org.rundeck.client.api.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.HashMap;
 import java.util.Map;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-@XmlRootElement()
 public class JobLoadItem extends JobItem {
 
-    private String error;
-
-    @XmlElement()
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
+    @Getter @Setter private String error;
+    @Getter @Setter private Integer index;
 
     @Override
     public String toBasicString() {

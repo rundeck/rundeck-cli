@@ -1,3 +1,8 @@
+## unreleased
+
+* Remove use of XML in API calls (deprecated in Rundeck 4.x)
+* Remove `--xml` option for executions metrics
+
 ## 2.0.6
 
 * dependency updates
