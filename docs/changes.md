@@ -4,6 +4,14 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 2.0.7
+
+* Remove use of XML in API calls (deprecated in Rundeck 4.x)
+* Remove `--xml` option for executions metrics
+* fix [Issue #465](https://github.com/rundeck/rundeck-cli/issues/465): user+pass auth url incorrect if API version specified in URL
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.6...v2.0.7)
+
 ## 2.0.6
 
 * dependency updates
