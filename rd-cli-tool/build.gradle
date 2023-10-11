@@ -102,9 +102,9 @@ set -e
             '^CLASSPATH=.*$',
             '''
 # Source user's config file
-RD_CONF=${RD_CONF:-$HOME/.$APP_NAME/$APP_NAME.conf}
+RD_CONF=${RD_CONF:-$HOME/.$APP_BASE_NAME/$APP_BASE_NAME.conf}
 test -f $RD_CONF && . $RD_CONF
-export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_NAME/extv2}
+export RD_EXT_DIR=${RD_EXT_DIR:-$HOME/.$APP_BASE_NAME/extv2}
 if [ ! -z "$(java --add-opens 2>&1 | grep 'requires modules')" ]; then
   export JAVA_OPTS="$JAVA_OPTS --add-opens=java.base/java.lang.invoke=ALL-UNNAMED"
 fi
