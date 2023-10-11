@@ -58,7 +58,10 @@
             <trusting group="org.rundeck.cli-toolbelt"/>
          </trusted-key>
          <trusted-key id="31fae244a81d64507b47182e1b2718089ce964b8" group="com.thoughtworks.qdox" name="qdox" version="1.12.1"/>
-         <trusted-key id="34441e504a937f43eb0daef96a65176a0fb1cd0b" group="org.codehaus.groovy"/>
+         <trusted-key id="34441e504a937f43eb0daef96a65176a0fb1cd0b">
+            <trusting group="org.apache.groovy"/>
+            <trusting group="org.codehaus.groovy"/>
+         </trusted-key>
          <trusted-key id="34d6ff19930adf43ac127792a50569c7ca7fa1f0">
             <trusting group="com.jcraft"/>
             <trusting group="com.jcraft" name="jsch" version="0.1.51"/>
@@ -105,7 +108,10 @@
          <trusted-key id="7615ad56144df2376f49d98b1669c4bb543e0445" group="com.google.errorprone"/>
          <trusted-key id="7616eb882daf57a11477aaf559a252fb1199d873" group="com.google.code.findbugs" name="jsr305" version="3.0.2"/>
          <trusted-key id="767abe5902dc1603c4b2468a3b42b015e1c86d65" group="org.anarres.jdiagnostics" name="jdiagnostics" version="1.0.7"/>
-         <trusted-key id="76e94e8ff0ab5af3b6f8366972fefd1572eb75e1" group="org.spockframework" name="spock-core" version="2.1-groovy-3.0"/>
+         <trusted-key id="76e94e8ff0ab5af3b6f8366972fefd1572eb75e1">
+            <trusting group="org.spockframework" name="spock-core" version="2.1-groovy-3.0"/>
+            <trusting group="org.spockframework" name="spock-core" version="2.3-groovy-4.0"/>
+         </trusted-key>
          <trusted-key id="78eaa88a4812b840741c127262e2e2578a60bda8" group="com.lexicalscope.jewelcli"/>
          <trusted-key id="79156e0351af8604de9b186b09a79e1e15a04694" group="org.vafer" name="jdependency" version="2.7.0"/>
          <trusted-key id="79eb1eae95f376ab9629429de2d0f3764b54797f" group="pl.allegro.tech.build" name="axion-release-plugin" version="1.13.6"/>
