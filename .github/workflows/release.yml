@@ -34,16 +34,17 @@ jobs:
           RUNDECK_SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           RUNDECK_SIGNING_KEYID: signing@rundeck.com
       - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          fail_on_unmatched_files: true
-          files: |
-            rd-cli-tool/build/distributions/rd-*.zip
-            rd-cli-tool/build/distributions/rundeck-cli-*-1.noarch.rpm
-            rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb
-            rd-cli-tool/build/libs/rundeck-cli-*-all.jar
-            rd-api-client/build/libs/rd-api-client-*.jar
-            rd-cli-lib/build/libs/rd-cli-lib-*.jar
+        run: |
+          gh release create \
+            --generate-notes \
+            --title '${{ github.ref_name }}' \
+            ${{ github.ref_name }} \
+            ./rd-cli-tool/build/distributions/rd-*.zip \
+            ./rd-cli-tool/build/distributions/rundeck-cli-*-1.noarch.rpm \
+            ./rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb \
+            ./rd-cli-tool/build/libs/rundeck-cli-*-all.jar \
+            ./rd-api-client/build/libs/rd-api-client-*.jar \
+            ./rd-cli-lib/build/libs/rd-cli-lib-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Publish to Maven Central
