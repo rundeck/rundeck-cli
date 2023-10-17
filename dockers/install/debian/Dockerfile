@@ -1,4 +1,4 @@
-ARG VERS=16.04
+ARG VERS=20.04
 FROM ubuntu:${VERS}
 ARG JDK=openjdk-8-jdk
 RUN apt-get update
