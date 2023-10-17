@@ -3,7 +3,6 @@ FROM ubuntu:${VERS}
 ARG JDK=openjdk-8-jdk
 RUN apt-get update
 RUN apt-get install -y software-properties-common
-RUN add-apt-repository -y ppa:openjdk-r/ppa
 RUN apt-get update
 RUN apt-get install -y ${JDK}
 RUN mkdir /root/.rd/
