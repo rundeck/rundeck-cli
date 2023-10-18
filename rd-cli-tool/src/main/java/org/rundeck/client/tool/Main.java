@@ -367,13 +367,15 @@ public class Main {
 
         public boolean isAnsiEnabled() {
             String term = getString("TERM", null);
-            String rd_color = getString("RD_COLOR", null);
-            return "1".equals(rd_color) ||
-                   (
-                           term != null
-                           && term.contains("color")
-                           && !"0".equals(rd_color)
-                   );
+            String rdColor = getString("RD_COLOR", null);
+
+            String noColor = getString("NO_COLOR", null); // https://no-color.org/
+            boolean noColorFlag = noColor != null && !noColor.isEmpty();
+
+            boolean autoEnabled = term != null && term.contains("color");
+            boolean enabled = "1".equals(rdColor);
+            boolean disabled = "0".equals(rdColor) || noColorFlag;
+            return enabled || (autoEnabled && !disabled);
         }
 
         @Override
