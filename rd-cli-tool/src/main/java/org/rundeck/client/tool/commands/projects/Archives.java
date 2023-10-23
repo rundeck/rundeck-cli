@@ -25,6 +25,7 @@ import org.rundeck.client.api.model.ProjectExportStatus;
 import org.rundeck.client.api.model.ProjectImportStatus;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.Main;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.extension.BaseCommand;
 import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
@@ -95,6 +96,9 @@ public class Archives extends BaseCommand  {
         @CommandLine.Option(names = {"-n", "--include-node-sources"}, description = "Include node resources in import, default: false (api v38 required)")
         boolean includeNodeSources;
 
+        @CommandLine.Option(names = {"-i", "--async-import-enabled"}, description = "Enables asynchronous import process for the uploaded project file.")
+        boolean asyncImportEnabled;
+
         @CommandLine.Option(
                 names = {"--strict"},
                 description = "Return non-zero exit status if any imported item had an error. Default: only job " +
@@ -156,12 +160,23 @@ public class Archives extends BaseCommand  {
                 opts.isWhkRegenAuthTokens(),
                 opts.isWhkRegenUuid(),
                 opts.isIncludeNodeSources(),
+                opts.isAsyncImportEnabled(),
                 extraCompOpts,
                 body
         ));
         boolean anyerror = false;
         if (status.getResultSuccess()) {
-            getRdOutput().info("Jobs imported successfully");
+            if( opts.isAsyncImportEnabled() ){
+
+                String RD_URL =  "<RD_URL>";
+                String projectPlaceholder = "<project>";
+                String apiVersionPlaceholder = "<api_version>";
+
+                getRdOutput().info("Asynchronous import operation started, please check status endpoint for more info.");
+                getRdOutput().info("Users could check import status through endpoint: " + RD_URL + "/api/" + apiVersionPlaceholder + "/project/" + projectPlaceholder + "/async/import-status");
+            }else{
+                getRdOutput().info("Jobs imported successfully");
+            }
         } else {
             anyerror = true;
             if (null != status.errors && status.errors.size() > 0) {

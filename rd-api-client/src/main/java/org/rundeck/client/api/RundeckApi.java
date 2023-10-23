@@ -389,6 +389,7 @@ public interface RundeckApi {
             @Query("importWebhooks") Boolean importWebhooks,
             @Query("whkRegenAuthTokens") Boolean whkRegenAuthTokens,
             @Query("importNodesSources") Boolean importNodesSources,
+            @Query("asyncImport") Boolean asyncImport,
             @Body RequestBody body
     );
 
@@ -412,6 +413,7 @@ public interface RundeckApi {
             @Query("whkRegenAuthTokens") Boolean whkRegenAuthTokens,
             @Query("whkRegenUuid") Boolean whkRegenUuid,
             @Query("importNodesSources") Boolean importNodesSources,
+            @Query("asyncImport") Boolean asyncImport,
             @QueryMap Map<String,String> params,
             @Body RequestBody body
     );
