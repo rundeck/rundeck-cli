@@ -78,6 +78,7 @@
          <trusted-key id="43c79b4bbd131821e17d2ca77b2f0491728b8e02" group="net.i2p.crypto" name="eddsa" version="0.3.0"/>
          <trusted-key id="475f3b8e59e6e63aa78067482c7b12f2a511e325" group="org.slf4j"/>
          <trusted-key id="485e371cb07eabe6d5778d4b0c27e8fac93b3b19" group="com.sun.mail"/>
+         <trusted-key id="48b086a7d843cfa258e83286928fbf39003c0425" group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
          <trusted-key id="4a720fe790b07a68744e371675bf031b7c94e183" group="net.java.dev.jna"/>
          <trusted-key id="4db1a49729b053caf015cee9a6adfc93ef34893e" group="org.hamcrest"/>
          <trusted-key id="4f5277bf72a045dad4ae36dd9440c8d6decafa12" group="org.testng" name="testng" version="6.13.1"/>
@@ -121,6 +122,7 @@
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.13.6"/>
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
          </trusted-key>
+         <trusted-key id="7b121b76a7ed6ce6e60ad51784e913a8e3a748c0" group="org.bouncycastle"/>
          <trusted-key id="7c669810892cbd3148fa92995b05ccde140c2876" group="org.eclipse.jgit"/>
          <trusted-key id="7cd52b5a8295137c88fb5748dddafa7674e54418" group="org.testng" name="testng" version="7.5"/>
          <trusted-key id="81d3eb0408b4e1eb10af443ba4f4c886b29bc2f4" group="org.apache.lucene"/>
@@ -134,6 +136,7 @@
          <trusted-key id="8da70c00df7af1b0d2f9dc74ddbcc1270a29d081" group="org.apache.ant"/>
          <trusted-key id="906e5e684729c006267ddd4b105de36038d8c6c5" group="org.codehaus.plexus" name="plexus-utils" version="3.0.24"/>
          <trusted-key id="90ee19787a7bcf6fd37a1e9180c08b1c29100955" group="com.squareup.retrofit2"/>
+         <trusted-key id="9545c9779f2820267c1419f3d1d32028e5d5a125" group="org.rundeck"/>
          <trusted-key id="9d0a56aaa0d60e0c0c7dccc0b4c70893b62babe8" group="^org[.]apache[.]logging($|([.].*))" regex="true"/>
          <trusted-key id="a0e410b1d7a3c0856a15f40845631c4221627a1e" group="org.redline-rpm" name="redline" version="1.2.10"/>
          <trusted-key id="a22931805bea371c4b607cd9ccc16740c5666d5a" group="com.github.spullara.mustache.java"/>
