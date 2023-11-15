@@ -41,7 +41,8 @@ public class JobFileOptions {
 
     public enum Format {
         xml,
-        yaml
+        yaml,
+        json
     }
 
 }

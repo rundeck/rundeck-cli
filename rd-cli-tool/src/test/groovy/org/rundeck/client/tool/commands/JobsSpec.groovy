@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool.commands
 
+import okhttp3.RequestBody
 import org.rundeck.client.api.model.BulkToggleJobExecutionResponse
 import org.rundeck.client.api.model.BulkToggleJobScheduleResponse
 import org.rundeck.client.api.model.DeleteJob
@@ -400,7 +401,7 @@ class JobsSpec extends Specification {
     def "job load success"() {
         given:
         def opts = new JobFileOptions()
-        opts.format= JobFileOptions.Format.yaml
+        opts.format= format
         opts.file=tempFile
 
 
@@ -415,13 +416,21 @@ class JobsSpec extends Specification {
         def result = command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption())
 
         then:
-        1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+        1 * api.loadJobs('ProjectName', { RequestBody body->
+            body.contentType()==expectedType
+        }, format.toString(), _, _) >>
                 Calls.response(new ImportResult(succeeded: [new JobLoadItem( id:'jobid',name: 'Job Name')], skipped: [], failed: []))
         0 * api._(*_)
         1 * out.info('1 Jobs Succeeded:\n')
         1 * out.output(['jobid Job Name'])
         0 * out._(*_)
         result == 0
+
+        where:
+            format                     | expectedType
+            JobFileOptions.Format.yaml | Client.MEDIA_TYPE_YAML
+            JobFileOptions.Format.xml  | Client.MEDIA_TYPE_XML
+            JobFileOptions.Format.json | Client.MEDIA_TYPE_JSON
 
     }
 

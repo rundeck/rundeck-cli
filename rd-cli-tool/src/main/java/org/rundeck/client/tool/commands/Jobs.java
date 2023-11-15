@@ -18,6 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import lombok.Getter;
 import lombok.Setter;
+import okhttp3.MediaType;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
@@ -157,7 +158,7 @@ public class Jobs extends BaseCommand {
         return 0;
     }
 
-    @CommandLine.Command(description = "Load Job definitions from a file in XML or YAML format.")
+    @CommandLine.Command(description = "Load Job definitions from a file in XML, YAML or JSON format.")
     public int load(
             @CommandLine.Mixin JobLoadOptions options,
             @CommandLine.Mixin JobFileOptions fileOptions,
@@ -171,10 +172,15 @@ public class Jobs extends BaseCommand {
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
-
+        MediaType mediaType = Client.MEDIA_TYPE_XML;
+        if (fileOptions.getFormat() == JobFileOptions.Format.yaml) {
+            mediaType = Client.MEDIA_TYPE_YAML;
+        } else if (fileOptions.getFormat() == JobFileOptions.Format.json) {
+            mediaType = Client.MEDIA_TYPE_JSON;
+        }
         RequestBody requestBody = RequestBody.create(
                 input,
-                fileOptions.getFormat() == JobFileOptions.Format.xml ? Client.MEDIA_TYPE_XML : Client.MEDIA_TYPE_YAML
+                mediaType
         );
 
         String project = getRdTool().projectOrEnv(projectNameOptions);
