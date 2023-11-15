@@ -244,9 +244,27 @@ public class Jobs extends BaseCommand {
                 ));
             }
             try (ResponseBody body = body1) {
-                if ((jobFileOptions.getFormat() != JobFileOptions.Format.yaml ||
-                        !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
-                        !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
+                if ((
+                            jobFileOptions.getFormat() == JobFileOptions.Format.yaml
+                            && !ServiceClient.hasAnyMediaType(
+                                    body.contentType(),
+                                    Client.MEDIA_TYPE_YAML,
+                                    Client.MEDIA_TYPE_TEXT_YAML
+                            )
+                    ) || (
+                            jobFileOptions.getFormat() == JobFileOptions.Format.json
+                            && !ServiceClient.hasAnyMediaType(
+                                    body.contentType(),
+                                    Client.MEDIA_TYPE_JSON
+                            )
+                    ) || (
+                            jobFileOptions.getFormat() == JobFileOptions.Format.xml
+                            && !ServiceClient.hasAnyMediaType(
+                                    body.contentType(),
+                                    Client.MEDIA_TYPE_XML,
+                                    Client.MEDIA_TYPE_TEXT_XML
+                            )
+                    )) {
 
                     throw new IllegalStateException("Unexpected response format: " + body.contentType());
                 }

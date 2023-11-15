@@ -149,6 +149,84 @@ class JobsSpec extends Specification {
         null | null  | 'a'      | 'b/c'
     }
 
+    def "job list write to file with format #format"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobListOptions()
+        opts.project = 'ProjectName'
+        opts.setJob(job)
+        opts.setGroup(group)
+
+
+
+        def fileOptions = new JobFileOptions(
+                format: format,
+                file: tempFile
+        )
+        when:
+        command.list(new JobOutputFormatOption(), fileOptions, opts)
+
+        then:
+        1 * api.exportJobs('ProjectName', job, group, null, null, format.toString()) >>
+                Calls.response(ResponseBody.create( 'abc',MediaType.parse(contentType)))
+        0 * api._(*_)
+        tempFile.exists()
+        tempFile.text == 'abc'
+
+        where:
+            job = 'a'
+            group = 'b/c'
+            format | contentType
+            JobFileOptions.Format.xml | 'application/xml'
+            JobFileOptions.Format.xml | 'text/xml'
+            JobFileOptions.Format.json | 'application/json'
+            JobFileOptions.Format.yaml | 'application/yaml'
+            JobFileOptions.Format.yaml | 'text/yaml'
+    }
+    def "job list write to file with incorrect response format causes error #format"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobListOptions()
+        opts.project = 'ProjectName'
+        opts.setJob(job)
+        opts.setGroup(group)
+
+
+
+        def fileOptions = new JobFileOptions(
+                format: format,
+                file: tempFile
+        )
+        when:
+        command.list(new JobOutputFormatOption(), fileOptions, opts)
+
+        then:
+        1 * api.exportJobs('ProjectName', job, group, null, null, format.toString()) >>
+                Calls.response(ResponseBody.create( 'abc',MediaType.parse(contentType)))
+        0 * api._(*_)
+        IllegalStateException e = thrown()
+
+        where:
+            job = 'a'
+            group = 'b/c'
+            format | contentType
+            JobFileOptions.Format.xml | 'application/yaml'
+            JobFileOptions.Format.json | 'application/xml'
+            JobFileOptions.Format.yaml | 'text/json'
+    }
+
     @Unroll
     def "jobs #action behavior"() {
         given:
