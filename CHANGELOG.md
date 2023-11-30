@@ -1,3 +1,7 @@
+## Unreleased
+
+* Fix: rd acl validate fails #541
+
 ## 2.0.7
 
 * Remove use of XML in API calls (deprecated in Rundeck 4.x)
