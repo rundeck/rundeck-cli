@@ -185,7 +185,6 @@ public class Jobs extends BaseCommand {
         ImportResult importResult = getRdTool().apiCall(api -> api.loadJobs(
                 project,
                 requestBody,
-                fileOptions.getFormat().toString(),
                 options.getDuplicate().toString(),
                 options.isRemoveUuids() ? UUID_REMOVE : UUID_PRESERVE
         ));
