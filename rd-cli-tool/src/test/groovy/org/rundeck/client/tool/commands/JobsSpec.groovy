@@ -463,7 +463,7 @@ class JobsSpec extends Specification {
         def result = command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption())
 
         then:
-        1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+        1 * api.loadJobs('ProjectName', _, _, _) >>
                 Calls.response(new ImportResult(succeeded: [], skipped: [], failed: [
                         new JobLoadItem(error: 'Test Error', name: 'Job Name')
                 ]
@@ -496,7 +496,7 @@ class JobsSpec extends Specification {
         then:
         1 * api.loadJobs('ProjectName', { RequestBody body->
             body.contentType()==expectedType
-        }, format.toString(), _, _) >>
+        }, _, _) >>
                 Calls.response(new ImportResult(succeeded: [new JobLoadItem( id:'jobid',name: 'Job Name')], skipped: [], failed: []))
         0 * api._(*_)
         1 * out.info('1 Jobs Succeeded:\n')
@@ -529,7 +529,7 @@ class JobsSpec extends Specification {
             def result = command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption(verbose: true))
 
         then:
-            1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+            1 * api.loadJobs('ProjectName', _, _, _) >>
             Calls.response(new ImportResult(succeeded: [], skipped: [], failed: [resultItem]))
             0 * api._(*_)
             1 * out.info('1 Jobs Failed:\n')
