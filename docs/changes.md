@@ -4,6 +4,16 @@ title: Change Log
 permalink: /changes/
 ---
 
+## 2.0.8
+
+* Fix: rd acl validate fails [Issue #541](https://github.com/rundeck/rundeck-cli/issues/541)
+* fix [Issue #538](https://github.com/rundeck/rundeck-cli/issues/538) format parameter overrides content type
+* log: support json format for `rd jobs list`
+* log: Add json option for `rd jobs load`
+* Fix: rd.conf not working
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.7...v2.0.8)
+
 ## 2.0.7
 
 * Remove use of XML in API calls (deprecated in Rundeck 4.x)
