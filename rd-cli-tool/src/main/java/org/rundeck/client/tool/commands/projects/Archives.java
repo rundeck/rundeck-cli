@@ -89,6 +89,9 @@ public class Archives extends BaseCommand  {
         @CommandLine.Option(names = {"-t", "--regenerate-tokens"}, description = "regenerate the auth tokens associated with the webhook in import, default: false (api v34 required)")
         boolean whkRegenAuthTokens;
 
+        @CommandLine.Option(names = {"-R", "--remove-webhooks-uuids"}, description = "Remove Webhooks UUIDs in import. Default: preserve webhooks UUIDs. (api v34 required)")
+        boolean whkRegenUuid;
+
         @CommandLine.Option(names = {"-n", "--include-node-sources"}, description = "Include node resources in import, default: false (api v38 required)")
         boolean includeNodeSources;
 
@@ -122,6 +125,9 @@ public class Archives extends BaseCommand  {
         if ((opts.isIncludeWebhooks() || opts.isWhkRegenAuthTokens()) && getRdTool().getClient().getApiVersion() < 34) {
             throw new InputError(String.format("Cannot use --include-webhooks or --regenerate-tokens with API < 34 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
+        if ((opts.isIncludeWebhooks() || opts.isWhkRegenUuid()) && getRdTool().getClient().getApiVersion() < 34) {
+            throw new InputError(String.format("Cannot use --include-webhooks or --remove-webhooks-uuids with API < 34 (currently: %s)", getRdTool().getClient().getApiVersion()));
+        }
         if ((opts.isIncludeNodeSources()) && getRdTool().getClient().getApiVersion() < 38) {
             throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
@@ -148,6 +154,7 @@ public class Archives extends BaseCommand  {
                 opts.isIncludeScm(),
                 opts.isIncludeWebhooks(),
                 opts.isWhkRegenAuthTokens(),
+                opts.isWhkRegenUuid(),
                 opts.isIncludeNodeSources(),
                 extraCompOpts,
                 body
