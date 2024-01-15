@@ -18,7 +18,7 @@ package org.rundeck.client.tool.commands;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.rundeck.client.tool.CommandOutput;
+import okhttp3.MediaType;
 import org.rundeck.client.tool.extension.BaseCommand;
 import picocli.CommandLine;
 import org.rundeck.client.api.model.scheduler.ForecastJobItem;
@@ -41,7 +41,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiFunction;
@@ -157,7 +156,7 @@ public class Jobs extends BaseCommand {
         return 0;
     }
 
-    @CommandLine.Command(description = "Load Job definitions from a file in XML or YAML format.")
+    @CommandLine.Command(description = "Load Job definitions from a file in XML, YAML or JSON format.")
     public int load(
             @CommandLine.Mixin JobLoadOptions options,
             @CommandLine.Mixin JobFileOptions fileOptions,
@@ -171,26 +170,30 @@ public class Jobs extends BaseCommand {
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
-
+        MediaType mediaType = Client.MEDIA_TYPE_XML;
+        if (fileOptions.getFormat() == JobFileOptions.Format.yaml) {
+            mediaType = Client.MEDIA_TYPE_YAML;
+        } else if (fileOptions.getFormat() == JobFileOptions.Format.json) {
+            mediaType = Client.MEDIA_TYPE_JSON;
+        }
         RequestBody requestBody = RequestBody.create(
                 input,
-                fileOptions.getFormat() == JobFileOptions.Format.xml ? Client.MEDIA_TYPE_XML : Client.MEDIA_TYPE_YAML
+                mediaType
         );
 
         String project = getRdTool().projectOrEnv(projectNameOptions);
         ImportResult importResult = getRdTool().apiCall(api -> api.loadJobs(
                 project,
                 requestBody,
-                fileOptions.getFormat().toString(),
                 options.getDuplicate().toString(),
                 options.isRemoveUuids() ? UUID_REMOVE : UUID_PRESERVE
         ));
 
         List<JobLoadItem> failed = importResult.getFailed();
 
-        printLoadResult(importResult.getSucceeded(), "Succeeded", getRdOutput(), verboseOption.isVerbose());
-        printLoadResult(importResult.getSkipped(), "Skipped", getRdOutput(), verboseOption.isVerbose());
-        printLoadResult(failed, "Failed", getRdOutput(), verboseOption.isVerbose());
+        printLoadResult(importResult.getSucceeded(), "Succeeded", verboseOption.isVerbose());
+        printLoadResult(importResult.getSkipped(), "Skipped", verboseOption.isVerbose());
+        printLoadResult(failed, "Failed", verboseOption.isVerbose());
 
         return (failed == null || failed.isEmpty()) ? 0 : 1;
     }
@@ -198,7 +201,7 @@ public class Jobs extends BaseCommand {
     private void printLoadResult(
             final List<JobLoadItem> list,
             final String title,
-            CommandOutput output, final boolean isVerbose
+            final boolean isVerbose
     ) {
         if (null != list && !list.isEmpty()) {
             getRdOutput().info(String.format("%d Jobs %s:%n", list.size(), title));
@@ -240,9 +243,27 @@ public class Jobs extends BaseCommand {
                 ));
             }
             try (ResponseBody body = body1) {
-                if ((jobFileOptions.getFormat() != JobFileOptions.Format.yaml ||
-                        !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_YAML, Client.MEDIA_TYPE_TEXT_YAML)) &&
-                        !ServiceClient.hasAnyMediaType(body.contentType(), Client.MEDIA_TYPE_XML, Client.MEDIA_TYPE_TEXT_XML)) {
+                if ((
+                            jobFileOptions.getFormat() == JobFileOptions.Format.yaml
+                            && !ServiceClient.hasAnyMediaType(
+                                    body.contentType(),
+                                    Client.MEDIA_TYPE_YAML,
+                                    Client.MEDIA_TYPE_TEXT_YAML
+                            )
+                    ) || (
+                            jobFileOptions.getFormat() == JobFileOptions.Format.json
+                            && !ServiceClient.hasAnyMediaType(
+                                    body.contentType(),
+                                    Client.MEDIA_TYPE_JSON
+                            )
+                    ) || (
+                            jobFileOptions.getFormat() == JobFileOptions.Format.xml
+                            && !ServiceClient.hasAnyMediaType(
+                                    body.contentType(),
+                                    Client.MEDIA_TYPE_XML,
+                                    Client.MEDIA_TYPE_TEXT_XML
+                            )
+                    )) {
 
                     throw new IllegalStateException("Unexpected response format: " + body.contentType());
                 }
@@ -386,7 +407,7 @@ public class Jobs extends BaseCommand {
         int i = job.lastIndexOf('/');
         String group = job.substring(0, i);
         String name = job.substring(i + 1);
-        if ("".equals(group.trim())) {
+        if (group.trim().isEmpty()) {
             group = null;
         }
         return new String[]{group, name};

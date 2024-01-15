@@ -16,6 +16,7 @@
 
 package org.rundeck.client.tool.commands
 
+import okhttp3.RequestBody
 import org.rundeck.client.api.model.BulkToggleJobExecutionResponse
 import org.rundeck.client.api.model.BulkToggleJobScheduleResponse
 import org.rundeck.client.api.model.DeleteJob
@@ -146,6 +147,84 @@ class JobsSpec extends Specification {
         job  | group | jobexact | groupexact
         'a'  | 'b/c' | null     | null
         null | null  | 'a'      | 'b/c'
+    }
+
+    def "job list write to file with format #format"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobListOptions()
+        opts.project = 'ProjectName'
+        opts.setJob(job)
+        opts.setGroup(group)
+
+
+
+        def fileOptions = new JobFileOptions(
+                format: format,
+                file: tempFile
+        )
+        when:
+        command.list(new JobOutputFormatOption(), fileOptions, opts)
+
+        then:
+        1 * api.exportJobs('ProjectName', job, group, null, null, format.toString()) >>
+                Calls.response(ResponseBody.create( 'abc',MediaType.parse(contentType)))
+        0 * api._(*_)
+        tempFile.exists()
+        tempFile.text == 'abc'
+
+        where:
+            job = 'a'
+            group = 'b/c'
+            format | contentType
+            JobFileOptions.Format.xml | 'application/xml'
+            JobFileOptions.Format.xml | 'text/xml'
+            JobFileOptions.Format.json | 'application/json'
+            JobFileOptions.Format.yaml | 'application/yaml'
+            JobFileOptions.Format.yaml | 'text/yaml'
+    }
+    def "job list write to file with incorrect response format causes error #format"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api)
+        def out = Mock(CommandOutput)
+        Jobs command = new Jobs()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        def opts = new JobListOptions()
+        opts.project = 'ProjectName'
+        opts.setJob(job)
+        opts.setGroup(group)
+
+
+
+        def fileOptions = new JobFileOptions(
+                format: format,
+                file: tempFile
+        )
+        when:
+        command.list(new JobOutputFormatOption(), fileOptions, opts)
+
+        then:
+        1 * api.exportJobs('ProjectName', job, group, null, null, format.toString()) >>
+                Calls.response(ResponseBody.create( 'abc',MediaType.parse(contentType)))
+        0 * api._(*_)
+        IllegalStateException e = thrown()
+
+        where:
+            job = 'a'
+            group = 'b/c'
+            format | contentType
+            JobFileOptions.Format.xml | 'application/yaml'
+            JobFileOptions.Format.json | 'application/xml'
+            JobFileOptions.Format.yaml | 'text/json'
     }
 
     @Unroll
@@ -384,7 +463,7 @@ class JobsSpec extends Specification {
         def result = command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption())
 
         then:
-        1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+        1 * api.loadJobs('ProjectName', _, _, _) >>
                 Calls.response(new ImportResult(succeeded: [], skipped: [], failed: [
                         new JobLoadItem(error: 'Test Error', name: 'Job Name')
                 ]
@@ -400,7 +479,7 @@ class JobsSpec extends Specification {
     def "job load success"() {
         given:
         def opts = new JobFileOptions()
-        opts.format= JobFileOptions.Format.yaml
+        opts.format= format
         opts.file=tempFile
 
 
@@ -415,13 +494,21 @@ class JobsSpec extends Specification {
         def result = command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption())
 
         then:
-        1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+        1 * api.loadJobs('ProjectName', { RequestBody body->
+            body.contentType()==expectedType
+        }, _, _) >>
                 Calls.response(new ImportResult(succeeded: [new JobLoadItem( id:'jobid',name: 'Job Name')], skipped: [], failed: []))
         0 * api._(*_)
         1 * out.info('1 Jobs Succeeded:\n')
         1 * out.output(['jobid Job Name'])
         0 * out._(*_)
         result == 0
+
+        where:
+            format                     | expectedType
+            JobFileOptions.Format.yaml | Client.MEDIA_TYPE_YAML
+            JobFileOptions.Format.xml  | Client.MEDIA_TYPE_XML
+            JobFileOptions.Format.json | Client.MEDIA_TYPE_JSON
 
     }
 
@@ -442,7 +529,7 @@ class JobsSpec extends Specification {
             def result = command.load(new JobLoadOptions(), opts,new ProjectNameOptions(project:'ProjectName'),new VerboseOption(verbose: true))
 
         then:
-            1 * api.loadJobs('ProjectName', _, 'yaml', _, _) >>
+            1 * api.loadJobs('ProjectName', _, _, _) >>
             Calls.response(new ImportResult(succeeded: [], skipped: [], failed: [resultItem]))
             0 * api._(*_)
             1 * out.info('1 Jobs Failed:\n')

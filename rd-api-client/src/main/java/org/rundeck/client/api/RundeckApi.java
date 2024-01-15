@@ -211,7 +211,6 @@ public interface RundeckApi {
     Call<ImportResult> loadJobs(
             @Path("project") String project,
             @Body RequestBody body,
-            @Query("format") String format,
             @Query("dupeOption") String duplicate,
             @Query("uuidOption") String uuids
     );
