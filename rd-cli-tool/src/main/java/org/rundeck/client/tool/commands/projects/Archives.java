@@ -16,11 +16,15 @@
 
 package org.rundeck.client.tool.commands.projects;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.JSONPObject;
 import lombok.Setter;
 import lombok.Getter;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.api.model.AsyncProjectImportStatus;
 import org.rundeck.client.api.model.ProjectExportStatus;
 import org.rundeck.client.api.model.ProjectImportStatus;
 import org.rundeck.client.tool.CommandOutput;
@@ -28,6 +32,7 @@ import org.rundeck.client.tool.InputError;
 import org.rundeck.client.tool.Main;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
@@ -115,6 +120,18 @@ public class Archives extends BaseCommand  {
                 description = "Set options for enabled components, in the form name.key=value")
         Map<String, String> componentOptions;
 
+    }
+
+    @CommandLine.Command(description = "Get the status of an ongoing asynchronous import process.", name = "async-import-status")
+    public void asyncImportStatus(@CommandLine.Mixin ProjectNameOptions projectNameOptions) throws InputError, IOException {
+        String project = getRdTool().projectOrEnv(projectNameOptions);
+        AsyncProjectImportStatus status = apiCall(api -> api.asyncImportProjectArchiveStatus(project));
+        if( status != null ){
+            final ObjectMapper mapper = new ObjectMapper();
+                mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            String outputString = mapper.writeValueAsString(status);
+            getRdOutput().info(outputString);
+        }
     }
 
     @CommandLine.Command(description = "Import a project archive", name = "import")

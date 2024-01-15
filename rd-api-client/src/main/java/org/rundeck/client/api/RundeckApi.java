@@ -419,6 +419,12 @@ public interface RundeckApi {
     );
 
     @Headers("Accept: application/json")
+    @GET("project/{project}/import/status")
+    Call<AsyncProjectImportStatus> asyncImportProjectArchiveStatus(
+            @Path("project") String project
+    );
+
+    @Headers("Accept: application/json")
     @GET("project/{project}/executions/running")
     Call<ExecutionList> runningExecutions(
             @Path("project") String project,

@@ -3,10 +3,12 @@ package org.rundeck.client.tool.commands.projects
 import groovy.transform.CompileStatic
 import okhttp3.ResponseBody
 import org.rundeck.client.api.RundeckApi
+import org.rundeck.client.api.model.AsyncProjectImportStatus
 import org.rundeck.client.api.model.ProjectImportStatus
 import org.rundeck.client.tool.CommandOutput
 import org.rundeck.client.tool.RdApp
 import org.rundeck.client.tool.commands.RdToolImpl
+import org.rundeck.client.tool.options.ProjectNameOptions
 import org.rundeck.client.tool.options.ProjectRequiredNameOptions
 import org.rundeck.client.util.Client
 import org.rundeck.client.util.RdClientConfig
@@ -61,6 +63,7 @@ class ArchivesSpec extends Specification {
         then:
         1 * api.importProjectArchive(
                 'Aproj',
+                _,
                 _,
                 _,
                 _,
@@ -131,6 +134,35 @@ class ArchivesSpec extends Specification {
         result == 0
     }
 
+    def "status endpoint for async import"(){
+        given:
+        def api = Mock(RundeckApi)
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 40, true, null)
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new RdToolImpl(rdapp)
+        def sut = new Archives()
+        sut.rdOutput = out
+        sut.rdTool = rdTool
+        def project = new ProjectNameOptions().with {
+            project = "test"
+            return it
+        }
+
+        when:
+        sut.asyncImportStatus(project)
+
+        then:
+        1 * api.asyncImportProjectArchiveStatus(project.project) >> Calls.response(new AsyncProjectImportStatus())
+        0 * api._(*_)
+    }
+
     def "import some failure has correct exit code"() {
 
         def api = Mock(RundeckApi)
@@ -162,6 +194,7 @@ class ArchivesSpec extends Specification {
         then:
         1 * api.importProjectArchive(
                 'Aproj',
+                _,
                 _,
                 _,
                 _,
