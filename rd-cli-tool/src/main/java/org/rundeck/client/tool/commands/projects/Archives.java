@@ -18,7 +18,6 @@ package org.rundeck.client.tool.commands.projects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import lombok.Setter;
 import lombok.Getter;
 import okhttp3.RequestBody;
