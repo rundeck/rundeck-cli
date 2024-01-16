@@ -61,6 +61,7 @@ import static org.rundeck.client.RundeckClient.*;
         mixinStandardHelpOptions = true,
         subcommands = {
                 Adhoc.class,
+                Auth.class,
                 Jobs.class,
                 Projects.class,
                 Executions.class,
