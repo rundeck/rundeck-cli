@@ -607,9 +607,6 @@ public class Main {
     }
 
     static class ConsoleAuth implements Auth {
-        String username;
-        String pass;
-        String token;
         final String header;
         boolean echoHeader;
 
