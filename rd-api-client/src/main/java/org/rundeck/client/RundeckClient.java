@@ -183,6 +183,10 @@ public class RundeckClient {
             buildTokenAuth(okhttp, baseUrl, authToken);
             return this;
         }
+        public Builder<A> bearerTokenAuth(final String bearerToken) {
+            buildBearerAuth(okhttp, baseUrl, bearerToken);
+            return this;
+        }
 
         public Builder<A> passwordAuth(final String username, final String password) {
             buildFormAuth(baseUrl, username, password, okhttp);
@@ -227,6 +231,17 @@ public class RundeckClient {
             validateBaseUrl(baseUrl, parse);
             validateNotempty(authToken, "Token cannot be blank or null");
             builder.addInterceptor(new StaticHeaderInterceptor("X-Rundeck-Auth-Token", authToken));
+        }
+        private static void buildBearerAuth(
+                final OkHttpClient.Builder builder,
+                final String baseUrl,
+                final String bearerToken
+        )
+        {
+            HttpUrl parse = HttpUrl.parse(baseUrl);
+            validateBaseUrl(baseUrl, parse);
+            validateNotempty(bearerToken, "Token cannot be blank or null");
+            builder.addInterceptor(new StaticHeaderInterceptor("Authorization", "Bearer " + bearerToken));
         }
 
         private static void buildFormAuth(
@@ -400,6 +415,16 @@ public class RundeckClient {
     }
 
     /**
+     * @return new Builder configured with the baseUrl and bearer token authentication
+     */
+    public static Builder<RundeckApi> builderBearerToken(String baseUrl, String authToken) {
+        Builder<RundeckApi> rundeckApiBuilder = new Builder<>(RundeckApi.class);
+        rundeckApiBuilder.baseUrl(baseUrl);
+        rundeckApiBuilder.bearerTokenAuth(authToken);
+        return rundeckApiBuilder;
+    }
+
+    /**
      * @return new Builder configured with the baseUrl and password authentication
      */
     public static Builder<RundeckApi> builder(String baseUrl, String username, String password) {
@@ -414,6 +439,12 @@ public class RundeckClient {
      */
     public static Client<RundeckApi> with(String baseUrl, String authToken) {
         return builder(baseUrl,authToken).build();
+    }
+    /**
+     * @return new Client with given baseUrl and authToken
+     */
+    public static Client<RundeckApi> withBearerToken(String baseUrl, String authToken) {
+        return builderBearerToken(baseUrl, authToken).build();
     }
 
     /**

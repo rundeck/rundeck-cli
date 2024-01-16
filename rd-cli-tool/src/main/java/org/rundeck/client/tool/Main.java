@@ -81,6 +81,7 @@ public class Main {
     public static final String RD_USER = "RD_USER";
     public static final String RD_PASSWORD = "RD_PASSWORD";
     public static final String RD_TOKEN = "RD_TOKEN";
+    public static final String RD_AUTH = "RD_AUTH";
     public static final String RD_URL = "RD_URL";
     public static final String RD_API_VERSION = "RD_API_VERSION";
     public static final String RD_AUTH_PROMPT = "RD_AUTH_PROMPT";
@@ -506,10 +507,12 @@ public class Main {
 
         if (auth.isTokenAuth()) {
             builder.tokenAuth(auth.getToken());
+        } else if (auth.isSSOAuth()) {
+            builder.bearerTokenAuth(auth.getBearerToken());
         } else {
             if (null == auth.getUsername() || "".equals(auth.getUsername().trim())) {
                 throw new IllegalArgumentException("Username or token must be entered, or use environment variable " +
-                                                   RD_USER + " or " + RD_TOKEN);
+                                                   RD_USER + " or " + RD_TOKEN + " or "+RD_AUTH);
             }
             if (null == auth.getPassword() || "".equals(auth.getPassword().trim())) {
                 throw new IllegalArgumentException("Password must be entered, or use environment variable " +
@@ -525,8 +528,9 @@ public class Main {
 
     interface Auth {
         default boolean isConfigured() {
-            return null != getToken() || (
-                    null != getUsername() && null != getPassword()
+            return null != getToken() ||
+                    null != getBearerToken() ||
+                    (null != getUsername() && null != getPassword()
             );
         }
 
@@ -541,6 +545,9 @@ public class Main {
         default String getToken() {
             return null;
         }
+        default String getBearerToken() {
+            return null;
+        }
 
         default boolean isTokenAuth() {
             String username = getUsername();
@@ -549,6 +556,17 @@ public class Main {
             }
             String token = getToken();
             return null != token && !"".equals(token);
+        }
+        default boolean isSSOAuth() {
+            String username = getUsername();
+            if (null != username && !username.trim().isEmpty()) {
+                return false;
+            }
+            String token = getToken();
+            if(null != token && !token.isEmpty()){
+                return false;
+            }
+            return null != getBearerToken() && !"".equals(getBearerToken());
         }
 
         default Auth chain(Auth auth) {
@@ -581,6 +599,10 @@ public class Main {
         @Override
         public String getToken() {
             return config.get(RD_TOKEN);
+        }
+        @Override
+        public String getBearerToken() {
+            return config.get(RD_AUTH);
         }
     }
 
@@ -624,6 +646,12 @@ public class Main {
             char[] chars = System.console().readPassword("Enter auth token: ");
             return new String(chars);
         }
+        @Override
+        public String getBearerToken() {
+            echo();
+            char[] chars = System.console().readPassword("Enter Bearer token: ");
+            return new String(chars);
+        }
     }
 
     static class ChainAuth implements Auth {
@@ -656,6 +684,11 @@ public class Main {
         @Override
         public String getToken() {
             return findFirst(Auth::getToken);
+        }
+
+        @Override
+        public String getBearerToken() {
+            return findFirst(Auth::getBearerToken);
         }
     }
 
