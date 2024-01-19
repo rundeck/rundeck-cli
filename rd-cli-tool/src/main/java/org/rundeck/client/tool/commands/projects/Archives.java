@@ -16,17 +16,22 @@
 
 package org.rundeck.client.tool.commands.projects;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import lombok.Setter;
 import lombok.Getter;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import org.rundeck.client.api.RundeckApi;
+import org.rundeck.client.api.model.AsyncProjectImportStatus;
 import org.rundeck.client.api.model.ProjectExportStatus;
 import org.rundeck.client.api.model.ProjectImportStatus;
 import org.rundeck.client.tool.CommandOutput;
 import org.rundeck.client.tool.InputError;
+import org.rundeck.client.tool.Main;
 import org.rundeck.client.tool.ProjectInput;
 import org.rundeck.client.tool.extension.BaseCommand;
+import org.rundeck.client.tool.options.ProjectNameOptions;
 import org.rundeck.client.tool.options.ProjectRequiredNameOptions;
 import org.rundeck.client.util.Client;
 import org.rundeck.client.util.ServiceClient;
@@ -92,6 +97,9 @@ public class Archives extends BaseCommand  {
         @CommandLine.Option(names = {"-n", "--include-node-sources"}, description = "Include node resources in import, default: false (api v38 required)")
         boolean includeNodeSources;
 
+        @CommandLine.Option(names = {"-i", "--async-import-enabled"}, description = "Enables asynchronous import process for the uploaded project file.")
+        boolean asyncImportEnabled;
+
         @CommandLine.Option(
                 names = {"--strict"},
                 description = "Return non-zero exit status if any imported item had an error. Default: only job " +
@@ -111,6 +119,18 @@ public class Archives extends BaseCommand  {
                 description = "Set options for enabled components, in the form name.key=value")
         Map<String, String> componentOptions;
 
+    }
+
+    @CommandLine.Command(description = "Get the status of an ongoing asynchronous import process.", name = "async-import-status")
+    public void asyncImportStatus(@CommandLine.Mixin ProjectNameOptions projectNameOptions) throws InputError, IOException {
+        String project = getRdTool().projectOrEnv(projectNameOptions);
+        AsyncProjectImportStatus status = apiCall(api -> api.asyncImportProjectArchiveStatus(project));
+        if( status != null ){
+            final ObjectMapper mapper = new ObjectMapper();
+                mapper.enable(SerializationFeature.INDENT_OUTPUT);
+            String outputString = mapper.writeValueAsString(status);
+            getRdOutput().info(outputString);
+        }
     }
 
     @CommandLine.Command(description = "Import a project archive", name = "import")
@@ -149,12 +169,23 @@ public class Archives extends BaseCommand  {
                 opts.isIncludeWebhooks(),
                 opts.isWhkRegenAuthTokens(),
                 opts.isIncludeNodeSources(),
+                opts.isAsyncImportEnabled(),
                 extraCompOpts,
                 body
         ));
         boolean anyerror = false;
         if (status.getResultSuccess()) {
-            getRdOutput().info("Jobs imported successfully");
+            if( opts.isAsyncImportEnabled() ){
+
+                String RD_URL =  "<RD_URL>";
+                String projectPlaceholder = "<project>";
+                String apiVersionPlaceholder = "<api_version>";
+
+                getRdOutput().info("Asynchronous import operation started, please check status endpoint for more info.");
+                getRdOutput().info("Users could check import status through endpoint: " + RD_URL + "/api/" + apiVersionPlaceholder + "/project/" + projectPlaceholder + "/async/import-status");
+            }else{
+                getRdOutput().info("Jobs imported successfully");
+            }
         } else {
             anyerror = true;
             if (null != status.errors && status.errors.size() > 0) {
