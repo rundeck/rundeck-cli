@@ -71,7 +71,6 @@ class ArchivesSpec extends Specification {
                 _,
                 _,
                 _,
-                _,
                 [
                         'importComponents.test-comp': 'true',
                         'importOpts.test-comp.key'  : 'value',
@@ -194,7 +193,6 @@ class ArchivesSpec extends Specification {
         then:
         1 * api.importProjectArchive(
                 'Aproj',
-                _,
                 _,
                 _,
                 _,
