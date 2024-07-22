@@ -69,3 +69,17 @@ jobs:
             package_cloud push pagerduty/rundeckpro/rpm_any/rpm_any rd-cli-tool/build/distributions/rundeck-cli-*-1.noarch.rpm
         env:
           PACKAGECLOUD_TOKEN: ${{ secrets.PKGCLD_WRITE_TOKEN }}
+  update_homebrew:
+    runs-on: ubuntu-latest
+    needs: [publish]
+    steps:
+      - name: Update Homebrew Tap
+        run: |
+          curl -L \
+            -X POST \
+            --fail-with-body \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ secrets.HOMEBREW_PAT }}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            https://api.github.com/repos/rundeck/homebrew-rundeck-cli/actions/workflows/update.yml/dispatches \
+            -d '{"ref":"main","inputs":{}}'
