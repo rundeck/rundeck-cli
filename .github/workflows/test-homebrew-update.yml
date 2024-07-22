@@ -1,4 +1,4 @@
-name: Test package signing
+name: Test homebrew update
 
 on: workflow_dispatch
 
