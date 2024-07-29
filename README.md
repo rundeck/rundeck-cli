@@ -32,6 +32,13 @@ This is the official CLI tool for [Rundeck](https://github.com/rundeck/rundeck).
 
 For apt and yum repos, see [Install](https://docs.rundeck.com/docs/rd-cli/install.html)
 
+# Homebrew installation
+
+```
+brew tap rundeck/rundeck-cli
+brew install rundeck-cli
+```
+
 # Howto
 
 ## Build
