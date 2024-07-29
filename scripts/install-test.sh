@@ -45,13 +45,12 @@ build_deb_version() {
 
 build_rpm_version() {
   local TAG=$1
-  local VERS=$2
-  local JDK=$3
+  local JDK=$2
   local rpmfile
   rpmfile=$(ls rd-cli-tool/build/distributions/rundeck-cli-*.noarch.rpm)
 
   cp "$rpmfile" dockers/install/rpm/rundeck-cli-noarch.rpm
-  docker build --build-arg VERS="${VERS}" --build-arg JDK="${JDK}" dockers/install/rpm -t "${TAG}"
+  docker build --build-arg JDK="${JDK}" dockers/install/rpm -t "${TAG}"
 }
 
 run_all() {
@@ -69,7 +68,7 @@ main() {
     done
   done
   for JDK in $RPMJDK; do
-    build_rpm_version "$RPMTAG-$JDK" "$VERS" "$JDK"
+    build_rpm_version "$RPMTAG-$JDK" "$JDK"
     run_all "$RPMTAG-$JDK"
   done
 }
