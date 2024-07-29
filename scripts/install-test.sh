@@ -5,7 +5,6 @@ set -euo pipefail
 DEBTAG=rdcli-deb
 RPMTAG=rdcli-rpm
 UBUNTUVERS="18.04 20.04 22.04"
-CENTOSVERS="7"
 RPMJDK="java-1.8.0-openjdk java-11-openjdk"
 DEBJDK="openjdk-8-jdk openjdk-11-jdk"
 
@@ -46,13 +45,12 @@ build_deb_version() {
 
 build_rpm_version() {
   local TAG=$1
-  local VERS=$2
-  local JDK=$3
+  local JDK=$2
   local rpmfile
   rpmfile=$(ls rd-cli-tool/build/distributions/rundeck-cli-*.noarch.rpm)
 
   cp "$rpmfile" dockers/install/rpm/rundeck-cli-noarch.rpm
-  docker build --build-arg VERS="${VERS}" --build-arg JDK="${JDK}" dockers/install/rpm -t "${TAG}"
+  docker build --build-arg JDK="${JDK}" dockers/install/rpm -t "${TAG}"
 }
 
 run_all() {
@@ -70,10 +68,8 @@ main() {
     done
   done
   for JDK in $RPMJDK; do
-    for VERS in $CENTOSVERS; do
-      build_rpm_version "$RPMTAG$VERS-$JDK" "$VERS" "$JDK"
-      run_all "$RPMTAG$VERS-$JDK"
-    done
+    build_rpm_version "$RPMTAG-$JDK" "$JDK"
+    run_all "$RPMTAG-$JDK"
   done
 }
 

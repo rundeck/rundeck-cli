@@ -1,4 +1,4 @@
-FROM centos:8
+FROM redhat/ubi8
 
 VOLUME /data
 
