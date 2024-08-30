@@ -76,6 +76,7 @@
          <trusted-key id="37c5181bf2066135e771e6dcb263d126c8a7e813" group="com.vdurmont" name="semver4j" version="3.1.0"/>
          <trusted-key id="3909c28792327fad38100eaf04633a577c200941" group="org.vafer"/>
          <trusted-key id="43c79b4bbd131821e17d2ca77b2f0491728b8e02" group="net.i2p.crypto" name="eddsa" version="0.3.0"/>
+         <trusted-key id="44fbdbbc1a00fe414f1c1873586654072ead6677" group="org.sonatype.oss" name="oss-parent" version="9"/>
          <trusted-key id="475f3b8e59e6e63aa78067482c7b12f2a511e325" group="org.slf4j"/>
          <trusted-key id="485e371cb07eabe6d5778d4b0c27e8fac93b3b19" group="com.sun.mail"/>
          <trusted-key id="48b086a7d843cfa258e83286928fbf39003c0425" group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
