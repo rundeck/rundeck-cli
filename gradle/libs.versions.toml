@@ -38,7 +38,7 @@ okhttpMockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.r
 jaxb = { module = "com.sun.xml.bind:jaxb-impl", version.ref = "jaxb" }
 
 junit = { module = "junit:junit", version.ref = "junit" }
-groovy = { module = "org.codehaus.groovy:groovy-all", version.ref = "groovy" }
+groovy = { module = "org.apache.groovy:groovy-all", version.ref = "groovy" }
 spock = { module = "org.spockframework:spock-core", version.ref = "spock" }
 
 jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jacksonDatabind" }
