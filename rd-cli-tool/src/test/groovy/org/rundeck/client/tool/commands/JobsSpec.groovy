@@ -246,7 +246,7 @@ class JobsSpec extends Specification {
         then:
         1 * api.listJobs('ProjectName', job, null,null,null) >>
                 Calls.response([new JobItem(id: 'fakeid')])
-        1 * api.deleteJobsBulk({ it.ids == ['fakeid'] }) >> Calls.response(new DeleteJobsResult(allsuccessful: allsuccess, failed: allsuccess?[]:[new DeleteJob(id:'fakeid')]))
+        1 * api.deleteJobsBulk({ it.ids == ['fakeid'] }) >> Calls.response(new DeleteJobsResult(allsuccessful: allsuccess, failed: allsuccess ? [] : [new DeleteJob(id: 'fakeid')]))
         0 * api._(*_)
         result == exit
 
@@ -597,7 +597,7 @@ class JobsSpec extends Specification {
         then:
         1 * api.bulkEnableJobs(_) >> Calls.response(new BulkToggleJobExecutionResponse(
                 allsuccessful: issuccess,
-                failed: issuccess?[]:[new BulkToggleJobExecutionResponse.Result()]
+                failed: issuccess ? [] : [new BulkToggleJobExecutionResponse.Result()]
         ))
         0 * api._(*_)
         result == exit
@@ -625,7 +625,7 @@ class JobsSpec extends Specification {
         then:
         1 * api.bulkDisableJobs(_) >> Calls.response(new BulkToggleJobExecutionResponse(
                 allsuccessful: issuccess,
-                failed: issuccess?[]:[new BulkToggleJobExecutionResponse.Result()]
+                failed: issuccess ? [] : [new BulkToggleJobExecutionResponse.Result()]
         ))
         0 * api._(*_)
         result == exit
@@ -653,7 +653,7 @@ class JobsSpec extends Specification {
         then:
         1 * api.bulkEnableJobSchedule(_) >> Calls.response(new BulkToggleJobScheduleResponse(
                 allsuccessful: issuccess,
-                failed: issuccess?[]:[new BulkToggleJobScheduleResponse.Result()]
+                failed: issuccess ? [] : [new BulkToggleJobScheduleResponse.Result()]
         ))
         0 * api._(*_)
         result == exit
@@ -681,7 +681,7 @@ class JobsSpec extends Specification {
         then:
         1 * api.bulkDisableJobSchedule(_) >> Calls.response(new BulkToggleJobScheduleResponse(
                 allsuccessful: issuccess,
-                failed: issuccess?[]:[new BulkToggleJobScheduleResponse.Result()]
+                failed: issuccess ? [] : [new BulkToggleJobScheduleResponse.Result()]
         ))
         0 * api._(*_)
         result == exit
