@@ -82,6 +82,151 @@ class ArchivesSpec extends Specification {
         0 * api._(*_)
         result == 0
     }
+    def "import include via direct flags"() {
+
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 38, true, null)
+
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new RdToolImpl(rdapp)
+
+        def sut = new Archives()
+        sut.rdOutput = out
+        sut.rdTool = rdTool
+        def opts = new Archives.ArchiveImportOpts()
+        opts.components = ['test-comp'].toSet()
+        opts.componentOptions = ['test-comp.key': 'value']
+        opts.file = tempFile
+        opts.project = 'Aproj'
+
+        opts.noExecutions = !execs
+        opts.includeConfig = configs
+        opts.includeAcl = acls
+        opts.includeScm = scm
+        opts.includeWebhooks = webhooks
+        opts.includeNodeSources = nodes
+
+
+        when:
+        def result = sut.importArchive(opts)
+
+        then:
+        1 * api.importProjectArchive(
+                'Aproj',
+                _,
+                execs,
+                configs,
+                acls,
+                scm,
+                webhooks,
+                _,
+                _,
+                nodes,
+                _,
+                _,
+                _
+        ) >> Calls.response(new ProjectImportStatus(successful: true))
+        0 * api._(*_)
+        result == 0
+        where:
+        execs | configs | acls  | scm   | webhooks | nodes
+        false | false   | false | false | false    | false
+        false | false   | false | false | false    | true
+        false | false   | false | false | true     | false
+        false | false   | false | true  | false    | false
+        false | false   | true  | false | false    | false
+        false | true    | false | false | false    | false
+        true  | false   | false | false | false    | false
+        true  | true    | true  | true  | true     | true
+    }
+
+    def "import include via include includeFlags option"() {
+
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 38, true, null)
+
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new RdToolImpl(rdapp)
+
+        def sut = new Archives()
+        sut.rdOutput = out
+        sut.rdTool = rdTool
+        def opts = new Archives.ArchiveImportOpts()
+        opts.components = ['test-comp'].toSet()
+        opts.componentOptions = ['test-comp.key': 'value']
+        opts.file = tempFile
+        opts.project = 'Aproj'
+
+        Set<Archives.ImportFlags> importFlags = new HashSet<>()
+        if (execs) {
+            importFlags.add(Archives.ImportFlags.executions)
+        }
+        if (configs) {
+            importFlags.add(Archives.ImportFlags.config)
+        }
+        if (acls) {
+            importFlags.add(Archives.ImportFlags.acl)
+        }
+        if (scm) {
+            importFlags.add(Archives.ImportFlags.scm)
+        }
+        if (webhooks) {
+            importFlags.add(Archives.ImportFlags.webhooks)
+        }
+        if (nodes) {
+            importFlags.add(Archives.ImportFlags.nodeSources)
+        }
+        opts.setIncludeFlags(importFlags)
+
+
+        when:
+        def result = sut.importArchive(opts)
+
+        then:
+        1 * api.importProjectArchive(
+                'Aproj',
+                _,
+                expectExecs,
+                configs,
+                acls,
+                scm,
+                webhooks,
+                _,
+                _,
+                nodes,
+                _,
+                _,
+                _
+        ) >> Calls.response(new ProjectImportStatus(successful: true))
+        0 * api._(*_)
+        result == 0
+        where: "include flags determine request params, lack of any params still includes executions"
+        execs | expectExecs | configs | acls  | scm   | webhooks | nodes
+        false | true        | false   | false | false | false    | false
+        false | false       | false   | false | false | false    | true
+        false | false       | false   | false | false | true     | false
+        false | false       | false   | false | true  | false    | false
+        false | false       | false   | true  | false | false    | false
+        false | false       | true    | false | false | false    | false
+        true  | true        | false   | false | false | false    | false
+        true  | true        | true    | true  | true  | true     | true
+    }
 
     def "successful with async import enabled"() {
 
