@@ -122,6 +122,54 @@ public class Archives extends BaseCommand  {
                 description = "Set options for enabled components, in the form name.key=value")
         Map<String, String> componentOptions;
 
+        @CommandLine.Option(
+                names = {"--include", "-i"},
+                description =
+                        "List of archive contents to import. [executions,config,acl,scm,webhooks,nodeSources]. Default: " +
+                                "executions. (webhooks: requires API v34. nodeSources: requires API v38).")
+        Set<ImportFlags> includeFlags;
+
+        boolean isIncludeFlags() {
+            return includeFlags != null && !includeFlags.isEmpty();
+        }
+
+        Set<ImportFlags> calculateFlags(){
+            if(isIncludeFlags()){
+                return includeFlags;
+            }
+            Set<ImportFlags> importFlags = new HashSet<>();
+            //determine via boolean options
+            if(!isNoExecutions()){
+                importFlags.add(ImportFlags.executions);
+            }
+            if(isIncludeConfig()){
+                importFlags.add(ImportFlags.config);
+            }
+            if(isIncludeAcl()){
+                importFlags.add(ImportFlags.acl);
+            }
+            if(isIncludeScm()){
+                importFlags.add(ImportFlags.scm);
+            }
+            if(isIncludeWebhooks()){
+                importFlags.add(ImportFlags.webhooks);
+            }
+            if(isIncludeNodeSources()){
+                importFlags.add(ImportFlags.nodeSources);
+            }
+
+            return importFlags;
+        }
+
+    }
+
+    enum ImportFlags {
+        executions,
+        config,
+        acl,
+        scm,
+        webhooks,
+        nodeSources,
     }
 
     @CommandLine.Command(description = "Get the status of an ongoing asynchronous import process.", name = "async-import-status")
@@ -142,13 +190,14 @@ public class Archives extends BaseCommand  {
         if (!input.canRead() || !input.isFile()) {
             throw new InputError(String.format("File is not readable or does not exist: %s", input));
         }
-        if ((opts.isIncludeWebhooks() || opts.isWhkRegenAuthTokens()) && getRdTool().getClient().getApiVersion() < 34) {
+        Set<ImportFlags> importFlags = opts.calculateFlags();
+        if ((importFlags.contains(ImportFlags.webhooks) || opts.isWhkRegenAuthTokens()) && getRdTool().getClient().getApiVersion() < 34) {
             throw new InputError(String.format("Cannot use --include-webhooks or --regenerate-tokens with API < 34 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
-        if ((opts.isIncludeWebhooks() || opts.isWhkRegenUuid()) && getRdTool().getClient().getApiVersion() < 47) {
-            throw new InputError(String.format("Cannot use --include-webhooks or --remove-webhooks-uuids with API < 47 (currently: %s)", getRdTool().getClient().getApiVersion()));
+        if ((importFlags.contains(ImportFlags.webhooks) && opts.isWhkRegenUuid()) && getRdTool().getClient().getApiVersion() < 47) {
+            throw new InputError(String.format("Cannot use --include-webhooks with --remove-webhooks-uuids with API < 47 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
-        if ((opts.isIncludeNodeSources()) && getRdTool().getClient().getApiVersion() < 38) {
+        if ((importFlags.contains(ImportFlags.nodeSources)) && getRdTool().getClient().getApiVersion() < 38) {
             throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
         RequestBody body = RequestBody.create(input, Client.MEDIA_TYPE_ZIP);
@@ -168,14 +217,14 @@ public class Archives extends BaseCommand  {
         ProjectImportStatus status = apiCall(api -> api.importProjectArchive(
                 project,
                 opts.isRemove() ? "remove" : "preserve",
-                !opts.isNoExecutions(),
-                opts.isIncludeConfig(),
-                opts.isIncludeAcl(),
-                opts.isIncludeScm(),
-                opts.isIncludeWebhooks(),
+                importFlags.contains(ImportFlags.executions),
+                importFlags.contains(ImportFlags.config),
+                importFlags.contains(ImportFlags.acl),
+                importFlags.contains(ImportFlags.scm),
+                importFlags.contains(ImportFlags.webhooks),
                 opts.isWhkRegenAuthTokens(),
                 opts.isWhkRegenUuid(),
-                opts.isIncludeNodeSources(),
+                importFlags.contains(ImportFlags.nodeSources),
                 opts.isAsyncImportEnabled(),
                 extraCompOpts,
                 body
