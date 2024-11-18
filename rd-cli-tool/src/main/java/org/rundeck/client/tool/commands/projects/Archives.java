@@ -123,7 +123,7 @@ public class Archives extends BaseCommand  {
         Map<String, String> componentOptions;
 
         @CommandLine.Option(
-                names = {"--include", "-i"},
+                names = {"--include"/*, "-i"*/}, //note: -i would conflict with async import
                 description =
                         "List of archive contents to import. [executions,config,acl,scm,webhooks,nodeSources]. Default: " +
                                 "executions. (webhooks: requires API v34. nodeSources: requires API v38).")
