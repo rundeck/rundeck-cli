@@ -70,7 +70,7 @@ public class Archives extends BaseCommand  {
     }
 
     @Getter @Setter
-    static class ArchiveImportOpts extends BaseOptions{
+    public static class ArchiveImportOpts extends BaseOptions{
         @CommandLine.Option(names = {"-r"}, description = "Remove Job UUIDs in imported jobs. Default: preserve job UUIDs.")
         boolean remove;
 
@@ -216,7 +216,7 @@ public class Archives extends BaseCommand  {
 
 
     @Getter @Setter
-    static class ArchiveExportOpts extends BaseOptions {
+    public static class ArchiveExportOpts extends BaseOptions {
 
         @CommandLine.Option(
                 names = {"--execids", "-e"},
