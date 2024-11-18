@@ -203,12 +203,12 @@ public class Archives extends BaseCommand  {
         RequestBody body = RequestBody.create(input, Client.MEDIA_TYPE_ZIP);
 
         Map<String, String> extraCompOpts = new HashMap<>();
-        if (opts.components != null && opts.components.size() > 0) {
+        if (opts.components != null && !opts.components.isEmpty()) {
             for (String component : opts.components) {
                 extraCompOpts.put("importComponents." + component, "true");
             }
         }
-        if (opts.componentOptions != null && opts.componentOptions.size() > 0) {
+        if (opts.componentOptions != null && !opts.componentOptions.isEmpty()) {
             for (Map.Entry<String, String> stringStringEntry : opts.componentOptions.entrySet()) {
                 extraCompOpts.put("importOpts." + stringStringEntry.getKey(), stringStringEntry.getValue());
             }
