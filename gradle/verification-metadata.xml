@@ -181,6 +181,7 @@
             <trusting group="org.projectlombok" name="lombok" version="1.18.26"/>
             <trusting group="org.projectlombok" name="lombok" version="1.18.30"/>
             <trusting group="org.projectlombok" name="lombok" version="1.18.34"/>
+            <trusting group="org.projectlombok" name="lombok" version="1.18.36"/>
          </trusted-key>
          <trusted-key id="d54a395b5cf3f86eb45f6e426b1b008864323b92" group="org.antlr"/>
          <trusted-key id="d5fc4d8e6ff704c573819555bf7cc7defe9389d7">
