@@ -63,6 +63,7 @@
             <trusting group="org.apache.commons" name="commons-text" version="1.8"/>
          </trusted-key>
          <trusted-key id="2e3a1affe42b5f53af19f780bcf4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
+         <trusted-key id="2fc53e6b1f681184f4ccd637f5c81de10a0b8ecc" group="org.yaml" name="snakeyaml" version="2.3"/>
          <trusted-key id="31327da0c35ea6b88b9d4648f192529298c4c654">
             <trusting group="org.rundeck"/>
             <trusting group="org.rundeck.cli-toolbelt"/>
