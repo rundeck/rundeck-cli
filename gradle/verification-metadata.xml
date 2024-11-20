@@ -20,6 +20,7 @@
             <trusting group="com.googlecode.javaewah" name="JavaEWAH" version="1.1.7"/>
             <trusting group="com.googlecode.javaewah" name="JavaEWAH" version="1.2.3"/>
          </trusted-key>
+         <trusted-key id="02a9634fce94db71625fda6431bb70adefa79a0c" group="org.rundeck"/>
          <trusted-key id="04543577d6a9cc626239c50c7ecbd740ff06aeb5" group="^com[.]sun[.]xml[.]bind($|([.].*))" regex="true"/>
          <trusted-key id="04582013f4f60ceb10ac621550bdce2258812457" group="commons-digester" name="commons-digester" version="1.8.1"/>
          <trusted-key id="073f7a9345756f3b40cdb99e6c70a3b7599c5736" group="org.apache.sshd"/>
