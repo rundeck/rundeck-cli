@@ -63,3 +63,13 @@ jobs:
       - run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg' # this will need to be updated if the project changes owners
       - run: snyk monitor --all-projects --detection-depth=10 --scan-all-unmanaged # run monitor first to push results to webui
       - run: snyk test --severity-threshold=low --all-projects --detection-depth=10 --scan-all-unmanaged # will fail step if any results are found
+
+workflows:
+  version: 2
+  test_and_publish:
+    jobs:
+      - snyk_test:
+          context:
+            - PagerDuty
+            - Snyk
+      - build
