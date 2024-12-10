@@ -531,13 +531,14 @@ public class Executions extends BaseCommand {
         return result.isAllsuccessful() ? 0 : 1;
     }
 
-    static interface Interactive {
+    public interface Interactive {
         boolean isEnabled();
 
         String readInteractive(String fmt, Object... args);
+        char[] readPassword(String fmt, Object... args);
     }
 
-    static class ConsoleInteractive implements Interactive {
+    public static class ConsoleInteractive implements Interactive {
         @Override
         public boolean isEnabled() {
             return System.console() != null;
@@ -546,6 +547,9 @@ public class Executions extends BaseCommand {
         @Override
         public String readInteractive(String fmt, Object... args) {
             return System.console().readLine(fmt, args);
+        }
+        public char[] readPassword(String fmt, Object... args) {
+            return System.console().readPassword(fmt, args);
         }
     }
 
