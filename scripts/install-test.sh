@@ -5,8 +5,8 @@ set -euo pipefail
 DEBTAG=rdcli-deb
 RPMTAG=rdcli-rpm
 UBUNTUVERS="18.04 20.04 22.04"
-RPMJDK="java-1.8.0-openjdk java-11-openjdk"
-DEBJDK="openjdk-8-jdk openjdk-11-jdk"
+RPMJDK="java-11-openjdk java-17-openjdk java-21-openjdk"
+DEBJDK="openjdk-11-jdk openjdk-17-jdk openjdk-21-jdk"
 
 test_basic() {
   local TAG=$1
