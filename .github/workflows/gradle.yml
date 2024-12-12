@@ -38,16 +38,22 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+      - name: Get RPM Version
+        id: get_rpm_version
+        run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet --dependency-verification off | sed 's/-/./') && echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      - name: mkdirs
+        run: mkdir -p rd-cli-tool/build/distributions
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
           name: rundeck.deb
-          path: rd-cli-tool/build/distributions/rundeck-cli_test-1_all.deb
+          path: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
       - name: deb/rpm install test
-        run: bash scripts/install-test.sh
+        run: bash scripts/install-test.sh -deb
         env:
           UBUNTUVERS: ${{matrix.ubuntu}}
           DEBJDK: ${{matrix.jdk}}
+          DEBFILE: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
   build:
 
     runs-on: ubuntu-latest
