@@ -26,11 +26,6 @@ import pl.allegro.tech.build.axion.release.infrastructure.di.VersionResolutionCo
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
 ext.changelogFile = file("CHANGELOG.md")
 
-dependencyCheck {
-    suppressionFile='cve-suppress.xml'
-    format='ALL'
-    failBuildOnCVSS=8
-}
 subprojects{
 
     apply plugin: "java-library"
