@@ -1,14 +1,18 @@
 #!/bin/bash
 
 set -euo pipefail
+IFS=$'\n\t'
+readonly ARGS=("$@")
 
 DEBTAG=rdcli-deb
 RPMTAG=rdcli-rpm
-UBUNTUVERS="${UBUNTUVERS:-18.04 20.04 22.04}"
+UBUNTUVERS="${UBUNTUVERS:-20.04 22.04}"
 #UBUNTUVERS_18="18.04"
 RPMJDK="${RPMJDK:-java-11-openjdk java-17-openjdk java-21-openjdk}"
 DEBJDK="${DEBJDK:-openjdk-11-jdk openjdk-17-jdk openjdk-21-jdk}"
 #DEBJDK_18="openjdk-11-jdk openjdk-17-jdk"
+DEBFILE="${DEBFILE:-}"
+RPMFILE="${RPMFILE:-}"
 
 test_basic() {
   local TAG=$1
@@ -38,8 +42,7 @@ build_deb_version() {
   local TAG=$1
   local VERS=$2
   local JDK=$3
-  local debfile
-  debfile=$(ls rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb)
+  local debfile=$4
 
   cp "$debfile" dockers/install/debian/rundeck-cli_all.deb
   docker build --build-arg VERS="${VERS}" --build-arg JDK="${JDK}" dockers/install/debian -t "${TAG}"
@@ -48,8 +51,7 @@ build_deb_version() {
 build_rpm_version() {
   local TAG=$1
   local JDK=$2
-  local rpmfile
-  rpmfile=$(ls rd-cli-tool/build/distributions/rundeck-cli-*.noarch.rpm)
+  local rpmfile=$3
 
   cp "$rpmfile" dockers/install/rpm/rundeck-cli-noarch.rpm
   docker build --build-arg JDK="${JDK}" dockers/install/rpm -t "${TAG}"
@@ -62,17 +64,39 @@ run_all() {
   test_ext "${TAG}" "org.rundeck.client.ext.acl.Acl"
 }
 
-main() {
+test_deb() {
+  local debfile="$DEBFILE"
+  if [ -z "$debfile" ] ; then
+    debfile=$(ls rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb)
+  fi
   for JDK in $DEBJDK; do
     for VERS in $UBUNTUVERS; do
-      build_deb_version "$DEBTAG$VERS-$JDK" "$VERS" "$JDK"
+      build_deb_version "$DEBTAG$VERS-$JDK" "$VERS" "$JDK" "$debfile"
       run_all "$DEBTAG$VERS-$JDK"
     done
   done
+}
+test_rpm() {
+  local rpmfile="$RPMFILE"
+  if [ -z "$rpmfile" ] ; then
+    rpmfile=$(ls rd-cli-tool/build/distributions/rundeck-cli-*.noarch.rpm)
+  fi
   for JDK in $RPMJDK; do
-    build_rpm_version "$RPMTAG-$JDK" "$JDK"
+    build_rpm_version "$RPMTAG-$JDK" "$JDK" "$rpmfile"
     run_all "$RPMTAG-$JDK"
   done
+}
+all(){
+  test_deb
+  test_rpm
+}
+main() {
+  case "${ARGS[0]}" in
+    -deb) test_deb ;;
+    -rpm) test_rpm ;;
+    -all) all ;;
+    * ) echo "Expected args -deb -rpm or -all "; exit 2 ;;
+  esac
 }
 
 main
