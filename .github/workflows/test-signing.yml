@@ -31,7 +31,7 @@ jobs:
           RUNDECK_SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           RUNDECK_SIGNING_KEYID: signing@rundeck.com
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           # Directory containing files to upload
           path: |
