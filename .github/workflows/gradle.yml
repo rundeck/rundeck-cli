@@ -49,7 +49,7 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
       - name: Initialize Gradle
-        run: ./gradlew version --dependency-verification off
+        run: ./gradlew --version --dependency-verification off
       - name: Get RPM Version
         id: get_rpm_version
         run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet --dependency-verification off | sed 's/-/./') && echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
