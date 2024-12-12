@@ -13,7 +13,6 @@ shadow = "7.1.2"
 ospackage = "9.1.1"
 buildInfo = "0.9"
 buildConfig = "3.1.0"
-owasp = "7.1.0.1"
 jacksonDatabind = "2.18.1"
 picocli = "4.6.3"
 snakeYaml = "2.0"
@@ -66,4 +65,3 @@ shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
 ospackage = { id = "nebula.ospackage", version.ref = "ospackage" }
 buildInfo = { id = "org.dvaske.gradle.git-build-info", version.ref = "buildInfo" }
 buildConfig = { id = 'com.github.gmazzo.buildconfig', version.ref = "buildConfig" }
-owasp = { id = "org.owasp.dependencycheck", version.ref = "owasp" }
