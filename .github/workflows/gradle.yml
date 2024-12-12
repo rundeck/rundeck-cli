@@ -59,13 +59,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: rundeck.deb
-          path: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
+          path: rd-cli-tool/build/distributions
       - name: deb/rpm install test
         run: bash scripts/install-test.sh -deb
         env:
           UBUNTUVERS: ${{matrix.ubuntu}}
           DEBJDK: ${{matrix.jdk}}
-          DEBFILE: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
   build:
 
     runs-on: ubuntu-latest
