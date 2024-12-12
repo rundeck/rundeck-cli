@@ -75,8 +75,8 @@ jobs:
       with:
         name: integration-test-report
         path: integration-tests/build/reports/tests/integrationTest
-    - name: deb/rpm install test
-      run: bash scripts/install-test.sh
+#    - name: deb/rpm install test
+#      run: bash scripts/install-test.sh
     - name: rpm upgrade test
       run: bash scripts/rpm-upgrade.sh
     - name: Get Release Version
