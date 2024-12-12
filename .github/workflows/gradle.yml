@@ -50,6 +50,27 @@ jobs:
       with:
         name: integration-test-report
         path: integration-tests/build/reports/tests/integrationTest
+  deb_install_tests:
+    runs-on: ubuntu-latest
+    needs: build
+    strategy:
+      matrix:
+        jdk: [ "openjdk-11-jdk","openjdk-17-jdk","openjdk-21-jdk" ]
+        ubuntu: ["20.04", "22.04"]
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: rundeck.deb
+          path: rd-cli-tool/build/distributions/rundeck-cli_test-1_all.deb
+      - name: deb/rpm install test
+        run: bash scripts/install-test.sh
+        env:
+          UBUNTUVERS: ${{matrix.ubuntu}}
+          DEBJDK: ${{matrix.jdk}}
   build:
 
     runs-on: ubuntu-latest
@@ -106,6 +127,13 @@ jobs:
       with:
         # Artifact name
         name: rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
+        # Directory containing files to upload
+        path: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
+    - name: Upload deb-basic
+      uses: actions/upload-artifact@v3.1.2
+      with:
+        # Artifact name
+        name: rundeck.deb
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
     - name: Upload all-jar
