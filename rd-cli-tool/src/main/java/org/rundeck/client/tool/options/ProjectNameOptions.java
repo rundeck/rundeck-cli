@@ -34,7 +34,7 @@ public class ProjectNameOptions implements ProjectInput {
     )
     private String project;
 
-    public boolean isProject() {
+    public boolean hasProject() {
         return project != null;
     }
 

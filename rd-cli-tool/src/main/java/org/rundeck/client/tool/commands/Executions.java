@@ -735,7 +735,7 @@ public class Executions extends BaseCommand {
         MetricsResponse result;
 
         // Case project wire.
-        if (options.isProject()) {
+        if (options.hasProject()) {
             // Get response.
             result = apiCall(api -> api.executionMetrics(
                     options.getProject(),
