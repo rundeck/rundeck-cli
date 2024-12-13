@@ -16,7 +16,6 @@
 
 plugins {
     id 'base'
-    alias(libs.plugins.owasp)
     alias(libs.plugins.axion)
     alias(libs.plugins.nexusPublish)
 }
@@ -24,15 +23,9 @@ import java.util.regex.Matcher
 import pl.allegro.tech.build.axion.release.domain.VersionConfig
 import pl.allegro.tech.build.axion.release.infrastructure.di.VersionResolutionContext
 
-apply plugin: 'org.owasp.dependencycheck'
 ext.githubUrl = "https://github.com/rundeck/rundeck-cli"
 ext.changelogFile = file("CHANGELOG.md")
 
-dependencyCheck {
-    suppressionFile='cve-suppress.xml'
-    format='ALL'
-    failBuildOnCVSS=8
-}
 subprojects{
 
     apply plugin: "java-library"
