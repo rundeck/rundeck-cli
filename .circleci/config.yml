@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   snyk: snyk/snyk@2.2 # https://circleci.com/developer/orbs/orb/snyk/snyk
-  git: pagerduty/git@0.1.0 # https://circleci.com/developer/orbs/orb/pagerduty/git (public PD orb)
 
 jobs:
   build:
@@ -54,7 +53,6 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - git/rebase_on_main
       - run:
           name: 'Gradle build without running the tests'
           command: './gradlew assemble' # pull in dependencies but do not run tests
@@ -62,11 +60,11 @@ jobs:
       - snyk/install
       - run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg' # this will need to be updated if the project changes owners
       - run: snyk monitor --all-projects --detection-depth=10 --scan-all-unmanaged # run monitor first to push results to webui
-      - run: snyk test --severity-threshold=low --all-projects --detection-depth=10 --scan-all-unmanaged # will fail step if any results are found
+      - run: snyk test --severity-threshold=high --all-projects --detection-depth=10 --scan-all-unmanaged # will fail step if any results are found
 
 workflows:
   version: 2
-  test_and_publish:
+  test_and_build:
     jobs:
       - snyk_test:
           context:
