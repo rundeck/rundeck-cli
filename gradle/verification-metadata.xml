@@ -140,6 +140,7 @@
          <trusted-key id="90ee19787a7bcf6fd37a1e9180c08b1c29100955" group="com.squareup.retrofit2"/>
          <trusted-key id="9545c9779f2820267c1419f3d1d32028e5d5a125" group="org.rundeck"/>
          <trusted-key id="9d0a56aaa0d60e0c0c7dccc0b4c70893b62babe8" group="^org[.]apache[.]logging($|([.].*))" regex="true"/>
+         <trusted-key id="9fe7356cd97bcfb996bf45ca519e8c774c5c3560" group="org.rundeck"/>
          <trusted-key id="a0e410b1d7a3c0856a15f40845631c4221627a1e" group="org.redline-rpm" name="redline" version="1.2.10"/>
          <trusted-key id="a22931805bea371c4b607cd9ccc16740c5666d5a" group="com.github.spullara.mustache.java"/>
          <trusted-key id="a28f589583f054d3114df28fe561f0025ac4b54c" group="com.hankcs" name="aho-corasick-double-array-trie" version="1.2.3"/>
