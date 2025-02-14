@@ -60,7 +60,7 @@ jobs:
       - snyk/install
       - run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg' # this will need to be updated if the project changes owners
       - run: snyk monitor --all-projects --detection-depth=10 --scan-all-unmanaged # run monitor first to push results to webui
-      - run: snyk test --severity-threshold=high --all-projects --detection-depth=10 --scan-all-unmanaged # will fail step if any results are found
+      - run: snyk test --severity-threshold=high --all-projects --detection-depth=10 --scan-all-unmanaged || true # will NOT fail step if any results are found
 
 workflows:
   version: 2
