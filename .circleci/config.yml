@@ -1,8 +1,8 @@
-# Java Gradle CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-java/ for more details
-#
-version: 2
+version: 2.1
+
+orbs:
+  snyk: snyk/snyk@2.2 # https://circleci.com/developer/orbs/orb/snyk/snyk
+
 jobs:
   build:
     docker:
@@ -46,3 +46,28 @@ jobs:
           path: rd-cli-base/build/test-results
       - store_test_results:
           path: rd-api-client/build/test-results
+
+  snyk_test:
+    docker:
+      - image: cimg/openjdk:11.0 # this should match what's used in the rest of the project
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          name: 'Gradle build without running the tests'
+          command: './gradlew assemble' # pull in dependencies but do not run tests
+      # All Snyk commands below should be identical to any Snyk scan ran using our Snyk orb: https://github.com/PagerDuty/snyk-circleci-orb/blob/main/src/commands/scan.yml
+      - snyk/install
+      - run: snyk config set org='rundeck-core-mtgfa3XPaKGbFtHj9aRXhg' # this will need to be updated if the project changes owners
+      - run: snyk monitor --all-projects --detection-depth=10 --scan-all-unmanaged # run monitor first to push results to webui
+      - run: snyk test --severity-threshold=high --all-projects --detection-depth=10 --scan-all-unmanaged || true # will NOT fail step if any results are found
+
+workflows:
+  version: 2
+  test_and_build:
+    jobs:
+      - snyk_test:
+          context:
+            - PagerDuty
+            - Snyk
+      - build
