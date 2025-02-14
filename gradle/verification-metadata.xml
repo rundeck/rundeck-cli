@@ -12,6 +12,7 @@
          <ignored-key id="84e913a8e3a748c0" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="b3de72e647d35161" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="928fbf39003c0425" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="29b8fea02804261c" reason="Key couldn't be downloaded from any key server"/>
       </ignored-keys>
       <trusted-keys>
          <trusted-key id="015479e1055341431b4545ab72475fd306b9cab7">
@@ -58,6 +59,7 @@
          <trusted-key id="2cecbfba181601547b654b9ffa81ac8a490f538e" group="org.apache.lucene"/>
          <trusted-key id="2db4f1ef0fa761ecc4ea935c86fdc7e2a11262cb">
             <trusting group="commons-codec" name="commons-codec" version="1.16.0"/>
+            <trusting group="commons-codec" name="commons-codec" version="1.17.0"/>
             <trusting group="commons-io"/>
             <trusting group="org.apache.commons"/>
             <trusting group="org.apache.commons" name="commons-text" version="1.8"/>
@@ -80,7 +82,10 @@
          <trusted-key id="44fbdbbc1a00fe414f1c1873586654072ead6677" group="org.sonatype.oss" name="oss-parent" version="9"/>
          <trusted-key id="475f3b8e59e6e63aa78067482c7b12f2a511e325" group="org.slf4j"/>
          <trusted-key id="485e371cb07eabe6d5778d4b0c27e8fac93b3b19" group="com.sun.mail"/>
-         <trusted-key id="48b086a7d843cfa258e83286928fbf39003c0425" group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+         <trusted-key id="48b086a7d843cfa258e83286928fbf39003c0425">
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.28"/>
+         </trusted-key>
          <trusted-key id="4a720fe790b07a68744e371675bf031b7c94e183" group="net.java.dev.jna"/>
          <trusted-key id="4db1a49729b053caf015cee9a6adfc93ef34893e" group="org.hamcrest"/>
          <trusted-key id="4f5277bf72a045dad4ae36dd9440c8d6decafa12" group="org.testng" name="testng" version="6.13.1"/>
@@ -123,12 +128,14 @@
          <trusted-key id="79eb1eae95f376ab9629429de2d0f3764b54797f">
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.13.6"/>
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.18.16"/>
          </trusted-key>
          <trusted-key id="7b121b76a7ed6ce6e60ad51784e913a8e3a748c0" group="org.bouncycastle"/>
          <trusted-key id="7c669810892cbd3148fa92995b05ccde140c2876" group="org.eclipse.jgit"/>
          <trusted-key id="7cd52b5a8295137c88fb5748dddafa7674e54418" group="org.testng" name="testng" version="7.5"/>
          <trusted-key id="81d3eb0408b4e1eb10af443ba4f4c886b29bc2f4" group="org.apache.lucene"/>
          <trusted-key id="839b8c32286c100bdb08f5522eb9468288817402" group="org.apache.commons"/>
+         <trusted-key id="84789d24df77a32433ce1f079eb80e92eb2135b1" group="org.apache" name="apache"/>
          <trusted-key id="8756c4f765c9ac3cb6b85d62379ce192d401ab61">
             <trusting group="info.picocli"/>
             <trusting group="org.rnorth.duct-tape"/>
@@ -176,6 +183,7 @@
          <trusted-key id="ce4439c1bef3da83b1832f9dbefeef227a98b809" group="org.apache.velocity"/>
          <trusted-key id="ce8075a251547bee249bc151a2115ae15f6b8b72" group="^org[.]apache($|([.].*))" regex="true"/>
          <trusted-key id="cfc10b69382cbcf5387e51484ece492b63e38acf" group="com.h3xstream.retirejs"/>
+         <trusted-key id="d022218dcc08aad6ef3af876b3de72e647d35161" group="org.testcontainers" name="testcontainers-bom" version="1.16.2"/>
          <trusted-key id="d196a5e3e70732eeb2e5007f1861c322c56014b2" group="commons-codec"/>
          <trusted-key id="d421d1df4570bfb13e485d0bf95add0a28d2f139">
             <trusting group="org.projectlombok" name="lombok" version="1.18.24"/>
@@ -184,6 +192,7 @@
             <trusting group="org.projectlombok" name="lombok" version="1.18.34"/>
             <trusting group="org.projectlombok" name="lombok" version="1.18.36"/>
          </trusted-key>
+         <trusted-key id="d4d4dec73685b1a135e45e5c47933d17f199636b" group="com.github.mwiede" name="jsch" version="0.2.21"/>
          <trusted-key id="d54a395b5cf3f86eb45f6e426b1b008864323b92" group="org.antlr"/>
          <trusted-key id="d5fc4d8e6ff704c573819555bf7cc7defe9389d7">
             <trusting group="com.github.docker-java"/>
@@ -215,7 +224,10 @@
          <trusted-key id="f9514e84ae3708288374bbbe097586cfea37f9a6" group="org.owasp"/>
          <trusted-key id="fa1703b1d287caea3a60f931e0130a3ed5a2079e" group="org.webjars" name="jquery" version="3.5.1"/>
          <trusted-key id="fa77dcfef2ee6eb2debedd2c012579464d01c06a" group="org.apache" name="apache"/>
-         <trusted-key id="fa7929f83ad44c4590f6cc6815c71c0a4e0b8edd" group="net.java.dev.jna" name="jna" version="5.8.0"/>
+         <trusted-key id="fa7929f83ad44c4590f6cc6815c71c0a4e0b8edd">
+            <trusting group="net.java.dev.jna"/>
+            <trusting group="net.java.dev.jna" name="jna" version="5.8.0"/>
+         </trusted-key>
          <trusted-key id="fc411cd3cb7dcb0abc9801058118b3bcdb1a5000" group="jakarta.xml.bind"/>
          <trusted-key id="ff6e2c001948c5f2f38b0cc385911f425ec61b51">
             <trusting group="junit"/>
@@ -304,6 +316,11 @@
       <component group="com.fasterxml" name="oss-parent" version="50">
          <artifact name="oss-parent-50.pom">
             <sha256 value="f5da55dd7b88fb170c46801d17774a652fb2f4581fb5b1d0a5fc86aa182b8577" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="com.fasterxml" name="oss-parent" version="61">
+         <artifact name="oss-parent-61.pom">
+            <sha256 value="3649513cf597e9186da0855986a8c543e12bdbd805edeef9c124db56dd036544" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="com.fasterxml.jackson" name="jackson-base" version="2.10.1">
@@ -404,6 +421,11 @@
       <component group="com.fasterxml.jackson" name="jackson-parent" version="2.15">
          <artifact name="jackson-parent-2.15.pom">
             <sha256 value="6cdf97bc66f389f63e36850d2f552d1216688f8e5a58727d3f6a98edf8675cde" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="com.fasterxml.jackson" name="jackson-parent" version="2.18.1">
+         <artifact name="jackson-parent-2.18.1.pom">
+            <sha256 value="d0822fac1a0226844b8ad445c920c49a4f619169d09b1010a7dfeed19910998c" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="com.fasterxml.jackson" name="jackson-parent" version="2.9.1.2">
@@ -1045,6 +1067,42 @@
          </artifact>
          <artifact name="jzlib-1.1.1.pom">
             <sha256 value="744c3d8e5ef52ba3339e717666be23ac4667dc2b85a23d33b8881a855c707f3c" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter" name="kohlschutter-parent" version="1.7.0">
+         <artifact name="kohlschutter-parent-1.7.0.pom">
+            <sha256 value="cb99ab5ebcd63c575d44eb40d8b9d0b44fae747f7c7fe245749d885be1ed03e9" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter" name="kohlschutter-parent-multirelease" version="1.7.0">
+         <artifact name="kohlschutter-parent-multirelease-1.7.0.pom">
+            <sha256 value="ef45c7da0f0bc01e835fab107e15948c6d704419011943f14a67e74c5430a1b2" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket" version="2.9.1">
+         <artifact name="junixsocket-2.9.1.pom">
+            <sha256 value="7cc6ab919d9fee1f88d68f11be199aaad18391dda6252f413df682544469bdae" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket-common" version="2.9.1">
+         <artifact name="junixsocket-common-2.9.1.jar">
+            <sha256 value="39612575d1aec62453beb2abbcd5b110da434362f5402645c8d0d8e04db0d3aa" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="junixsocket-common-2.9.1.pom">
+            <sha256 value="e046fc34cff3cf1e2ec5cfdc7ef8c216406a541a2c056c51ae11bd4faeadadb8" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket-core" version="2.9.1">
+         <artifact name="junixsocket-core-2.9.1.pom">
+            <sha256 value="2c1405a0b644f0398fe2a22d414db3da459e2dfd0b1b3412921172ae1da49f7b" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket-native-common" version="2.9.1">
+         <artifact name="junixsocket-native-common-2.9.1.jar">
+            <sha256 value="8227d7efd2f4ed0730dd2f378ca10356c3e272fa02b755c573807a60aadc9049" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="junixsocket-native-common-2.9.1.pom">
+            <sha256 value="293192227f1ba113332ea152865f8c74c126f4fcea507b94f3d835fab77457a5" origin="Generated by Gradle because a key couldn't be downloaded"/>
          </artifact>
       </component>
       <component group="com.lexicalscope.jewelcli" name="jewelcli" version="0.8.9">
@@ -3915,6 +3973,11 @@
             <sha256 value="52c5bcea815708a396aaceb14199b96798fc3219ad05236f01a2adb4c85e9061" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.junit" name="junit-bom" version="5.10.2">
+         <artifact name="junit-bom-5.10.2.module">
+            <sha256 value="de23b114b3e4119a8fe6eb17bed5a3852816698bace67071579d6d927ebb080a" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.junit" name="junit-bom" version="5.7.1">
          <artifact name="junit-bom-5.7.1.module">
             <sha256 value="9854e3894d64b2485207e0046bca07b3d42d169e782f4fa8c9ce229a78faee04" origin="Generated by Gradle"/>
@@ -4894,6 +4957,11 @@
       <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.15.5">
          <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.15.5.pom">
             <sha256 value="d6c9d7560648ce1556784923e9649fdf2bcab27394b57d9da4ef17166e1e4cae" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+      </component>
+      <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.18.16">
+         <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.18.16.pom">
+            <sha256 value="61831d041db838cfbc66bad40029979a1f51488d6c879fd467bcd46aeb5651e1" origin="Generated by Gradle because artifact wasn't signed"/>
          </artifact>
       </component>
       <component group="us.springett" name="cpe-parser" version="2.0.2">
