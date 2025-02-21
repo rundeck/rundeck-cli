@@ -149,6 +149,7 @@
          <trusted-key id="a7892505cf1a58076453e52d7999befba1039e8b" group="net.bytebuddy"/>
          <trusted-key id="a9f885a21ba0efb7d0991e6ccaf5ec5919fea27d" group="commons-digester" name="commons-digester" version="2.1"/>
          <trusted-key id="aa417737bd805456db3cbdde6601e5c08dccbb96">
+            <trusting group="info.picocli"/>
             <trusting group="info.picocli" name="picocli" version="4.6.3"/>
             <trusting group="info.picocli" name="picocli-codegen" version="4.6.3"/>
          </trusted-key>
