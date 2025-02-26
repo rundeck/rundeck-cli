@@ -18,10 +18,14 @@ package org.rundeck.client.api.model.sysinfo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SystemStats {
@@ -37,88 +41,34 @@ public class SystemStats {
 
     public Map<String, Object> toMap() {
         Map<String, Object> data = new HashMap<>();
-        data.put("timestamp", timestamp);
-        data.put("rundeck", rundeck);
-        data.put("executions", executions);
-        data.put("os", os);
-        data.put("jvm", jvm);
-        data.put("stats", stats);
-        data.put("metrics", metrics.toMap());
-        data.put("threadDump", threadDump.toMap());
-        data.put("healthcheck", healthcheck.toMap());
+        if(null!=timestamp) {
+            data.put("timestamp", timestamp);
+        }
+        if(null!=rundeck) {
+            data.put("rundeck", rundeck);
+        }
+        if(null!=executions) {
+            data.put("executions", executions);
+        }
+        if(null!=os) {
+            data.put("os", os);
+        }
+        if (jvm != null) {
+            data.put("jvm", jvm);
+        }
+        if (stats != null) {
+            data.put("stats", stats);
+        }
+        if (metrics != null) {
+            data.put("metrics", metrics.toMap());
+        }
+        if (threadDump != null) {
+            data.put("threadDump", threadDump.toMap());
+        }
+        if (healthcheck != null) {
+            data.put("healthcheck", healthcheck.toMap());
+        }
         return data;
-    }
-
-    public Map<String, Object> getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Map<String, Object> timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public Map<String, Object> getRundeck() {
-        return rundeck;
-    }
-
-    public void setRundeck(Map<String, Object> rundeck) {
-        this.rundeck = rundeck;
-    }
-
-    public Map<String, Object> getExecutions() {
-        return executions;
-    }
-
-    public void setExecutions(Map<String, Object> executions) {
-        this.executions = executions;
-    }
-
-    public Map<String, Object> getOs() {
-        return os;
-    }
-
-    public void setOs(Map<String, Object> os) {
-        this.os = os;
-    }
-
-    public Map<String, Object> getJvm() {
-        return jvm;
-    }
-
-    public void setJvm(Map<String, Object> jvm) {
-        this.jvm = jvm;
-    }
-
-    public Map<String, Map> getStats() {
-        return stats;
-    }
-
-    public void setStats(Map<String, Map> stats) {
-        this.stats = stats;
-    }
-
-    public Link getMetrics() {
-        return metrics;
-    }
-
-    public void setMetrics(Link metrics) {
-        this.metrics = metrics;
-    }
-
-    public Link getThreadDump() {
-        return threadDump;
-    }
-
-    public void setThreadDump(Link threadDump) {
-        this.threadDump = threadDump;
-    }
-
-    public Link getHealthcheck() {
-        return healthcheck;
-    }
-
-    public void setHealthcheck(Link healthcheck) {
-        this.healthcheck = healthcheck;
     }
 
     @Override

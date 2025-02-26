@@ -14,6 +14,7 @@ import picocli.CommandLine;
 import retrofit2.Call;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.function.Function;
 
 /**
@@ -26,8 +27,7 @@ public class Mode extends BaseCommand {
 
 
     @Getter @Setter
-    static
-    class ModeInfo {
+    public static class ModeInfo {
 
         @CommandLine.Option(names = {"-A", "--testactive"},
                 description = "Test whether the execution mode is active: fail if not")
@@ -46,7 +46,11 @@ public class Mode extends BaseCommand {
             throw new InputError("--testactive and --testpassive cannot be combined");
         }
         SystemInfo systemInfo = apiCall(RundeckApi::systemInfo);
-        Object executionMode = systemInfo.system.getExecutions().get("executionMode");
+        Map<String, Object> executions = systemInfo.system.getExecutions();
+        if (null == executions) {
+            throw new RuntimeException("Execution Mode was not available in System Info data. Note: Authorization system:read is required for most System Info data.");
+        }
+        Object executionMode = executions.get("executionMode");
         boolean modeIsActive = "active".equals(executionMode);
         boolean testpass = true;
         String message = "Execution Mode is currently:";
