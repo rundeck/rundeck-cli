@@ -101,6 +101,32 @@ class RundeckClientSpec extends Specification {
         'https' | _
     }
 
+    def "create bearer token valid"() {
+        given:
+        def btoken = 'abc'
+        def baseUrl = "$proto://example.com"
+        int debuglevel = 0
+        long httpTimeout = 30
+        boolean retryConnect = true
+        when:
+
+        def result = RundeckClient.builder().
+                baseUrl(baseUrl).
+                bearerTokenAuth(btoken).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
+
+        then:
+        result != null
+
+        where:
+        proto   | _
+        'http'  | _
+        'https' | _
+    }
+
     def "create user and password invalid URL"() {
         given:
         def user = 'user1'
@@ -210,6 +236,33 @@ class RundeckClientSpec extends Specification {
         'blah' | _
     }
 
+    def "create bearer token invalid URL"() {
+        given:
+        def token = 'atoken'
+        def baseUrl = "$proto://example.com"
+        int debuglevel = 0
+        long httpTimeout = 30
+        boolean retryConnect = true
+        when:
+
+        def result = RundeckClient.builder().
+                baseUrl(baseUrl).
+                bearerTokenAuth(token).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
+
+        then:
+        IllegalArgumentException e = thrown()
+        e.message =~ /Not a valid base URL/
+
+        where:
+        proto  | _
+        'file' | _
+        'blah' | _
+    }
+
     def "create token invalid token"() {
         given:
         def baseUrl = "http://example.com"
@@ -221,6 +274,32 @@ class RundeckClientSpec extends Specification {
         def result = RundeckClient.builder().
                 baseUrl(baseUrl).
                 tokenAuth(token).
+                logging(debuglevel).
+                timeout(httpTimeout).
+                retryConnect(retryConnect).
+                build()
+
+        then:
+        IllegalArgumentException e = thrown()
+        e.message =~ /Token cannot be blank or null/
+
+        where:
+        token | _
+        ''    | _
+        null  | _
+    }
+
+    def "create bearer token invalid token"() {
+        given:
+        def baseUrl = "http://example.com"
+        int debuglevel = 0
+        long httpTimeout = 30
+        boolean retryConnect = true
+        when:
+
+        def result = RundeckClient.builder().
+                baseUrl(baseUrl).
+                bearerTokenAuth(token).
                 logging(debuglevel).
                 timeout(httpTimeout).
                 retryConnect(retryConnect).
