@@ -417,7 +417,7 @@ class ExecutionsSpec extends Specification {
         (doesapi?1:0) * api.deleteAllJobExecutions('jobid') >> Calls.response(
                 new BulkExecutionDeleteResponse(
                         allsuccessful:allsuccess,
-                        failures: allsuccess?[]:[new BulkExecutionDeleteResponse.DeleteFailure(id:'jobid',message:'amessage')]
+                        failures: allsuccess ? [] : [new BulkExecutionDeleteResponse.DeleteFailure(id: 'jobid', message: 'amessage')]
                 )
         )
 

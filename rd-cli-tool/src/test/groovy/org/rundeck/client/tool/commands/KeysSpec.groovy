@@ -35,12 +35,10 @@ class KeysSpec extends Specification {
         File testfile = File.createTempFile('KeysSpec', '.test')
         testfile.text = input
 
-        def opts = Mock(Keys.Upload) {
-            getPath() >> new Keys.Path('keys/test1')
-            getType() >> KeyStorageItem.KeyFileType.password
-            getFile() >> testfile
-            isFile() >> true
-        }
+        def opts = new Keys.Upload()
+        opts.path = new Keys.Path('keys/test1')
+        opts.type = KeyStorageItem.KeyFileType.password
+        opts.file = testfile
         when:
         def body = Keys.prepareKeyUpload(opts)
 
@@ -64,14 +62,12 @@ class KeysSpec extends Specification {
         File testfile = File.createTempFile('KeysSpec', '.test')
         testfile.setText(input, charset)
 
-        def opts = Mock(Keys.Upload) {
-            getPath() >> new Keys.Path('keys/test1')
-            getType() >> KeyStorageItem.KeyFileType.password
-            getFile() >> testfile
-            isFile() >> true
-            getCharset() >> charset
-            isCharset() >> true
-        }
+        def opts = new Keys.Upload()
+        opts.path = new Keys.Path('keys/test1')
+        opts.type = KeyStorageItem.KeyFileType.password
+        opts.file = testfile
+        opts.charset = charset
+
         when:
         def body = Keys.prepareKeyUpload(opts)
 
@@ -93,12 +89,10 @@ class KeysSpec extends Specification {
         File testfile = File.createTempFile('KeysSpec', '.test')
         testfile.text = input
 
-        def opts = Mock(Keys.Upload) {
-            getPath() >> new Keys.Path('keys/test1')
-            getType() >> KeyStorageItem.KeyFileType.password
-            getFile() >> testfile
-            isFile() >> true
-        }
+        def opts = new Keys.Upload()
+        opts.path = new Keys.Path('keys/test1')
+        opts.type = KeyStorageItem.KeyFileType.password
+        opts.file = testfile
         when:
         def body = Keys.prepareKeyUpload(opts)
 
@@ -117,12 +111,10 @@ class KeysSpec extends Specification {
     def "create password require file or prompt"() {
         given:
 
-        def opts = Mock(Keys.Upload) {
-            getPath() >> new Keys.Path('keys/test1')
-            getType() >> type
-            isFile() >> false
-            isPrompt() >> false
-        }
+        def opts = new Keys.Upload()
+        opts.path = new Keys.Path('keys/test1')
+        opts.type = type
+        opts.prompt = prompt
         when:
         def body = Keys.prepareKeyUpload(opts)
 
@@ -139,12 +131,10 @@ class KeysSpec extends Specification {
     def "create #type require file"() {
         given:
 
-        def opts = Mock(Keys.Upload) {
-            getPath() >> new Keys.Path('keys/test1')
-            getType() >> type
-            isFile() >> false
-            isPrompt() >> prompt
-        }
+        def opts = new Keys.Upload()
+        opts.path = new Keys.Path('keys/test1')
+        opts.type = type
+        opts.prompt = prompt
         when:
         def body = Keys.prepareKeyUpload(opts)
 
