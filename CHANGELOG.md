@@ -1,3 +1,9 @@
+## 2.0.9
+
+* fix: NPE if system info does not return all data
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.8...v2.0.9)
+
 ## 2.0.8
 
 * Fix: rd acl validate fails [Issue #541](https://github.com/rundeck/rundeck-cli/issues/541)
