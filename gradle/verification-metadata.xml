@@ -52,7 +52,10 @@
          <trusted-key id="1fa37fbe4453c1073e7ef61d6449005f96bc97a3" group="de.undercouch" name="gradle-download-task" version="4.0.2"/>
          <trusted-key id="253e8e4c6fb28d11748115c1249dee8e2c07a0a2" group="com.github.javaparser"/>
          <trusted-key id="259a55407dd6c00299e6607effde55be73a2d1ed" group="org.owasp"/>
-         <trusted-key id="2655176f748fd83725b4805ff2a01147d830c125" group="org.testcontainers"/>
+         <trusted-key id="2655176f748fd83725b4805ff2a01147d830c125">
+            <trusting group="com.github.docker-java"/>
+            <trusting group="org.testcontainers"/>
+         </trusted-key>
          <trusted-key id="28118c070cb22a0175a2e8d43d12ca2ac19f3181" group="^com[.]fasterxml($|([.].*))" regex="true"/>
          <trusted-key id="2bcbdd0f23ea1cafcc11d4860374cf2e8dd1bdfd" group="^org[.]sonatype($|([.].*))" regex="true"/>
          <trusted-key id="2cecbfba181601547b654b9ffa81ac8a490f538e" group="org.apache.lucene"/>
@@ -129,6 +132,7 @@
          <trusted-key id="7cd52b5a8295137c88fb5748dddafa7674e54418" group="org.testng" name="testng" version="7.5"/>
          <trusted-key id="81d3eb0408b4e1eb10af443ba4f4c886b29bc2f4" group="org.apache.lucene"/>
          <trusted-key id="839b8c32286c100bdb08f5522eb9468288817402" group="org.apache.commons"/>
+         <trusted-key id="84789d24df77a32433ce1f079eb80e92eb2135b1" group="org.apache" name="apache"/>
          <trusted-key id="8756c4f765c9ac3cb6b85d62379ce192d401ab61">
             <trusting group="info.picocli"/>
             <trusting group="org.rnorth.duct-tape"/>
@@ -216,7 +220,10 @@
          <trusted-key id="f9514e84ae3708288374bbbe097586cfea37f9a6" group="org.owasp"/>
          <trusted-key id="fa1703b1d287caea3a60f931e0130a3ed5a2079e" group="org.webjars" name="jquery" version="3.5.1"/>
          <trusted-key id="fa77dcfef2ee6eb2debedd2c012579464d01c06a" group="org.apache" name="apache"/>
-         <trusted-key id="fa7929f83ad44c4590f6cc6815c71c0a4e0b8edd" group="net.java.dev.jna" name="jna" version="5.8.0"/>
+         <trusted-key id="fa7929f83ad44c4590f6cc6815c71c0a4e0b8edd">
+            <trusting group="net.java.dev.jna" name="jna" version="5.13.0"/>
+            <trusting group="net.java.dev.jna" name="jna" version="5.8.0"/>
+         </trusted-key>
          <trusted-key id="fc411cd3cb7dcb0abc9801058118b3bcdb1a5000" group="jakarta.xml.bind"/>
          <trusted-key id="ff6e2c001948c5f2f38b0cc385911f425ec61b51">
             <trusting group="junit"/>
