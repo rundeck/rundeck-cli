@@ -13,6 +13,8 @@
          <ignored-key id="b3de72e647d35161" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="928fbf39003c0425" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="2bfd7825a8984fbe" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="c71fb765cd9de313" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="47933d17f199636b" reason="Key couldn't be downloaded from any key server"/>
       </ignored-keys>
       <trusted-keys>
          <trusted-key id="015479e1055341431b4545ab72475fd306b9cab7">
@@ -45,7 +47,10 @@
             <trusting group="org.yaml" name="snakeyaml" version="1.33"/>
             <trusting group="org.yaml" name="snakeyaml" version="2.0"/>
          </trusted-key>
-         <trusted-key id="144219b604dde6a2383fa0ee9c6404ebce3e4464" group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
+         <trusted-key id="144219b604dde6a2383fa0ee9c6404ebce3e4464">
+            <trusting group="com.github.zafarkhaja" name="java-semver" version="0.10.2"/>
+            <trusting group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
+         </trusted-key>
          <trusted-key id="19beab2d799c020f17c69126b16698a4adf4d638">
             <trusting group="org.checkerframework" name="checker-qual" version="2.10.0"/>
             <trusting group="org.checkerframework" name="checker-qual" version="3.12.0"/>
@@ -63,6 +68,7 @@
          <trusted-key id="2cecbfba181601547b654b9ffa81ac8a490f538e" group="org.apache.lucene"/>
          <trusted-key id="2db4f1ef0fa761ecc4ea935c86fdc7e2a11262cb">
             <trusting group="commons-codec" name="commons-codec" version="1.16.0"/>
+            <trusting group="commons-codec" name="commons-codec" version="1.18.0"/>
             <trusting group="commons-io"/>
             <trusting group="org.apache.commons"/>
             <trusting group="org.apache.commons" name="commons-text" version="1.8"/>
@@ -85,7 +91,10 @@
          <trusted-key id="44fbdbbc1a00fe414f1c1873586654072ead6677" group="org.sonatype.oss" name="oss-parent" version="9"/>
          <trusted-key id="475f3b8e59e6e63aa78067482c7b12f2a511e325" group="org.slf4j"/>
          <trusted-key id="485e371cb07eabe6d5778d4b0c27e8fac93b3b19" group="com.sun.mail"/>
-         <trusted-key id="48b086a7d843cfa258e83286928fbf39003c0425" group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+         <trusted-key id="48b086a7d843cfa258e83286928fbf39003c0425">
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.39"/>
+         </trusted-key>
          <trusted-key id="4a720fe790b07a68744e371675bf031b7c94e183" group="net.java.dev.jna"/>
          <trusted-key id="4db1a49729b053caf015cee9a6adfc93ef34893e" group="org.hamcrest"/>
          <trusted-key id="4f5277bf72a045dad4ae36dd9440c8d6decafa12" group="org.testng" name="testng" version="6.13.1"/>
@@ -128,6 +137,7 @@
          <trusted-key id="79eb1eae95f376ab9629429de2d0f3764b54797f">
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.13.6"/>
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.20.1"/>
          </trusted-key>
          <trusted-key id="7b121b76a7ed6ce6e60ad51784e913a8e3a748c0" group="org.bouncycastle"/>
          <trusted-key id="7c669810892cbd3148fa92995b05ccde140c2876" group="org.eclipse.jgit"/>
@@ -166,6 +176,7 @@
          <trusted-key id="afa2b1823fc021bfd08c211fd5f4c07a434ab3da" group="com.squareup" name="kotlinpoet" version="1.10.2"/>
          <trusted-key id="afcc4c7594d09e2182c60e0f7a01b0f236e5430f" group="com.google.code.gson"/>
          <trusted-key id="b41089a2da79b0fa5810252872385ff0af338d52" group="joda-time" name="joda-time" version="2.10.4"/>
+         <trusted-key id="b5c082f1158b8c92ae3e5e1c29b8fea02804261c" group="^com[.]kohlschutter($|([.].*))" regex="true"/>
          <trusted-key id="b6e73d84ea4fcc47166087253faad2cd5ecbb314">
             <trusting group="commons-beanutils"/>
             <trusting group="org.apache.commons"/>
@@ -226,6 +237,7 @@
          <trusted-key id="fa1703b1d287caea3a60f931e0130a3ed5a2079e" group="org.webjars" name="jquery" version="3.5.1"/>
          <trusted-key id="fa77dcfef2ee6eb2debedd2c012579464d01c06a" group="org.apache" name="apache"/>
          <trusted-key id="fa7929f83ad44c4590f6cc6815c71c0a4e0b8edd">
+            <trusting group="net.java.dev.jna"/>
             <trusting group="net.java.dev.jna" name="jna" version="5.13.0"/>
             <trusting group="net.java.dev.jna" name="jna" version="5.8.0"/>
          </trusted-key>
@@ -753,6 +765,14 @@
       <component group="com.github.johnrengelman.shadow" name="com.github.johnrengelman.shadow.gradle.plugin" version="7.1.2">
          <artifact name="com.github.johnrengelman.shadow.gradle.plugin-7.1.2.pom">
             <sha256 value="956e45085e52ea5ef32d34671ebb84eb1c41a83c4549af26e68635f1061798d3" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="com.github.mwiede" name="jsch" version="0.2.24">
+         <artifact name="jsch-0.2.24.jar">
+            <sha256 value="a5a1780b951e7f0e746e95617ea73c082c495ae6179912196f00a28daea101fd" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="jsch-0.2.24.pom">
+            <sha256 value="ef8e2199e7038101923f1b5701a337592743ec250fbeb6ced313c00615d1ecba" origin="Generated by Gradle because a key couldn't be downloaded"/>
          </artifact>
       </component>
       <component group="com.github.package-url" name="packageurl-java" version="1.1.1">
@@ -1887,6 +1907,14 @@
             <sha256 value="a774efed935890270accd460e5d465d2f45a019c78a0e78217c42bc9cf6f65d0" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache.ant" name="ant" version="1.10.15">
+         <artifact name="ant-1.10.15.jar">
+            <sha256 value="763acda4a69588c9ea8817a952851ff0c2fc4bffa1d081c2565dc407f29d5794" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="ant-1.10.15.pom">
+            <sha256 value="4780e61e87816eee1f21d184ec997b65f93db5f4b9042c178adb29e23e7425d6" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
       <component group="org.apache.ant" name="ant" version="1.9.15">
          <artifact name="ant-1.9.15.jar">
             <sha256 value="559878381082474655c740e8373a2c9990fe4a987aa4c26f39c722cef5c42ccc" origin="Generated by Gradle"/>
@@ -1916,6 +1944,14 @@
             <sha256 value="975b846ef3aba2bde553fb9fbf8048d10710f3285ab9aef53448dd3d4b2a2bfe" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache.ant" name="ant-antlr" version="1.10.15">
+         <artifact name="ant-antlr-1.10.15.jar">
+            <sha256 value="619e361609d446fe6ab67d1d45b8656e68644cbd7c45bbed5c2c8816408d8dd5" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="ant-antlr-1.10.15.pom">
+            <sha256 value="f706ec5c533200f6ea1db97e4c7fa476d9f2f25d06162d1ca97106a1ab84c73d" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
       <component group="org.apache.ant" name="ant-antlr" version="1.9.15">
          <artifact name="ant-antlr-1.9.15.jar">
             <sha256 value="eb054b35dc0972fca04a16f1055763acb81c587b76743f23883ed8da9dc66573" origin="Generated by Gradle"/>
@@ -1938,6 +1974,14 @@
          </artifact>
          <artifact name="ant-junit-1.10.12.pom">
             <sha256 value="3b34b331dcda3c0d5556ffcf1490a44d688f8580ce9bc42a54e9b04acd2364d6" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.apache.ant" name="ant-junit" version="1.10.15">
+         <artifact name="ant-junit-1.10.15.jar">
+            <sha256 value="9a455eeb4bedc1d8bcd4b8099d4b1f18f1bf1bc977cd6e389a106fe0cf366711" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="ant-junit-1.10.15.pom">
+            <sha256 value="5e1cd65c9bc33f43c10b500beba447867d6a737032bc9365583d31810f8ed234" origin="Generated by Gradle because a key couldn't be downloaded"/>
          </artifact>
       </component>
       <component group="org.apache.ant" name="ant-junit" version="1.9.15">
@@ -1964,6 +2008,14 @@
             <sha256 value="11b8712a4ce9a80912ae9505a46abc5b2d06cfd18892c9dd268eb3069056e4c9" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache.ant" name="ant-launcher" version="1.10.15">
+         <artifact name="ant-launcher-1.10.15.jar">
+            <sha256 value="5c8551990307a032336d98ddaed549a39a689f07d4d4c6b950601bf22b3d6a1b" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="ant-launcher-1.10.15.pom">
+            <sha256 value="79af842a2979dc5fe0022bc073c498810eead83bc6283eedf34dc4dfe30dac95" origin="Generated by Gradle because a key couldn't be downloaded"/>
+         </artifact>
+      </component>
       <component group="org.apache.ant" name="ant-launcher" version="1.9.15">
          <artifact name="ant-launcher-1.9.15.jar">
             <sha256 value="3b6c7c0bbc064a6d40039f995f6dc39bc3b79a3b35f3e947ed545c4b661bd94b" origin="Generated by Gradle"/>
@@ -1985,6 +2037,11 @@
       <component group="org.apache.ant" name="ant-parent" version="1.10.12">
          <artifact name="ant-parent-1.10.12.pom">
             <sha256 value="c519f4d47bbf9cdfd0d011ec6854295fca81e5a09e38b85f96e26f76d80e5f88" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.apache.ant" name="ant-parent" version="1.10.15">
+         <artifact name="ant-parent-1.10.15.pom">
+            <sha256 value="49884f1873c5107cc237f4285c4477479bb0804bf0737394801b08d75e2bbeb0" origin="Generated by Gradle because a key couldn't be downloaded"/>
          </artifact>
       </component>
       <component group="org.apache.ant" name="ant-parent" version="1.9.15">
@@ -4920,6 +4977,11 @@
       <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.15.5">
          <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.15.5.pom">
             <sha256 value="d6c9d7560648ce1556784923e9649fdf2bcab27394b57d9da4ef17166e1e4cae" origin="Generated by Gradle because artifact wasn't signed"/>
+         </artifact>
+      </component>
+      <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.20.1">
+         <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.20.1.pom">
+            <sha256 value="9e29081ef1199e4877f843aa62fad4a916098f3103e178024b58ee5f331f994a" origin="Generated by Gradle because artifact wasn't signed"/>
          </artifact>
       </component>
       <component group="us.springett" name="cpe-parser" version="2.0.2">
