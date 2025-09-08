@@ -19,6 +19,7 @@ snakeYaml = "2.0"
 #used for authz lib integration
 rundeck = "4.17.6-20240402"
 testcontainers = "1.17.2"
+commonsCompress = "1.26.2"
 
 [libraries]
 
@@ -49,6 +50,8 @@ rundeckAuthzYaml = { module = "org.rundeck:rundeck-authz-yaml", version.ref = "r
 
 testcontainers = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainersSpock = { module = "org.testcontainers:spock", version.ref = "testcontainers" }
+
+commonsCompress = { module = "org.apache.commons:commons-compress", version.ref = "commonsCompress" }
 
 [bundles]
 
