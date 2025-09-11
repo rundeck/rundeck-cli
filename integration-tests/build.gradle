@@ -11,6 +11,8 @@ dependencies {
     testImplementation libs.bundles.retrofit
     testImplementation libs.bundles.test
     testImplementation libs.bundles.testcontainers
+    // Security fix: Explicitly add fixed commons-compress version to override transitive dependency
+    testImplementation libs.commonsCompress
 }
 test {
     //note: this is intentionally commented out
