@@ -45,6 +45,15 @@ subprojects{
             options.addBooleanOption('html5', true)
         }
     }
+
+    // Security fix: Force commons-compress to fixed version to address SNYK-JAVA-ORGAPACHECOMMONS-6254296
+    // Security fix: Force commons-lang3 to fixed version to address CVE-2025-48924
+    configurations.all {
+        resolutionStrategy {
+            force "org.apache.commons:commons-compress:${libs.versions.commonsCompress.get()}"
+            force "org.apache.commons:commons-lang3:${libs.versions.commonsLang3.get()}"
+        }
+    }
 }
 
 /**
