@@ -46,12 +46,20 @@ subprojects{
         }
     }
 
-    // Security fix: Force commons-compress to fixed version to address SNYK-JAVA-ORGAPACHECOMMONS-6254296
     // Security fix: Force commons-lang3 to fixed version to address CVE-2025-48924
+    // Add dependency constraints for security fixes
     configurations.all {
         resolutionStrategy {
-            force "org.apache.commons:commons-compress:${libs.versions.commonsCompress.get()}"
             force "org.apache.commons:commons-lang3:${libs.versions.commonsLang3.get()}"
+        }
+    }
+    
+    dependencies {
+        constraints {
+            // Security fix: Ensure commons-compress is 1.26.0 to address SNYK-JAVA-ORGAPACHECOMMONS-6254296
+            implementation("org.apache.commons:commons-compress:${libs.versions.commonsCompress.get()}") {
+                because("CVE fix for infinite loop vulnerability")
+            }
         }
     }
 }
