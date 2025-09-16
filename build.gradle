@@ -46,7 +46,7 @@ subprojects{
         }
     }
 
-        // Mitigate CVE-2024-25710: Force commons-compress to 1.26.2
+        // Mitigate CVE-2024-25710: Force commons-compress to 1.28.0
         configurations.all {
             resolutionStrategy {
                 force libs.commonsCompress
