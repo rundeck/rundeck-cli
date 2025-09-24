@@ -53,6 +53,7 @@
             <trusting group="org.checkerframework" name="checker-qual" version="3.12.0"/>
          </trusted-key>
          <trusted-key id="1d0a8b5e77c678a7c724445abf984b4145ea13f7" group="com.squareup" name="javapoet" version="1.13.0"/>
+         <trusted-key id="1d217f8475eee9f19ab8dd6b793fd5751a0f0780" group="com.squareup.retrofit2"/>
          <trusted-key id="1fa37fbe4453c1073e7ef61d6449005f96bc97a3" group="de.undercouch" name="gradle-download-task" version="4.0.2"/>
          <trusted-key id="253e8e4c6fb28d11748115c1249dee8e2c07a0a2" group="com.github.javaparser"/>
          <trusted-key id="259a55407dd6c00299e6607effde55be73a2d1ed" group="org.owasp"/>
@@ -232,6 +233,7 @@
             <trusting group="net.java.dev.jna" name="jna" version="5.13.0"/>
             <trusting group="net.java.dev.jna" name="jna" version="5.8.0"/>
          </trusted-key>
+         <trusted-key id="fc2c31fc25fede4e7ad0d18c2bfd7825a8984fbe" group="com.github.javaparser"/>
          <trusted-key id="fc411cd3cb7dcb0abc9801058118b3bcdb1a5000" group="jakarta.xml.bind"/>
          <trusted-key id="ff6e2c001948c5f2f38b0cc385911f425ec61b51">
             <trusting group="junit"/>
