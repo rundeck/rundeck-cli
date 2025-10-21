@@ -232,6 +232,7 @@
             <trusting group="net.java.dev.jna" name="jna" version="5.13.0"/>
             <trusting group="net.java.dev.jna" name="jna" version="5.8.0"/>
          </trusted-key>
+         <trusted-key id="fc2c31fc25fede4e7ad0d18c2bfd7825a8984fbe" group="com.github.javaparser"/>
          <trusted-key id="fc411cd3cb7dcb0abc9801058118b3bcdb1a5000" group="jakarta.xml.bind"/>
          <trusted-key id="ff6e2c001948c5f2f38b0cc385911f425ec61b51">
             <trusting group="junit"/>
