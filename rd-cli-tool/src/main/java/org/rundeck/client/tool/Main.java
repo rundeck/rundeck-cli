@@ -196,7 +196,7 @@ public class Main {
     }
 
     private static void loadExtensionJars(ConfigSource config) {
-        if (config.getBool(RD_EXT_DISABLED, false)) {
+        if (config.getBool(RD_EXT_DISABLED, true)) {
             return;
         }
         String rd_ext_dir = config.get(RD_EXT_DIR);
