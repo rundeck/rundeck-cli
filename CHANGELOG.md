@@ -1,3 +1,8 @@
+## Unreleased
+
+* **Security Fix**: External extension directory loading is now disabled by default to prevent arbitrary code execution vulnerability. To enable extension loading from external directories, set environment variable `RD_EXT_DISABLED=false`. (Addresses RUN-3540)
+
+
 ## 2.0.9
 
 * fix: NPE if system info does not return all data

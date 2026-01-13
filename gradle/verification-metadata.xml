@@ -196,6 +196,7 @@
             <trusting group="org.projectlombok" name="lombok" version="1.18.30"/>
             <trusting group="org.projectlombok" name="lombok" version="1.18.34"/>
             <trusting group="org.projectlombok" name="lombok" version="1.18.36"/>
+            <trusting group="org.projectlombok" name="lombok" version="1.18.42"/>
          </trusted-key>
          <trusted-key id="d54a395b5cf3f86eb45f6e426b1b008864323b92" group="org.antlr"/>
          <trusted-key id="d5fc4d8e6ff704c573819555bf7cc7defe9389d7">
@@ -232,6 +233,7 @@
             <trusting group="net.java.dev.jna" name="jna" version="5.13.0"/>
             <trusting group="net.java.dev.jna" name="jna" version="5.8.0"/>
          </trusted-key>
+         <trusted-key id="fc2c31fc25fede4e7ad0d18c2bfd7825a8984fbe" group="com.github.javaparser"/>
          <trusted-key id="fc411cd3cb7dcb0abc9801058118b3bcdb1a5000" group="jakarta.xml.bind"/>
          <trusted-key id="ff6e2c001948c5f2f38b0cc385911f425ec61b51">
             <trusting group="junit"/>
