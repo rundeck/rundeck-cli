@@ -4,7 +4,7 @@
   ],
   "postUpgradeTasks": {
     "commands": [
-      "./gradlew --write-verification-metadata sha256 help"
+      "./gradlew --write-verification-metadata pgp,sha256 help"
     ],
     "fileFilters": [
       "gradle/verification-metadata.xml"
