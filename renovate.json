@@ -4,10 +4,11 @@
   ],
   "postUpgradeTasks": {
     "commands": [
-      "./gradlew --write-verification-metadata pgp,sha256 help"
+      "./gradlew --write-verification-metadata pgp,sha256 --export-keys help"
     ],
     "fileFilters": [
-      "gradle/verification-metadata.xml"
+      "gradle/verification-metadata.xml",
+      "gradle/verification-keyring.keys"
     ]
   }
 }
