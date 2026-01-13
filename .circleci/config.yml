@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  snyk: snyk/snyk@2.2 # https://circleci.com/developer/orbs/orb/snyk/snyk
+  snyk: snyk/snyk@2.3.3 # https://github.com/snyk/snyk-orb/
 
 jobs:
   build:
