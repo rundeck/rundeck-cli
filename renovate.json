@@ -1,5 +1,13 @@
 {
   "extends": [
     "config:base"
-  ]
+  ],
+  "postUpgradeTasks": {
+    "commands": [
+      "./gradlew --write-verification-metadata sha256 help"
+    ],
+    "fileFilters": [
+      "gradle/verification-metadata.xml"
+    ]
+  }
 }
