@@ -7,7 +7,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: cimg/openjdk:11.0
+      - image: cimg/openjdk:11.0.29
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -49,7 +49,7 @@ jobs:
 
   snyk_test:
     docker:
-      - image: cimg/openjdk:11.0 # this should match what's used in the rest of the project
+      - image: cimg/openjdk:11.0.29 # this should match what's used in the rest of the project
     steps:
       - checkout
       - setup_remote_docker
