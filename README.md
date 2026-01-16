@@ -66,7 +66,9 @@ Dependency verification is automatically updated by Renovate when dependencies c
 
 This updates both `gradle/verification-metadata.xml` (trusted keys) and `gradle/verification-keyring.keys` (PGP keyring). Commit both files.
 
-**To add missing keys after a failed build:**
+## Refresh Dependency Verification Keys
+
+After a failed build.
 
     ./gradlew --write-verification-metadata pgp,sha256 --refresh-keys --export-keys help
 
