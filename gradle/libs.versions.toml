@@ -17,7 +17,7 @@ jacksonDatabind = "2.19.2"
 picocli = "4.7.6"
 snakeYaml = "2.0"
 #used for authz lib integration
-rundeck = "4.17.6-20240402"
+rundeck = "5.18.0-20251216"
 testcontainers = "1.21.3"
 commonsCompress = "1.28.0"
 
