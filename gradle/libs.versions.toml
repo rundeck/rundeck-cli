@@ -15,7 +15,7 @@ buildInfo = "0.9"
 buildConfig = "3.1.0"
 jacksonDatabind = "2.19.2"
 picocli = "4.7.7"
-snakeYaml = "2.0"
+snakeYaml = "2.5"
 #used for authz lib integration
 rundeck = "4.17.6-20240402"
 testcontainers = "1.21.3"
