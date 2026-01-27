@@ -95,6 +95,7 @@
             <trusting group="com.squareup.okhttp3"/>
             <trusting group="com.squareup.okio"/>
          </trusted-key>
+         <trusted-key id="E2ACB037933CDEAAB7BF77D49A2C7A98E457C53D" group="org.springframework" name="spring-framework-bom" version="5.3.24"/>
          <trusted-key id="E3A9F95079E84CE201F7CF60BEDE11EAF1164480" group="org.hamcrest" name="hamcrest" version="2.2"/>
          <trusted-key id="E85AED155021AF8A6C6B7A4A7C7D8456294423BA" group="org.objenesis"/>
          <trusted-key id="EA23DB1360D9029481E7F2EFECDFEA3CB4493B94" group="jline" name="jline" version="2.14.6"/>
