@@ -26,6 +26,7 @@
          <trusted-key id="120D6F34E627ED3A772EBBFE55C7E5E701832382" group="org.yaml" name="snakeyaml" version="2.0"/>
          <trusted-key id="144219B604DDE6A2383FA0EE9C6404EBCE3E4464" group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
          <trusted-key id="1D0A8B5E77C678A7C724445ABF984B4145EA13F7" group="com.squareup" name="javapoet" version="1.13.0"/>
+         <trusted-key id="1D217F8475EEE9F19AB8DD6B793FD5751A0F0780" group="com.squareup.retrofit2"/>
          <trusted-key id="2655176F748FD83725B4805FF2A01147D830C125">
             <trusting group="com.github.docker-java"/>
             <trusting group="org.testcontainers"/>
