@@ -4,7 +4,9 @@
       <verify-metadata>true</verify-metadata>
       <verify-signatures>true</verify-signatures>
       <ignored-keys>
+         <ignored-key id="29B8FEA02804261C" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="37E9D58EA4598641" reason="Key couldn't be downloaded from any key server"/>
+         <ignored-key id="47933D17F199636B" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="6ED0F678B90EB06E" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="953E02E4F573B46F" reason="Key couldn't be downloaded from any key server"/>
          <ignored-key id="991EFB94DB91127D" reason="Key couldn't be downloaded from any key server"/>
@@ -24,7 +26,10 @@
          <trusted-key id="0A123C1ED3F13A6A0140E166C71FB765CD9DE313" group="org.apache.ant"/>
          <trusted-key id="0F4EC339EEAB6325FBBE45372C1F2F890A117483" group="com.netflix.nebula" name="gradle-ospackage-plugin" version="11.11.2"/>
          <trusted-key id="120D6F34E627ED3A772EBBFE55C7E5E701832382" group="org.yaml" name="snakeyaml" version="2.0"/>
-         <trusted-key id="144219B604DDE6A2383FA0EE9C6404EBCE3E4464" group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
+         <trusted-key id="144219B604DDE6A2383FA0EE9C6404EBCE3E4464">
+            <trusting group="com.github.zafarkhaja" name="java-semver" version="0.10.2"/>
+            <trusting group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
+         </trusted-key>
          <trusted-key id="1D0A8B5E77C678A7C724445ABF984B4145EA13F7" group="com.squareup" name="javapoet" version="1.13.0"/>
          <trusted-key id="2655176F748FD83725B4805FF2A01147D830C125">
             <trusting group="com.github.docker-java"/>
@@ -46,7 +51,10 @@
          <trusted-key id="3690C240CE51B4670D30AD1C38EE757D69184620" group="org.tukaani" name="xz"/>
          <trusted-key id="43C79B4BBD131821E17D2CA77B2F0491728B8E02" group="net.i2p.crypto" name="eddsa" version="0.3.0"/>
          <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j"/>
-         <trusted-key id="48B086A7D843CFA258E83286928FBF39003C0425" group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+         <trusted-key id="48B086A7D843CFA258E83286928FBF39003C0425">
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.39"/>
+         </trusted-key>
          <trusted-key id="4A720FE790B07A68744E371675BF031B7C94E183" group="net.java.dev.jna"/>
          <trusted-key id="4DB1A49729B053CAF015CEE9A6ADFC93EF34893E" group="org.hamcrest"/>
          <trusted-key id="4F7E32D440EF90A83011A8FC6425559C47CC79C4">
@@ -54,13 +62,17 @@
             <trusting group="javax.activation"/>
          </trusted-key>
          <trusted-key id="53C935821AA6A755BD337DB53595395EB3D8E1BA" group="org.apache.logging.log4j"/>
+         <trusted-key id="594ABF33ED102DF53F83CE43CFBB963ECC4F9C3A" group="org.apache.sshd"/>
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC" group="com.sun.activation"/>
          <trusted-key id="6F538074CCEBF35F28AF9B066A0975F8B1127B83" group="org.jetbrains.kotlin"/>
          <trusted-key id="70CD19BFD9F6C330027D6F260315BFB7970A144F" group="javax.xml.bind"/>
          <trusted-key id="76E94E8FF0AB5AF3B6F8366972FEFD1572EB75E1" group="org.spockframework" name="spock-core" version="2.1-groovy-3.0"/>
          <trusted-key id="78DF98EF7F95578FD545B9A159A7C2A1BD98C013" group="org.jdom" name="jdom2" version="2.0.6.1"/>
          <trusted-key id="79156E0351AF8604DE9B186B09A79E1E15A04694" group="org.vafer"/>
-         <trusted-key id="79EB1EAE95F376AB9629429DE2D0F3764B54797F" group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
+         <trusted-key id="79EB1EAE95F376AB9629429DE2D0F3764B54797F">
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.21.1"/>
+         </trusted-key>
          <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org.bouncycastle"/>
          <trusted-key id="7C669810892CBD3148FA92995B05CCDE140C2876" group="org.eclipse.jgit"/>
          <trusted-key id="7CD52B5A8295137C88FB5748DDDAFA7674E54418" group="org.testng" name="testng" version="7.5.1"/>
@@ -108,7 +120,10 @@
             <trusting group="org.codehaus.plexus"/>
             <trusting group="^org[.]apache($|([.].*))" regex="true"/>
          </trusted-key>
-         <trusted-key id="FA7929F83AD44C4590F6CC6815C71C0A4E0B8EDD" group="net.java.dev.jna" name="jna" version="5.13.0"/>
+         <trusted-key id="FA7929F83AD44C4590F6CC6815C71C0A4E0B8EDD">
+            <trusting group="net.java.dev.jna"/>
+            <trusting group="net.java.dev.jna" name="jna" version="5.13.0"/>
+         </trusted-key>
          <trusted-key id="FB11D4BB7B244678337AAD8BC7BF26D0BB617866" group="org.apache.maven"/>
          <trusted-key id="FC2C31FC25FEDE4E7AD0D18C2BFD7825A8984FBE" group="com.github.javaparser"/>
          <trusted-key id="FC411CD3CB7DCB0ABC9801058118B3BCDB1A5000" group="jakarta.xml.bind"/>
@@ -275,6 +290,14 @@
             <sha256 value="3cb3886b97df6e066f108c316b219f262c97c3cb2df6da78927e645deb643cb0" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
+      <component group="com.github.mwiede" name="jsch" version="0.2.24">
+         <artifact name="jsch-0.2.24.jar">
+            <sha256 value="a5a1780b951e7f0e746e95617ea73c082c495ae6179912196f00a28daea101fd" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="jsch-0.2.24.pom">
+            <sha256 value="ef8e2199e7038101923f1b5701a337592743ec250fbeb6ced313c00615d1ecba" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+      </component>
       <component group="com.github.zafarkhaja" name="java-semver" version="0.9.0">
          <artifact name="java-semver-0.9.0.jar">
             <sha256 value="2218c73b40f9af98b570d084420c1b4a81332297bd7fc27ddd552e903be8e93c" origin="Generated by Gradle"/>
@@ -374,6 +397,42 @@
          </artifact>
          <artifact name="jzlib-1.1.3.pom">
             <sha256 value="edb67251608556ad9584d00e46b5ef38ecf1246d571c0f80f24f50b285a9f682" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter" name="kohlschutter-parent" version="1.7.0">
+         <artifact name="kohlschutter-parent-1.7.0.pom">
+            <sha256 value="cb99ab5ebcd63c575d44eb40d8b9d0b44fae747f7c7fe245749d885be1ed03e9" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter" name="kohlschutter-parent-multirelease" version="1.7.0">
+         <artifact name="kohlschutter-parent-multirelease-1.7.0.pom">
+            <sha256 value="ef45c7da0f0bc01e835fab107e15948c6d704419011943f14a67e74c5430a1b2" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket" version="2.9.1">
+         <artifact name="junixsocket-2.9.1.pom">
+            <sha256 value="7cc6ab919d9fee1f88d68f11be199aaad18391dda6252f413df682544469bdae" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket-common" version="2.9.1">
+         <artifact name="junixsocket-common-2.9.1.jar">
+            <sha256 value="39612575d1aec62453beb2abbcd5b110da434362f5402645c8d0d8e04db0d3aa" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="junixsocket-common-2.9.1.pom">
+            <sha256 value="e046fc34cff3cf1e2ec5cfdc7ef8c216406a541a2c056c51ae11bd4faeadadb8" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket-core" version="2.9.1">
+         <artifact name="junixsocket-core-2.9.1.pom">
+            <sha256 value="2c1405a0b644f0398fe2a22d414db3da459e2dfd0b1b3412921172ae1da49f7b" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+      </component>
+      <component group="com.kohlschutter.junixsocket" name="junixsocket-native-common" version="2.9.1">
+         <artifact name="junixsocket-native-common-2.9.1.jar">
+            <sha256 value="8227d7efd2f4ed0730dd2f378ca10356c3e272fa02b755c573807a60aadc9049" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
+         </artifact>
+         <artifact name="junixsocket-native-common-2.9.1.pom">
+            <sha256 value="293192227f1ba113332ea152865f8c74c126f4fcea507b94f3d835fab77457a5" origin="Generated by Gradle" reason="A key couldn't be downloaded"/>
          </artifact>
       </component>
       <component group="com.netflix.nebula" name="gradle-ospackage-plugin" version="11.11.2">
@@ -2005,6 +2064,11 @@
       <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.15.5">
          <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.15.5.pom">
             <sha256 value="d6c9d7560648ce1556784923e9649fdf2bcab27394b57d9da4ef17166e1e4cae" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.21.1">
+         <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.21.1.pom">
+            <sha256 value="3a794bf5967fc024a46531602bfa09373990e0fee3f38c0387789279636396cb" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
    </components>
