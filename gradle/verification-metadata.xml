@@ -55,6 +55,7 @@
          </trusted-key>
          <trusted-key id="53C935821AA6A755BD337DB53595395EB3D8E1BA" group="org.apache.logging.log4j"/>
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC" group="com.sun.activation"/>
+         <trusted-key id="6E7F910017655622A899639EE7D88DB8427DE651" group="org.testcontainers"/>
          <trusted-key id="6F538074CCEBF35F28AF9B066A0975F8B1127B83" group="org.jetbrains.kotlin"/>
          <trusted-key id="70CD19BFD9F6C330027D6F260315BFB7970A144F" group="javax.xml.bind"/>
          <trusted-key id="76E94E8FF0AB5AF3B6F8366972FEFD1572EB75E1" group="org.spockframework" name="spock-core" version="2.1-groovy-3.0"/>
