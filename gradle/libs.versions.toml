@@ -1,6 +1,6 @@
 [versions]
 
-retrofit = "2.9.0"
+retrofit = "2.12.0"
 okhttp = "4.12.0"
 lombok = "1.18.42"
 jaxb = "2.3.9"
