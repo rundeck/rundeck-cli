@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  snyk: snyk/snyk@2.3.3 # https://github.com/snyk/snyk-orb/
+  snyk: snyk/snyk@2.3.0 # https://github.com/snyk/snyk-orb/
 
 jobs:
   build:
@@ -68,7 +68,43 @@ jobs:
             else
               echo "Skipping monitor for non-main branch - no data sent to dashboard"
             fi
-      - run: snyk test --severity-threshold=high --all-projects --detection-depth=10 --scan-all-unmanaged || true # will NOT fail step if any results are found
+      - run: snyk test --severity-threshold=high --all-projects --detection-depth=10 --scan-all-unmanaged --json > snyk-results.json || true # will NOT fail step if any results are found
+      - run:
+          name: CVE Summary
+          command: |
+            if [ -f snyk-results.json ]; then
+              # Check if scan failed (error field present)
+              if jq -e '.error' snyk-results.json > /dev/null 2>&1; then
+                echo "Snyk scan failed - see snyk-results.json for details"
+                exit 0
+              fi
+              cve_count=$(jq '[.[] | select(type == "object") | select(.vulnerabilities != null) | .vulnerabilities[] | select( (.identifiers.CVE | length > 0 ) or (.identifiers.GHSA | length > 0) or (.identifiers.CWE | length > 0 ) )] | length' snyk-results.json)
+              if [ "$cve_count" -gt 0 ]; then
+                echo "=== CVEs Found ==="
+                jq -r '.[] | select(type == "object") | select(.vulnerabilities != null) | .vulnerabilities[] | select( (.identifiers.CVE | length > 0) or (.identifiers.GHSA | length > 0) or (.identifiers.CWE | length > 0 ) ) | [( [.identifiers.CVE,.identifiers.GHSA,.identifiers.CWE] | map(select(.!=null and .!=[])) | flatten | join(",")), .severity, .moduleName, .title] | @csv' snyk-results.json | sort -u | tee snyk-summary.csv
+                echo "=================="
+              else
+                echo "No CVEs found - clean scan!"
+              fi
+            else
+              echo "No snyk-results.json found — skipping CVE summary"
+            fi
+      - run:
+          name: Convert Snyk results to JUnit XML
+          when: always
+          command: |
+            if [ -f snyk-results.json ]; then
+              mkdir -p test-results/junit
+              bash scripts/convert_snyk_junit.sh snyk-results.json > test-results/junit/snyk-junit.xml
+            fi
+      - store_test_results:
+          path: test-results
+      - store_artifacts:
+          path: snyk-results.json
+          destination: snyk-results.json
+      - store_artifacts:
+          path: snyk-summary.csv
+          destination: snyk-summary.csv # will NOT fail step if any results are found
 
 workflows:
   version: 2
