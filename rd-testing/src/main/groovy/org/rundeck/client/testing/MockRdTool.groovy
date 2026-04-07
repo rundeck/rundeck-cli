@@ -54,7 +54,7 @@ class MockRdTool implements RdTool {
 
     @Override
     String projectOrEnv(final ProjectInput options) throws InputError {
-        return options.project
+        return options.getProject()
     }
 
     @Override
