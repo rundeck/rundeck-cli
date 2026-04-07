@@ -94,6 +94,12 @@ jobs:
             fi
       - store_test_results:
           path: test-results
+      - store_artifacts:
+          path: snyk-results.json
+          destination: snyk-results.json
+      - store_artifacts:
+          path: snyk-summary.csv
+          destination: snyk-summary.csv # will NOT fail step if any results are found
 
 workflows:
   version: 2
