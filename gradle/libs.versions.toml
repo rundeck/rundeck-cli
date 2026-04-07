@@ -16,9 +16,8 @@ buildConfig = "3.1.0"
 jacksonDatabind = "2.21.1"
 picocli = "4.7.7"
 snakeYaml = "2.0"
-#used for authz lib integration
-rundeck = "4.17.6-20240402"
-testcontainers = "1.21.3"
+rundeck = "6.0.0-SNAPSHOT"
+testcontainers = "1.21.4"
 commonsCompress = "1.28.0"
 # Spock mocks of concrete classes; not always pulled transitively with groovy-all 4.x
 byteBuddy = "1.15.11"

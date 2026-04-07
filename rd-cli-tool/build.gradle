@@ -48,9 +48,14 @@ ext.developers = [
     [id: 'gschueler', name: 'Greg Schueler', email: 'greg@rundeck.com']
 ]
 
-repositories{
+repositories {
     mavenCentral()
+    maven {
+        url = uri('https://central.sonatype.com/repository/maven-snapshots/')
+        mavenContent { snapshotsOnly() }
+    }
     maven { url 'https://jitpack.io' }
+    mavenLocal()
 }
 dependencies {
 
