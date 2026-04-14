@@ -115,3 +115,20 @@ workflows:
             - PagerDuty
             - Snyk
       - build
+
+  # Runs only on the cron schedule (not on git push). Cron is UTC.
+  # Project Settings → Triggers: ensure scheduled pipelines are allowed if required by your org.
+  weekly_snyk_scan:
+    triggers:
+      - schedule:
+          # Every Monday 06:00 UTC (~ Sun evening US Pacific)
+          cron: "0 6 * * 1"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - snyk_test:
+          context:
+            - PagerDuty
+            - Snyk
