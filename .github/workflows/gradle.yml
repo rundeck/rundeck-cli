@@ -32,13 +32,8 @@ jobs:
     needs: build
     strategy:
       matrix:
-        jdk: [ "openjdk-11-jdk","openjdk-17-jdk","openjdk-21-jdk" ]
-        ubuntu: ["20.04", "22.04"]
-        include:
-          - jdk: 'openjdk-11-jdk'
-            ubuntu: '18.04'
-          - jdk: 'openjdk-17-jdk'
-            ubuntu: '18.04'
+        jdk: ["openjdk-17-jdk","openjdk-21-jdk", "openjdk-25-jdk" ]
+        ubuntu: ["22.04"]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -60,7 +55,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        jdk: [ "java-11-openjdk","java-17-openjdk","java-21-openjdk" ]
+        jdk: ["java-17-openjdk","java-21-openjdk","java-25-openjdk" ]
     steps:
       - uses: actions/checkout@v3
         with:
