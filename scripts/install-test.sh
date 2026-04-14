@@ -10,7 +10,7 @@ UBUNTUVERS="${UBUNTUVERS:-20.04 22.04}"
 #UBUNTUVERS_18="18.04"
 RPMJDK="${RPMJDK:-java-17-openjdk java-21-openjdk java-25-openjdk}"
 DEBJDK="${DEBJDK:-openjdk-17-jdk openjdk-21-jdk openjdk-25-jdk}"
-#DEBJDK_18="openjdk-11-jdk openjdk-17-jdk"
+#DEBJDK_18="openjdk-17-jdk openjdk-21-jdk"
 DEBFILE="${DEBFILE:-}"
 RPMFILE="${RPMFILE:-}"
 

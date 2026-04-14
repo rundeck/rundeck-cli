@@ -1,7 +1,14 @@
 ## Unreleased
 
-* **Security Fix**: External extension directory loading is now disabled by default to prevent arbitrary code execution vulnerability. To enable extension loading from external directories, set environment variable `RD_EXT_DISABLED=false`. (Addresses RUN-3540)
+## 3.0.0
 
+* **Breaking change**: Java 17 or later is required to run the CLI and to build from source. Java 11 is no longer supported.
+* **Security**: External extension directory loading is now disabled by default to prevent arbitrary code execution. To enable extension loading from external directories, set environment variable `RD_EXT_DISABLED=false`. (Addresses RUN-3540)
+* Build: Gradle 8, Groovy 4, and dependency updates (including Jackson).
+* CI and packaging tests: workflows and Docker-based install/upgrade tests now target Java 17 and later (Java 11 combinations removed).
+* Documentation: the in-repo Jekyll site under `docs/` was removed; use the [published CLI documentation](https://docs.rundeck.com/docs/rd-cli/) and [changelog](https://rundeck.github.io/rundeck-cli/changes/) on the web.
+
+[Changes](https://github.com/rundeck/rundeck-cli/compare/v2.0.9...v3.0.0)
 
 ## 2.0.9
 
