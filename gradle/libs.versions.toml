@@ -16,7 +16,7 @@ buildConfig = "3.1.0"
 jacksonDatabind = "2.21.2"
 picocli = "4.7.7"
 snakeYaml = "2.0"
-rundeck = "6.0.0-SNAPSHOT"
+rundeck = "6.0.0-alpha1-20260407"
 testcontainers = "1.21.4"
 commonsCompress = "1.28.0"
 # Spock mocks of concrete classes; not always pulled transitively with groovy-all 4.x
