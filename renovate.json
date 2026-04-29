@@ -1,6 +1,6 @@
 {
   "extends": [
-    "config:base"
+    "config:recommended"
   ],
   "postUpgradeTasks": {
     "commands": [
@@ -11,7 +11,7 @@
       "gradle/verification-keyring.keys"
     ]
   },
-  "allowedCommands: [
+  "allowedCommands": [
     "^./gradlew --write-verification-metadata pgp,sha256 --export-keys help$"
   ]
 }
