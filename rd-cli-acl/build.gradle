@@ -22,7 +22,9 @@ dependencies {
 
     testImplementation project(":rd-cli-lib"), project(":rd-api-client")
 
-    testImplementation libs.bundles.rundeckAuthz
+    testImplementation(libs.bundles.rundeckAuthz) {
+        exclude(group: 'org.yaml', module: 'snakeyaml')
+    }
     testImplementation libs.retrofitMock
     testImplementation libs.okhttpMockwebserver
     testImplementation libs.bundles.test
