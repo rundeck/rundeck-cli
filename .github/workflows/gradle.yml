@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Get Fetch Tags
@@ -40,7 +40,7 @@ jobs:
           - jdk: 'openjdk-17-jdk'
             ubuntu: '18.04'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: mkdirs
@@ -62,7 +62,7 @@ jobs:
       matrix:
         jdk: [ "java-11-openjdk","java-17-openjdk","java-21-openjdk" ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: mkdirs
@@ -81,7 +81,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
     - name: Get Fetch Tags
