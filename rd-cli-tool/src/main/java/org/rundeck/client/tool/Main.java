@@ -91,6 +91,12 @@ public class Main {
 
     @CommandLine.Spec
     CommandLine.Model.CommandSpec spec;
+
+    @CommandLine.Option(
+            names = "--allow-cross-origin-redirect",
+            description = "Allow cross-origin redirects to be followed with credentials (security risk)"
+    )
+    boolean allowCrossOriginRedirect;
     public static final String
             USER_AGENT =
             RundeckClient.Builder.getUserAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
