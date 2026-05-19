@@ -61,6 +61,11 @@ public class RundeckClient {
      * If true, allow API version to be automatically degraded when unsupported version is detected
      */
     public static final String RD_API_DOWNGRADE = "RD_API_DOWNGRADE";
+    /**
+     * If true, allow cross-origin HTTP redirects to be followed with authentication credentials.
+     * Default is false: cross-origin redirects are blocked to prevent credential exfiltration.
+     */
+    public static final String ENV_ALLOW_CROSS_ORIGIN_REDIRECT = "RD_ALLOW_CROSS_ORIGIN_REDIRECT";
     public static final int INSECURE_SSL_LOGGING = 2;
     public static final long DEFAULT_READ_TIMEOUT_SECONDS = 10 * 60L;
     public static final long DEFAULT_CONN_TIMEOUT_SECONDS = 2 * 60L;
@@ -105,6 +110,7 @@ public class RundeckClient {
             insecureSSLHostname(config.getBool(ENV_INSECURE_SSL_HOSTNAME, false));
             alternateSSLHostname(config.getString(ENV_ALT_SSL_HOSTNAME, null));
             allowVersionDowngrade(config.getBool(RD_API_DOWNGRADE, false));
+            allowCrossOriginRedirect(config.getBool(ENV_ALLOW_CROSS_ORIGIN_REDIRECT, false));
             return this;
         }
 
@@ -177,6 +183,16 @@ public class RundeckClient {
         public Builder<A> allowVersionDowngrade(final boolean allow) {
             this.allowVersionDowngrade = allow;
             return this;
+        }
+
+        /**
+         * Configure whether cross-origin redirects are allowed.
+         *
+         * @param allow when {@code true}, cross-origin redirects are followed with credentials
+         *              (original behaviour); when {@code false} (default), they are blocked
+         */
+        public Builder<A> allowCrossOriginRedirect(final boolean allow) {
+            return accept(RundeckClient::configAllowCrossOriginRedirect, allow);
         }
 
         public Builder<A> tokenAuth(final String authToken) {
@@ -472,6 +488,14 @@ public class RundeckClient {
             );
         }
         return builder;
+    }
+
+    private static void configAllowCrossOriginRedirect(
+            final Builder<?> builder,
+            final boolean allow
+    )
+    {
+        builder.okhttp.addNetworkInterceptor(new CrossOriginRedirectInterceptor(allow));
     }
 
     private static void configBypassUrl(
