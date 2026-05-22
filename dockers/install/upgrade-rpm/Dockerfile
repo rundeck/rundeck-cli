@@ -1,6 +1,6 @@
 FROM redhat/ubi8
 
-ARG JDK=java-11-openjdk
+ARG JDK=java-17-openjdk
 RUN yum -y update
 RUN yum -y install ${JDK} ${JDK}-devel which
 RUN which java
