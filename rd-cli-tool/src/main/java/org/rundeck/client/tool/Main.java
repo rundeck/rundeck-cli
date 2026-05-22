@@ -91,11 +91,24 @@ public class Main {
 
     @CommandLine.Spec
     CommandLine.Model.CommandSpec spec;
+
+    @CommandLine.Option(
+            names = "--allow-cross-origin-redirect",
+            description = "Allow cross-origin redirects to be followed with credentials (security risk)"
+    )
+    boolean allowCrossOriginRedirect;
     public static final String
             USER_AGENT =
             RundeckClient.Builder.getUserAgent("rd-cli-tool/" + org.rundeck.client.Version.VERSION);
 
     public static void main(String[] args) {
+        // Pre-process flags that affect client configuration before Rd is built,
+        // because createRd() reads ConfigSource (env + system props) immediately.
+        // The --allow-cross-origin-redirect flag is converted to a system property
+        // so SysProps can pick it up as RD_ALLOW_CROSS_ORIGIN_REDIRECT.
+        if (Arrays.asList(args).contains("--allow-cross-origin-redirect")) {
+            System.setProperty("rd.allow.cross.origin.redirect", "true");
+        }
         int result = -1;
         try (Rd rd = createRd()) {
             RdToolImpl rd1 = new RdToolImpl(rd);
@@ -349,10 +362,15 @@ public class Main {
 
         boolean insecureSsl = rd.getBool(ENV_INSECURE_SSL, false);
         boolean insecureSslNoWarn = rd.getBool(ENV_INSECURE_SSL_NO_WARN, false);
+        boolean allowCrossOriginRedirect = rd.getBool(ENV_ALLOW_CROSS_ORIGIN_REDIRECT, false);
         rd.setOutput(builder.finalOutput());
         if (insecureSsl && !insecureSslNoWarn) {
             rd.getOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
+        }
+        if (allowCrossOriginRedirect) {
+            rd.getOutput().warning(
+                    "# WARNING: RD_ALLOW_CROSS_ORIGIN_REDIRECT=true, cross-origin redirects will be followed with credentials");
         }
     }
 
