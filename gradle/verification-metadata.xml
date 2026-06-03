@@ -32,7 +32,10 @@
             <trusting group="org.yaml" name="snakeyaml" version="2.0"/>
             <trusting group="org.yaml" name="snakeyaml" version="2.2"/>
          </trusted-key>
-         <trusted-key id="144219B604DDE6A2383FA0EE9C6404EBCE3E4464" group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
+         <trusted-key id="144219B604DDE6A2383FA0EE9C6404EBCE3E4464">
+            <trusting group="com.github.zafarkhaja" name="java-semver" version="0.10.2"/>
+            <trusting group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
+         </trusted-key>
          <trusted-key id="1D0A8B5E77C678A7C724445ABF984B4145EA13F7" group="com.squareup" name="javapoet" version="1.13.0"/>
          <trusted-key id="2655176F748FD83725B4805FF2A01147D830C125">
             <trusting group="com.github.docker-java"/>
@@ -58,7 +61,10 @@
          <trusted-key id="3690C240CE51B4670D30AD1C38EE757D69184620" group="org.tukaani" name="xz"/>
          <trusted-key id="43C79B4BBD131821E17D2CA77B2F0491728B8E02" group="net.i2p.crypto" name="eddsa" version="0.3.0"/>
          <trusted-key id="475F3B8E59E6E63AA78067482C7B12F2A511E325" group="org.slf4j"/>
-         <trusted-key id="48B086A7D843CFA258E83286928FBF39003C0425" group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+         <trusted-key id="48B086A7D843CFA258E83286928FBF39003C0425">
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.27"/>
+            <trusting group="org.springframework" name="spring-framework-bom" version="5.3.39"/>
+         </trusted-key>
          <trusted-key id="4A720FE790B07A68744E371675BF031B7C94E183" group="net.java.dev.jna"/>
          <trusted-key id="4DB1A49729B053CAF015CEE9A6ADFC93EF34893E" group="org.hamcrest"/>
          <trusted-key id="4F7E32D440EF90A83011A8FC6425559C47CC79C4">
@@ -66,6 +72,7 @@
             <trusting group="javax.activation"/>
          </trusted-key>
          <trusted-key id="53C935821AA6A755BD337DB53595395EB3D8E1BA" group="org.apache.logging.log4j"/>
+         <trusted-key id="594ABF33ED102DF53F83CE43CFBB963ECC4F9C3A" group="org.apache.sshd"/>
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC" group="com.sun.activation"/>
          <trusted-key id="6DE9B8077FBB2F8A019F4904BD17A565509DEE20" group="com.github.javaparser"/>
          <trusted-key id="6E7F910017655622A899639EE7D88DB8427DE651" group="org.testcontainers"/>
@@ -77,7 +84,10 @@
          </trusted-key>
          <trusted-key id="78DF98EF7F95578FD545B9A159A7C2A1BD98C013" group="org.jdom" name="jdom2" version="2.0.6.1"/>
          <trusted-key id="79156E0351AF8604DE9B186B09A79E1E15A04694" group="org.vafer"/>
-         <trusted-key id="79EB1EAE95F376AB9629429DE2D0F3764B54797F" group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
+         <trusted-key id="79EB1EAE95F376AB9629429DE2D0F3764B54797F">
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.21.2"/>
+         </trusted-key>
          <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org.bouncycastle"/>
          <trusted-key id="7C669810892CBD3148FA92995B05CCDE140C2876" group="org.eclipse.jgit"/>
          <trusted-key id="7CD52B5A8295137C88FB5748DDDAFA7674E54418" group="org.testng" name="testng" version="7.5.1"/>
@@ -97,6 +107,7 @@
          <trusted-key id="AA70C7C433D501636392EC02153E7A3C2B4E5118" group="org.eclipse.ee4j" name="project"/>
          <trusted-key id="AFA2B1823FC021BFD08C211FD5F4C07A434AB3DA" group="com.squareup" name="kotlinpoet" version="1.10.2"/>
          <trusted-key id="B02137D875D833D9B23392ECAE5A7FB608A0221C" group="org.codehaus.plexus" name="plexus-archiver" version="4.2.3"/>
+         <trusted-key id="B5C082F1158B8C92AE3E5E1C29B8FEA02804261C" group="^com[.]kohlschutter($|([.].*))" regex="true"/>
          <trusted-key id="B6E73D84EA4FCC47166087253FAAD2CD5ECBB314" group="org.apache.commons"/>
          <trusted-key id="B920D295BF0E61CB4CF0896C33CD6733AF5EC452">
             <trusting group="commons-logging"/>
@@ -109,6 +120,7 @@
          <trusted-key id="D066F5C471D32A00D244F99D6ED0F678B90EB06E" group="com.github.johnrengelman" name="shadow" version="8.1.1"/>
          <trusted-key id="D196A5E3E70732EEB2E5007F1861C322C56014B2" group="commons-codec"/>
          <trusted-key id="D421D1DF4570BFB13E485D0BF95ADD0A28D2F139" group="org.projectlombok" name="lombok" version="1.18.42"/>
+         <trusted-key id="D4D4DEC73685B1A135E45E5C47933D17F199636B" group="com.github.mwiede" name="jsch" version="0.2.24"/>
          <trusted-key id="D790F72EA8FD39551012B62DCF9F3090CE4CB752" group="org.abego.treelayout" name="org.abego.treelayout.core" version="1.0.3"/>
          <trusted-key id="DBD744ACE7ADE6AA50DD591F66B50994442D2D40">
             <trusting group="com.squareup.okhttp3"/>
@@ -127,7 +139,10 @@
             <trusting group="org.codehaus.plexus"/>
             <trusting group="^org[.]apache($|([.].*))" regex="true"/>
          </trusted-key>
-         <trusted-key id="FA7929F83AD44C4590F6CC6815C71C0A4E0B8EDD" group="net.java.dev.jna" name="jna" version="5.13.0"/>
+         <trusted-key id="FA7929F83AD44C4590F6CC6815C71C0A4E0B8EDD">
+            <trusting group="net.java.dev.jna"/>
+            <trusting group="net.java.dev.jna" name="jna" version="5.13.0"/>
+         </trusted-key>
          <trusted-key id="FB11D4BB7B244678337AAD8BC7BF26D0BB617866" group="org.apache.maven"/>
          <trusted-key id="FC2C31FC25FEDE4E7AD0D18C2BFD7825A8984FBE" group="com.github.javaparser"/>
          <trusted-key id="FC411CD3CB7DCB0ABC9801058118B3BCDB1A5000" group="jakarta.xml.bind"/>
@@ -2141,6 +2156,11 @@
       <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.15.5">
          <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.15.5.pom">
             <sha256 value="d6c9d7560648ce1556784923e9649fdf2bcab27394b57d9da4ef17166e1e4cae" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.21.2">
+         <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.21.2.pom">
+            <sha256 value="3fd0fea9e834e34bb385fcdccd1586f96dcbe8799e94d71a75343b61d5f9737c" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
    </components>
