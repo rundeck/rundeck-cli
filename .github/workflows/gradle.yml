@@ -106,7 +106,7 @@ jobs:
       run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet --dependency-verification off) && echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
     - name: Get RPM Version
       id: get_rpm_version
-      run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet --dependency-verification off | sed 's/-/./') && echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      run: VERSION=$(./gradlew currentVersion -q -Prelease.quiet --dependency-verification off | sed 's/-/./g') && echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
     - name: Upload zip
       uses: actions/upload-artifact@v4
       with:
@@ -114,6 +114,7 @@ jobs:
         name: rd-${{ steps.get_version.outputs.VERSION }}.zip
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rd-${{ steps.get_version.outputs.VERSION }}.zip
+        if-no-files-found: error
     - name: Upload rpm
       uses: actions/upload-artifact@v4
       with:
@@ -121,6 +122,7 @@ jobs:
         name: rundeck.rpm
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rundeck-cli-${{ steps.get_rpm_version.outputs.VERSION }}-1.noarch.rpm
+        if-no-files-found: error
     - name: Upload deb
       uses: actions/upload-artifact@v4
       with:
@@ -128,6 +130,7 @@ jobs:
         name: rundeck.deb
         # Directory containing files to upload
         path: rd-cli-tool/build/distributions/rundeck-cli_${{ steps.get_rpm_version.outputs.VERSION }}-1_all.deb
+        if-no-files-found: error
     - name: Upload all-jar
       uses: actions/upload-artifact@v4
       with:
@@ -135,6 +138,7 @@ jobs:
         name: rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
         # Directory containing files to upload
         path: rd-cli-tool/build/libs/rundeck-cli-${{ steps.get_version.outputs.VERSION }}-all.jar
+        if-no-files-found: error
     - name: Upload api-lib
       uses: actions/upload-artifact@v4
       with:
@@ -142,6 +146,7 @@ jobs:
         name: rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
         # Directory containing files to upload
         path: rd-api-client/build/libs/rd-api-client-${{ steps.get_version.outputs.VERSION }}.jar
+        if-no-files-found: error
     - name: Upload rd-cli-lib
       uses: actions/upload-artifact@v4
       with:
@@ -149,3 +154,4 @@ jobs:
         name: rd-cli-lib-${{ steps.get_version.outputs.VERSION }}.jar
         # Directory containing files to upload
         path: rd-cli-lib/build/libs/rd-cli-lib-${{ steps.get_version.outputs.VERSION }}.jar
+        if-no-files-found: error
