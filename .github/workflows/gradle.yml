@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Get Fetch Tags
@@ -35,7 +35,7 @@ jobs:
         jdk: ["openjdk-17-jdk","openjdk-21-jdk", "openjdk-25-jdk" ]
         ubuntu: ["22.04"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: mkdirs
@@ -58,7 +58,7 @@ jobs:
         # UBI 8 repos ship 17 and 21; java-25-openjdk is not available on el8
         jdk: ["java-17-openjdk","java-21-openjdk"]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: mkdirs
@@ -77,7 +77,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v7
       with:
         fetch-depth: 0
     - name: Get Fetch Tags
