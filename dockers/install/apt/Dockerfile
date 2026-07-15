@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM ubuntu:26.04
 
 RUN apt-get -y update
 RUN apt-get -y install apt-transport-https curl
