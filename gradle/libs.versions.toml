@@ -17,7 +17,7 @@ jacksonDatabind = "2.22.1"
 picocli = "4.7.7"
 snakeYaml = "2.0"
 rundeck = "6.1.0-SNAPSHOT"
-testcontainers = "1.21.4"
+testcontainers = "2.0.5"
 commonsCompress = "1.28.0"
 # Spock mocks of concrete classes; not always pulled transitively with groovy-all 4.x
 byteBuddy = "1.18.11"
