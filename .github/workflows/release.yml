@@ -49,7 +49,7 @@ jobs:
             ./rd-cli-lib/build/libs/rd-cli-lib-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish to PackageCloud
+      - name: Publish Maven artifacts to PackageCloud
         run: |
           if [ -z "$PKGCLD_WRITE_TOKEN" ]; then
             echo "::error::PKGCLD_WRITE_TOKEN must be set to publish to PackageCloud"
@@ -110,7 +110,7 @@ jobs:
       - name: Install packagecloud.io CLI
         run: |
           gem install package_cloud
-      - name: Publish to Packagecloud
+      - name: Publish OS packages (deb/rpm) to PackageCloud
         run: |
             package_cloud push pagerduty/rundeck/any/any rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb
             package_cloud push pagerduty/rundeckpro/any/any rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb
