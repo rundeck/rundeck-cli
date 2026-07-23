@@ -11,7 +11,7 @@
       "gradle/verification-keyring.keys"
     ]
   },
-  "allowedPostUpgradeCommands": [
+  "allowedCommands": [
     "^./gradlew --write-verification-metadata pgp,sha256 --export-keys help$"
   ]
 }
