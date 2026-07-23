@@ -1,6 +1,18 @@
 {
   "extends": [
-    "config:base",
+    "config:recommended"
     ":preserveSemverRanges"
+  ],
+  "postUpgradeTasks": {
+    "commands": [
+      "./gradlew --write-verification-metadata pgp,sha256 --export-keys help"
+    ],
+    "fileFilters": [
+      "gradle/verification-metadata.xml",
+      "gradle/verification-keyring.keys"
+    ]
+  },
+  "allowedCommands": [
+    "^./gradlew --write-verification-metadata pgp,sha256 --export-keys help$"
   ]
 }

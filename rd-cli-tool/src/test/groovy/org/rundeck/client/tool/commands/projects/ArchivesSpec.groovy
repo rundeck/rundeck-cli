@@ -161,7 +161,7 @@ class ArchivesSpec extends Specification {
         sut.asyncImportStatus(project)
 
         then:
-        1 * api.asyncImportProjectArchiveStatus(project.project) >> Calls.response(new AsyncProjectImportStatus())
+        1 * api.asyncImportProjectArchiveStatus(project.getProject()) >> Calls.response(new AsyncProjectImportStatus())
         0 * api._(*_)
     }
 

@@ -9,15 +9,17 @@ jobs:
   publish:
 
     runs-on: ubuntu-22.04
+    env:
+      PKGCLD_REPO_URL: ${{ vars.PKGCLD_REPO_URL }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
           submodules: true
-      - name: Set up JDK 11
-        uses: actions/setup-java@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'zulu'
       - name: Build with Gradle
         run: ./gradlew build
@@ -32,7 +34,7 @@ jobs:
         env:
           SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
           RUNDECK_SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          RUNDECK_SIGNING_KEYID: signing@rundeck.com
+          RUNDECK_SIGNING_KEYID: rundeck-core+signing@pagerduty.com
       - name: Release
         run: |
           gh release create \
@@ -47,21 +49,68 @@ jobs:
             ./rd-cli-lib/build/libs/rd-cli-lib-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Publish to Maven Central
-        run: ./gradlew -PsigningKey=${SIGNING_KEY_B64} -PsigningPassword=${SIGNING_PASSWORD} -PsonatypeUsername=${SONATYPE_USERNAME} -PsonatypePassword=${SONATYPE_PASSWORD} publishToSonatype closeAndReleaseSonatypeStagingRepository
+      - name: Publish Maven artifacts to PackageCloud
+        run: |
+          if [ -z "$PKGCLD_WRITE_TOKEN" ]; then
+            echo "::error::PKGCLD_WRITE_TOKEN must be set to publish to PackageCloud"
+            exit 1
+          fi
+          ./gradlew publishAllPublicationsToPackageCloudRepository
         env:
-          SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-          SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+          PKGCLD_WRITE_TOKEN: ${{ secrets.PKGCLD_WRITE_TOKEN }}
+      - name: Sign and upload GPG signatures to PackageCloud
+        run: |
+          set -e
+          VERSION="${GITHUB_REF_NAME#v}"
+          BASE_URL="${PKGCLD_REPO_URL:-https://packagecloud.io/pagerduty/rundeck/maven2}"
+
+          echo "$SIGNING_KEY_B64" | base64 -d | gpg --batch --yes --import
+          KEY_ID=$(gpg --list-secret-keys --with-colons | awk -F: '/^sec/ {print $5; exit}')
+
+          sign_and_upload() {
+            local FILE="$1"
+            local REMOTE_URL="$2"
+            gpg --batch --yes --pinentry-mode loopback --passphrase "$SIGNING_PASSWORD" --default-key "$KEY_ID" --detach-sign --armor "$FILE"
+            curl -sf -H "Authorization: Bearer ${PKGCLD_WRITE_TOKEN}" \
+              -X PUT --data-binary "@${FILE}.asc" \
+              "${REMOTE_URL}"
+          }
+
+          # rd-api-client: local build/libs filenames already match the published artifactId
+          RD_API_CLIENT_URL="${BASE_URL}/org/rundeck/api/rd-api-client/${VERSION}"
+          sign_and_upload "rd-api-client/build/libs/rd-api-client-${VERSION}.jar" "${RD_API_CLIENT_URL}/rd-api-client-${VERSION}.jar.asc"
+          sign_and_upload "rd-api-client/build/libs/rd-api-client-${VERSION}-sources.jar" "${RD_API_CLIENT_URL}/rd-api-client-${VERSION}-sources.jar.asc"
+          sign_and_upload "rd-api-client/build/libs/rd-api-client-${VERSION}-javadoc.jar" "${RD_API_CLIENT_URL}/rd-api-client-${VERSION}-javadoc.jar.asc"
+          sign_and_upload "rd-api-client/build/publications/rd-api-client/pom-default.xml" "${RD_API_CLIENT_URL}/rd-api-client-${VERSION}.pom.asc"
+
+          # rd-cli-lib: local build/libs filenames already match the published artifactId
+          RD_CLI_LIB_URL="${BASE_URL}/org/rundeck/cli/rd-cli-lib/${VERSION}"
+          sign_and_upload "rd-cli-lib/build/libs/rd-cli-lib-${VERSION}.jar" "${RD_CLI_LIB_URL}/rd-cli-lib-${VERSION}.jar.asc"
+          sign_and_upload "rd-cli-lib/build/libs/rd-cli-lib-${VERSION}-sources.jar" "${RD_CLI_LIB_URL}/rd-cli-lib-${VERSION}-sources.jar.asc"
+          sign_and_upload "rd-cli-lib/build/libs/rd-cli-lib-${VERSION}-javadoc.jar" "${RD_CLI_LIB_URL}/rd-cli-lib-${VERSION}-javadoc.jar.asc"
+          sign_and_upload "rd-cli-lib/build/publications/rd-cli-lib/pom-default.xml" "${RD_CLI_LIB_URL}/rd-cli-lib-${VERSION}.pom.asc"
+
+          # rd-cli-tool: archivesBaseName is 'rundeck-cli', so LOCAL filenames differ from the
+          # published Maven artifactId 'rd-cli-tool' -- sign the local files, upload under the
+          # published coordinate name.
+          RD_CLI_TOOL_URL="${BASE_URL}/org/rundeck/rd/rd-cli-tool/${VERSION}"
+          sign_and_upload "rd-cli-tool/build/libs/rundeck-cli-${VERSION}.jar" "${RD_CLI_TOOL_URL}/rd-cli-tool-${VERSION}.jar.asc"
+          sign_and_upload "rd-cli-tool/build/libs/rundeck-cli-${VERSION}-sources.jar" "${RD_CLI_TOOL_URL}/rd-cli-tool-${VERSION}-sources.jar.asc"
+          sign_and_upload "rd-cli-tool/build/libs/rundeck-cli-${VERSION}-javadoc.jar" "${RD_CLI_TOOL_URL}/rd-cli-tool-${VERSION}-javadoc.jar.asc"
+          sign_and_upload "rd-cli-tool/build/libs/rundeck-cli-${VERSION}-all.jar" "${RD_CLI_TOOL_URL}/rd-cli-tool-${VERSION}-all.jar.asc"
+          sign_and_upload "rd-cli-tool/build/publications/rd-cli-tool/pom-default.xml" "${RD_CLI_TOOL_URL}/rd-cli-tool-${VERSION}.pom.asc"
+        env:
           SIGNING_KEY_B64: ${{ secrets.SIGNING_KEY_B64 }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          PKGCLD_WRITE_TOKEN: ${{ secrets.PKGCLD_WRITE_TOKEN }}
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.2
+          ruby-version: 2.7.8
       - name: Install packagecloud.io CLI
         run: |
           gem install package_cloud
-      - name: Publish to Packagecloud
+      - name: Publish OS packages (deb/rpm) to PackageCloud
         run: |
             package_cloud push pagerduty/rundeck/any/any rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb
             package_cloud push pagerduty/rundeckpro/any/any rd-cli-tool/build/distributions/rundeck-cli_*-1_all.deb

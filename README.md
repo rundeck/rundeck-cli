@@ -56,21 +56,26 @@ rundeck-cli-VERS-all.jar (shadowed jar)
 
     ./gradlew build
 
-## Build Lenient
+## Update Dependency Verification
 
-Build with lenient mode dependency verification
+Dependency verification is automatically updated by Renovate when dependencies change.
 
-	./gradlew build --dependency-verification lenient
+**If you manually update a dependency**, you must regenerate verification metadata:
 
-## Write Dependency Verification
+    ./gradlew --write-verification-metadata pgp,sha256 --export-keys help
 
-Update dependency verification metadata and export any new keys.
+This updates both `gradle/verification-metadata.xml` (trusted keys) and `gradle/verification-keyring.keys` (PGP keyring). Commit both files.
 
-    ./gradlew --write-verification-metadata sha256 --refresh-dependencies help
-    ./gradlew --write-verification-metadata pgp,sha256 --refresh-keys --export-keys --refresh-dependencies help
-    rm gradle/verification-keyring.gpg
-    git add gradle/verification-metadata.xml
-    git add gradle/verification-keyring.keys
+**Rundeck `X.Y.Z-SNAPSHOT`:** If that command fails with `Multiple entries with same key` for `org.rundeck:rundeck-authz-*`, Gradle merged two different snapshot builds in one run. Use one of these approaches:
+
+1. Temporarily set `rundeck` in `gradle/libs.versions.toml` to a **released** version on Maven Central (see `org.rundeck:rundeck-authz-core` there), run the command above, then restore `X.Y.Z-SNAPSHOT` and **re-apply** the Sonatype snapshot checksum blocks for the authz JARs/modules (or copy them from a prior commit).
+2. Add or adjust checksums and trusted keys **by hand** for the new snapshot build, using artifacts from [Sonatype snapshots](https://central.sonatype.com/repository/maven-snapshots/).
+
+## Refresh Dependency Verification Keys
+
+After a failed build.
+
+    ./gradlew --write-verification-metadata pgp,sha256 --refresh-keys --export-keys help
 
 ## Install Locally
 
