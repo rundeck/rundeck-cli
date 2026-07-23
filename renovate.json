@@ -1,17 +1,49 @@
 {
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "config:recommended"
   ],
-  "postUpgradeTasks": {
-    "commands": [
-      "./gradlew --write-verification-metadata pgp,sha256 --export-keys help"
-    ],
-    "fileFilters": [
-      "gradle/verification-metadata.xml",
-      "gradle/verification-keyring.keys"
-    ]
-  },
-  "allowedCommands": [
-    "^./gradlew --write-verification-metadata pgp,sha256 --export-keys help$"
+  "minimumReleaseAge": "7 days",
+  "dependencyDashboard": true,
+  "packageRules": [
+    {
+      "description": "Defer major updates to manual selection from the Dependency Dashboard",
+      "matchUpdateTypes": ["major"],
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Group low-risk GitHub Actions updates",
+      "matchManagers": ["github-actions"],
+      "groupName": "github actions"
+    },
+    {
+      "description": "Spock's version suffix encodes the Groovy variant; review lockstep with groovy",
+      "matchPackageNames": ["/^org\\.spockframework:/"],
+      "groupName": "spock (manual review - groovy variant)",
+      "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Group routine Gradle minor/patch dependency bumps",
+      "matchManagers": ["gradle"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "gradle minor/patch dependencies"
+    },
+    {
+      "description": "org.rundeck artifacts also need the Sonatype Central snapshots feed",
+      "matchPackageNames": ["/^org\\.rundeck[.:]/"],
+      "registryUrls": [
+        "https://repo1.maven.org/maven2/",
+        "https://central.sonatype.com/repository/maven-snapshots/"
+      ]
+    },
+    {
+      "description": "Gradle plugin marker artifacts resolve via the Gradle Plugin Portal",
+      "matchManagers": ["gradle"],
+      "matchDepTypes": ["plugin"],
+      "registryUrls": [
+        "https://plugins.gradle.org/m2/",
+        "https://repo1.maven.org/maven2/"
+      ]
+    }
   ]
 }

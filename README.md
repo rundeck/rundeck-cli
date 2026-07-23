@@ -58,7 +58,10 @@ rundeck-cli-VERS-all.jar (shadowed jar)
 
 ## Update Dependency Verification
 
-Dependency verification is automatically updated by Renovate when dependencies change.
+Dependency verification is automatically updated on Renovate branches by the
+`Update dependency verification` GitHub Actions workflow. That workflow needs a
+repository secret `RENOVATE_PUSH_TOKEN` (fine-grained PAT with Contents read/write)
+so its commit can trigger CI.
 
 **If you manually update a dependency**, you must regenerate verification metadata:
 

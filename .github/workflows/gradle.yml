@@ -2,6 +2,10 @@ name: CI Tests
 
 on: [push]
 
+concurrency:
+  group: ci-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   build-verify:
     runs-on: ubuntu-latest
