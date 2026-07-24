@@ -118,7 +118,7 @@ class ArchivesSpec extends Specification {
 
         then:
         InputError exc = thrown()
-        exc.message.contains('Cannot use --include-webhooks or --regenerate-tokens with API < 34')
+        exc.message.contains('Cannot include webhooks (--include-webhooks or --include webhooks) or use --regenerate-tokens with API < 34')
 
         where:
         apiversion = 33
@@ -220,7 +220,7 @@ class ArchivesSpec extends Specification {
 
         then:
         InputError exc = thrown()
-        exc.message.contains('Cannot use --include-node-sources with API < 38')
+        exc.message.contains('Cannot include node sources (--include-node-sources or --include nodeSources) with API < 38')
 
         where:
         apiversion = 37
@@ -320,7 +320,7 @@ class ArchivesSpec extends Specification {
 
         then:
         InputError exc = thrown()
-        exc.message.contains('Cannot use --include-webhooks with --remove-webhooks-uuids with API < 47')
+        exc.message.contains('Cannot include webhooks (--include-webhooks or --include webhooks) with --remove-webhooks-uuids with API < 47')
 
         where:
         apiversion = 46

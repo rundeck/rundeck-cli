@@ -192,13 +192,13 @@ public class Archives extends BaseCommand  {
         }
         Set<ImportFlags> importFlags = opts.calculateFlags();
         if ((importFlags.contains(ImportFlags.webhooks) || opts.isWhkRegenAuthTokens()) && getRdTool().getClient().getApiVersion() < 34) {
-            throw new InputError(String.format("Cannot use --include-webhooks or --regenerate-tokens with API < 34 (currently: %s)", getRdTool().getClient().getApiVersion()));
+            throw new InputError(String.format("Cannot include webhooks (--include-webhooks or --include webhooks) or use --regenerate-tokens with API < 34 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
         if ((importFlags.contains(ImportFlags.webhooks) && opts.isWhkRegenUuid()) && getRdTool().getClient().getApiVersion() < 47) {
-            throw new InputError(String.format("Cannot use --include-webhooks with --remove-webhooks-uuids with API < 47 (currently: %s)", getRdTool().getClient().getApiVersion()));
+            throw new InputError(String.format("Cannot include webhooks (--include-webhooks or --include webhooks) with --remove-webhooks-uuids with API < 47 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
         if ((importFlags.contains(ImportFlags.nodeSources)) && getRdTool().getClient().getApiVersion() < 38) {
-            throw new InputError(String.format("Cannot use --include-node-sources with API < 38 (currently: %s)", getRdTool().getClient().getApiVersion()));
+            throw new InputError(String.format("Cannot include node sources (--include-node-sources or --include nodeSources) with API < 38 (currently: %s)", getRdTool().getClient().getApiVersion()));
         }
         RequestBody body = RequestBody.create(input, Client.MEDIA_TYPE_ZIP);
 
