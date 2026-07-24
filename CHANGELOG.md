@@ -1,5 +1,7 @@
 ## Unreleased
 
+* Add `--include` option to `projects archives import`, matching the equivalent option on `projects archives export`, to select archive contents (`executions,config,acl,scm,webhooks,nodeSources`) with a single flag instead of individual `--include-*` booleans. Existing `--include-*`/`--noExecutions` flags still work when `--include` is not specified. [PR #561](https://github.com/rundeck/rundeck-cli/pull/561)
+
 ## 3.0.0
 
 * **Breaking change**: Java 17 or later is required to run the CLI and to build from source. Java 11 is no longer supported.
