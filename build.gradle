@@ -17,7 +17,6 @@
 plugins {
     id 'base'
     alias(libs.plugins.axion)
-    alias(libs.plugins.nexusPublish)
 }
 import java.util.regex.Matcher
 import pl.allegro.tech.build.axion.release.domain.VersionConfig
@@ -31,8 +30,8 @@ subprojects{
     apply plugin: "java-library"
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         withJavadocJar()
         withSourcesJar()
     }
@@ -165,9 +164,15 @@ allprojects {
     project.version = scmVersion.version
     ext.rpmVersion=project.version.replaceAll('-', '.')
 
+    // Central and Sonatype snapshots before mavenLocal() so org.rundeck artifacts are not
+    // shadowed by stale ~/.m2 copies (avoids duplicate verification / metadata merge issues).
     repositories {
-        mavenLocal()
         mavenCentral()
+        maven {
+            url = uri('https://central.sonatype.com/repository/maven-snapshots/')
+            mavenContent { snapshotsOnly() }
+        }
+        mavenLocal()
     }
 }
 
@@ -212,13 +217,3 @@ tasks.register('changeLog'){
 }
 
 
-nexusPublishing {
-    packageGroup = 'org.rundeck'
-    repositories {
-        sonatype{
-            stagingProfileId = '67d196ce5bae'
-            nexusUrl.set(uri("https://ossrh-staging-api.central.sonatype.com/service/local/"))
-            snapshotRepositoryUrl.set(uri("https://central.sonatype.com/repository/maven-snapshots/"))
-        }
-    }
-}
