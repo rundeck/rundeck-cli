@@ -384,6 +384,55 @@ class ArchivesSpec extends Specification {
         useIncludeFlags << [true, false]
     }
 
+    def "regen webhook uuids without including webhooks is allowed below api 47"() {
+
+        def api = Mock(RundeckApi)
+
+        def retrofit = new Retrofit.Builder()
+                .addConverterFactory(JacksonConverterFactory.create())
+                .baseUrl('http://example.com/fake/').build()
+        def out = Mock(CommandOutput)
+        def client = new Client(api, retrofit, null, null, 46, true, null)
+
+        def rdapp = Mock(RdApp) {
+            getClient() >> client
+            getAppConfig() >> Mock(RdClientConfig)
+        }
+        def rdTool = new RdToolImpl(rdapp)
+
+        def sut = new Archives()
+        sut.rdOutput = out
+        sut.rdTool = rdTool
+        def opts = new Archives.ArchiveImportOpts()
+        opts.components = ['test-comp'].toSet()
+        opts.componentOptions = ['test-comp.key': 'value']
+        opts.file = tempFile
+        opts.project = 'Aproj'
+        opts.whkRegenUuid = true
+
+        when:
+        def result = sut.importArchive(opts)
+
+        then:
+        1 * api.importProjectArchive(
+                'Aproj',
+                _,
+                _,
+                _,
+                _,
+                _,
+                false,
+                _,
+                true,
+                _,
+                _,
+                _,
+                _
+        ) >> Calls.response(new ProjectImportStatus(successful: true))
+        0 * api._(*_)
+        result == 0
+    }
+
     def "import include via direct flags"() {
 
         def api = Mock(RundeckApi)
