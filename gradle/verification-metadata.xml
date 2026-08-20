@@ -2,7 +2,7 @@
 <verification-metadata xmlns="https://schema.gradle.org/dependency-verification" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.3.xsd">
    <configuration>
       <verify-metadata>true</verify-metadata>
-      <verify-signatures>false</verify-signatures>
+      <verify-signatures>true</verify-signatures>
       <trusted-artifacts>
          <trust group="org.rundeck" version=".*-SNAPSHOT$" regex="true" reason="Rundeck core snapshots are republished with new checksums on every build; verified via trusted repository instead of pinned checksums"/>
       </trusted-artifacts>
@@ -40,6 +40,7 @@
             <trusting group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
          </trusted-key>
          <trusted-key id="1D0A8B5E77C678A7C724445ABF984B4145EA13F7" group="com.squareup" name="javapoet" version="1.13.0"/>
+         <trusted-key id="1D217F8475EEE9F19AB8DD6B793FD5751A0F0780" group="com.squareup.retrofit2"/>
          <trusted-key id="2655176F748FD83725B4805FF2A01147D830C125">
             <trusting group="com.github.docker-java"/>
             <trusting group="org.testcontainers"/>
@@ -53,7 +54,10 @@
             <trusting group="org.apache.commons"/>
          </trusted-key>
          <trusted-key id="2E3A1AFFE42B5F53AF19F780BCF4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
-         <trusted-key id="2FC53E6B1F681184F4CCD637F5C81DE10A0B8ECC" group="org.yaml" name="snakeyaml" version="2.5"/>
+         <trusted-key id="2FC53E6B1F681184F4CCD637F5C81DE10A0B8ECC">
+            <trusting group="org.yaml" name="snakeyaml" version="2.5"/>
+            <trusting group="org.yaml" name="snakeyaml" version="2.6"/>
+         </trusted-key>
          <trusted-key id="31FAE244A81D64507B47182E1B2718089CE964B8" group="com.thoughtworks.qdox" name="qdox" version="1.12.1"/>
          <trusted-key id="32118CF76C9EC5D918E54967CA80D1F0EB6CA4BA" group="org.apache.maven" name="maven-archiver" version="3.5.1"/>
          <trusted-key id="34441E504A937F43EB0DAEF96A65176A0FB1CD0B">
@@ -76,6 +80,7 @@
          </trusted-key>
          <trusted-key id="53C935821AA6A755BD337DB53595395EB3D8E1BA" group="org.apache.logging.log4j"/>
          <trusted-key id="594ABF33ED102DF53F83CE43CFBB963ECC4F9C3A" group="org.apache.sshd"/>
+         <trusted-key id="60200AC4AE761F1614D6C46766D68DAA073BE985" group="org.slf4j"/>
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC" group="com.sun.activation"/>
          <trusted-key id="6DE9B8077FBB2F8A019F4904BD17A565509DEE20" group="com.github.javaparser"/>
          <trusted-key id="6E7F910017655622A899639EE7D88DB8427DE651" group="org.testcontainers"/>
@@ -90,6 +95,7 @@
          <trusted-key id="79EB1EAE95F376AB9629429DE2D0F3764B54797F">
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.21.2"/>
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.21.3"/>
          </trusted-key>
          <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org.bouncycastle"/>
          <trusted-key id="7C669810892CBD3148FA92995B05CCDE140C2876" group="org.eclipse.jgit"/>
@@ -122,7 +128,10 @@
          <trusted-key id="CE8075A251547BEE249BC151A2115AE15F6B8B72" group="org.apache.commons" name="commons-compress" version="1.21"/>
          <trusted-key id="D066F5C471D32A00D244F99D6ED0F678B90EB06E" group="com.github.johnrengelman" name="shadow" version="8.1.1"/>
          <trusted-key id="D196A5E3E70732EEB2E5007F1861C322C56014B2" group="commons-codec"/>
-         <trusted-key id="D421D1DF4570BFB13E485D0BF95ADD0A28D2F139" group="org.projectlombok" name="lombok" version="1.18.42"/>
+         <trusted-key id="D421D1DF4570BFB13E485D0BF95ADD0A28D2F139">
+            <trusting group="org.projectlombok" name="lombok" version="1.18.42"/>
+            <trusting group="org.projectlombok" name="lombok" version="1.18.46"/>
+         </trusted-key>
          <trusted-key id="D4D4DEC73685B1A135E45E5C47933D17F199636B" group="com.github.mwiede" name="jsch" version="0.2.24"/>
          <trusted-key id="D790F72EA8FD39551012B62DCF9F3090CE4CB752" group="org.abego.treelayout" name="org.abego.treelayout.core" version="1.0.3"/>
          <trusted-key id="DBD744ACE7ADE6AA50DD591F66B50994442D2D40">
@@ -137,6 +146,7 @@
             <trusting group="org.codehaus.plexus"/>
             <trusting group="^org[.]apache($|([.].*))" regex="true"/>
          </trusted-key>
+         <trusted-key id="F4DD59C90148BDC52BEB90A4530AA5F25C25011F" group="commons-codec"/>
          <trusted-key id="FA1703B1D287CAEA3A60F931E0130A3ED5A2079E" group="org.webjars" name="jquery" version="3.5.1"/>
          <trusted-key id="FA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A">
             <trusting group="org.codehaus.plexus"/>
@@ -1351,6 +1361,7 @@
       </component>
       <component group="org.apache.commons" name="commons-parent" version="98">
          <artifact name="commons-parent-98.pom">
+            <pgp value="F4DD59C90148BDC52BEB90A4530AA5F25C25011F"/>
             <sha256 value="d40318527f56033e0ff0789971cc38c856aa99a685eea11270814e7f1eda9fba" origin="Generated by Gradle"/>
          </artifact>
       </component>
@@ -3142,7 +3153,7 @@
       </component>
       <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.21.3">
          <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.21.3.pom">
-            <sha256 value="e48304884421922c8fff0fdb701ab46f8e67e2b333db785a05a4c3d9cf0c9cf7" origin="Generated by Gradle"/>
+            <sha256 value="e48304884421922c8fff0fdb701ab46f8e67e2b333db785a05a4c3d9cf0c9cf7" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
    </components>
