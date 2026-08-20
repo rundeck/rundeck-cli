@@ -2,7 +2,7 @@
 <verification-metadata xmlns="https://schema.gradle.org/dependency-verification" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://schema.gradle.org/dependency-verification https://schema.gradle.org/dependency-verification/dependency-verification-1.3.xsd">
    <configuration>
       <verify-metadata>true</verify-metadata>
-      <verify-signatures>false</verify-signatures>
+      <verify-signatures>true</verify-signatures>
       <trusted-artifacts>
          <trust group="org.rundeck" version=".*-SNAPSHOT$" regex="true" reason="Rundeck core snapshots are republished with new checksums on every build; verified via trusted repository instead of pinned checksums"/>
       </trusted-artifacts>
@@ -40,6 +40,7 @@
             <trusting group="com.github.zafarkhaja" name="java-semver" version="0.9.0"/>
          </trusted-key>
          <trusted-key id="1D0A8B5E77C678A7C724445ABF984B4145EA13F7" group="com.squareup" name="javapoet" version="1.13.0"/>
+         <trusted-key id="1D217F8475EEE9F19AB8DD6B793FD5751A0F0780" group="com.squareup.retrofit2"/>
          <trusted-key id="2655176F748FD83725B4805FF2A01147D830C125">
             <trusting group="com.github.docker-java"/>
             <trusting group="org.testcontainers"/>
@@ -53,7 +54,10 @@
             <trusting group="org.apache.commons"/>
          </trusted-key>
          <trusted-key id="2E3A1AFFE42B5F53AF19F780BCF4173966770193" group="org.jetbrains" name="annotations" version="13.0"/>
-         <trusted-key id="2FC53E6B1F681184F4CCD637F5C81DE10A0B8ECC" group="org.yaml" name="snakeyaml" version="2.5"/>
+         <trusted-key id="2FC53E6B1F681184F4CCD637F5C81DE10A0B8ECC">
+            <trusting group="org.yaml" name="snakeyaml" version="2.5"/>
+            <trusting group="org.yaml" name="snakeyaml" version="2.6"/>
+         </trusted-key>
          <trusted-key id="31FAE244A81D64507B47182E1B2718089CE964B8" group="com.thoughtworks.qdox" name="qdox" version="1.12.1"/>
          <trusted-key id="32118CF76C9EC5D918E54967CA80D1F0EB6CA4BA" group="org.apache.maven" name="maven-archiver" version="3.5.1"/>
          <trusted-key id="34441E504A937F43EB0DAEF96A65176A0FB1CD0B">
@@ -76,6 +80,7 @@
          </trusted-key>
          <trusted-key id="53C935821AA6A755BD337DB53595395EB3D8E1BA" group="org.apache.logging.log4j"/>
          <trusted-key id="594ABF33ED102DF53F83CE43CFBB963ECC4F9C3A" group="org.apache.sshd"/>
+         <trusted-key id="60200AC4AE761F1614D6C46766D68DAA073BE985" group="org.slf4j"/>
          <trusted-key id="6DD3B8C64EF75253BEB2C53AD908A43FB7EC07AC" group="com.sun.activation"/>
          <trusted-key id="6DE9B8077FBB2F8A019F4904BD17A565509DEE20" group="com.github.javaparser"/>
          <trusted-key id="6E7F910017655622A899639EE7D88DB8427DE651" group="org.testcontainers"/>
@@ -90,6 +95,7 @@
          <trusted-key id="79EB1EAE95F376AB9629429DE2D0F3764B54797F">
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.15.5"/>
             <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.21.2"/>
+            <trusting group="pl.allegro.tech.build" name="axion-release-plugin" version="1.21.3"/>
          </trusted-key>
          <trusted-key id="7B121B76A7ED6CE6E60AD51784E913A8E3A748C0" group="org.bouncycastle"/>
          <trusted-key id="7C669810892CBD3148FA92995B05CCDE140C2876" group="org.eclipse.jgit"/>
@@ -122,7 +128,10 @@
          <trusted-key id="CE8075A251547BEE249BC151A2115AE15F6B8B72" group="org.apache.commons" name="commons-compress" version="1.21"/>
          <trusted-key id="D066F5C471D32A00D244F99D6ED0F678B90EB06E" group="com.github.johnrengelman" name="shadow" version="8.1.1"/>
          <trusted-key id="D196A5E3E70732EEB2E5007F1861C322C56014B2" group="commons-codec"/>
-         <trusted-key id="D421D1DF4570BFB13E485D0BF95ADD0A28D2F139" group="org.projectlombok" name="lombok" version="1.18.42"/>
+         <trusted-key id="D421D1DF4570BFB13E485D0BF95ADD0A28D2F139">
+            <trusting group="org.projectlombok" name="lombok" version="1.18.42"/>
+            <trusting group="org.projectlombok" name="lombok" version="1.18.46"/>
+         </trusted-key>
          <trusted-key id="D4D4DEC73685B1A135E45E5C47933D17F199636B" group="com.github.mwiede" name="jsch" version="0.2.24"/>
          <trusted-key id="D790F72EA8FD39551012B62DCF9F3090CE4CB752" group="org.abego.treelayout" name="org.abego.treelayout.core" version="1.0.3"/>
          <trusted-key id="DBD744ACE7ADE6AA50DD591F66B50994442D2D40">
@@ -137,6 +146,7 @@
             <trusting group="org.codehaus.plexus"/>
             <trusting group="^org[.]apache($|([.].*))" regex="true"/>
          </trusted-key>
+         <trusted-key id="F4DD59C90148BDC52BEB90A4530AA5F25C25011F" group="commons-codec"/>
          <trusted-key id="FA1703B1D287CAEA3A60F931E0130A3ED5A2079E" group="org.webjars" name="jquery" version="3.5.1"/>
          <trusted-key id="FA77DCFEF2EE6EB2DEBEDD2C012579464D01C06A">
             <trusting group="org.codehaus.plexus"/>
@@ -867,6 +877,14 @@
             <sha256 value="e0f3269fa23de0c83130c5659f5f9514cc5422c0bcdf45f2eae004a78b9fca34" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="commons-codec" name="commons-codec" version="1.22.0">
+         <artifact name="commons-codec-1.22.0.jar">
+            <sha256 value="d164fe79f262c32d9b18a0b5b2d317d1c27653d5e98fd2b998c24bf901c72ce4" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="commons-codec-1.22.0.pom">
+            <sha256 value="d9a565d978faa69d2b1195fb1ec27e60f29e7feb09afb85adac78f280068f8fe" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="commons-codec" name="commons-codec" version="1.4">
          <artifact name="commons-codec-1.4.jar">
             <sha256 value="6aa4234c74f3a1035751a25822545867c8c3727125a642b6e049665d1863631b" origin="Generated by Gradle"/>
@@ -1124,6 +1142,14 @@
             <sha256 value="98b62ae6ff280d747fb359fc42e48fed113d45bc3729a823dc30b8308a806645" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="net.java.dev.jna" name="jna" version="5.19.1">
+         <artifact name="jna-5.19.1.jar">
+            <sha256 value="4fb141dd8ef6b0585ffceea4bc49602fbc6312fa977e2c488794ea3e6aafecae" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="jna-5.19.1.pom">
+            <sha256 value="911b754a03b66af0fed2bbdfdc3a86807360dd036ad3b481ef5162c685e456bf" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="net.java.dev.jna" name="jna-platform" version="4.1.0">
          <artifact name="jna-platform-4.1.0.jar">
             <sha256 value="f91ba7c0f26c34f04bf57d2ae30d4b19f906e7bb1de90eb3e1f4fdbf45d0c541" origin="Generated by Gradle"/>
@@ -1138,6 +1164,14 @@
          </artifact>
          <artifact name="jna-platform-5.18.1.pom">
             <sha256 value="39d538a9599a4474770838865ed42cfa3e6b3d13086cb1e577b8bb43148d1a65" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="net.java.dev.jna" name="jna-platform" version="5.19.1">
+         <artifact name="jna-platform-5.19.1.jar">
+            <sha256 value="3b3864f5b449e9c3c24b16861524b622b086563f44e0cd8384c8efc5a6052f82" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="jna-platform-5.19.1.pom">
+            <sha256 value="3e9603f6f0e7a49c88378d2a82bcaf53e33ad67dbc90a8d5a27e09a9736fce50" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.abego.treelayout" name="org.abego.treelayout.core" version="1.0.3">
@@ -1176,6 +1210,11 @@
       <component group="org.apache" name="apache" version="35">
          <artifact name="apache-35.pom">
             <sha256 value="ea297dcd114136e8b8e8b630230d52a76c2fc69f6c5db25d672b1857000728b8" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.apache" name="apache" version="37">
+         <artifact name="apache-37.pom">
+            <sha256 value="524ec4787aff73af6b3a9fafa154c7f1881b648299b663fdbfcadda1286f2353" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.apache" name="apache" version="4">
@@ -1318,6 +1357,12 @@
       <component group="org.apache.commons" name="commons-parent" version="85">
          <artifact name="commons-parent-85.pom">
             <sha256 value="d189ff2c0027e96bb65d31e6f227ed2af966169b36af1e973dd5ba08926dc7b5" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.apache.commons" name="commons-parent" version="98">
+         <artifact name="commons-parent-98.pom">
+            <pgp value="F4DD59C90148BDC52BEB90A4530AA5F25C25011F"/>
+            <sha256 value="d40318527f56033e0ff0789971cc38c856aa99a685eea11270814e7f1eda9fba" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.apache.groovy" name="groovy" version="4.0.32">
@@ -1643,6 +1688,11 @@
             <sha256 value="2dec621e1e21bf3c98f2e07045476543dcee0ce392bd39219efa9aad5912f08c" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache.sshd" name="sshd" version="2.19.0">
+         <artifact name="sshd-2.19.0.pom">
+            <sha256 value="f0325c97f48f42dc09d79890c7dc8d2c66b8e679131e34da14de475d4ecf889a" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.apache.sshd" name="sshd-osgi" version="2.10.0">
          <artifact name="sshd-osgi-2.10.0.jar">
             <sha256 value="90c50ae43863e577b5a908abee1ba02b1baa86305eeb602abbad821518cb1725" origin="Generated by Gradle"/>
@@ -1659,6 +1709,14 @@
             <sha256 value="f4fda27ad9047cf6b76e3d0610b5215f008840abc3b8768e90185384552579e7" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.apache.sshd" name="sshd-osgi" version="2.19.0">
+         <artifact name="sshd-osgi-2.19.0.jar">
+            <sha256 value="0b6b9371c6a97430390b84c23c58f4470927a747e74704a0ca7d19a09a66fe37" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="sshd-osgi-2.19.0.pom">
+            <sha256 value="200b55155385f911ce92d590a311c957fe72455e44dfc64730d5d7dd2195af07" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.apache.sshd" name="sshd-sftp" version="2.10.0">
          <artifact name="sshd-sftp-2.10.0.jar">
             <sha256 value="af28d7d059eeeac3080a58d98bc75d23186cead52b9aa7c92763c2ee7b966a4c" origin="Generated by Gradle"/>
@@ -1673,6 +1731,14 @@
          </artifact>
          <artifact name="sshd-sftp-2.16.0.pom">
             <sha256 value="08dfc24789d422bba049adb0c16defc9a5b60d1ecee05e592722731376939865" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.apache.sshd" name="sshd-sftp" version="2.19.0">
+         <artifact name="sshd-sftp-2.19.0.jar">
+            <sha256 value="a3ad30d2feba9fad589c7ad9117fcd9d332823697d59eb424fe2902f4d805575" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="sshd-sftp-2.19.0.pom">
+            <sha256 value="a609c2e7d8d1938f88ccb6e9df527b734feee0f331d0306b9c3017836af397a6" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.apiguardian" name="apiguardian-api" version="1.1.2">
@@ -1715,6 +1781,14 @@
             <sha256 value="f0cde246487e52de36709785ba2fd2571747d18a446007eed8dfb5d691ec989c" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.bouncycastle" name="bcpg-jdk18on" version="1.84">
+         <artifact name="bcpg-jdk18on-1.84.jar">
+            <sha256 value="c0e6303a0d7589040f400950ecee87a14b81312e84ed15e5390ebb0c4566ddab" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="bcpg-jdk18on-1.84.pom">
+            <sha256 value="242b539c62307360866140fd6f728eb7b011a854ad45ff4367dc8352d3a19e30" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.bouncycastle" name="bcpkix-jdk18on" version="1.76">
          <artifact name="bcpkix-jdk18on-1.76.jar">
             <sha256 value="935a388854c329f9a6f32708f30c90045d2f91294fa687281273145d4cf9834a" origin="Generated by Gradle"/>
@@ -1729,6 +1803,14 @@
          </artifact>
          <artifact name="bcpkix-jdk18on-1.81.pom">
             <sha256 value="826297085c365472f3d45cb1e2cc73ca5d38878bc84108f054597afbf5903ee2" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.bouncycastle" name="bcpkix-jdk18on" version="1.84">
+         <artifact name="bcpkix-jdk18on-1.84.jar">
+            <sha256 value="c87f16ed9e5ec61bc94151e9f3646ac44e50cd448121ce84367fa4b7ec7ec1bb" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="bcpkix-jdk18on-1.84.pom">
+            <sha256 value="c1281ed5eaf8f3e405557e7a5205cb6f3cdf753f84de9b1a815c75ebdeb9992a" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.bouncycastle" name="bcprov-jdk15on" version="1.69">
@@ -1755,6 +1837,14 @@
             <sha256 value="20816d580b3e98d1900a71aca819ec9ecec78a6a4a37e7a3c0c6c2793903943f" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.bouncycastle" name="bcprov-jdk18on" version="1.84">
+         <artifact name="bcprov-jdk18on-1.84.jar">
+            <sha256 value="64d6c5a6121fcd927152dd182cbed39afe0fda641a970d9bcc0c9cb1858b2731" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="bcprov-jdk18on-1.84.pom">
+            <sha256 value="ce7abb4a91ba5d2a73fdf17a3df4762e3605a0392cc7983ef2f1ae16cd384cc3" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.bouncycastle" name="bcutil-jdk18on" version="1.76">
          <artifact name="bcutil-jdk18on-1.76.jar">
             <sha256 value="1a65ad02958223a3f31373bd72eea942cafd1b1877a3ed0b492c2487e77c3c27" origin="Generated by Gradle"/>
@@ -1769,6 +1859,14 @@
          </artifact>
          <artifact name="bcutil-jdk18on-1.81.pom">
             <sha256 value="6543ee9dd6c554e6fdbefc39cc74f4258f452d10b253a5d6cd78548bf9492dd4" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.bouncycastle" name="bcutil-jdk18on" version="1.84">
+         <artifact name="bcutil-jdk18on-1.84.jar">
+            <sha256 value="b374e16963421fb9cfb01cc20d7ad8fd2f8b8188e3eef0ec0a8965e245f7619a" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="bcutil-jdk18on-1.84.pom">
+            <sha256 value="0b0cb81a65ee1737d51286350a9e56489336b8f9908198febd0494243eea2978" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.codehaus" name="codehaus-parent" version="4">
@@ -2058,6 +2156,14 @@
             <sha256 value="5f0c0e2cdbd6d788302fa84b28d0c538a06334ba0812fc64252050907222d30b" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.eclipse.jgit" name="org.eclipse.jgit" version="7.7.1.202607240634-r">
+         <artifact name="org.eclipse.jgit-7.7.1.202607240634-r.jar">
+            <sha256 value="591abcc84955a6ad3363ec904bda79cf14427706efb4e06ffeb7bc3601503980" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="org.eclipse.jgit-7.7.1.202607240634-r.pom">
+            <sha256 value="e1cf4786ec8dde207fe6587f410f25c2c6877be3a1dd3099d36742dea810516b" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.eclipse.jgit" name="org.eclipse.jgit-parent" version="4.0.1.201506240215-r">
          <artifact name="org.eclipse.jgit-parent-4.0.1.201506240215-r.pom">
             <sha256 value="fe5c093914e733fc935dfe9717572c613881688df39fda9da650bdedf611bf3e" origin="Generated by Gradle"/>
@@ -2071,6 +2177,11 @@
       <component group="org.eclipse.jgit" name="org.eclipse.jgit-parent" version="7.4.0.202509020913-r">
          <artifact name="org.eclipse.jgit-parent-7.4.0.202509020913-r.pom">
             <sha256 value="d53714ed2649b8173288f65405e54fbef751656b91480c5459f4dc0192002472" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.eclipse.jgit" name="org.eclipse.jgit-parent" version="7.7.1.202607240634-r">
+         <artifact name="org.eclipse.jgit-parent-7.7.1.202607240634-r.pom">
+            <sha256 value="3bf44a29ef6e901983c7b31f19091a684ba674fea7d5add5df317d0efa09c687" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.eclipse.jgit" name="org.eclipse.jgit.gpg.bc" version="6.7.0.202309050840-r">
@@ -2089,6 +2200,14 @@
             <sha256 value="d543fc184401976eff7f2813e0010bffc31999f47ac1409c8c3cc5a6b19fa155" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.eclipse.jgit" name="org.eclipse.jgit.gpg.bc" version="7.7.1.202607240634-r">
+         <artifact name="org.eclipse.jgit.gpg.bc-7.7.1.202607240634-r.jar">
+            <sha256 value="071a8849146e235f1abbce7ad142949b6fd4337bd4adfea1be724d07a67ae0d8" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="org.eclipse.jgit.gpg.bc-7.7.1.202607240634-r.pom">
+            <sha256 value="74087b8fb141a582ee561c940d923fd51d9821303e5a146dc85bb7c0637d547a" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.eclipse.jgit" name="org.eclipse.jgit.ssh.apache" version="6.7.0.202309050840-r">
          <artifact name="org.eclipse.jgit.ssh.apache-6.7.0.202309050840-r.jar">
             <sha256 value="5ed6cd6217366c0d032c9a61ff9ccd2e081f0c2561cc8c0f409eb4c5e93bb392" origin="Generated by Gradle"/>
@@ -2103,6 +2222,14 @@
          </artifact>
          <artifact name="org.eclipse.jgit.ssh.apache-7.4.0.202509020913-r.pom">
             <sha256 value="398fc1b0650f9c6e281eb353946fe9334bed28e0835d3e8771ccca92d64f477c" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.eclipse.jgit" name="org.eclipse.jgit.ssh.apache" version="7.7.1.202607240634-r">
+         <artifact name="org.eclipse.jgit.ssh.apache-7.7.1.202607240634-r.jar">
+            <sha256 value="9c24d287cb0aea60c93b22c17d3572924fdbff7ec8b0f99033475676de880e38" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="org.eclipse.jgit.ssh.apache-7.7.1.202607240634-r.pom">
+            <sha256 value="ee2d2f45699b0caaef5a70b5ccd17e82e34a9737fa4838b4244d069c7299c109" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.eclipse.jgit" name="org.eclipse.jgit.ssh.jsch" version="6.7.0.202309050840-r">
@@ -2121,6 +2248,14 @@
             <sha256 value="e50cd38dd78a093ac84db05775d9c4b9a0fa8bead64359f999a72fd5cd2bdd0a" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.eclipse.jgit" name="org.eclipse.jgit.ssh.jsch" version="7.7.1.202607240634-r">
+         <artifact name="org.eclipse.jgit.ssh.jsch-7.7.1.202607240634-r.jar">
+            <sha256 value="70544455a962e32be3432d67c5bb4681921615181ba081116084d6ae9590728d" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="org.eclipse.jgit.ssh.jsch-7.7.1.202607240634-r.pom">
+            <sha256 value="d97abeb69cc063535c5a1ce91cf96ca2741bb86c628866a96f7ffca0d12e8698" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.eclipse.jgit" name="org.eclipse.jgit.ui" version="6.7.0.202309050840-r">
          <artifact name="org.eclipse.jgit.ui-6.7.0.202309050840-r.jar">
             <sha256 value="4ef02775ba7952af7a159433ec69f8a25fcc70443997dcdb9ca4af017e384305" origin="Generated by Gradle"/>
@@ -2135,6 +2270,14 @@
          </artifact>
          <artifact name="org.eclipse.jgit.ui-7.4.0.202509020913-r.pom">
             <sha256 value="52b6087f0f48f2bb03928610382b25ec3121a7a0d7e67e29d6ef4bbe4c50f271" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.eclipse.jgit" name="org.eclipse.jgit.ui" version="7.7.1.202607240634-r">
+         <artifact name="org.eclipse.jgit.ui-7.7.1.202607240634-r.jar">
+            <sha256 value="696e698788959e9eba2acb0ea0ab1926d91b95dd2ae15a9fabb9c26f1f00a441" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="org.eclipse.jgit.ui-7.7.1.202607240634-r.pom">
+            <sha256 value="45a1638b9324157882e7e1ad8ff63828571fba38f0ba85baf080d4b5e4509337" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.glassfish.jaxb" name="jaxb-bom" version="2.3.9">
@@ -2241,6 +2384,14 @@
             <sha256 value="dcfbc8e8bf32cd67a7efadd91d31152bce9870911d6ec50878f4fdb6e03e70e2" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-stdlib" version="2.4.10">
+         <artifact name="kotlin-stdlib-2.4.10.jar">
+            <sha256 value="4ec0293bc3751423b203f1d8493251c57c42e73eb6377a6b8560d0974ff0a6df" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="kotlin-stdlib-2.4.10.module">
+            <sha256 value="1c04a98f1200c8705d015df08977211589eecbc87cf1c4c6d28a92682fe8446e" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.jetbrains.kotlin" name="kotlin-stdlib-common" version="1.5.31">
          <artifact name="kotlin-stdlib-common-1.5.31.jar">
             <sha256 value="dfa2a18e26b028388ee1968d199bf6f166f737ab7049c25a5e2da614404e22ad" origin="Generated by Gradle"/>
@@ -2265,6 +2416,11 @@
       <component group="org.jetbrains.kotlin" name="kotlin-stdlib-common" version="2.1.0">
          <artifact name="kotlin-stdlib-common-2.1.0.module">
             <sha256 value="2b9a5ae785f8513a93f8cec3f6e5e07f8b1766f8497b3a487f3441a251d67563" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-stdlib-common" version="2.4.10">
+         <artifact name="kotlin-stdlib-common-2.4.10.module">
+            <sha256 value="5daf7edcd6d6305d0b0121be597a9d50496babfd2990bdf6b08fd70025a94dd1" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.jetbrains.kotlin" name="kotlin-stdlib-jdk7" version="1.5.31">
@@ -2296,6 +2452,14 @@
             <sha256 value="06fbc14ecb14a0af47b5a3f8d34763f4933d5cba5a3d245045bfe2f2bdb91b1e" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-stdlib-jdk7" version="2.4.10">
+         <artifact name="kotlin-stdlib-jdk7-2.4.10.jar">
+            <sha256 value="e7a8fe7cacf3b9c838f6b3fcb26dfdd41f844551a3ba67fd3f959a0d9d5c0bef" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="kotlin-stdlib-jdk7-2.4.10.pom">
+            <sha256 value="924d4d5d53bc09bc8d03c262319dd01b7fd876d41f4cfe3096f585c42ff6aa48" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.jetbrains.kotlin" name="kotlin-stdlib-jdk8" version="1.5.31">
          <artifact name="kotlin-stdlib-jdk8-1.5.31.jar">
             <sha256 value="b548f7767aacf029d2417e47440742bd6d3ebede19b60386e23554ce5c4c5fdc" origin="Generated by Gradle"/>
@@ -2323,6 +2487,14 @@
          </artifact>
          <artifact name="kotlin-stdlib-jdk8-2.1.0.pom">
             <sha256 value="e762b8c45690ae8a6a35df584f54be9c9da65885e61a905426aeafca5937e1ce" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.jetbrains.kotlin" name="kotlin-stdlib-jdk8" version="2.4.10">
+         <artifact name="kotlin-stdlib-jdk8-2.4.10.jar">
+            <sha256 value="08346b7f4cfba40c1139161c9f30b68199f425cecf3b63de67838063f34a05c7" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="kotlin-stdlib-jdk8-2.4.10.pom">
+            <sha256 value="3b4fd7c04d7395cafe7e1e1dee849261bfe03c68d05459418cb35605750cda27" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.junit" name="junit-bom" version="5.10.2">
@@ -2664,6 +2836,14 @@
             <sha256 value="7ad59bc0e23437b8535af63ffdb3f74c75f8eab8734db2531628be1863b5fa9f" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.rundeck" name="rundeck-authz-api" version="6.1.0-20260803">
+         <artifact name="rundeck-authz-api-6.1.0-20260803.jar">
+            <sha256 value="e1bb4d6d9bcdc1a60095bb6927545a88f3c8a7546ac466c0269df74321240ecb" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="rundeck-authz-api-6.1.0-20260803.module">
+            <sha256 value="baa8ad371ef50ea31a7c56c347126ad54674d03f1aae8ad2a8fae2d6ab32ee1b" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.rundeck" name="rundeck-authz-core" version="4.17.6-20240402">
          <artifact name="rundeck-authz-core-4.17.6-20240402.jar">
             <sha256 value="ecdab84faf6c706cbef061bd9ea2f26e2449c3122e7fef8e8f41bdb1d0bef64f" origin="Generated by Gradle"/>
@@ -2672,12 +2852,28 @@
             <sha256 value="4367d6a2d8d246fe45df9eb2afdc9629cc9a7f61a67c7a2077c3ab388709418b" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.rundeck" name="rundeck-authz-core" version="6.1.0-20260803">
+         <artifact name="rundeck-authz-core-6.1.0-20260803.jar">
+            <sha256 value="ade99d9ad21894b3448b3acb186675ba6e50bcf6782541e6af980287082ec1ed" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="rundeck-authz-core-6.1.0-20260803.module">
+            <sha256 value="bc947a77b25ea25c18f628964543240d1553401d7a57ce78b3b3d85eef7c288b" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.rundeck" name="rundeck-authz-yaml" version="4.17.6-20240402">
          <artifact name="rundeck-authz-yaml-4.17.6-20240402.jar">
             <sha256 value="7a01e389c86d60dc2831db017884c642fdbbe9ad6947e1067517afe2592b7da4" origin="Generated by Gradle"/>
          </artifact>
          <artifact name="rundeck-authz-yaml-4.17.6-20240402.module">
             <sha256 value="443f8469e33a533fcb931db197b67166986bebc001ca31f2317af4156d1898eb" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.rundeck" name="rundeck-authz-yaml" version="6.1.0-20260803">
+         <artifact name="rundeck-authz-yaml-6.1.0-20260803.jar">
+            <sha256 value="5d022f6d5af3e696549e29a2d2c9896c74b3e4b17614af03f9e56fcd4792a900" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="rundeck-authz-yaml-6.1.0-20260803.module">
+            <sha256 value="8c842d2977457d5f3b1dfb6dd7ad2469ac0d8e688cc385f4ee0537ef4202fc4f" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.slf4j" name="jcl-over-slf4j" version="1.7.32">
@@ -2720,6 +2916,19 @@
             <sha256 value="afaf8e74019b230d3f56fdd7c93fb1070c0dca34f3d2d5ab5dea9fc616bd5ca4" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="org.slf4j" name="slf4j-api" version="2.0.18">
+         <artifact name="slf4j-api-2.0.18.jar">
+            <sha256 value="44508fd1576500688c790b190acdd16fec4f8c79a3e0b900afd70503cf055f55" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="slf4j-api-2.0.18.pom">
+            <sha256 value="6c2c7f2c02774cc2b7b619fbd2df7873cdad29718926e44754b87f70d1eb43cb" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.slf4j" name="slf4j-bom" version="2.0.18">
+         <artifact name="slf4j-bom-2.0.18.pom">
+            <sha256 value="9219aab601575126c4e66e1331eb2b0c6c17a330ac4d5a07e3cd11d580a0c12d" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="org.slf4j" name="slf4j-parent" version="1.7.2">
          <artifact name="slf4j-parent-1.7.2.pom">
             <sha256 value="1d8e084a6f2384ade42685332b52a0ece090478641dc14c0fa8c52e1e2984425" origin="Generated by Gradle"/>
@@ -2738,6 +2947,11 @@
       <component group="org.slf4j" name="slf4j-parent" version="1.7.5">
          <artifact name="slf4j-parent-1.7.5.pom">
             <sha256 value="c43bc5a022dbfd9de82be232dffe46208cbc7de12c14385b5da824e331e535bb" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
+      <component group="org.slf4j" name="slf4j-parent" version="2.0.18">
+         <artifact name="slf4j-parent-2.0.18.pom">
+            <sha256 value="0b3896bedad2c9ed9697edcbea1da0c54cd238a723583a81358a83bfb782e9fa" origin="Generated by Gradle"/>
          </artifact>
       </component>
       <component group="org.sonatype.oss" name="oss-parent" version="5">
@@ -2919,6 +3133,14 @@
             <sha256 value="935ef8f1f02752fca6bc4cb6a56a4c77be7a200230a3cd746d7ca05e9d6eca2e" origin="Generated by Gradle"/>
          </artifact>
       </component>
+      <component group="pl.allegro.tech.build" name="axion-release-plugin" version="1.21.3">
+         <artifact name="axion-release-plugin-1.21.3.jar">
+            <sha256 value="4f4219d23652f9c89480b3aff1e204ee02df5fe6fde95e28df6f61ac40b9a32f" origin="Generated by Gradle"/>
+         </artifact>
+         <artifact name="axion-release-plugin-1.21.3.module">
+            <sha256 value="fc3827652c05f431fc22d85d17a950e3dd0b1aa198b06707f15de45b3e731a21" origin="Generated by Gradle"/>
+         </artifact>
+      </component>
       <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.15.5">
          <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.15.5.pom">
             <sha256 value="d6c9d7560648ce1556784923e9649fdf2bcab27394b57d9da4ef17166e1e4cae" origin="Generated by Gradle" reason="Artifact is not signed"/>
@@ -2927,6 +3149,11 @@
       <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.21.2">
          <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.21.2.pom">
             <sha256 value="3fd0fea9e834e34bb385fcdccd1586f96dcbe8799e94d71a75343b61d5f9737c" origin="Generated by Gradle" reason="Artifact is not signed"/>
+         </artifact>
+      </component>
+      <component group="pl.allegro.tech.build.axion-release" name="pl.allegro.tech.build.axion-release.gradle.plugin" version="1.21.3">
+         <artifact name="pl.allegro.tech.build.axion-release.gradle.plugin-1.21.3.pom">
+            <sha256 value="e48304884421922c8fff0fdb701ab46f8e67e2b333db785a05a4c3d9cf0c9cf7" origin="Generated by Gradle" reason="Artifact is not signed"/>
          </artifact>
       </component>
    </components>
