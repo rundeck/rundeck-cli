@@ -105,12 +105,18 @@ public class RundeckClient {
             writeTimeout(config.getLong(ENV_HTTP_WRITE_TIMEOUT, null));
             timeout(config.getLong(ENV_HTTP_TIMEOUT, null));
             callTimeout(config.getLong(ENV_HTTP_CALL_TIMEOUT, null));
-            bypassUrl(config.getString(ENV_BYPASS_URL, null));
             insecureSSL(config.getBool(ENV_INSECURE_SSL, false));
             insecureSSLHostname(config.getBool(ENV_INSECURE_SSL_HOSTNAME, false));
             alternateSSLHostname(config.getString(ENV_ALT_SSL_HOSTNAME, null));
             allowVersionDowngrade(config.getBool(RD_API_DOWNGRADE, false));
+            // CrossOriginRedirectInterceptor must be added as a network interceptor before
+            // RedirectBypassInterceptor: OkHttp network interceptors see the response in the
+            // reverse of the order they were added, so adding this one first means it evaluates
+            // the redirect *after* RedirectBypassInterceptor has already rewritten the Location
+            // header to the app base URL, rather than blocking the original (cross-origin) bypass
+            // URL before it gets a chance to be rewritten.
             allowCrossOriginRedirect(config.getBool(ENV_ALLOW_CROSS_ORIGIN_REDIRECT, false));
+            bypassUrl(config.getString(ENV_BYPASS_URL, null));
             return this;
         }
 
