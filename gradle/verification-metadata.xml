@@ -60,6 +60,7 @@
          <trusted-key id="2FC53E6B1F681184F4CCD637F5C81DE10A0B8ECC">
             <trusting group="org.yaml" name="snakeyaml" version="2.5"/>
             <trusting group="org.yaml" name="snakeyaml" version="2.6"/>
+            <trusting group="org.yaml" name="snakeyaml" version="2.7"/>
          </trusted-key>
          <trusted-key id="31FAE244A81D64507B47182E1B2718089CE964B8" group="com.thoughtworks.qdox" name="qdox" version="1.12.1"/>
          <trusted-key id="32118CF76C9EC5D918E54967CA80D1F0EB6CA4BA" group="org.apache.maven" name="maven-archiver" version="3.5.1"/>
@@ -134,6 +135,7 @@
          <trusted-key id="D421D1DF4570BFB13E485D0BF95ADD0A28D2F139">
             <trusting group="org.projectlombok" name="lombok" version="1.18.42"/>
             <trusting group="org.projectlombok" name="lombok" version="1.18.46"/>
+            <trusting group="org.projectlombok" name="lombok" version="1.18.48"/>
          </trusted-key>
          <trusted-key id="D4D4DEC73685B1A135E45E5C47933D17F199636B" group="com.github.mwiede" name="jsch" version="0.2.24"/>
          <trusted-key id="D790F72EA8FD39551012B62DCF9F3090CE4CB752" group="org.abego.treelayout" name="org.abego.treelayout.core" version="1.0.3"/>
