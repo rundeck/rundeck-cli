@@ -12,14 +12,14 @@ shadow = "8.1.1"
 ospackage = "11.11.2"
 buildInfo = "0.9"
 buildConfig = "3.1.0"
-jacksonDatabind = "2.22.1"
+jacksonDatabind = "2.22.2"
 picocli = "4.7.7"
 snakeYaml = "2.6"
 rundeck = "6.1.0-20260803"
 testcontainers = "1.21.4"
 commonsCompress = "1.28.0"
 # Spock mocks of concrete classes; not always pulled transitively with groovy-all 4.x
-byteBuddy = "1.18.11"
+byteBuddy = "1.18.12"
 
 [libraries]
 
