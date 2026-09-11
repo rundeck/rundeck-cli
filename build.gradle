@@ -50,9 +50,9 @@ subprojects{
             resolutionStrategy {
                 force libs.commonsCompress
                 force 'org.jetbrains.kotlin:kotlin-stdlib:2.4.10'
-                force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.10'
-                force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.4.10'
-                force 'org.jetbrains.kotlin:kotlin-stdlib-common:2.4.10'
+                force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.4.20'
+                force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:2.4.20'
+                force 'org.jetbrains.kotlin:kotlin-stdlib-common:2.4.20'
             }
         }
 }
