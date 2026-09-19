@@ -106,7 +106,7 @@ jobs:
       - name: Install Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 4.0.6
+          ruby-version: 4.0.7
       - name: Install packagecloud.io CLI
         run: |
           gem install package_cloud
