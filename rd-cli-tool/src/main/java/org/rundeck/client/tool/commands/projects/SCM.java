@@ -120,7 +120,7 @@ public class SCM extends BaseCommand {
     }
 
     @CommandLine.Command(description = "Setup SCM Config for a Project")
-    public boolean setup(
+    public int setup(
             @CommandLine.Mixin BaseOpts opts,
             @CommandLine.Mixin TypeOptions typeOptions,
             @CommandLine.Mixin FileOptions fileOptions
@@ -151,14 +151,14 @@ public class SCM extends BaseCommand {
                 "Setup config Validation for file: " + fileOptions.getFile().getAbsolutePath(),
                 getRdTool().getAppConfig().isAnsiEnabled()
         )) {
-            return false;
+            return 2;
         }
 
         //otherwise check other error codes and fail if necessary
         ScmActionResult result = getRdTool().getClient().checkError(response);
 
 
-        return outputScmActionResult(getRdOutput(), result, "Setup");
+        return outputScmActionResult(getRdOutput(), result, "Setup") ? 0 : 1;
     }
 
     private boolean outputScmActionResult(final CommandOutput output, final ScmActionResult result, final String name) {

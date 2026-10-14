@@ -391,4 +391,42 @@ class SCMSpec extends Specification {
 
         result==1
     }
+
+    @Unroll
+    def "setup exit code #expected for #desc"() {
+        given:
+        def api = Mock(RundeckApi)
+        def rdTool = setupMock(api)
+        def out = rdTool.getRdApp().getOutput()
+        def scm = new SCM()
+        scm.rdTool = rdTool
+        scm.rdOutput = out
+
+        def baseopts = new SCM.BaseOpts()
+        baseopts.project = 'aproject'
+        baseopts.integration = 'import'
+        def typeOpts = new SCM.TypeOptions(type: 'git-import')
+        def tempFile = File.createTempFile('scm-setup', '.json')
+        tempFile.deleteOnExit()
+        tempFile.text = '{"config":{}}'
+        def fileOpts = new SCM.FileOptions(file: tempFile)
+
+        when:
+        def result = scm.setup(baseopts, typeOpts, fileOpts)
+
+        then:
+        1 * api.setupScmConfig('aproject', 'import', 'git-import', _) >> response
+        result == expected
+
+        where:
+        desc               | expected | response
+        'success'          | 0        | Calls.response(new ScmActionResult(success: true))
+        'failure'          | 1        | Calls.response(new ScmActionResult(success: false))
+        'validation error' | 2        | Calls.response(
+                Response.error(400, ResponseBody.create(
+                        '{"message":"Error parsing JSON","success":false}',
+                        Client.MEDIA_TYPE_JSON
+                ))
+        )
+    }
 }
