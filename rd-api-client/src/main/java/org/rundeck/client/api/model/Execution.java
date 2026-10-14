@@ -74,6 +74,9 @@ public class Execution {
     }
 
     private String shortened(final String description) {
+        if (null == description) {
+            return "";
+        }
         if (description.indexOf("\n") > 0) {
             String[] list = description.split("\\r?\\n");
             if (list.length > 1) {

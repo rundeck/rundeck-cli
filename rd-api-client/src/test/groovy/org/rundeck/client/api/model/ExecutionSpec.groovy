@@ -32,4 +32,15 @@ class ExecutionSpec extends Specification {
             true   | 'false'
             false  | 'true'
     }
+
+    def "get info map with null description"() {
+        given:
+            def e = new Execution(id: '1', href: 'http://no', description: null)
+            def config = Mock(RdClientConfig)
+        when:
+            def result = e.getInfoMap(config)
+        then:
+            result.id == '1'
+            result.description == ''
+    }
 }
