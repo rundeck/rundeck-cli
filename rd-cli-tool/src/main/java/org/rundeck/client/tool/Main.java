@@ -361,12 +361,17 @@ public class Main {
         setupFormat(builder, rd);
 
         boolean insecureSsl = rd.getBool(ENV_INSECURE_SSL, false);
+        boolean insecureSslHostname = rd.getBool(ENV_INSECURE_SSL_HOSTNAME, false);
         boolean insecureSslNoWarn = rd.getBool(ENV_INSECURE_SSL_NO_WARN, false);
         boolean allowCrossOriginRedirect = rd.getBool(ENV_ALLOW_CROSS_ORIGIN_REDIRECT, false);
         rd.setOutput(builder.finalOutput());
         if (insecureSsl && !insecureSslNoWarn) {
             rd.getOutput().warning(
                     "# WARNING: RD_INSECURE_SSL=true, no hostname or certificate trust verification will be performed");
+        }
+        if (insecureSslHostname && !insecureSsl && !insecureSslNoWarn) {
+            rd.getOutput().warning(
+                    "# WARNING: RD_INSECURE_SSL_HOSTNAME=true, server hostnames will not be verified against the certificate");
         }
         if (allowCrossOriginRedirect) {
             rd.getOutput().warning(
