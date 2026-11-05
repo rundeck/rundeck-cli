@@ -84,7 +84,7 @@ public class Retry extends BaseCommand implements Callable<Integer> {
                     }
                 } else if (key != null) {
                     String filepath = null;
-                    if (!rawOptions && part.charAt(0) == '@' && !isfile) {
+                    if (!rawOptions && part.startsWith("@") && !isfile) {
                         //file input
                         filepath = part.substring(1);
                         isfile = true;

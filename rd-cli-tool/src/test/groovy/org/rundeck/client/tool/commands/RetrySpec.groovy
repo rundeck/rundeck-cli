@@ -92,6 +92,33 @@ class RetrySpec extends Specification {
         0 * api._(*_)
         result==0
     }
+
+    def "run argstring accepts an empty option value"() {
+        given:
+        def api = Mock(RundeckApi)
+        RdTool rdTool = setupMock(api,24)
+        def out = Mock(CommandOutput)
+        Retry command = new Retry()
+        command.rdTool = rdTool
+        command.rdOutput = out
+
+        command.followOptions = new FollowOptions()
+        command.options = new RetryBaseOptions()
+        command.options.id = 'jobid1'
+        command.options.eid = 'eid'
+        command.options.commandString = ["-opt1", "", "-opt2", "val2"]
+
+        when:
+        def result = command.call()
+
+        then:
+        1 * api.retryJob('jobid1', 'eid', { JobRun runarg ->
+            runarg.options == ['opt1': '', 'opt2': 'val2']
+        }
+        ) >> Calls.response(new Execution(id: 123, description: ''))
+        0 * api._(*_)
+        result==0
+    }
     def "error on api version below 24"() {
         given:
         def api = Mock(RundeckApi)
