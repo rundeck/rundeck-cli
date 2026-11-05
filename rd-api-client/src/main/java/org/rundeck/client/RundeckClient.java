@@ -67,6 +67,15 @@ public class RundeckClient {
      */
     public static final String ENV_ALLOW_CROSS_ORIGIN_REDIRECT = "RD_ALLOW_CROSS_ORIGIN_REDIRECT";
     public static final int INSECURE_SSL_LOGGING = 2;
+    /**
+     * Headers whose values are replaced with "██" in debug HTTP logging, since they carry credentials
+     */
+    static final List<String> REDACTED_HEADERS = Collections.unmodifiableList(Arrays.asList(
+            "X-Rundeck-Auth-Token",
+            "Authorization",
+            "Cookie",
+            "Set-Cookie"
+    ));
     public static final long DEFAULT_READ_TIMEOUT_SECONDS = 10 * 60L;
     public static final long DEFAULT_CONN_TIMEOUT_SECONDS = 2 * 60L;
 
@@ -521,13 +530,30 @@ public class RundeckClient {
 
     private static Builder<?> configLogging(final Builder<?> builder, final int httpLogging) {
         if (httpLogging > 0) {
-            HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
+            HttpLoggingInterceptor logging = new HttpLoggingInterceptor(
+                    redactingLogger(HttpLoggingInterceptor.Logger.DEFAULT)
+            );
 
             logging.setLevel(HttpLoggingInterceptor.Level.values()[httpLogging %
                                                                    HttpLoggingInterceptor.Level.values().length]);
+            for (String header : REDACTED_HEADERS) {
+                logging.redactHeader(header);
+            }
             builder.okhttp.addNetworkInterceptor(logging);
         }
         return builder;
+    }
+
+    /**
+     * Wrap a logger so that the value of the form auth password field is masked in logged request bodies
+     *
+     * @param delegate logger to write to
+     * @return logger which masks the password value
+     */
+    static HttpLoggingInterceptor.Logger redactingLogger(final HttpLoggingInterceptor.Logger delegate) {
+        String passwordField = System.getProperty("rundeck.client.j_password", "j_password");
+        Pattern passwordParam = Pattern.compile("((?:^|&)" + Pattern.quote(passwordField) + "=)[^&]*");
+        return message -> delegate.log(passwordParam.matcher(message).replaceAll("$1██"));
     }
 
 
